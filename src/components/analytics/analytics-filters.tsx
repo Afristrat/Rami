@@ -31,7 +31,7 @@ export function AnalyticsFilters({ currentPeriod, currentPlatforms }: AnalyticsF
       params.delete("platforms")
     }
     startTransition(() => {
-      router.replace(`/analytics?${params.toString()}`)
+      router.replace(`/dashboard/analytics?${params.toString()}`)
     })
   }, [router, searchParams])
 
