@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState, useTransition } from "react"
+import React, { useCallback, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -144,14 +144,17 @@ function FormField({
   children: React.ReactNode
   hint?: string
 }) {
+  const fieldId = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
   return (
     <div className="space-y-1.5">
-      <Label className="text-sm font-medium">
+      <Label htmlFor={fieldId} className="text-sm font-medium">
         {label}
         {required && <span className="ml-0.5 text-destructive">*</span>}
       </Label>
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-      {children}
+      {React.isValidElement(children)
+        ? React.cloneElement(children as React.ReactElement<{ id?: string }>, { id: fieldId })
+        : children}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   )

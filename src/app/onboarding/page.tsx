@@ -24,7 +24,7 @@ export default async function OnboardingPage() {
   // Déjà onboardé → dashboard
   const existingUser = await db.query.users.findFirst({
     where: eq(users.id, user.id),
-  })
+  }).catch(() => null)
 
   if (existingUser?.onboarding_completed) {
     redirect("/dashboard")

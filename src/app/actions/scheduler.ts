@@ -37,13 +37,15 @@ async function getTenantId(): Promise<string | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-
-  const row = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-    columns: { tenant_id: true },
-  })
-
-  return row?.tenant_id ?? null
+  try {
+    const row = await db.query.users.findFirst({
+      where: eq(users.id, user.id),
+      columns: { tenant_id: true },
+    })
+    return row?.tenant_id ?? null
+  } catch {
+    return null
+  }
 }
 
 function mapPost(row: typeof posts.$inferSelect): ScheduledPost {

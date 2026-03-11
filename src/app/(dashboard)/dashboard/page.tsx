@@ -23,12 +23,12 @@ export default async function DashboardPage() {
 
   const dbUser = await db.query.users.findFirst({
     where: eq(users.id, user.id),
-  })
+  }).catch(() => null)
 
   const tenant = dbUser?.tenant_id
     ? await db.query.tenants.findFirst({
         where: eq(tenants.id, dbUser.tenant_id),
-      })
+      }).catch(() => null)
     : null
 
   const statsResult = await getSchedulerStats()

@@ -1,11 +1,17 @@
 import { defineConfig, devices } from '@playwright/test'
+import { config } from 'dotenv'
+import { resolve } from 'path'
+
+// Charger les variables d'environnement pour les fixtures Supabase
+config({ path: resolve(__dirname, '.env.local') })
+config({ path: resolve(__dirname, '.env.test') })
 
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
   reporter: [['html', { open: 'never' }], ['list']],
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
