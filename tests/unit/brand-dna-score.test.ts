@@ -1,4 +1,4 @@
-import { computeDnaScore } from "@/components/brand-dna/dna-score-badge"
+import { computeDnaScore } from "@/lib/utils/dna-score"
 import {
   brandDnaFormSchema,
   CAUSSE_COLORS,

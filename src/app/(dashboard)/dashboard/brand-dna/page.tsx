@@ -1,6 +1,8 @@
 import { Sparkles } from "lucide-react"
 import { getBrandDnaAction } from "@/lib/actions/brand-dna.actions"
 import { BrandDnaForm } from "@/components/brand-dna/brand-dna-form"
+import { computeDnaScore, getDnaScoreLevel } from "@/lib/utils/dna-score"
+import { CAUSSE_COLORS, VOICE_TONES, CULTURES, COGNITIVE_OBJECTIVES } from "@/lib/schemas/brand-dna.schema"
 
 export const metadata = {
   title: "Brand DNA — RAMI",
@@ -43,16 +45,78 @@ export default async function BrandDnaPage() {
           ))}
         </div>
 
-        {/* Indicateur Brand DNA existant */}
-        {initialData && (
-          <div className="mt-3 flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-3 py-2 dark:border-green-900/50 dark:bg-green-950/30">
-            <span className="size-2 shrink-0 rounded-full bg-green-500" />
-            <p className="text-xs font-medium text-green-800 dark:text-green-300">
-              Brand DNA actif —{" "}
-              <span className="font-bold">{initialData.brandName}</span>
-            </p>
-          </div>
-        )}
+        {/* Carte résumé Brand DNA existant */}
+        {initialData && (() => {
+          const score = computeDnaScore(initialData)
+          const level = getDnaScoreLevel(score)
+          const pct = Math.round(score * 100)
+          const primaryColor = CAUSSE_COLORS.find((c) => c.id === initialData.colorPrimary)
+          const secondaryColor = CAUSSE_COLORS.find((c) => c.id === initialData.colorSecondary)
+          const accentColor = CAUSSE_COLORS.find((c) => c.id === initialData.colorAccent)
+          const tone = VOICE_TONES.find((t) => t.id === initialData.voiceTone)
+          const culture = CULTURES.find((c) => c.id === initialData.primaryCulture)
+          const objective = COGNITIVE_OBJECTIVES.find((o) => o.id === initialData.objectifCognitif)
+
+          return (
+            <div className={`mt-4 rounded-xl border p-4 ${level.bgColor} ${level.borderColor}`}>
+              {/* Ligne supérieure : score + label */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 shrink-0 rounded-full bg-green-500" />
+                  <p className={`text-sm font-semibold ${level.color}`}>
+                    Brand DNA actif — <span className="font-bold">{initialData.brandName}</span>
+                  </p>
+                </div>
+                <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${level.color} border ${level.borderColor}`}>
+                  <span>{pct}%</span>
+                  <span className="font-medium opacity-80">{level.label}</span>
+                </div>
+              </div>
+
+              {/* Barre de progression */}
+              <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
+                <div
+                  className="h-full rounded-full bg-current transition-all"
+                  style={{ width: `${pct}%`, color: "inherit" }}
+                />
+              </div>
+
+              {/* Mini-récap : palette + ton + culture + objectif */}
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
+                {(primaryColor || secondaryColor || accentColor) && (
+                  <div className="flex items-center gap-1.5">
+                    {[primaryColor, secondaryColor, accentColor].map((c) =>
+                      c ? (
+                        <span
+                          key={c.id}
+                          title={c.name}
+                          className="size-3.5 rounded-full border border-white/30 shadow-sm"
+                          style={{ backgroundColor: c.hex }}
+                        />
+                      ) : null
+                    )}
+                    <span className="text-[11px] text-current opacity-70">Palette</span>
+                  </div>
+                )}
+                {tone && (
+                  <span className="text-[11px] text-current opacity-70">
+                    {tone.icon} {tone.label.split(" ")[0]}
+                  </span>
+                )}
+                {culture && (
+                  <span className="text-[11px] text-current opacity-70">
+                    {culture.flag} {culture.label}
+                  </span>
+                )}
+                {objective && (
+                  <span className="text-[11px] text-current opacity-70">
+                    {objective.icon} {objective.label.split(" ")[0]}
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        })()}
       </div>
 
       {/* Formulaire Brand DNA */}
