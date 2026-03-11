@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Stepper } from "@/components/ui/stepper"
 import { StepTenant } from "@/components/onboarding/StepTenant"
 import { StepLogo } from "@/components/onboarding/StepLogo"
@@ -17,21 +18,9 @@ interface WizardData {
 }
 
 const STEPS = [
-  {
-    id: 1,
-    label: "Votre espace",
-    description: "Nom & identifiant",
-  },
-  {
-    id: 2,
-    label: "Logo",
-    description: "Identité visuelle",
-  },
-  {
-    id: 3,
-    label: "Plan",
-    description: "Choisissez votre offre",
-  },
+  { id: 1, label: "Votre espace", description: "Nom & identifiant" },
+  { id: 2, label: "Logo", description: "Identité visuelle" },
+  { id: 3, label: "Plan", description: "Choisissez votre offre" },
 ]
 
 export function OnboardingWizard() {
@@ -61,6 +50,8 @@ export function OnboardingWizard() {
     setIsSubmitting(true)
     setSubmitError(null)
 
+    const loadingToast = toast.loading("Création de votre espace en cours…")
+
     try {
       const result = await createTenantOnboarding({
         name: data.name,
@@ -70,11 +61,15 @@ export function OnboardingWizard() {
       })
 
       if (!result.success) {
+        toast.dismiss(loadingToast)
+        toast.error(result.error ?? "Une erreur est survenue")
         setSubmitError(result.error ?? "Une erreur est survenue")
         setIsSubmitting(false)
       }
-      // Si success → redirect() est appelé côté serveur, le composant est démonté
+      // Si success → redirect() côté serveur, le composant est démonté
     } catch {
+      toast.dismiss(loadingToast)
+      toast.error("Une erreur inattendue est survenue. Veuillez réessayer.")
       setSubmitError("Une erreur inattendue est survenue. Veuillez réessayer.")
       setIsSubmitting(false)
     }
@@ -87,43 +82,49 @@ export function OnboardingWizard() {
         <Stepper steps={STEPS} currentStep={currentStep} />
       </div>
 
-      {/* Contenu de l'étape */}
-      <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
-        {currentStep === 1 && (
-          <StepTenant
-            defaultValues={
-              wizardData.name
-                ? { name: wizardData.name, slug: wizardData.slug }
-                : undefined
-            }
-            onNext={handleTenantNext}
-          />
-        )}
-
-        {currentStep === 2 && (
-          <StepLogo
-            tenantName={wizardData.name ?? ""}
-            defaultLogoUrl={wizardData.logoUrl}
-            onNext={handleLogoNext}
-            onBack={() => setCurrentStep(1)}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <>
-            {submitError && (
-              <div className="mb-6 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3">
-                <p className="text-sm text-destructive">{submitError}</p>
-              </div>
-            )}
-            <StepPlan
-              defaultPlan={(wizardData.plan as Plan) ?? "free"}
-              onSubmit={handlePlanSubmit}
-              onBack={() => setCurrentStep(2)}
-              isSubmitting={isSubmitting}
+      {/* Contenu de l'étape
+          key={currentStep} force le remount React → déclenche l'animation CSS */}
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div
+          key={currentStep}
+          className="p-6 sm:p-8 animate-in fade-in-0 slide-in-from-right-4 duration-300"
+        >
+          {currentStep === 1 && (
+            <StepTenant
+              defaultValues={
+                wizardData.name
+                  ? { name: wizardData.name, slug: wizardData.slug }
+                  : undefined
+              }
+              onNext={handleTenantNext}
             />
-          </>
-        )}
+          )}
+
+          {currentStep === 2 && (
+            <StepLogo
+              tenantName={wizardData.name ?? ""}
+              defaultLogoUrl={wizardData.logoUrl}
+              onNext={handleLogoNext}
+              onBack={() => setCurrentStep(1)}
+            />
+          )}
+
+          {currentStep === 3 && (
+            <>
+              {submitError && (
+                <div className="mb-6 rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3">
+                  <p className="text-sm text-destructive">{submitError}</p>
+                </div>
+              )}
+              <StepPlan
+                defaultPlan={(wizardData.plan as Plan) ?? "free"}
+                onSubmit={handlePlanSubmit}
+                onBack={() => setCurrentStep(2)}
+                isSubmitting={isSubmitting}
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {/* Indicateur de progression texte */}

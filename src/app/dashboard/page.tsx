@@ -1,10 +1,12 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { db } from "@/lib/db"
 import { users, tenants } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { Sparkles, LayoutDashboard } from "lucide-react"
+import { WelcomeToast } from "@/components/dashboard/WelcomeToast"
 
 export const metadata: Metadata = {
   title: "Tableau de bord — RAMI",
@@ -33,6 +35,11 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      {/* Toast de bienvenue post-onboarding */}
+      <Suspense>
+        <WelcomeToast tenantName={tenant?.name} />
+      </Suspense>
+
       {/* Header */}
       <header className="border-b border-border bg-card/50">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -62,7 +69,7 @@ export default async function DashboardPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Bienvenue, {user.user_metadata?.full_name ?? user.email} ! 🎉
+              Bienvenue, {user.user_metadata?.full_name ?? user.email} !
             </h1>
             {tenant && (
               <p className="mt-2 text-muted-foreground">

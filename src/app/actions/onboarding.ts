@@ -121,7 +121,7 @@ export async function createTenantOnboarding(
     }
   }
 
-  redirect("/dashboard")
+  redirect("/dashboard?welcome=1")
 }
 
 export async function checkSlugAvailability(
