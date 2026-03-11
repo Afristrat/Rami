@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition, useEffect } from "react"
-import { ChevronLeft, ChevronRight, CalendarDays, PanelRightOpen, PanelRightClose } from "lucide-react"
+import { ChevronLeft, ChevronRight, CalendarDays, FileEdit, PanelRightOpen, PanelRightClose } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { CalendarGrid } from "./CalendarGrid"
 import { CalendarSkeleton } from "./CalendarSkeleton"
 import { MonthSummary } from "./MonthSummary"
 import { UpcomingPostsList } from "./UpcomingPostsList"
+import { DraftPostsList } from "./DraftPostsList"
 import { PostDetailPanel } from "./PostDetailPanel"
 import { NewPostDialog } from "./NewPostDialog"
 import { getPostsForMonth, getUpcomingPosts } from "@/app/actions/scheduler"
@@ -24,22 +25,26 @@ const MONTH_NAMES = [
 interface SchedulerCalendarProps {
   initialPosts: ScheduledPost[]
   initialUpcoming: ScheduledPost[]
+  initialDrafts: ScheduledPost[]
 }
 
 export function SchedulerCalendar({
   initialPosts,
   initialUpcoming,
+  initialDrafts,
 }: SchedulerCalendarProps) {
   const today = new Date()
   const [year, setYear] = useState(today.getFullYear())
   const [month, setMonth] = useState(today.getMonth())
   const [calendarPosts, setCalendarPosts] = useState<ScheduledPost[]>(initialPosts)
   const [upcomingPosts, setUpcomingPosts] = useState<ScheduledPost[]>(initialUpcoming)
+  const [draftPosts, setDraftPosts] = useState<ScheduledPost[]>(initialDrafts)
   const [selectedPost, setSelectedPost] = useState<ScheduledPost | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isLoadingMonth, startMonthTransition] = useTransition()
   const [isLoadingUpcoming, startUpcomingTransition] = useTransition()
+  const [, startDraftTransition] = useTransition()
 
   // ── Navigation mois ────────────────────────────────────────────────────────
 
@@ -79,22 +84,48 @@ export function SchedulerCalendar({
       if (d.getFullYear() === year && d.getMonth() === month) {
         setCalendarPosts((prev) => [...prev, post])
       }
+      startUpcomingTransition(async () => {
+        const result = await getUpcomingPosts()
+        if (result.success) setUpcomingPosts(result.data)
+      })
+    } else {
+      // Post sans date → brouillon visible dans la section Brouillons
+      setDraftPosts((prev) => [...prev, post])
     }
-    startUpcomingTransition(async () => {
-      const result = await getUpcomingPosts()
-      if (result.success) setUpcomingPosts(result.data)
-    })
   }
 
   function handlePostDeleted(postId: string) {
     setCalendarPosts((prev) => prev.filter((p) => p.id !== postId))
     setUpcomingPosts((prev) => prev.filter((p) => p.id !== postId))
+    setDraftPosts((prev) => prev.filter((p) => p.id !== postId))
     if (selectedPost?.id === postId) setSelectedPost(null)
   }
 
   function handlePostUpdated(updated: ScheduledPost) {
-    setCalendarPosts((prev) => prev.map((p) => p.id === updated.id ? updated : p))
-    setUpcomingPosts((prev) => prev.map((p) => p.id === updated.id ? updated : p))
+    // Si le post a maintenant une date → le sortir des brouillons
+    if (updated.scheduled_at) {
+      setDraftPosts((prev) => prev.filter((p) => p.id !== updated.id))
+      const d = new Date(updated.scheduled_at)
+      if (d.getFullYear() === year && d.getMonth() === month) {
+        setCalendarPosts((prev) => {
+          const exists = prev.some((p) => p.id === updated.id)
+          return exists ? prev.map((p) => p.id === updated.id ? updated : p) : [...prev, updated]
+        })
+      } else {
+        setCalendarPosts((prev) => prev.filter((p) => p.id !== updated.id))
+      }
+      startDraftTransition(async () => {
+        const result = await getUpcomingPosts()
+        if (result.success) setUpcomingPosts(result.data)
+      })
+    } else {
+      // Pas de date → reste dans les brouillons
+      setDraftPosts((prev) => {
+        const exists = prev.some((p) => p.id === updated.id)
+        return exists ? prev.map((p) => p.id === updated.id ? updated : p) : [...prev, updated]
+      })
+      setCalendarPosts((prev) => prev.filter((p) => p.id !== updated.id))
+    }
     setSelectedPost(updated)
   }
 
@@ -270,6 +301,29 @@ export function SchedulerCalendar({
                   onDeleted={handlePostDeleted}
                 />
               </div>
+
+              {/* Brouillons */}
+              {draftPosts.length > 0 && (
+                <>
+                  <div className="flex items-center gap-2 pt-1">
+                    <FileEdit className="size-4 text-muted-foreground" />
+                    <h3 className="text-sm font-semibold text-foreground">
+                      Brouillons
+                    </h3>
+                    <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                      {draftPosts.length}
+                    </span>
+                  </div>
+                  <DraftPostsList
+                    posts={draftPosts}
+                    onDeleted={handlePostDeleted}
+                    onSelect={(post) => {
+                      setSelectedPost(post)
+                      if (!sidebarOpen) setSidebarOpen(true)
+                    }}
+                  />
+                </>
+              )}
             </>
           )}
         </div>
@@ -305,6 +359,26 @@ export function SchedulerCalendar({
                 onDeleted={handlePostDeleted}
               />
             </div>
+
+            {/* Brouillons mobile */}
+            {draftPosts.length > 0 && (
+              <>
+                <div className="flex items-center gap-2 pt-1">
+                  <FileEdit className="size-4 text-muted-foreground" />
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Brouillons
+                  </h3>
+                  <span className="ml-auto rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+                    {draftPosts.length}
+                  </span>
+                </div>
+                <DraftPostsList
+                  posts={draftPosts}
+                  onDeleted={handlePostDeleted}
+                  onSelect={setSelectedPost}
+                />
+              </>
+            )}
           </>
         )}
       </div>

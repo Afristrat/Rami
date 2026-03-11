@@ -296,6 +296,33 @@ export async function duplicatePost(postId: string): Promise<ActionResult<Schedu
   }
 }
 
+/**
+ * Récupère les posts sans date planifiée (brouillons, en révision, approuvés).
+ */
+export async function getDraftPosts(limit = 20): Promise<ActionResult<ScheduledPost[]>> {
+  const tenantId = await getTenantId()
+  if (!tenantId) return { success: false, error: "Non authentifié" }
+
+  try {
+    const rows = await db
+      .select()
+      .from(posts)
+      .where(
+        and(
+          eq(posts.tenant_id, tenantId),
+          sql`${posts.status} IN ('draft', 'review', 'approved')`,
+          sql`${posts.scheduled_at} IS NULL`
+        )
+      )
+      .orderBy(asc(posts.created_at))
+      .limit(limit)
+
+    return { success: true, data: rows.map(mapPost) }
+  } catch {
+    return { success: false, error: "Erreur lors du chargement des brouillons" }
+  }
+}
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface SchedulerStats {

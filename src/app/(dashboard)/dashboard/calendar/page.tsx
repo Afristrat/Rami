@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { SchedulerCalendar } from "@/components/scheduler/SchedulerCalendar"
-import { getPostsForMonth, getUpcomingPosts } from "@/app/actions/scheduler"
+import { getPostsForMonth, getUpcomingPosts, getDraftPosts } from "@/app/actions/scheduler"
 
 export const metadata: Metadata = {
   title: "Calendrier — RAMI",
@@ -18,13 +18,15 @@ export default async function CalendarPage() {
   const now = new Date()
 
   // Chargement des données côté serveur (SSR)
-  const [monthResult, upcomingResult] = await Promise.all([
+  const [monthResult, upcomingResult, draftsResult] = await Promise.all([
     getPostsForMonth(now.getFullYear(), now.getMonth()),
     getUpcomingPosts(20),
+    getDraftPosts(20),
   ])
 
   const initialPosts = monthResult.success ? monthResult.data : []
   const initialUpcoming = upcomingResult.success ? upcomingResult.data : []
+  const initialDrafts = draftsResult.success ? draftsResult.data : []
 
   return (
     <div className="flex h-full flex-col">
@@ -47,6 +49,7 @@ export default async function CalendarPage() {
         <SchedulerCalendar
           initialPosts={initialPosts}
           initialUpcoming={initialUpcoming}
+          initialDrafts={initialDrafts}
         />
       </div>
     </div>
