@@ -176,20 +176,29 @@ function PlatformCard({
         </div>
 
         {isConnected && connection?.accountName ? (
-          <p className="text-sm text-muted-foreground">
-            Compte :{" "}
-            <span className="font-medium text-foreground">{connection.accountName}</span>
-            {connection.connectedAt && (
-              <span className="ml-2 opacity-60">
-                · depuis le{" "}
-                {new Date(connection.connectedAt).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </span>
+          <div className="flex items-center gap-2 mt-0.5">
+            {connection.accountAvatar && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={connection.accountAvatar}
+                alt={connection.accountName}
+                className="size-5 rounded-full object-cover"
+              />
             )}
-          </p>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{connection.accountName}</span>
+              {connection.connectedAt && (
+                <span className="ml-2 opacity-60">
+                  · depuis le{" "}
+                  {new Date(connection.connectedAt).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              )}
+            </p>
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">{platform.description}</p>
         )}

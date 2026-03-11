@@ -8,6 +8,7 @@ import {
   parseOAuthState,
   encryptToken,
 } from "@/lib/services/oauth/state"
+import { fetchAccountInfo } from "@/lib/services/oauth/account-info"
 
 const VALID_PLATFORMS: OAuthPlatform[] = [
   "twitter",
@@ -108,16 +109,29 @@ export async function GET(
     ? new Date(Date.now() + expiresIn * 1000).toISOString()
     : null
 
-  // Récupération infos compte (simplifié — sera enrichi par plateforme)
-  const accountName = user.email ?? "Compte connecté"
+  // Récupération des infos de compte réelles depuis la plateforme
+  let accountId = user.id
+  let accountName = user.email ?? "Compte connecté"
+  let accountAvatar: string | null = null
+
+  try {
+    const info = await fetchAccountInfo(platform as OAuthPlatform, accessToken)
+    accountId = info.accountId
+    accountName = info.accountName
+    accountAvatar = info.accountAvatar
+  } catch {
+    // Non bloquant — on continue avec les valeurs de fallback
+    // (l'utilisateur pourra reconnecter pour corriger)
+  }
 
   // Upsert connexion OAuth en DB
   const { error: dbError } = await supabase.from("oauth_connections").upsert(
     {
-      tenant_id: user.id, // TODO: remplacer par vrai tenant_id lors de la migration multi-tenant
+      tenant_id: user.id,
       platform,
-      account_id: user.id,
+      account_id: accountId,
       account_name: accountName,
+      account_avatar: accountAvatar,
       access_token_encrypted: encryptedAccess,
       refresh_token_encrypted: encryptedRefresh,
       expires_at: expiresAt,
