@@ -7,11 +7,15 @@ export const metadata = {
 }
 
 interface Props {
-  searchParams: Promise<{ success?: string; error?: string }>
+  searchParams: Promise<{
+    success?: string
+    error?: string
+    disconnected?: string
+  }>
 }
 
 export default async function ConnectionsPage({ searchParams }: Props) {
-  const { success, error } = await searchParams
+  const { success, error, disconnected } = await searchParams
   const { data: connections } = await getConnectionsAction()
 
   return (
@@ -28,9 +32,14 @@ export default async function ConnectionsPage({ searchParams }: Props) {
           Compte connecté avec succès.
         </div>
       )}
+      {disconnected === "true" && (
+        <div className="rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
+          Compte déconnecté. L&apos;accès a été révoqué.
+        </div>
+      )}
       {error && (
         <div className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          Erreur de connexion :{" "}
+          Erreur :{" "}
           <span className="font-medium">{error.replace(/_/g, " ")}</span>.
           Veuillez réessayer.
         </div>

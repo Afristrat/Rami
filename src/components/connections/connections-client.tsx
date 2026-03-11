@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { CheckCircle2, AlertCircle, ExternalLink, RefreshCw, Unplug } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { disconnectConnectionAction, type OAuthConnection } from "@/lib/actions/connections.actions"
+import type { OAuthConnection } from "@/lib/actions/connections.actions"
 import {
   TwitterXIcon,
   LinkedInIcon,
@@ -113,8 +114,13 @@ function PlatformCard({
   platform: Platform
   connection?: OAuthConnection
 }) {
+  const router = useRouter()
   const [loading, setLoading] = React.useState(false)
-  const status: ConnectionStatus = connection?.status ?? "disconnected"
+  // État optimiste : masque la carte comme "déconnecté" avant le rechargement
+  const [optimisticDisconnected, setOptimisticDisconnected] = React.useState(false)
+
+  const rawStatus: ConnectionStatus = connection?.status ?? "disconnected"
+  const status: ConnectionStatus = optimisticDisconnected ? "disconnected" : rawStatus
   const isConnected = status === "connected"
 
   const oauthPath = `/api/oauth/${platform.id}/authorize`
@@ -124,10 +130,20 @@ function PlatformCard({
   }
 
   async function handleDisconnect() {
-    if (!connection?.id) return
+    if (!connection) return
     setLoading(true)
-    await disconnectConnectionAction(connection.id)
-    setLoading(false)
+    // Mise à jour optimiste immédiate
+    setOptimisticDisconnected(true)
+    try {
+      // Appel POST qui révoque le token côté plateforme puis met à jour la DB
+      await fetch(`/api/oauth/${platform.id}/disconnect`, { method: "POST" })
+      router.refresh()
+    } catch {
+      // Rollback si erreur réseau
+      setOptimisticDisconnected(false)
+    } finally {
+      setLoading(false)
+    }
   }
 
   function handleReconnect() {
