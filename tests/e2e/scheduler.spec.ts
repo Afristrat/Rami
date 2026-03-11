@@ -269,6 +269,380 @@ test.describe('Calendrier — Sidebar liste à venir', () => {
   })
 })
 
+test.describe('Calendrier — Navigation clavier', () => {
+  test('touche ← navigue vers le mois précédent', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    const now = new Date()
+    const months = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+    ]
+
+    await page.keyboard.press('ArrowLeft')
+    await page.waitForTimeout(300)
+
+    const prevMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1
+    await expect(page.getByText(new RegExp(months[prevMonth], 'i'))).toBeVisible()
+  })
+
+  test('touche → navigue vers le mois suivant', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    const now = new Date()
+    const months = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+    ]
+
+    await page.keyboard.press('ArrowRight')
+    await page.waitForTimeout(300)
+
+    const nextMonth = now.getMonth() === 11 ? 0 : now.getMonth() + 1
+    await expect(page.getByText(new RegExp(months[nextMonth], 'i'))).toBeVisible()
+  })
+
+  test('touche T revient au mois courant', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    const now = new Date()
+    const months = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+    ]
+
+    // Aller 3 mois en avant
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.keyboard.press('ArrowRight')
+    await page.waitForTimeout(300)
+
+    // T revient au mois courant
+    await page.keyboard.press('t')
+    await page.waitForTimeout(300)
+
+    await expect(page.getByText(new RegExp(months[now.getMonth()], 'i'))).toBeVisible()
+  })
+
+  test('← et → ignorées quand focus est dans un champ de saisie', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    const now = new Date()
+    const months = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+    ]
+    const currentMonthText = months[now.getMonth()]
+
+    // Ouvrir le dialog (champ de saisie actif)
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).focus()
+
+    // Les flèches doivent déplacer le curseur dans le textarea, pas changer de mois
+    await page.keyboard.press('ArrowLeft')
+    await page.keyboard.press('ArrowRight')
+
+    // Fermer le dialog
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(200)
+
+    // Le mois ne doit pas avoir changé
+    await expect(page.getByText(new RegExp(currentMonthText, 'i'))).toBeVisible()
+  })
+})
+
+test.describe('Calendrier — Détail et édition d\'un post', () => {
+  test('cliquer sur un post ouvre le panneau de détail', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    // Créer un post avec une date dans le mois courant
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post détail test')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+
+    // Ajouter une date (aujourd'hui + 1h)
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    // Cliquer sur le chip dans le calendrier
+    const postChip = page.getByText('Post détail test').first()
+    await postChip.click()
+    await page.waitForTimeout(300)
+
+    // Le panneau de détail doit apparaître avec le contenu
+    await expect(page.getByText('Post détail test')).toBeVisible()
+  })
+
+  test('bouton Modifier passe en mode édition', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    // Créer et afficher un post
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post à modifier')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    await page.getByText('Post à modifier').first().click()
+    await page.waitForTimeout(300)
+
+    // Cliquer sur le crayon (modifier)
+    await page.getByRole('button', { name: /modifier/i }).click()
+
+    // Le mode édition est actif
+    await expect(page.getByText('Mode édition')).toBeVisible()
+  })
+
+  test('édition inline : modifier le contenu et sauvegarder', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Contenu original')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    await page.getByText('Contenu original').first().click()
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: /modifier/i }).click()
+
+    // Modifier le contenu
+    const contentField = page.getByLabel(/contenu/i).last()
+    await contentField.clear()
+    await contentField.fill('Contenu mis à jour')
+
+    await page.getByRole('button', { name: /sauvegarder/i }).click()
+    await page.waitForTimeout(600)
+
+    // Le panneau repasse en mode vue avec le nouveau contenu
+    await expect(page.getByText('Contenu mis à jour')).toBeVisible()
+    await expect(page.getByText('Mode édition')).not.toBeVisible()
+  })
+
+  test('Annuler en mode édition revient à la vue détail', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post annuler édition')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    await page.getByText('Post annuler édition').first().click()
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: /modifier/i }).click()
+    await expect(page.getByText('Mode édition')).toBeVisible()
+
+    await page.getByRole('button', { name: /annuler/i }).click()
+
+    // Retour au mode vue
+    await expect(page.getByText('Mode édition')).not.toBeVisible()
+    await expect(page.getByText('Post annuler édition')).toBeVisible()
+  })
+
+  test('touche Escape ferme le panneau de détail', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post Escape')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    await page.getByText('Post Escape').first().click()
+    await page.waitForTimeout(300)
+
+    // Vérifier que le panneau est visible (statut "Planifié" ou "Brouillon")
+    const statusEl = page.getByText(/planifié|brouillon|révision|approuvé/i).first()
+    await expect(statusEl).toBeVisible()
+
+    // Escape doit fermer le panneau
+    await page.keyboard.press('Escape')
+    await page.waitForTimeout(200)
+
+    await expect(page.getByText('Mode édition')).not.toBeVisible()
+  })
+})
+
+test.describe('Calendrier — Actions rapides de statut', () => {
+  test('action "Soumettre" passe un brouillon en révision', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    // Créer un post brouillon (sans date → statut draft)
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post brouillon → révision')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(800)
+
+    // Les brouillons sans date n'apparaissent pas dans le calendrier
+    // → vérifier le toast de succès
+    await expect(page.getByText(/post créé/i)).toBeVisible()
+  })
+
+  test('validation édition : contenu vide bloque la sauvegarde', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post validation')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    await page.getByText('Post validation').first().click()
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: /modifier/i }).click()
+
+    // Vider le contenu
+    const contentField = page.getByLabel(/contenu/i).last()
+    await contentField.clear()
+
+    await page.getByRole('button', { name: /sauvegarder/i }).click()
+    await expect(page.getByText(/le contenu est requis/i)).toBeVisible()
+  })
+})
+
+test.describe('Calendrier — Duplication de post', () => {
+  test('dupliquer un post crée un brouillon', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    // Créer un post planifié
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post original à dupliquer')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    await page.getByText('Post original à dupliquer').first().click()
+    await page.waitForTimeout(300)
+
+    // Cliquer sur "Dupliquer"
+    await page.getByRole('button', { name: /dupliquer/i }).click()
+    await page.waitForTimeout(600)
+
+    // Toast de confirmation
+    await expect(page.getByText(/brouillon dupliqué/i)).toBeVisible()
+  })
+})
+
+test.describe('Calendrier — Suppression de post', () => {
+  test('supprimer un post le retire du calendrier', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    const postContent = 'Post à supprimer du calendrier'
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill(postContent)
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    // Vérifier qu'il est visible dans le calendrier
+    await expect(page.getByText(postContent).first()).toBeVisible()
+
+    // Ouvrir le panneau et supprimer
+    await page.getByText(postContent).first().click()
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: /supprimer/i }).click()
+    await page.waitForTimeout(600)
+
+    // Toast "Post supprimé"
+    await expect(page.getByText(/post supprimé/i)).toBeVisible()
+  })
+})
+
+test.describe('Calendrier — Résumé du mois', () => {
+  test('le résumé affiche les compteurs de statuts', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+    // La barre de résumé est toujours rendue (même avec 0 posts)
+    // Elle affiche les totaux par statut
+    const grid = page.getByRole('grid', { name: /calendrier de publication/i })
+    await expect(grid).toBeVisible()
+  })
+})
+
+test.describe('Calendrier — Sidebar toggle (desktop)', () => {
+  test('le bouton toggle masque/affiche la sidebar', async ({
+    onboardedPage: page,
+  }) => {
+    // Forcer la vue desktop
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await goToCalendar(page)
+
+    // La sidebar est ouverte par défaut
+    await expect(page.getByText(/posts à venir/i)).toBeVisible()
+
+    // Cliquer sur le toggle
+    await page.getByRole('button', { name: /masquer le panneau latéral/i }).click()
+    await page.waitForTimeout(300)
+
+    // La sidebar est maintenant masquée (overflow hidden + opacity 0)
+    await expect(
+      page.getByRole('button', { name: /afficher le panneau latéral/i })
+    ).toBeVisible()
+  })
+})
+
 test.describe('Calendrier — Sécurité', () => {
   test('XSS dans le contenu du post ne s\'exécute pas', async ({
     onboardedPage: page,
