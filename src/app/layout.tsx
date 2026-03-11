@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
-import { Geist } from "next/font/google"
-import { ThemeProvider } from "@/components/layout/theme-provider"
+import { Geist, Geist_Mono } from "next/font/google"
+import { ThemeProvider } from "next-themes"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -8,9 +9,14 @@ const geistSans = Geist({
   subsets: ["latin"],
 })
 
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+})
+
 export const metadata: Metadata = {
-  title: "RAMI — Agency OS by AI-MPower",
-  description: "Générez du contenu social media psychologiquement calculé pour toucher votre audience cible.",
+  title: "RAMI by AI-MPower",
+  description: "Agency OS — Contenu social media psychologiquement calibré",
 }
 
 export default function RootLayout({
@@ -20,8 +26,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className={`${geistSans.variable} antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -1,7 +1,7 @@
-import { createServerClient } from "@supabase/ssr"
-import { NextResponse, type NextRequest } from "next/server"
+import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -25,40 +25,42 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
-  // Routes protégées → redirect /login si non authentifié
-  const protectedPaths = [
-    "/dashboard",
-    "/tenants",
-    "/scheduler",
-    "/brand-dna",
-    "/content",
-    "/publishing",
-    "/analytics",
-    "/settings",
-  ]
-  const isProtected = protectedPaths.some((p) =>
-    request.nextUrl.pathname.startsWith(p)
-  )
+  const pathname = request.nextUrl.pathname
+
+  // Routes protégées : rediriger vers /login si non authentifié
+  const protectedPaths = ['/dashboard', '/tenants', '/scheduler', '/brand-dna', '/content', '/publishing', '/analytics', '/settings']
+  const isProtected = protectedPaths.some(p => pathname.startsWith(p))
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
-    url.pathname = "/login"
+    url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
-  // Redirect /dashboard si déjà connecté sur /login ou /register
-  const authPaths = ["/login", "/register", "/reset-password"]
-  const isAuthPage = authPaths.some((p) =>
-    request.nextUrl.pathname.startsWith(p)
-  )
+  // Onboarding obligatoire : si auth + non-onboardé + sur route protégée → /onboarding
+  const onboardingCompleted = user?.user_metadata?.onboarding_completed === true
+  if (isProtected && user && !onboardingCompleted) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/onboarding'
+    return NextResponse.redirect(url)
+  }
+
+  // Si déjà onboardé et sur /onboarding → /dashboard
+  if (pathname === '/onboarding' && user && onboardingCompleted) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  // Rediriger vers /dashboard si déjà connecté et sur /login ou /register
+  const authPaths = ['/login', '/register']
+  const isAuthPage = authPaths.some(p => pathname.startsWith(p))
 
   if (isAuthPage && user) {
     const url = request.nextUrl.clone()
-    url.pathname = "/dashboard"
+    url.pathname = onboardingCompleted ? '/dashboard' : '/onboarding'
     return NextResponse.redirect(url)
   }
 
@@ -67,6 +69,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
