@@ -27,9 +27,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  const pathname = request.nextUrl.pathname
+
   // Routes protégées : rediriger vers /login si non authentifié
   const protectedPaths = ['/dashboard', '/tenants', '/scheduler', '/brand-dna', '/content', '/publishing', '/analytics', '/settings']
-  const isProtected = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))
+  const isProtected = protectedPaths.some(p => pathname.startsWith(p))
 
   if (isProtected && !user) {
     const url = request.nextUrl.clone()
@@ -37,13 +39,28 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Onboarding obligatoire : si auth + non-onboardé + sur route protégée → /onboarding
+  const onboardingCompleted = user?.user_metadata?.onboarding_completed === true
+  if (isProtected && user && !onboardingCompleted) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/onboarding'
+    return NextResponse.redirect(url)
+  }
+
+  // Si déjà onboardé et sur /onboarding → /dashboard
+  if (pathname === '/onboarding' && user && onboardingCompleted) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
   // Rediriger vers /dashboard si déjà connecté et sur /login ou /register
   const authPaths = ['/login', '/register']
-  const isAuthPage = authPaths.some(p => request.nextUrl.pathname.startsWith(p))
+  const isAuthPage = authPaths.some(p => pathname.startsWith(p))
 
   if (isAuthPage && user) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = onboardingCompleted ? '/dashboard' : '/onboarding'
     return NextResponse.redirect(url)
   }
 

@@ -107,6 +107,12 @@ export async function createTenantOnboarding(
           updated_at: new Date(),
         },
       })
+
+    // Stocker onboarding_completed dans les métadonnées Supabase Auth
+    // Permet au middleware de vérifier sans requête DB
+    await supabase.auth.updateUser({
+      data: { onboarding_completed: true },
+    })
   } catch (error) {
     console.error("[onboarding] Erreur création tenant:", error)
     return {
