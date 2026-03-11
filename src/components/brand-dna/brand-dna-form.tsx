@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -578,6 +579,7 @@ interface BrandDnaFormProps {
 }
 
 export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   // Si initialData existe, toutes les étapes précédentes sont considérées complètes
   // → le récapitulatif s'affiche immédiatement à l'étape 4 en mode édition
@@ -644,6 +646,8 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
         setServerError(result.error)
       } else {
         setIsSubmitted(true)
+        // Invalide le cache Next.js pour mettre à jour la bannière "Brand DNA actif"
+        router.refresh()
       }
     })
   })
@@ -666,20 +670,27 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
             toucher précisément votre audience.
           </p>
         </div>
-        <Button
-          onClick={() => {
-            // Retour en mode édition : conserver les données, marquer toutes les
-            // étapes précédentes comme complètes pour navigation libre
-            setIsSubmitted(false)
-            setCurrentStep(0)
-            setCompletedSteps(new Set([0, 1, 2]))
-          }}
-          variant="outline"
-          size="lg"
-          className="mt-2"
-        >
-          Modifier le Brand DNA
-        </Button>
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+          <Button
+            onClick={() => router.push("/dashboard")}
+            size="lg"
+          >
+            Voir le tableau de bord
+          </Button>
+          <Button
+            onClick={() => {
+              // Retour en mode édition : conserver les données, marquer toutes les
+              // étapes précédentes comme complètes pour navigation libre
+              setIsSubmitted(false)
+              setCurrentStep(0)
+              setCompletedSteps(new Set([0, 1, 2]))
+            }}
+            variant="outline"
+            size="lg"
+          >
+            Modifier le Brand DNA
+          </Button>
+        </div>
       </div>
     )
   }

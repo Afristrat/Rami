@@ -106,11 +106,35 @@ export async function getBrandDnaAction(): Promise<GetBrandDnaResult> {
     return { data: null }
   }
 
-  // Validation Zod pour s'assurer que la structure DB est cohérente avec le schema
-  const parsed = brandDnaFormSchema.safeParse(tenant.brand_dna)
-  if (!parsed.success) {
+  // Validation Zod avec schéma partiel pour résister aux migrations de schema.
+  // Les champs requis peuvent manquer dans les données sauvegardées avant une
+  // migration — on renvoie les données partielles plutôt que null pour éviter
+  // de perdre silencieusement les données existantes.
+  const lenientParsed = brandDnaFormSchema.partial().safeParse(tenant.brand_dna)
+  if (!lenientParsed.success) {
     return { data: null }
   }
 
-  return { data: parsed.data }
+  // Merge avec les valeurs par défaut pour que le formulaire reçoive un objet complet
+  const withDefaults: BrandDnaFormData = {
+    brandName: "",
+    tagline: "",
+    sector: "",
+    positioning: "",
+    logoDataUrl: "",
+    logoFileName: "",
+    colorPrimary: "",
+    colorSecondary: "",
+    colorAccent: "",
+    voiceTone: "",
+    objectifCognitif: "",
+    primaryCulture: "",
+    audienceDescription: "",
+    audienceAge: "",
+    audienceLocation: "",
+    audiencePainPoints: "",
+    ...lenientParsed.data,
+  }
+
+  return { data: withDefaults }
 }
