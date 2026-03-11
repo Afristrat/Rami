@@ -1,5 +1,5 @@
 /**
- * Next.js Instrumentation — démarrage du worker pg-boss
+ * Next.js Instrumentation — Sentry + démarrage du worker pg-boss
  *
  * Ce fichier est exécuté une seule fois au démarrage du serveur Next.js.
  * En production (Vercel), il tourne dans le runtime Node.js.
@@ -9,8 +9,17 @@
  */
 
 export async function register() {
-  // Démarrer le worker uniquement côté serveur Node.js
-  // (pas dans Edge Runtime ni côté client)
+  // ── Initialisation Sentry ─────────────────────────────────────────────────
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    await import("../sentry.server.config")
+  }
+
+  if (process.env.NEXT_RUNTIME === "edge") {
+    await import("../sentry.server.config")
+  }
+
+  // ── Démarrage du worker pg-boss ────────────────────────────────────────────
+  // Uniquement côté serveur Node.js (pas dans Edge Runtime ni côté client)
   if (process.env.NEXT_RUNTIME === "nodejs") {
     // Import dynamique pour éviter le bundling côté Edge
     const { startPublishWorker } = await import("@/lib/queue/publish-worker")

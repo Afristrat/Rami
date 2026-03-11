@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs"
+
 type LogLevel = "debug" | "info" | "warn" | "error" | "critical"
 
 interface LogEntry {
@@ -13,15 +15,22 @@ interface LogEntry {
 
 /**
  * Logger structuré pour RAMI.
- * En production : silencieux sauf erreurs critiques (Sentry à brancher).
+ * En production : erreurs/critiques envoyées à Sentry.
  * En développement : console structurée.
  */
 export function log(entry: LogEntry): void {
   if (process.env.NODE_ENV === "production") {
-    // En production, ne logger que les erreurs/critiques
     if (entry.level === "error" || entry.level === "critical") {
-      // TODO: Sentry.captureMessage(...)
-      console.error(JSON.stringify({ ...entry, timestamp: new Date().toISOString() }))
+      Sentry.captureMessage(entry.message ?? `[${entry.module}] ${entry.action ?? "error"}`, {
+        level: entry.level === "critical" ? "fatal" : "error",
+        tags: { module: entry.module, action: entry.action ?? "" },
+        user: entry.user_id ? { id: entry.user_id } : undefined,
+        extra: {
+          tenant_id: entry.tenant_id,
+          duration_ms: entry.duration_ms,
+          ...entry.metadata,
+        },
+      })
     }
     return
   }
