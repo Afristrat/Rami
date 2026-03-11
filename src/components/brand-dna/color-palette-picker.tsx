@@ -208,7 +208,7 @@ export function ColorPalettePicker({
           error: errors?.accent,
         },
       ].map(({ label, description, selected, onChange, role, error }) => (
-        <div key={role} className="space-y-2">
+        <div key={role} data-testid={`color-section-${role}`} className="space-y-2">
           <div>
             <p className="text-sm font-semibold text-foreground">{label}</p>
             <p className="text-xs text-muted-foreground">{description}</p>

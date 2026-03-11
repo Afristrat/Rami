@@ -56,11 +56,16 @@ async function getTenantId(): Promise<string | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-  const row = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-    columns: { tenant_id: true },
-  })
-  return row?.tenant_id ?? null
+  try {
+    const row = await db.query.users.findFirst({
+      where: eq(users.id, user.id),
+      columns: { tenant_id: true },
+    })
+    return row?.tenant_id ?? null
+  } catch {
+    // DB direct (Drizzle) unavailable — tenant isolation via Supabase RLS is the fallback
+    return null
+  }
 }
 
 function getPeriodDates(period: PeriodOption): { start: Date; prevStart: Date; end: Date } {
@@ -109,7 +114,7 @@ export async function getAnalyticsData(
   platforms?: Platform[]
 ): Promise<{ success: true; data: AnalyticsData } | { success: false; error: string }> {
   const tenantId = await getTenantId()
-  if (!tenantId) return { success: false, error: "Non authentifié" }
+  if (!tenantId) return { success: false, error: "Données analytics indisponibles" }
 
   const { start, prevStart, end } = getPeriodDates(period)
 

@@ -31,7 +31,7 @@ export default async function ConnectionsPage({ searchParams }: Props) {
             <Link2 className="size-4" />
             <span className="text-xs font-medium uppercase tracking-wide">Réseaux sociaux</span>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-foreground">Connexions OAuth</h2>
+          <h2 className="text-xl font-bold tracking-tight text-foreground">Connexions sociales</h2>
           <p className="text-sm text-muted-foreground mt-1">
             Connectez vos comptes pour publier directement depuis le workflow RAMI.
           </p>

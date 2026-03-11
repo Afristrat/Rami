@@ -5,7 +5,7 @@ test.describe("Médiathèque", () => {
   // Pour les tests d'intégration complets, configurer un storage state avec session active.
 
   test.describe("Page publique — structure", () => {
-    test("redirige vers login si non authentifié", async ({ onboardedPage: page }) => {
+    test("redirige vers login si non authentifié", async ({ page }) => {
       await page.goto("/dashboard/library")
       // Doit rediriger vers login (proxy auth)
       await expect(page).toHaveURL(/\/(login|auth)/)
@@ -23,7 +23,7 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("Filtres — accessibilité", () => {
-    test("boutons filtres ont le bon rôle aria", async ({ page, context }) => {
+    test("boutons filtres ont le bon rôle aria", async ({ page }) => {
       // Simuler authentification par storage state si disponible
       await page.goto("/dashboard/library")
       const isLogin = page.url().includes("login")

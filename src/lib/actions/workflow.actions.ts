@@ -18,12 +18,15 @@ async function getAuthContext() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
-  const row = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-    columns: { tenant_id: true },
-  })
-
-  return { userId: user.id, tenantId: row?.tenant_id ?? null }
+  try {
+    const row = await db.query.users.findFirst({
+      where: eq(users.id, user.id),
+      columns: { tenant_id: true },
+    })
+    return { userId: user.id, tenantId: row?.tenant_id ?? null }
+  } catch {
+    return { userId: user.id, tenantId: null }
+  }
 }
 
 async function getTenantBrandDna(tenantId: string) {
@@ -34,7 +37,7 @@ async function getTenantBrandDna(tenantId: string) {
   const tenant = await _db.query.tenants.findFirst({
     where: _eq(tenants.id, tenantId),
     columns: { brand_dna: true, name: true },
-  })
+  }).catch(() => null)
 
   return tenant
 }

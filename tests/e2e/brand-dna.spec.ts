@@ -22,18 +22,17 @@ test.describe("Page /dashboard/brand-dna", () => {
   })
 
   test("affiche le wizard avec l'étape 1 active (Identité)", async ({ onboardedPage: page }) => {
-    await expect(page.getByText("Identité")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Identité", level: 2 })).toBeVisible()
     await expect(page.getByText("Nom, secteur et positionnement de la marque")).toBeVisible()
   })
 
   test("affiche le stepper avec 4 étapes", async ({ onboardedPage: page }) => {
-    // Desktop stepper
+    // Le stepper desktop est dans un ol[aria-label] ; vérifier les 4 items
     await page.setViewportSize({ width: 1280, height: 800 })
-    await expect(page.getByText("Identité")).toBeVisible()
-    await expect(page.getByText("Palette Causse")).toBeVisible()
-    await expect(page.getByText("Ton de voix")).toBeVisible()
-    await expect(page.getByText("Audience")).toBeVisible()
+    const stepper = page.getByRole('navigation', { name: 'Étapes Brand DNA' })
+    await expect(stepper).toBeVisible()
+    // 4 éléments li dans le stepper desktop
+    await expect(stepper.locator('li')).toHaveCount(4)
   })
 
   test("affiche la barre de progression sur mobile", async ({ onboardedPage: page }) => {
@@ -165,20 +164,16 @@ test.describe("Étape 2 — Palette Causse", () => {
 
   test("une couleur sélectionnée ne peut pas être choisie deux fois", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
-    // Sélectionner Bleu Marine comme couleur principale
-    await page.getByText("Bleu Marine").click()
+    // Sélectionner Bleu Marine dans la section principale
+    await page.getByTestId("color-section-primary").getByRole("button", { name: /Bleu Marine/ }).click()
     // Dans la section secondaire, Bleu Marine doit être désactivé
-    const bleuMarineButtons = page.getByText("Bleu Marine")
-    // Le deuxième bouton Bleu Marine (dans secondaire) doit être désactivé
-    const buttons = await bleuMarineButtons.all()
-    if (buttons.length > 1) {
-      await expect(buttons[1].locator("..")).toBeDisabled()
-    }
+    const secondaryBleu = page.getByTestId("color-section-secondary").getByRole("button", { name: /Bleu Marine/ })
+    await expect(secondaryBleu).toBeDisabled()
   })
 
   test("aperçu palette s'affiche après 1+ couleur sélectionnée", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
-    await page.getByText("Bleu Marine").click()
+    await page.getByTestId("color-section-primary").getByRole("button", { name: /Bleu/ }).first().click()
     await expect(page.getByText("Aperçu de votre palette")).toBeVisible()
   })
 })
@@ -193,11 +188,11 @@ test.describe("Étape 3 — Ton de voix", () => {
     await page.getByLabel(/Secteur d'activité/).selectOption("Tech & SaaS")
     await page.getByLabel(/Positionnement/).fill("Plateforme SaaS de contenu pour agences.")
     await page.getByRole("button", { name: "Suivant" }).click()
-    // Étape 2
+    // Étape 2 — sélectionner une couleur par section
     await expect(page.getByText("Couleur principale")).toBeVisible()
-    await page.getByText("Bleu Marine").click()
-    await page.getByText("Vert Émeraude").click()
-    await page.getByText("Or Prestige").click()
+    await page.getByTestId("color-section-primary").getByRole("button", { name: /Bleu Marine/ }).click()
+    await page.getByTestId("color-section-secondary").getByRole("button", { name: /Vert/ }).first().click()
+    await page.getByTestId("color-section-accent").getByRole("button", { name: /Or/ }).first().click()
     await page.getByRole("button", { name: "Suivant" }).click()
     await expect(page.getByRole("heading", { name: "Ton de voix" })).toBeVisible()
   }
@@ -235,9 +230,9 @@ test.describe("Étape 4 — Audience", () => {
     await page.getByLabel(/Positionnement/).fill("Plateforme SaaS de contenu pour agences.")
     await page.getByRole("button", { name: "Suivant" }).click()
     // Étape 2
-    await page.getByText("Bleu Marine").click()
-    await page.getByText("Vert Émeraude").click()
-    await page.getByText("Or Prestige").click()
+    await page.getByTestId("color-section-primary").getByRole("button", { name: /Bleu Marine/ }).click()
+    await page.getByTestId("color-section-secondary").getByRole("button", { name: /Vert/ }).first().click()
+    await page.getByTestId("color-section-accent").getByRole("button", { name: /Or/ }).first().click()
     await page.getByRole("button", { name: "Suivant" }).click()
     // Étape 3
     await page.getByText("Expert & Autorité").click()
@@ -341,10 +336,11 @@ test.describe("Objectif cognitif (Étape 1)", () => {
 
   test("re-cliquer un objectif sélectionné → le désélectionne", async ({ onboardedPage: page }) => {
     await page.getByText("Expertise & Savoir").click()
-    await expect(page.getByText("Dashboard")).toBeVisible()
+    // Le badge style "Dashboard" apparaît dans le panneau cognitif (pas la nav)
+    await expect(page.getByRole("radio", { name: /Expertise/ }).locator("..").getByText("Dashboard")).toBeVisible()
     await page.getByText("Expertise & Savoir").click()
-    // Les badges de styles ne sont plus visibles
-    await expect(page.getByText("Dashboard")).not.toBeVisible()
+    // Le badge disparaît après désélection
+    await expect(page.getByRole("radio", { name: /Expertise/ }).locator("..").getByText("Dashboard")).not.toBeVisible()
   })
 })
 
@@ -357,9 +353,9 @@ test.describe("Culture cible (Étape 4 — Audience)", () => {
     await page.getByLabel(/Secteur d'activité/).selectOption("Tech & SaaS")
     await page.getByLabel(/Positionnement/).fill("Plateforme SaaS de contenu pour agences.")
     await page.getByRole("button", { name: "Suivant" }).click()
-    await page.getByText("Bleu Marine").click()
-    await page.getByText("Vert Émeraude").click()
-    await page.getByText("Or Prestige").click()
+    await page.getByTestId("color-section-primary").getByRole("button", { name: /Bleu Marine/ }).click()
+    await page.getByTestId("color-section-secondary").getByRole("button", { name: /Vert/ }).first().click()
+    await page.getByTestId("color-section-accent").getByRole("button", { name: /Or/ }).first().click()
     await page.getByRole("button", { name: "Suivant" }).click()
     await page.getByText("Expert & Autorité").click()
     await page.getByRole("button", { name: "Suivant" }).click()

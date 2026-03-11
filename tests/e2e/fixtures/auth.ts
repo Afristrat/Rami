@@ -35,19 +35,13 @@ export async function signInTestUser(
   page: Page,
   user: TestUser
 ): Promise<void> {
-  // Injection de session via Supabase pour éviter de passer par l'UI login
-  const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-    type: 'magiclink',
-    email: user.email,
-  })
-
-  if (error || !data.properties?.action_link) {
-    throw new Error(`Impossible de générer le lien de connexion : ${error?.message}`)
-  }
-
-  // Naviguer vers le magic link pour créer la session
-  await page.goto(data.properties.action_link)
-  await page.waitForLoadState('networkidle')
+  // Connexion via l'UI login pour garantir les cookies SSR (@supabase/ssr)
+  await page.goto('/login')
+  await page.getByLabel('Email').fill(user.email)
+  await page.getByLabel('Mot de passe').fill(user.password)
+  await page.getByRole('button', { name: /Se connecter/i }).click()
+  // Attendre la redirection vers /dashboard ou /onboarding
+  await page.waitForURL(/\/(dashboard|onboarding)/, { timeout: 15_000 })
 }
 
 /**
@@ -108,7 +102,7 @@ export const test = base.extend<{
 }>({
   testUser: async ({}, use) => {
     const user: TestUser = {
-      email: `test-${Date.now()}@rami-test.local`,
+      email: `test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@rami-test.local`,
       password: 'TestPassword123!',
     }
     await use(user)

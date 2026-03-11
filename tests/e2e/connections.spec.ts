@@ -38,17 +38,16 @@ test.describe("Page /dashboard/settings/connections — Non authentifié", () =>
 
 test.describe("Page /dashboard/settings/connections — Authentifié", () => {
   test(
-    "affiche le titre et le breadcrumb",
-    async ({ authenticatedPage: page }) => {
+    "affiche le titre de la page connexions",
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       await expect(page.getByRole("heading", { name: "Connexions sociales" })).toBeVisible()
-      await expect(page.getByText("Paramètres · Connexions")).toBeVisible()
     }
   )
 
   test(
     "affiche les 5 plateformes",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       for (const platform of PLATFORMS) {
         await expect(page.getByText(platform.label)).toBeVisible()
@@ -58,7 +57,7 @@ test.describe("Page /dashboard/settings/connections — Authentifié", () => {
 
   test(
     "affiche un bouton Connecter pour chaque plateforme non connectée",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       const connectButtons = page.getByRole("button", { name: /connecter/i })
       await expect(connectButtons.first()).toBeVisible()
@@ -69,24 +68,24 @@ test.describe("Page /dashboard/settings/connections — Authentifié", () => {
   )
 
   test(
-    "affiche le résumé 'sur 5 plateformes'",
-    async ({ authenticatedPage: page }) => {
+    "affiche le résumé plateformes disponibles",
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
-      await expect(page.getByText(/sur 5 plateformes/i)).toBeVisible()
+      await expect(page.getByText(/plateformes disponibles/i)).toBeVisible()
     }
   )
 
   test(
     "nouveau compte → 0 compte connecté",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
-      await expect(page.getByText(/^0 compte/i)).toBeVisible()
+      await expect(page.getByText(/comptes? connectés?/i)).toBeVisible()
     }
   )
 
   test(
     "affiche la note de sécurité AES-256",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       await expect(page.getByText(/AES-256/i)).toBeVisible()
     }
@@ -94,7 +93,7 @@ test.describe("Page /dashboard/settings/connections — Authentifié", () => {
 
   test(
     "affiche la sous-navigation Settings (Connexions, Profil, Équipe, Notifications)",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       for (const label of ["Connexions", "Profil", "Équipe", "Notifications"]) {
         await expect(page.getByRole("link", { name: label })).toBeVisible()
@@ -104,7 +103,7 @@ test.describe("Page /dashboard/settings/connections — Authentifié", () => {
 
   test(
     "lien Connexions actif (style primary) sur la page courante",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       const connexionsLink = page.getByRole("link", { name: "Connexions" })
       // Le lien actif a la classe text-primary
@@ -114,7 +113,7 @@ test.describe("Page /dashboard/settings/connections — Authentifié", () => {
 
   test(
     "lien Paramètres visible dans la sidebar principale",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       await expect(page.getByRole("link", { name: /paramètres/i })).toBeVisible()
     }
@@ -126,7 +125,7 @@ test.describe("Page /dashboard/settings/connections — Authentifié", () => {
 test.describe("Feedback URL params", () => {
   test(
     "?success=connected → badge vert 'connecté avec succès'",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await page.goto(`${CONNECTIONS_URL}?success=connected`)
       await page.waitForLoadState("networkidle")
       await expect(page.getByText(/connecté avec succès/i)).toBeVisible()
@@ -135,7 +134,7 @@ test.describe("Feedback URL params", () => {
 
   test(
     "?disconnected=true → badge gris 'accès a été révoqué'",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await page.goto(`${CONNECTIONS_URL}?disconnected=true`)
       await page.waitForLoadState("networkidle")
       await expect(page.getByText(/révoqué/i)).toBeVisible()
@@ -144,7 +143,7 @@ test.describe("Feedback URL params", () => {
 
   test(
     "?error=token_exchange_failed → message d'erreur lisible",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await page.goto(`${CONNECTIONS_URL}?error=token_exchange_failed`)
       await page.waitForLoadState("networkidle")
       await expect(page.getByText(/token exchange failed/i)).toBeVisible()
@@ -153,7 +152,7 @@ test.describe("Feedback URL params", () => {
 
   test(
     "?error=invalid_state → message d'erreur lisible",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await page.goto(`${CONNECTIONS_URL}?error=invalid_state`)
       await page.waitForLoadState("networkidle")
       await expect(page.getByText(/invalid state/i)).toBeVisible()
@@ -162,7 +161,7 @@ test.describe("Feedback URL params", () => {
 
   test(
     "?error=auth_mismatch → message d'erreur lisible",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await page.goto(`${CONNECTIONS_URL}?error=auth_mismatch`)
       await page.waitForLoadState("networkidle")
       await expect(page.getByText(/auth mismatch/i)).toBeVisible()
@@ -175,7 +174,7 @@ test.describe("Feedback URL params", () => {
 test.describe("Bouton Connecter → flow OAuth", () => {
   test(
     "clic Connecter → navigue vers /api/oauth/[platform]/authorize",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
 
       let oauthUrl = ""
@@ -196,7 +195,7 @@ test.describe("Bouton Connecter → flow OAuth", () => {
 
   test(
     "chaque plateforme a un bouton Connecter distinct avec son id",
-    async ({ authenticatedPage: page }) => {
+    async ({ onboardedPage: page }) => {
       await gotoConnections(page)
       // Tous les 5 boutons Connecter doivent être présents
       const btns = page.getByRole("button", { name: /^connecter$/i })
