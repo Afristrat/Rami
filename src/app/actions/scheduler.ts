@@ -104,6 +104,8 @@ export async function getUpcomingPosts(limit = 20): Promise<ActionResult<Schedul
   const future = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
   try {
+    // Seuls les statuts "actifs" méritent d'apparaître dans les posts à venir :
+    // draft/published/failed ne sont pas des publications futures planifiées
     const rows = await db
       .select()
       .from(posts)
@@ -111,7 +113,8 @@ export async function getUpcomingPosts(limit = 20): Promise<ActionResult<Schedul
         and(
           eq(posts.tenant_id, tenantId),
           gte(posts.scheduled_at, now),
-          lte(posts.scheduled_at, future)
+          lte(posts.scheduled_at, future),
+          sql`${posts.status} IN ('scheduled', 'approved', 'review')`
         )
       )
       .orderBy(asc(posts.scheduled_at))
