@@ -241,18 +241,57 @@ export async function updatePost(
 export async function updatePostStatus(
   postId: string,
   status: ScheduledPost["status"]
-): Promise<ActionResult> {
+): Promise<ActionResult<ScheduledPost>> {
   const tenantId = await getTenantId()
   if (!tenantId) return { success: false, error: "Non authentifié" }
 
   try {
-    await db
+    const [updated] = await db
       .update(posts)
       .set({ status, updated_at: new Date() })
       .where(and(eq(posts.id, postId), eq(posts.tenant_id, tenantId)))
+      .returning()
 
-    return { success: true, data: undefined }
+    if (!updated) return { success: false, error: "Post introuvable" }
+    return { success: true, data: mapPost(updated) }
   } catch {
     return { success: false, error: "Erreur lors de la mise à jour" }
+  }
+}
+
+/**
+ * Duplique un post existant (en brouillon).
+ */
+export async function duplicatePost(postId: string): Promise<ActionResult<ScheduledPost>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "Non authentifié" }
+
+  const tenantId = await getTenantId()
+  if (!tenantId) return { success: false, error: "Aucun espace de travail trouvé" }
+
+  try {
+    const original = await db.query.posts.findFirst({
+      where: and(eq(posts.id, postId), eq(posts.tenant_id, tenantId)),
+    })
+
+    if (!original) return { success: false, error: "Post introuvable" }
+
+    const [created] = await db
+      .insert(posts)
+      .values({
+        tenant_id: tenantId,
+        created_by: user.id,
+        title: original.title ? `${original.title} (copie)` : null,
+        content: original.content,
+        platforms: original.platforms,
+        status: "draft",
+        media_urls: original.media_urls,
+      })
+      .returning()
+
+    return { success: true, data: mapPost(created) }
+  } catch {
+    return { success: false, error: "Erreur lors de la duplication" }
   }
 }

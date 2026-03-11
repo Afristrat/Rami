@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { ChevronLeft, ChevronRight, CalendarDays, PanelRightOpen, PanelRightClose } from "lucide-react"
 import { toast } from "sonner"
 
@@ -98,6 +98,37 @@ export function SchedulerCalendar({
     setSelectedPost(updated)
   }
 
+  function handlePostDuplicated(duplicated: ScheduledPost) {
+    // Le dupliqué est un brouillon sans scheduled_at → pas dans le calendrier
+    toast.success("Brouillon dupliqué créé", { description: duplicated.title ?? undefined })
+  }
+
+  // ── Raccourcis clavier ────────────────────────────────────────────────────
+
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      // Ignorer si focus dans un champ de saisie
+      const tag = (e.target as HTMLElement).tagName
+      if (["INPUT", "TEXTAREA", "SELECT"].includes(tag)) return
+
+      if (e.key === "ArrowLeft" && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault()
+        goToPrevMonth()
+      } else if (e.key === "ArrowRight" && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault()
+        goToNextMonth()
+      } else if (e.key === "t" || e.key === "T") {
+        goToToday()
+      } else if (e.key === "Escape" && selectedPost) {
+        setSelectedPost(null)
+      }
+    }
+
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month, year, selectedPost])
+
   const isCurrentMonth =
     year === today.getFullYear() && month === today.getMonth()
 
@@ -135,7 +166,8 @@ export function SchedulerCalendar({
               size="icon-sm"
               onClick={goToPrevMonth}
               disabled={isLoadingMonth}
-              aria-label="Mois précédent"
+              aria-label="Mois précédent (←)"
+              title="Mois précédent (←)"
               className="rounded-r-none"
             >
               <ChevronLeft className="size-4" />
@@ -145,7 +177,8 @@ export function SchedulerCalendar({
               size="icon-sm"
               onClick={goToNextMonth}
               disabled={isLoadingMonth}
-              aria-label="Mois suivant"
+              aria-label="Mois suivant (→)"
+              title="Mois suivant (→)"
               className="rounded-l-none border-l-0"
             >
               <ChevronRight className="size-4" />
@@ -214,6 +247,7 @@ export function SchedulerCalendar({
                 onClose={() => setSelectedPost(null)}
                 onDeleted={handlePostDeleted}
                 onUpdated={handlePostUpdated}
+                onDuplicated={handlePostDuplicated}
               />
             </div>
           ) : (

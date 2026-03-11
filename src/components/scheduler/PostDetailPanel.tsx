@@ -4,12 +4,12 @@ import { useState, useTransition } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X, Trash2, CalendarClock, Pencil, Check, RotateCcw } from "lucide-react"
+import { X, Trash2, CalendarClock, Pencil, Check, RotateCcw, Copy, CheckCircle2, Clock, ThumbsUp } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { PlatformBadge } from "./PlatformBadge"
-import { deletePost, updatePost } from "@/app/actions/scheduler"
+import { deletePost, updatePost, updatePostStatus, duplicatePost } from "@/app/actions/scheduler"
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/scheduler/types"
 import type { ScheduledPost } from "@/lib/scheduler/types"
 import { PLATFORM_CONFIG, ALL_PLATFORMS } from "@/lib/scheduler/platform-config"
@@ -38,14 +38,16 @@ interface PostDetailPanelProps {
   onClose: () => void
   onDeleted?: (postId: string) => void
   onUpdated?: (post: ScheduledPost) => void
+  onDuplicated?: (post: ScheduledPost) => void
 }
 
 // ── Composant principal ──────────────────────────────────────────────────────
 
-export function PostDetailPanel({ post, onClose, onDeleted, onUpdated }: PostDetailPanelProps) {
+export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplicated }: PostDetailPanelProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [currentPost, setCurrentPost] = useState<ScheduledPost>(post)
   const [isDeleting, startDeleteTransition] = useTransition()
+  const [isActioning, startActionTransition] = useTransition()
 
   function handleDeleted() {
     startDeleteTransition(async () => {
@@ -64,6 +66,31 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated }: PostDet
     setCurrentPost(updated)
     onUpdated?.(updated)
     setIsEditing(false)
+  }
+
+  function handleStatusChange(status: ScheduledPost["status"]) {
+    startActionTransition(async () => {
+      const result = await updatePostStatus(currentPost.id, status)
+      if (result.success) {
+        toast.success(`Statut → ${STATUS_LABELS[status]}`)
+        setCurrentPost(result.data)
+        onUpdated?.(result.data)
+      } else {
+        toast.error(result.error)
+      }
+    })
+  }
+
+  function handleDuplicate() {
+    startActionTransition(async () => {
+      const result = await duplicatePost(currentPost.id)
+      if (result.success) {
+        toast.success("Post dupliqué en brouillon")
+        onDuplicated?.(result.data)
+      } else {
+        toast.error(result.error)
+      }
+    })
   }
 
   const scheduledDate = currentPost.scheduled_at ? new Date(currentPost.scheduled_at) : null
@@ -190,18 +217,37 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated }: PostDet
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="border-t border-border p-4">
-            <Button
-              variant="destructive"
-              size="sm"
-              className="w-full"
-              onClick={handleDeleted}
-              disabled={isDeleting}
-            >
-              <Trash2 className="size-4" />
-              {isDeleting ? "Suppression…" : "Supprimer le post"}
-            </Button>
+          {/* Actions rapides statut */}
+          <div className="border-t border-border p-4 space-y-2">
+            <StatusActions
+              currentStatus={currentPost.status}
+              onStatusChange={handleStatusChange}
+              disabled={isActioning || isDeleting}
+            />
+
+            {/* Dupliquer + Supprimer */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={handleDuplicate}
+                disabled={isActioning || isDeleting}
+              >
+                <Copy className="size-3.5" />
+                Dupliquer
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="flex-1"
+                onClick={handleDeleted}
+                disabled={isDeleting || isActioning}
+              >
+                <Trash2 className="size-3.5" />
+                {isDeleting ? "…" : "Supprimer"}
+              </Button>
+            </div>
           </div>
         </>
       )}
@@ -372,6 +418,65 @@ function EditForm({
         </Button>
       </div>
     </form>
+  )
+}
+
+// ── Actions rapides de statut ─────────────────────────────────────────────────
+
+const STATUS_TRANSITIONS: Record<
+  ScheduledPost["status"],
+  Array<{ to: ScheduledPost["status"]; label: string; icon: React.ReactNode }>
+> = {
+  draft: [
+    { to: "review", label: "Soumettre", icon: <ThumbsUp className="size-3.5" /> },
+    { to: "scheduled", label: "Planifier", icon: <Clock className="size-3.5" /> },
+  ],
+  review: [
+    { to: "approved", label: "Approuver", icon: <CheckCircle2 className="size-3.5" /> },
+    { to: "draft", label: "Retour brouillon", icon: <RotateCcw className="size-3.5" /> },
+  ],
+  approved: [
+    { to: "scheduled", label: "Planifier", icon: <Clock className="size-3.5" /> },
+    { to: "review", label: "Retour révision", icon: <RotateCcw className="size-3.5" /> },
+  ],
+  scheduled: [
+    { to: "approved", label: "Déprogrammer", icon: <RotateCcw className="size-3.5" /> },
+  ],
+  publishing: [],
+  published: [],
+  failed: [
+    { to: "draft", label: "Réessayer", icon: <RotateCcw className="size-3.5" /> },
+  ],
+}
+
+function StatusActions({
+  currentStatus,
+  onStatusChange,
+  disabled,
+}: {
+  currentStatus: ScheduledPost["status"]
+  onStatusChange: (s: ScheduledPost["status"]) => void
+  disabled: boolean
+}) {
+  const transitions = STATUS_TRANSITIONS[currentStatus] ?? []
+  if (transitions.length === 0) return null
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {transitions.map((t) => (
+        <Button
+          key={t.to}
+          variant="outline"
+          size="sm"
+          onClick={() => onStatusChange(t.to)}
+          disabled={disabled}
+          className="flex-1 min-w-0"
+        >
+          {t.icon}
+          <span className="truncate">{t.label}</span>
+        </Button>
+      ))}
+    </div>
   )
 }
 
