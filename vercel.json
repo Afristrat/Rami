@@ -1,0 +1,37 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "buildCommand": "npm run build",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
+
+  "regions": ["cdg1"],
+
+  "functions": {
+    "src/app/api/webhooks/stripe/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/queue/publish/route.ts": {
+      "maxDuration": 60
+    },
+    "src/app/api/oauth/[platform]/callback/route.ts": {
+      "maxDuration": 15
+    }
+  },
+
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex" }
+      ]
+    }
+  ],
+
+  "crons": [
+    {
+      "path": "/api/cron/stripe-reconcile",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

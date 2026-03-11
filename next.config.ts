@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import { withSentryConfig } from "@sentry/nextjs"
 
 // ─── Headers de sécurité ──────────────────────────────────────────────────────
 // Conforme CLAUDE.md Section 4.8 + 4.10
@@ -153,4 +154,25 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+// ─── Sentry instrumentation (wrap en dernier) ─────────────────────────────────
+export default withSentryConfig(nextConfig, {
+  // Organisation et projet Sentry (optionnel — pour le source maps upload)
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Upload des source maps uniquement si le token est présent
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+
+  // Désactiver le tunnel Sentry (évite les CORS en dev)
+  tunnelRoute: undefined,
+
+  // Source maps en production uniquement
+  sourcemaps: {
+    disable: process.env.NODE_ENV !== "production",
+  },
+
+  // Ne pas interférer avec le build en l'absence de config Sentry
+  disableLogger: true,
+  automaticVercelMonitors: false,
+})
