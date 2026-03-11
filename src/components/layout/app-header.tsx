@@ -4,8 +4,14 @@ import { useState } from "react"
 import { Menu } from "lucide-react"
 import { UserMenu } from "./user-menu"
 import { MobileNav } from "./mobile-nav"
+import type { ReactNode } from "react"
 
-export function AppHeader() {
+interface AppHeaderProps {
+  /** Slot pour injecter des composants serveur (QuotaBadge, etc.) */
+  children?: ReactNode
+}
+
+export function AppHeader({ children }: AppHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -30,6 +36,9 @@ export function AppHeader() {
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Slot (QuotaBadge, breadcrumb, etc.) */}
+        {children}
 
         {/* Actions */}
         <div className="flex items-center gap-2">

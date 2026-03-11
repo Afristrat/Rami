@@ -7,15 +7,23 @@ import { DirectionGallery, visualKey } from './DirectionGallery'
 import { generateVisualsAction } from '@/lib/actions/visual.actions'
 import { GenerateBriefInput } from '@/lib/schemas/visual.schema'
 import { GeneratedVisual } from '@/lib/services/image-generation/types'
+import { useUpgradeModal } from '@/components/billing/upgrade-modal'
 import { Download, CheckSquare, Square, AlertTriangle, XCircle } from 'lucide-react'
+import type { Plan } from '@/lib/billing/plans'
 
 interface CreatePageClientProps {
   hasBrandDNA: boolean
   brandName?: string
   defaultPlatform?: string
+  currentPlan?: Plan
 }
 
-export function CreatePageClient({ hasBrandDNA, brandName, defaultPlatform }: CreatePageClientProps) {
+export function CreatePageClient({
+  hasBrandDNA,
+  brandName,
+  defaultPlatform,
+  currentPlan = 'free',
+}: CreatePageClientProps) {
   const [isPending, startTransition] = useTransition()
   const [visuals, setVisuals] = useState<GeneratedVisual[]>([])
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set())
@@ -23,6 +31,8 @@ export function CreatePageClient({ hasBrandDNA, brandName, defaultPlatform }: Cr
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [isDownloading, setIsDownloading] = useState(false)
   const [hasGenerated, setHasGenerated] = useState(false)
+
+  const { showUpgrade, UpgradeModalContainer } = useUpgradeModal(currentPlan)
 
   // Grouper les visuels par direction
   const byDirection = [1, 2, 3, 4].map((dirId) => ({
@@ -41,6 +51,15 @@ export function CreatePageClient({ hasBrandDNA, brandName, defaultPlatform }: Cr
       const result = await generateVisualsAction(data)
 
       if (!result.success) {
+        // Quota dépassé → ouvrir le modal upgrade
+        if (result.quota_exceeded) {
+          showUpgrade(
+            'visual_engine',
+            `Quota de générations atteint (${result.quota_exceeded.count}/${result.quota_exceeded.limit} ce mois).`
+          )
+          return
+        }
+
         setGlobalError(result.error ?? 'Erreur lors de la génération')
         return
       }
@@ -52,7 +71,7 @@ export function CreatePageClient({ hasBrandDNA, brandName, defaultPlatform }: Cr
         setErrors(result.errors)
       }
     })
-  }, [])
+  }, [showUpgrade])
 
   const handleToggleSelect = useCallback((visual: GeneratedVisual) => {
     const key = visualKey(visual)
@@ -113,6 +132,9 @@ export function CreatePageClient({ hasBrandDNA, brandName, defaultPlatform }: Cr
 
   return (
     <div className="min-h-screen bg-[#0A0A0F]">
+      {/* Modal upgrade quota */}
+      {UpgradeModalContainer}
+
       {/* Blobs de fond */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-violet-600/10 blur-[100px]" />

@@ -14,6 +14,7 @@ import {
 } from '@/lib/services/brand-dna/prompt-compiler'
 import { GenerateBriefSchema, GenerateBriefInput } from '@/lib/schemas/visual.schema'
 import { GeneratedVisual } from '@/lib/services/image-generation/types'
+import { checkGenerationQuota, getPlanConfig } from '@/lib/billing'
 
 export interface VisualGenerationResult {
   success: boolean
@@ -21,6 +22,12 @@ export interface VisualGenerationResult {
   visuals: GeneratedVisual[]
   errors?: string[]
   error?: string
+  /** Présent si le quota est dépassé — le client affiche l'UpgradeModal */
+  quota_exceeded?: {
+    plan: string
+    count: number
+    limit: number
+  }
 }
 
 /**
@@ -38,6 +45,24 @@ export async function generateVisualsAction(
 
   if (!user) {
     return { success: false, session_id: '', visuals: [], error: 'Non authentifié' }
+  }
+
+  // Vérification quota générations (feature billing)
+  const quotaCheck = await checkGenerationQuota()
+  if (!quotaCheck.allowed) {
+    const planConfig = getPlanConfig(quotaCheck.plan)
+    const limit = planConfig.generationsPerMonth
+    return {
+      success: false,
+      session_id: '',
+      visuals: [],
+      error: `Quota de générations atteint (${quotaCheck.count}/${limit} ce mois). Passez au plan supérieur pour continuer.`,
+      quota_exceeded: {
+        plan: quotaCheck.plan,
+        count: quotaCheck.count,
+        limit,
+      },
+    }
   }
 
   // Validation Zod
