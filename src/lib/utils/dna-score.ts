@@ -5,11 +5,12 @@ import type { BrandDnaFormData } from "@/lib/schemas/brand-dna.schema"
  * Fonction pure, importable côté serveur et côté client.
  *
  * Poids :
- *   - Identité (nom + secteur + positionnement + tagline) : 25%
- *   - Logo uploadé                                         : 15%
- *   - Palette Causse 3 couleurs                           : 25%
- *   - Ton de voix                                         : 15%
- *   - Audience & culture                                  : 20%
+ *   - Identité (nom + secteur + positionnement + tagline + objectif) : 25%
+ *     → nom(10) + secteur(5) + positionnement(5) + tagline(2) + objectifCognitif(3)
+ *   - Logo uploadé                                                    : 15%
+ *   - Palette Causse 3 couleurs                                      : 25%
+ *   - Ton de voix                                                    : 15%
+ *   - Audience & culture                                             : 20%
  */
 export function computeDnaScore(data: Partial<BrandDnaFormData>): number {
   let score = 0
@@ -17,8 +18,9 @@ export function computeDnaScore(data: Partial<BrandDnaFormData>): number {
   // Identité (25%)
   if (data.brandName && data.brandName.length >= 1) score += 0.1
   if (data.sector && data.sector.length > 0) score += 0.05
-  if (data.positioning && data.positioning.length >= 10) score += 0.07
-  if (data.tagline && data.tagline.length > 0) score += 0.03
+  if (data.positioning && data.positioning.length >= 10) score += 0.05
+  if (data.tagline && data.tagline.length > 0) score += 0.02
+  if (data.objectifCognitif && data.objectifCognitif.length > 0) score += 0.03
 
   // Logo (15%)
   if (data.logoDataUrl && data.logoDataUrl.length > 0) score += 0.15

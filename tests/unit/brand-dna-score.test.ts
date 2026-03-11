@@ -40,8 +40,24 @@ describe("computeDnaScore", () => {
       sector: "Tech & SaaS",
       positioning: "Plateforme SaaS de contenu neuropsychologique.",
       tagline: "L'IA qui vise juste.",
+      objectifCognitif: "confiance",
     })
     expect(score).toBe(0.25)
+  })
+
+  test("objectifCognitif seul : +0.03", () => {
+    const score = computeDnaScore({ objectifCognitif: "expertise" })
+    expect(score).toBe(0.03)
+  })
+
+  test("identité sans objectifCognitif : 0.22 (nom + secteur + positionnement + tagline)", () => {
+    const score = computeDnaScore({
+      brandName: "RAMI",
+      sector: "Tech & SaaS",
+      positioning: "Plateforme SaaS de contenu neuropsychologique.",
+      tagline: "L'IA qui vise juste.",
+    })
+    expect(score).toBe(0.22)
   })
 
   test("logo ajoute +0.15 au score", () => {
@@ -106,6 +122,7 @@ describe("computeDnaScore", () => {
       sector: "Tech & SaaS",
       positioning: "Plateforme SaaS de contenu neuropsychologique pour agences.",
       tagline: "L'IA qui vise juste.",
+      objectifCognitif: "confiance",
       logoDataUrl: "data:image/png;base64,abc123",
       colorPrimary: "bleu_marine",
       colorSecondary: "vert_emeraude",
@@ -126,6 +143,7 @@ describe("computeDnaScore", () => {
       sector: "Tech & SaaS",
       positioning: "Un positionnement très détaillé qui dépasse les critères minimum pour tester les limites.",
       tagline: "Slogan de test.",
+      objectifCognitif: "expertise",
       logoDataUrl: "data:image/png;base64,abc123",
       colorPrimary: "bleu_marine",
       colorSecondary: "vert_emeraude",

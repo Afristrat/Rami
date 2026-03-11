@@ -102,6 +102,11 @@ export function DnaScoreBadge({ data, className }: DnaScoreBadgeProps) {
                 + Ton de voix (+15%)
               </span>
             )}
+            {!data.objectifCognitif && (
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+                + Objectif cognitif (+3%)
+              </span>
+            )}
             {(!data.audienceDescription || data.audienceDescription.length < 20) && (
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                 + Audience (+10%)
