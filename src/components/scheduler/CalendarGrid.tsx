@@ -26,7 +26,11 @@ export function CalendarGrid({
   const days = useMemo(() => buildCalendarDays(year, month, posts), [year, month, posts])
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
+    <div
+      className="overflow-hidden rounded-xl border border-border bg-card"
+      role="grid"
+      aria-label="Calendrier de publication"
+    >
       {/* En-tête jours de la semaine */}
       <div className="grid grid-cols-7 border-b border-border">
         {DAYS_OF_WEEK.map((day) => (

@@ -62,14 +62,16 @@ export async function signInTestUser(
   await page.waitForLoadState('networkidle')
 }
 
-// Type de fixture étendu
+// ── Fixture étendue ───────────────────────────────────────────────────────────
+
 export const test = base.extend<{
   authenticatedPage: Page
+  onboardedPage: Page
   testUser: TestUser
 }>({
   testUser: async ({}, use) => {
     const user: TestUser = {
-      email: `test-onboarding-${Date.now()}@rami-test.local`,
+      email: `test-${Date.now()}@rami-test.local`,
       password: 'TestPassword123!',
     }
     await use(user)
@@ -77,8 +79,8 @@ export const test = base.extend<{
     await deleteTestUser(user.email)
   },
 
+  // Utilisateur authentifié mais pas encore onboardé
   authenticatedPage: async ({ page, testUser }, use) => {
-    // Créer et connecter l'utilisateur
     const { data } = await supabaseAdmin.auth.admin.createUser({
       email: testUser.email,
       password: testUser.password,
@@ -89,6 +91,52 @@ export const test = base.extend<{
       testUser.id = data.user.id
     }
 
+    await signInTestUser(page, testUser)
+    await use(page)
+  },
+
+  // Utilisateur authentifié ET onboardé (onboarding_completed = true dans metadata)
+  onboardedPage: async ({ page, testUser }, use) => {
+    // 1. Créer l'utilisateur
+    const { data } = await supabaseAdmin.auth.admin.createUser({
+      email: testUser.email,
+      password: testUser.password,
+      email_confirm: true,
+      user_metadata: { onboarding_completed: true },
+    })
+
+    if (data.user) {
+      testUser.id = data.user.id
+
+      // 2. Insérer un tenant de test + lier l'utilisateur via l'API Supabase
+      //    On utilise la table REST directement avec le service role
+      const tenantSlug = `test-tenant-${Date.now()}`
+
+      const tenantRes = await supabaseAdmin
+        .from('tenants')
+        .insert({
+          name: 'Test Agency',
+          slug: tenantSlug,
+          owner_id: data.user.id,
+          plan: 'pro',
+        })
+        .select('id')
+        .single()
+
+      if (tenantRes.data) {
+        await supabaseAdmin
+          .from('users')
+          .upsert({
+            id: data.user.id,
+            email: testUser.email,
+            role: 'agency_owner',
+            tenant_id: tenantRes.data.id,
+            onboarding_completed: true,
+          })
+      }
+    }
+
+    // 3. Connecter l'utilisateur
     await signInTestUser(page, testUser)
     await use(page)
   },
