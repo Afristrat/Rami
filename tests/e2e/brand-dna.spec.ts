@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test"
+import { test, expect, type Page } from "@playwright/test"
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
-async function goToBrandDna(page: Parameters<typeof test>[1]) {
+async function goToBrandDna(page: Page) {
   await page.goto("/dashboard/brand-dna")
 }
 
@@ -124,7 +124,7 @@ test.describe("Étape 1 — Identité", () => {
 // ─── Étape 2 — Palette Causse ───────────────────────────────────────────────
 
 test.describe("Étape 2 — Palette Causse", () => {
-  async function navigateToStep2(page: Parameters<typeof test>[1]) {
+  async function navigateToStep2(page: Page) {
     await goToBrandDna(page)
     await page.getByLabel(/Nom de la marque/).fill("RAMI Test")
     await page.getByLabel(/Secteur d'activité/).selectOption("Tech & SaaS")
@@ -185,7 +185,7 @@ test.describe("Étape 2 — Palette Causse", () => {
 // ─── Étape 3 — Ton de voix ──────────────────────────────────────────────────
 
 test.describe("Étape 3 — Ton de voix", () => {
-  async function navigateToStep3(page: Parameters<typeof test>[1]) {
+  async function navigateToStep3(page: Page) {
     await goToBrandDna(page)
     // Étape 1
     await page.getByLabel(/Nom de la marque/).fill("RAMI Test")
@@ -226,7 +226,7 @@ test.describe("Étape 3 — Ton de voix", () => {
 // ─── Étape 4 — Audience ─────────────────────────────────────────────────────
 
 test.describe("Étape 4 — Audience", () => {
-  async function navigateToStep4(page: Parameters<typeof test>[1]) {
+  async function navigateToStep4(page: Page) {
     await goToBrandDna(page)
     // Étape 1
     await page.getByLabel(/Nom de la marque/).fill("RAMI Test")
@@ -315,6 +315,72 @@ test.describe("Navigation wizard", () => {
   })
 })
 
+// ─── Objectif cognitif ──────────────────────────────────────────────────────
+
+test.describe("Objectif cognitif (Étape 1)", () => {
+  test.beforeEach(async ({ page }) => {
+    await goToBrandDna(page)
+  })
+
+  test("affiche les 6 objectifs cognitifs", async ({ page }) => {
+    await expect(page.getByText("Objectif cognitif principal")).toBeVisible()
+    await expect(page.getByText("Confiance & Crédibilité")).toBeVisible()
+    await expect(page.getByText("Urgence & Action")).toBeVisible()
+    await expect(page.getByText("Aspiration & Désir")).toBeVisible()
+    await expect(page.getByText("Expertise & Savoir")).toBeVisible()
+    await expect(page.getByText("Communauté & Appartenance")).toBeVisible()
+    await expect(page.getByText("Joie & Légèreté")).toBeVisible()
+  })
+
+  test("sélectionner un objectif → affiche les styles visuels", async ({ page }) => {
+    await page.getByText("Confiance & Crédibilité").click()
+    await expect(page.getByText("Blueprint")).toBeVisible()
+    await expect(page.getByText("Scientifique")).toBeVisible()
+  })
+
+  test("re-cliquer un objectif sélectionné → le désélectionne", async ({ page }) => {
+    await page.getByText("Expertise & Savoir").click()
+    await expect(page.getByText("Dashboard")).toBeVisible()
+    await page.getByText("Expertise & Savoir").click()
+    // Les badges de styles ne sont plus visibles
+    await expect(page.getByText("Dashboard")).not.toBeVisible()
+  })
+})
+
+// ─── Culture cible ──────────────────────────────────────────────────────────
+
+test.describe("Culture cible (Étape 4 — Audience)", () => {
+  async function navigateToStep4(page: Page) {
+    await goToBrandDna(page)
+    await page.getByLabel(/Nom de la marque/).fill("RAMI Test")
+    await page.getByLabel(/Secteur d'activité/).selectOption("Tech & SaaS")
+    await page.getByLabel(/Positionnement/).fill("Plateforme SaaS de contenu pour agences.")
+    await page.getByRole("button", { name: "Suivant" }).click()
+    await page.getByText("Bleu Marine").click()
+    await page.getByText("Vert Émeraude").click()
+    await page.getByText("Or Prestige").click()
+    await page.getByRole("button", { name: "Suivant" }).click()
+    await page.getByText("Expert & Autorité").click()
+    await page.getByRole("button", { name: "Suivant" }).click()
+  }
+
+  test("affiche les 5 options de culture cible", async ({ page }) => {
+    await navigateToStep4(page)
+    await expect(page.getByText("Culture cible principale")).toBeVisible()
+    await expect(page.getByText("Maroc")).toBeVisible()
+    await expect(page.getByText("Afrique subsaharienne")).toBeVisible()
+    await expect(page.getByText("Europe francophone")).toBeVisible()
+    await expect(page.getByText("Moyen-Orient")).toBeVisible()
+    await expect(page.getByText("International")).toBeVisible()
+  })
+
+  test("sélectionner Maroc → culture active", async ({ page }) => {
+    await navigateToStep4(page)
+    await page.getByRole("radio", { name: /Maroc/ }).click()
+    await expect(page.getByRole("radio", { name: /Maroc/ })).toHaveAttribute("aria-checked", "true")
+  })
+})
+
 // ─── Sécurité & accessibilité ────────────────────────────────────────────────
 
 test.describe("Sécurité & accessibilité", () => {
@@ -330,7 +396,7 @@ test.describe("Sécurité & accessibilité", () => {
     const xssPayload = '<script>window.__xss=1</script>'
     await page.getByLabel(/Nom de la marque/).fill(xssPayload)
     // La valeur doit être stockée en texte, pas exécutée
-    const xssExecuted = await page.evaluate(() => !!(window as Record<string, unknown>).__xss)
+    const xssExecuted = await page.evaluate(() => !!(window as unknown as Record<string, unknown>).__xss)
     expect(xssExecuted).toBe(false)
   })
 })
