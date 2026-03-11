@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -82,6 +82,16 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
       : [...current, p as never]
     form.setValue("platforms", next, { shouldValidate: true })
   }
+
+  // Sync la date pré-remplie quand defaultDate change (clic sur un jour du calendrier)
+  useEffect(() => {
+    if (open) {
+      form.setValue(
+        "scheduled_at",
+        defaultDate ? toLocalDateTimeString(defaultDate) : null
+      )
+    }
+  }, [defaultDate, open, form])
 
   function handleOpenChange(v: boolean) {
     setOpen(v)

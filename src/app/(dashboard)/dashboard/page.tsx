@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm"
 import { LayoutDashboard, Sparkles, CalendarDays, Wand2, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import { WelcomeToast } from "@/components/dashboard/WelcomeToast"
+import { getSchedulerStats } from "@/app/actions/scheduler"
 
 export const metadata: Metadata = {
   title: "Tableau de bord — RAMI",
@@ -29,6 +30,9 @@ export default async function DashboardPage() {
         where: eq(tenants.id, dbUser.tenant_id),
       })
     : null
+
+  const statsResult = await getSchedulerStats()
+  const stats = statsResult.success ? statsResult.data : null
 
   const quickLinks = [
     { href: "/dashboard/create", icon: Wand2, label: "Créer du contenu", desc: "Démarrer le workflow 7 étapes" },
@@ -64,9 +68,9 @@ export default async function DashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
         {[
-          { label: "Posts publiés", value: "0", sub: "ce mois" },
+          { label: "Posts publiés", value: stats ? String(stats.publishedThisMonth) : "0", sub: "ce mois" },
           { label: "Visuels générés", value: "0", sub: "ce mois" },
-          { label: "Posts planifiés", value: "0", sub: "à venir" },
+          { label: "Posts planifiés", value: stats ? String(stats.scheduledUpcoming) : "0", sub: "à venir" },
           { label: "Score Brand DNA", value: "—", sub: "à configurer" },
         ].map((stat) => (
           <div
