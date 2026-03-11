@@ -4,6 +4,7 @@ import {
   CAUSSE_COLORS,
   VOICE_TONES,
   SECTORS,
+  SECTOR_COLOR_RULES,
 } from "@/lib/schemas/brand-dna.schema"
 
 // ─── computeDnaScore ────────────────────────────────────────────────────────
@@ -349,6 +350,105 @@ describe("SECTORS", () => {
     for (const sector of SECTORS) {
       expect(typeof sector).toBe("string")
       expect(sector.length).toBeGreaterThan(0)
+    }
+  })
+})
+
+// ─── SECTOR_COLOR_RULES ──────────────────────────────────────────────────────
+
+describe("SECTOR_COLOR_RULES", () => {
+  // Cast to string set to avoid TS literal-type restriction on Set.has()
+  const allColorIds = new Set<string>(CAUSSE_COLORS.map((c) => c.id))
+
+  test("contient au moins 5 secteurs configurés", () => {
+    expect(Object.keys(SECTOR_COLOR_RULES).length).toBeGreaterThanOrEqual(5)
+  })
+
+  test("chaque secteur a les champs recommended et avoid (tableaux)", () => {
+    for (const rule of Object.values(SECTOR_COLOR_RULES)) {
+      expect(Array.isArray(rule.recommended)).toBe(true)
+      expect(Array.isArray(rule.avoid)).toBe(true)
+    }
+  })
+
+  test("tous les IDs de couleurs recommended existent dans CAUSSE_COLORS", () => {
+    for (const [sector, rule] of Object.entries(SECTOR_COLOR_RULES)) {
+      for (const colorId of rule.recommended) {
+        if (!allColorIds.has(colorId)) {
+          throw new Error(`Secteur "${sector}" : l'ID recommandé "${colorId}" n'existe pas dans CAUSSE_COLORS`)
+        }
+      }
+    }
+  })
+
+  test("tous les IDs de couleurs avoid existent dans CAUSSE_COLORS", () => {
+    for (const [sector, rule] of Object.entries(SECTOR_COLOR_RULES)) {
+      for (const colorId of rule.avoid) {
+        if (!allColorIds.has(colorId)) {
+          throw new Error(`Secteur "${sector}" : l'ID évité "${colorId}" n'existe pas dans CAUSSE_COLORS`)
+        }
+      }
+    }
+  })
+
+  test("avoidAlternative est un ID valide quand présent", () => {
+    for (const [sector, rule] of Object.entries(SECTOR_COLOR_RULES)) {
+      if (rule.avoidAlternative !== undefined) {
+        if (!allColorIds.has(rule.avoidAlternative)) {
+          throw new Error(`Secteur "${sector}" : avoidAlternative "${rule.avoidAlternative}" n'existe pas dans CAUSSE_COLORS`)
+        }
+      }
+    }
+  })
+
+  test("aucune couleur n'est simultanément recommended et avoided", () => {
+    for (const [sector, rule] of Object.entries(SECTOR_COLOR_RULES)) {
+      const recommended = new Set<string>(rule.recommended)
+      for (const colorId of rule.avoid) {
+        if (recommended.has(colorId)) {
+          throw new Error(`Secteur "${sector}" : "${colorId}" est à la fois recommandé et à éviter`)
+        }
+      }
+    }
+  })
+
+  test("avoidReason est présente quand avoidAlternative est définie", () => {
+    for (const [sector, rule] of Object.entries(SECTOR_COLOR_RULES)) {
+      if (rule.avoidAlternative !== undefined) {
+        if (typeof rule.avoidReason !== "string") {
+          throw new Error(`Secteur "${sector}" : avoidReason manquante alors qu'avoidAlternative est définie`)
+        }
+      }
+    }
+  })
+
+  test("Finance Islamique recommande vert_emeraude et évite rouge_passion", () => {
+    const rule = SECTOR_COLOR_RULES["Finance Islamique"]
+    expect(rule).toBeDefined()
+    expect(rule.recommended).toContain("vert_emeraude")
+    expect(rule.avoid).toContain("rouge_passion")
+  })
+
+  test("Santé & Médical évite rouge_passion avec alternative bordeaux_premium", () => {
+    const rule = SECTOR_COLOR_RULES["Santé & Médical"]
+    expect(rule).toBeDefined()
+    expect(rule.avoid).toContain("rouge_passion")
+    expect(rule.avoidAlternative).toBe("bordeaux_premium")
+  })
+
+  test("Luxe & Mode évite orange et jaune (incompatibles avec positionnement luxe)", () => {
+    const rule = SECTOR_COLOR_RULES["Luxe & Mode"]
+    expect(rule).toBeDefined()
+    expect(rule.avoid).toContain("orange_chaleureux")
+    expect(rule.avoid).toContain("jaune_optimiste")
+  })
+
+  test("les clés de SECTOR_COLOR_RULES sont toutes dans SECTORS", () => {
+    const sectorsSet = new Set(SECTORS as readonly string[])
+    for (const sectorKey of Object.keys(SECTOR_COLOR_RULES)) {
+      if (!sectorsSet.has(sectorKey)) {
+        throw new Error(`La clé "${sectorKey}" dans SECTOR_COLOR_RULES n'existe pas dans SECTORS`)
+      }
     }
   })
 })

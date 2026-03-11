@@ -167,6 +167,9 @@ export const brandDnaFormSchema = z.object({
   // Ton de voix
   voiceTone: z.string().min(1, "Choisissez le ton de voix"),
 
+  // Culture cible
+  primaryCulture: z.string().optional(),
+
   // Audience
   audienceDescription: z
     .string()
@@ -178,6 +181,17 @@ export const brandDnaFormSchema = z.object({
 })
 
 export type BrandDnaFormData = z.infer<typeof brandDnaFormSchema>
+
+export const CULTURES = [
+  { id: "maroc", label: "Maroc", flag: "🇲🇦" },
+  { id: "afrique_subsaharienne", label: "Afrique subsaharienne", flag: "🌍" },
+  { id: "europe_francophone", label: "Europe francophone", flag: "🇫🇷" },
+  { id: "moyen_orient", label: "Moyen-Orient", flag: "🌙" },
+  { id: "international", label: "International", flag: "🌐" },
+] as const
+
+export type Culture = typeof CULTURES[number]
+export type CultureId = Culture["id"]
 
 export const SECTORS = [
   "Finance & Banque",

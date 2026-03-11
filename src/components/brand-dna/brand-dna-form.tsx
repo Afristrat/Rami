@@ -21,6 +21,7 @@ import {
   brandDnaFormSchema,
   type BrandDnaFormData,
   SECTORS,
+  CULTURES,
 } from "@/lib/schemas/brand-dna.schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -308,10 +309,43 @@ function StepTonDeVoix({ form }: { form: ReturnType<typeof useForm<BrandDnaFormD
 /* ─── Étape 3 — Audience ─────────────────────────── */
 
 function StepAudience({ form }: { form: ReturnType<typeof useForm<BrandDnaFormData>> }) {
-  const { register, formState: { errors } } = form
+  const { register, setValue, formState: { errors } } = form
+  const primaryCulture = useWatch({ control: form.control, name: "primaryCulture", defaultValue: "" })
 
   return (
     <div className="space-y-5">
+      {/* Culture cible — SOP-005 Bloc B */}
+      <div className="space-y-2">
+        <p className="text-sm font-semibold text-foreground">Culture cible principale</p>
+        <p className="text-xs text-muted-foreground">
+          Détermine les codes visuels et symboliques prioritaires (Causse × culture)
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {CULTURES.map((culture) => {
+            const isSelected = primaryCulture === culture.id
+            return (
+              <button
+                key={culture.id}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                onClick={() => setValue("primaryCulture", isSelected ? "" : culture.id, { shouldDirty: true })}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg border-2 px-3 py-2.5 text-left text-sm transition-all",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  isSelected
+                    ? "border-primary bg-primary/5 font-medium text-foreground"
+                    : "border-border hover:border-primary/40 hover:bg-muted/50 text-muted-foreground"
+                )}
+              >
+                <span className="text-base" aria-hidden="true">{culture.flag}</span>
+                <span className="text-xs">{culture.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
       <FormField
         label="Description de l'audience cible"
         required
@@ -498,6 +532,7 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
       colorSecondary: "",
       colorAccent: "",
       voiceTone: "",
+      primaryCulture: "",
       audienceDescription: "",
       audienceAge: "",
       audienceLocation: "",
