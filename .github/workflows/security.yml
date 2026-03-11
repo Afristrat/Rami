@@ -1,0 +1,35 @@
+name: Audit Sécurité Hebdomadaire
+# Conforme CLAUDE.md §4.11 — scan vulnérabilités + secrets
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"   # Chaque lundi à 9h UTC
+  workflow_dispatch:        # Déclenchement manuel
+
+jobs:
+  audit:
+    name: npm audit + TruffleHog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Historique complet pour TruffleHog
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Audit npm (vulnérabilités critiques/high)
+        run: npm audit --audit-level=high
+
+      - name: Scan secrets (TruffleHog)
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
