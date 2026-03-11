@@ -26,6 +26,11 @@ import { createServiceClient } from "@/lib/supabase/service"
 export async function startPublishWorker(): Promise<void> {
   const boss = await getBoss()
 
+  if (!boss) {
+    console.warn("[publish-worker] Queue indisponible — worker non démarré")
+    return
+  }
+
   // pg-boss v12 : le handler reçoit un tableau de jobs (batch)
   await boss.work<PublishPostPayload>(
     JOBS.PUBLISH_POST,
