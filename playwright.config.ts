@@ -1,4 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
+import { config } from 'dotenv'
+import { resolve } from 'path'
+
+// Charger les variables d'environnement pour les fixtures Supabase
+config({ path: resolve(__dirname, '.env.local') })
+config({ path: resolve(__dirname, '.env.test') })
 
 export default defineConfig({
   testDir: './tests/e2e',

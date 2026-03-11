@@ -1,4 +1,5 @@
-import { test, expect, type Page } from "@playwright/test"
+import { test, expect } from "./fixtures/auth"
+import { type Page } from "@playwright/test"
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -9,24 +10,24 @@ async function goToBrandDna(page: Page) {
 // ─── Page Brand DNA ─────────────────────────────────────────────────────────
 
 test.describe("Page /dashboard/brand-dna", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ onboardedPage: page }) => {
     await page.goto("/dashboard/brand-dna")
   })
 
-  test("affiche le titre et les badges Causse/Gestalt", async ({ page }) => {
+  test("affiche le titre et les badges Causse/Gestalt", async ({ onboardedPage: page }) => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Brand DNA")
     await expect(page.getByText("Neuropsychologie des couleurs (Causse)")).toBeVisible()
     await expect(page.getByText("Psychologie des formes (Gestalt)")).toBeVisible()
     await expect(page.getByText("Calibrage par culture et secteur")).toBeVisible()
   })
 
-  test("affiche le wizard avec l'étape 1 active (Identité)", async ({ page }) => {
+  test("affiche le wizard avec l'étape 1 active (Identité)", async ({ onboardedPage: page }) => {
     await expect(page.getByText("Identité")).toBeVisible()
     await expect(page.getByRole("heading", { name: "Identité", level: 2 })).toBeVisible()
     await expect(page.getByText("Nom, secteur et positionnement de la marque")).toBeVisible()
   })
 
-  test("affiche le stepper avec 4 étapes", async ({ page }) => {
+  test("affiche le stepper avec 4 étapes", async ({ onboardedPage: page }) => {
     // Desktop stepper
     await page.setViewportSize({ width: 1280, height: 800 })
     await expect(page.getByText("Identité")).toBeVisible()
@@ -35,7 +36,7 @@ test.describe("Page /dashboard/brand-dna", () => {
     await expect(page.getByText("Audience")).toBeVisible()
   })
 
-  test("affiche la barre de progression sur mobile", async ({ page }) => {
+  test("affiche la barre de progression sur mobile", async ({ onboardedPage: page }) => {
     await page.setViewportSize({ width: 375, height: 812 })
     await expect(page.getByText("Étape 1 sur 4")).toBeVisible()
   })
@@ -44,35 +45,35 @@ test.describe("Page /dashboard/brand-dna", () => {
 // ─── Étape 1 — Identité ─────────────────────────────────────────────────────
 
 test.describe("Étape 1 — Identité", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ onboardedPage: page }) => {
     await goToBrandDna(page)
   })
 
-  test("affiche la zone de dépôt du logo", async ({ page }) => {
+  test("affiche la zone de dépôt du logo", async ({ onboardedPage: page }) => {
     await expect(page.getByText("Glissez votre logo ou cliquez")).toBeVisible()
     await expect(page.getByText("PNG, JPG, SVG, WebP — max 10 Mo")).toBeVisible()
   })
 
-  test("affiche les champs obligatoires (Nom, Secteur, Positionnement)", async ({ page }) => {
+  test("affiche les champs obligatoires (Nom, Secteur, Positionnement)", async ({ onboardedPage: page }) => {
     await expect(page.getByLabel(/Nom de la marque/)).toBeVisible()
     await expect(page.getByLabel(/Secteur d'activité/)).toBeVisible()
     await expect(page.getByLabel(/Positionnement/)).toBeVisible()
   })
 
-  test("validation — cliquer Suivant sans remplir → erreurs affichées", async ({ page }) => {
+  test("validation — cliquer Suivant sans remplir → erreurs affichées", async ({ onboardedPage: page }) => {
     await page.getByRole("button", { name: "Suivant" }).click()
     await expect(page.getByText("Le nom de la marque est requis")).toBeVisible()
     await expect(page.getByText("Le secteur est requis")).toBeVisible()
     await expect(page.getByText(/Décrivez le positionnement/)).toBeVisible()
   })
 
-  test("validation — nom de marque avec moins de 1 caractère → bloqué", async ({ page }) => {
+  test("validation — nom de marque avec moins de 1 caractère → bloqué", async ({ onboardedPage: page }) => {
     await page.getByLabel(/Nom de la marque/).fill("")
     await page.getByRole("button", { name: "Suivant" }).click()
     await expect(page.getByText("Le nom de la marque est requis")).toBeVisible()
   })
 
-  test("remplir l'étape 1 → bouton Suivant actif et navigation vers étape 2", async ({ page }) => {
+  test("remplir l'étape 1 → bouton Suivant actif et navigation vers étape 2", async ({ onboardedPage: page }) => {
     await page.getByLabel(/Nom de la marque/).fill("RAMI Test")
     await page.getByLabel(/Secteur d'activité/).selectOption("Tech & SaaS")
     await page.getByLabel(/Positionnement/).fill("Plateforme SaaS de gestion de contenu pour agences digitales.")
@@ -83,7 +84,7 @@ test.describe("Étape 1 — Identité", () => {
     await expect(page.getByText("Méthode Jean-Gabriel Causse")).toBeVisible()
   })
 
-  test("upload logo — fichier valide → aperçu affiché", async ({ page }) => {
+  test("upload logo — fichier valide → aperçu affiché", async ({ onboardedPage: page }) => {
     // Utilise un fichier PNG de test (1x1 pixel transparent)
     const fileContent = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
@@ -104,7 +105,7 @@ test.describe("Étape 1 — Identité", () => {
     await expect(page.getByText("Logo chargé avec succès")).toBeVisible()
   })
 
-  test("upload logo — bouton supprimer efface l'aperçu", async ({ page }) => {
+  test("upload logo — bouton supprimer efface l'aperçu", async ({ onboardedPage: page }) => {
     const fileContent = Buffer.from(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
       "base64"
@@ -133,26 +134,26 @@ test.describe("Étape 2 — Palette Causse", () => {
     await expect(page.getByRole("heading", { name: "Palette Causse" })).toBeVisible()
   }
 
-  test("affiche le bandeau Méthode Causse", async ({ page }) => {
+  test("affiche le bandeau Méthode Causse", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
     await expect(page.getByText("Méthode Jean-Gabriel Causse")).toBeVisible()
     await expect(page.getByText(/effet neuropsychologique/)).toBeVisible()
   })
 
-  test("affiche les 3 sélecteurs de couleurs (principale, secondaire, accent)", async ({ page }) => {
+  test("affiche les 3 sélecteurs de couleurs (principale, secondaire, accent)", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
     await expect(page.getByText("Couleur principale")).toBeVisible()
     await expect(page.getByText("Couleur secondaire")).toBeVisible()
     await expect(page.getByText("Couleur d'accent")).toBeVisible()
   })
 
-  test("validation — Suivant sans couleurs → erreurs", async ({ page }) => {
+  test("validation — Suivant sans couleurs → erreurs", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
     await page.getByRole("button", { name: "Suivant" }).click()
     await expect(page.getByText("Choisissez la couleur principale")).toBeVisible()
   })
 
-  test("sélectionner une couleur principale → affiche la justification psychologique", async ({ page }) => {
+  test("sélectionner une couleur principale → affiche la justification psychologique", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
     // Cliquer sur la première couleur dans la section "Couleur principale"
     const colorButtons = page.locator("button").filter({ hasText: /Bleu|Rouge|Vert|Violet|Orange|Jaune|Rose|Or|Noir|Turquoise|Bordeaux/ })
@@ -162,7 +163,7 @@ test.describe("Étape 2 — Palette Causse", () => {
     await expect(page.getByText("Psychologie de la couleur (J.-G. Causse)")).toBeVisible()
   })
 
-  test("une couleur sélectionnée ne peut pas être choisie deux fois", async ({ page }) => {
+  test("une couleur sélectionnée ne peut pas être choisie deux fois", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
     // Sélectionner Bleu Marine comme couleur principale
     await page.getByText("Bleu Marine").click()
@@ -175,7 +176,7 @@ test.describe("Étape 2 — Palette Causse", () => {
     }
   })
 
-  test("aperçu palette s'affiche après 1+ couleur sélectionnée", async ({ page }) => {
+  test("aperçu palette s'affiche après 1+ couleur sélectionnée", async ({ onboardedPage: page }) => {
     await navigateToStep2(page)
     await page.getByText("Bleu Marine").click()
     await expect(page.getByText("Aperçu de votre palette")).toBeVisible()
@@ -201,7 +202,7 @@ test.describe("Étape 3 — Ton de voix", () => {
     await expect(page.getByRole("heading", { name: "Ton de voix" })).toBeVisible()
   }
 
-  test("affiche les 6 options de ton de voix", async ({ page }) => {
+  test("affiche les 6 options de ton de voix", async ({ onboardedPage: page }) => {
     await navigateToStep3(page)
     const tones = ["Expert & Autorité", "Bienveillant & Empathique", "Inspirant & Motivant", "Ludique & Créatif", "Premium & Élégant", "Direct & Percutant"]
     for (const tone of tones) {
@@ -209,14 +210,14 @@ test.describe("Étape 3 — Ton de voix", () => {
     }
   })
 
-  test("sélectionner un ton → affiche les mots-clés", async ({ page }) => {
+  test("sélectionner un ton → affiche les mots-clés", async ({ onboardedPage: page }) => {
     await navigateToStep3(page)
     await page.getByText("Expert & Autorité").click()
     // Les mots-clés doivent apparaître
     await expect(page.getByText("analytique")).toBeVisible()
   })
 
-  test("validation — Suivant sans ton → erreur", async ({ page }) => {
+  test("validation — Suivant sans ton → erreur", async ({ onboardedPage: page }) => {
     await navigateToStep3(page)
     await page.getByRole("button", { name: "Suivant" }).click()
     await expect(page.getByText("Choisissez le ton de voix")).toBeVisible()
@@ -244,7 +245,7 @@ test.describe("Étape 4 — Audience", () => {
     await expect(page.getByRole("heading", { name: "Audience" })).toBeVisible()
   }
 
-  test("affiche les champs audience", async ({ page }) => {
+  test("affiche les champs audience", async ({ onboardedPage: page }) => {
     await navigateToStep4(page)
     await expect(page.getByLabel(/Description de l'audience cible/)).toBeVisible()
     await expect(page.getByLabel(/Tranche d'âge/)).toBeVisible()
@@ -252,14 +253,14 @@ test.describe("Étape 4 — Audience", () => {
     await expect(page.getByLabel(/Points de douleur/)).toBeVisible()
   })
 
-  test("validation — description audience trop courte → erreur", async ({ page }) => {
+  test("validation — description audience trop courte → erreur", async ({ onboardedPage: page }) => {
     await navigateToStep4(page)
     await page.getByLabel(/Description de l'audience/).fill("Court")
     await page.getByRole("button", { name: /Sauvegarder/ }).click()
     await expect(page.getByText(/min 20 caractères/)).toBeVisible()
   })
 
-  test("affiche le récapitulatif après avoir rempli l'audience", async ({ page }) => {
+  test("affiche le récapitulatif après avoir rempli l'audience", async ({ onboardedPage: page }) => {
     await navigateToStep4(page)
     await page.getByLabel(/Description de l'audience/).fill(
       "Directeurs d'agences digitales au Maroc et en Afrique francophone, gérant 10 à 50 marques clientes."
@@ -276,13 +277,13 @@ test.describe("Étape 4 — Audience", () => {
 // ─── Navigation wizard ──────────────────────────────────────────────────────
 
 test.describe("Navigation wizard", () => {
-  test("bouton Retour est invisible sur l'étape 1", async ({ page }) => {
+  test("bouton Retour est invisible sur l'étape 1", async ({ onboardedPage: page }) => {
     await goToBrandDna(page)
     const backButton = page.getByRole("button", { name: "Retour" })
     await expect(backButton).not.toBeVisible()
   })
 
-  test("bouton Retour visible à partir de l'étape 2", async ({ page }) => {
+  test("bouton Retour visible à partir de l'étape 2", async ({ onboardedPage: page }) => {
     await goToBrandDna(page)
     await page.getByLabel(/Nom de la marque/).fill("Test")
     await page.getByLabel(/Secteur/).selectOption("Tech & SaaS")
@@ -291,7 +292,7 @@ test.describe("Navigation wizard", () => {
     await expect(page.getByRole("button", { name: "Retour" })).toBeVisible()
   })
 
-  test("bouton Retour ramène à l'étape précédente", async ({ page }) => {
+  test("bouton Retour ramène à l'étape précédente", async ({ onboardedPage: page }) => {
     await goToBrandDna(page)
     await page.getByLabel(/Nom de la marque/).fill("Test")
     await page.getByLabel(/Secteur/).selectOption("Tech & SaaS")
@@ -304,7 +305,7 @@ test.describe("Navigation wizard", () => {
     await expect(page.getByLabel(/Nom de la marque/)).toHaveValue("Test")
   })
 
-  test("compteur d'étape mis à jour à chaque navigation", async ({ page }) => {
+  test("compteur d'étape mis à jour à chaque navigation", async ({ onboardedPage: page }) => {
     await goToBrandDna(page)
     await expect(page.getByText("1 / 4")).toBeVisible()
     await page.getByLabel(/Nom de la marque/).fill("Test")
@@ -318,11 +319,11 @@ test.describe("Navigation wizard", () => {
 // ─── Objectif cognitif ──────────────────────────────────────────────────────
 
 test.describe("Objectif cognitif (Étape 1)", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ onboardedPage: page }) => {
     await goToBrandDna(page)
   })
 
-  test("affiche les 6 objectifs cognitifs", async ({ page }) => {
+  test("affiche les 6 objectifs cognitifs", async ({ onboardedPage: page }) => {
     await expect(page.getByText("Objectif cognitif principal")).toBeVisible()
     await expect(page.getByText("Confiance & Crédibilité")).toBeVisible()
     await expect(page.getByText("Urgence & Action")).toBeVisible()
@@ -332,13 +333,13 @@ test.describe("Objectif cognitif (Étape 1)", () => {
     await expect(page.getByText("Joie & Légèreté")).toBeVisible()
   })
 
-  test("sélectionner un objectif → affiche les styles visuels", async ({ page }) => {
+  test("sélectionner un objectif → affiche les styles visuels", async ({ onboardedPage: page }) => {
     await page.getByText("Confiance & Crédibilité").click()
     await expect(page.getByText("Blueprint")).toBeVisible()
     await expect(page.getByText("Scientifique")).toBeVisible()
   })
 
-  test("re-cliquer un objectif sélectionné → le désélectionne", async ({ page }) => {
+  test("re-cliquer un objectif sélectionné → le désélectionne", async ({ onboardedPage: page }) => {
     await page.getByText("Expertise & Savoir").click()
     await expect(page.getByText("Dashboard")).toBeVisible()
     await page.getByText("Expertise & Savoir").click()
@@ -364,7 +365,7 @@ test.describe("Culture cible (Étape 4 — Audience)", () => {
     await page.getByRole("button", { name: "Suivant" }).click()
   }
 
-  test("affiche les 5 options de culture cible", async ({ page }) => {
+  test("affiche les 5 options de culture cible", async ({ onboardedPage: page }) => {
     await navigateToStep4(page)
     await expect(page.getByText("Culture cible principale")).toBeVisible()
     await expect(page.getByText("Maroc")).toBeVisible()
@@ -374,7 +375,7 @@ test.describe("Culture cible (Étape 4 — Audience)", () => {
     await expect(page.getByText("International")).toBeVisible()
   })
 
-  test("sélectionner Maroc → culture active", async ({ page }) => {
+  test("sélectionner Maroc → culture active", async ({ onboardedPage: page }) => {
     await navigateToStep4(page)
     await page.getByRole("radio", { name: /Maroc/ }).click()
     await expect(page.getByRole("radio", { name: /Maroc/ })).toHaveAttribute("aria-checked", "true")
@@ -391,7 +392,7 @@ test.describe("Sécurité & accessibilité", () => {
     await expect(page).toHaveURL(/\/login/)
   })
 
-  test("XSS dans le champ Nom — la valeur est affichée sans exécution de script", async ({ page }) => {
+  test("XSS dans le champ Nom — la valeur est affichée sans exécution de script", async ({ onboardedPage: page }) => {
     await goToBrandDna(page)
     const xssPayload = '<script>window.__xss=1</script>'
     await page.getByLabel(/Nom de la marque/).fill(xssPayload)

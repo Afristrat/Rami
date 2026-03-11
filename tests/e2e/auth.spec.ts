@@ -13,9 +13,9 @@ test.describe("Page /login", () => {
   })
 
   test("affiche le logo RAMI et le formulaire", async ({ page }) => {
-    await expect(page.getByText("RAMI")).toBeVisible()
+    await expect(page.getByText("RAMI").first()).toBeVisible()
     await expect(page.getByText("Agency OS by AI-MPower")).toBeVisible()
-    await expect(page.getByRole("heading", { name: "Bon retour" })).toBeVisible()
+    await expect(page.getByRole("heading", { name: /Bon retour/i })).toBeVisible()
     await expect(page.getByLabel("Email")).toBeVisible()
     await expect(page.getByLabel("Mot de passe")).toBeVisible()
     await expect(page.getByRole("button", { name: /Se connecter/i })).toBeVisible()
@@ -75,7 +75,7 @@ test.describe("Page /register", () => {
     await expect(page.getByRole("heading", { name: /Créer un compte/i })).toBeVisible()
     await expect(page.getByLabel("Nom complet")).toBeVisible()
     await expect(page.getByLabel("Email professionnel")).toBeVisible()
-    await expect(page.getByLabel("Mot de passe")).toBeVisible()
+    await expect(page.getByLabel("Mot de passe").first()).toBeVisible()
     await expect(page.getByLabel("Confirmer le mot de passe")).toBeVisible()
     await expect(page.getByRole("button", { name: /Créer mon compte/i })).toBeVisible()
   })

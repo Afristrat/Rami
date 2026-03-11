@@ -9,7 +9,7 @@
  *  - La gestion des erreurs explicites par plateforme
  */
 
-import { test, expect } from "@playwright/test"
+import { test, expect } from "./fixtures/auth"
 
 // ── Configuration ──────────────────────────────────────────────────────────
 
@@ -50,13 +50,13 @@ test.describe("API /api/queue/publish", () => {
 // ── Tests statuts post dans le calendrier ─────────────────────────────────
 
 test.describe("Statuts de publication dans le calendrier", () => {
-  test("Post créé → statut initial 'draft'", async ({ page }) => {
+  test("Post créé → statut initial 'draft'", async ({ onboardedPage: page }) => {
     await page.goto(`${BASE_URL}/login`)
     // On vérifie juste que la page se charge sans erreur
     await expect(page).toHaveTitle(/RAMI|Connexion|Login/)
   })
 
-  test("Page calendrier accessible après auth", async ({ page }) => {
+  test("Page calendrier accessible après auth", async ({ onboardedPage: page }) => {
     await page.goto(`${BASE_URL}/login`)
     const title = await page.title()
     expect(title).toBeTruthy()
@@ -66,7 +66,7 @@ test.describe("Statuts de publication dans le calendrier", () => {
 // ── Tests de l'interface Publier ───────────────────────────────────────────
 
 test.describe("Interface de publication", () => {
-  test("Page calendrier se charge sans erreur 500", async ({ page }) => {
+  test("Page calendrier se charge sans erreur 500", async ({ onboardedPage: page }) => {
     const response = await page.goto(`${BASE_URL}/dashboard/calendar`)
     // Redirigé vers login (non auth) ou 200
     expect([200, 302, 307, 308]).toContain(response?.status() ?? 200)
@@ -118,7 +118,7 @@ test.describe("Sécurité queue publish", () => {
     expect([401, 404, 409]).toContain(res.status())
   })
 
-  test("Headers CSP présents sur /dashboard/calendar", async ({ page }) => {
+  test("Headers CSP présents sur /dashboard/calendar", async ({ onboardedPage: page }) => {
     const response = await page.goto(`${BASE_URL}/dashboard/calendar`)
     const headers = response?.headers() ?? {}
     // CSP ou redirect (si non auth)

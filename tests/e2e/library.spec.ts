@@ -1,11 +1,11 @@
-import { test, expect } from "@playwright/test"
+import { test, expect } from "./fixtures/auth"
 
 test.describe("Médiathèque", () => {
   // Note : ces tests supposent un utilisateur authentifié.
   // Pour les tests d'intégration complets, configurer un storage state avec session active.
 
   test.describe("Page publique — structure", () => {
-    test("redirige vers login si non authentifié", async ({ page }) => {
+    test("redirige vers login si non authentifié", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       // Doit rediriger vers login (proxy auth)
       await expect(page).toHaveURL(/\/(login|auth)/)
@@ -13,7 +13,7 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("UI — zone d'upload", () => {
-    test("zone d'upload visible et accessible", async ({ page }) => {
+    test("zone d'upload visible et accessible", async ({ onboardedPage: page }) => {
       // Simuler une page avec la zone d'upload rendue directement
       await page.goto("/dashboard/library")
       // Si non authentifié, on atterrit sur login — ce test vérifie la redirection
@@ -37,7 +37,7 @@ test.describe("Médiathèque", () => {
       expect(count).toBeGreaterThanOrEqual(4) // all, image, video, document
     })
 
-    test("filtre 'Images' est sélectionnable", async ({ page }) => {
+    test("filtre 'Images' est sélectionnable", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -45,7 +45,7 @@ test.describe("Médiathèque", () => {
       await expect(page.getByRole("tab", { name: "Images" })).toHaveAttribute("aria-selected", "true")
     })
 
-    test("filtre 'Vidéos' est sélectionnable", async ({ page }) => {
+    test("filtre 'Vidéos' est sélectionnable", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -53,7 +53,7 @@ test.describe("Médiathèque", () => {
       await expect(page.getByRole("tab", { name: "Vidéos" })).toHaveAttribute("aria-selected", "true")
     })
 
-    test("filtre 'Documents' est sélectionnable", async ({ page }) => {
+    test("filtre 'Documents' est sélectionnable", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -63,7 +63,7 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("Recherche", () => {
-    test("champ de recherche est présent et focusable", async ({ page }) => {
+    test("champ de recherche est présent et focusable", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -73,7 +73,7 @@ test.describe("Médiathèque", () => {
       await expect(searchInput).toBeFocused()
     })
 
-    test("saisie dans la recherche met à jour le champ", async ({ page }) => {
+    test("saisie dans la recherche met à jour le champ", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -82,7 +82,7 @@ test.describe("Médiathèque", () => {
       await expect(searchInput).toHaveValue("logo")
     })
 
-    test("vider la recherche revient à l'état initial", async ({ page }) => {
+    test("vider la recherche revient à l'état initial", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -94,7 +94,7 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("Zone d'upload — accessibilité", () => {
-    test("zone d'upload a un rôle button", async ({ page }) => {
+    test("zone d'upload a un rôle button", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -102,7 +102,7 @@ test.describe("Médiathèque", () => {
       await expect(uploadZone).toBeVisible()
     })
 
-    test("zone d'upload est focusable au clavier", async ({ page }) => {
+    test("zone d'upload est focusable au clavier", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -111,7 +111,7 @@ test.describe("Médiathèque", () => {
       await expect(uploadZone).toBeFocused()
     })
 
-    test("zone d'upload refuse un fichier trop volumineux (>50MB)", async ({ page }) => {
+    test("zone d'upload refuse un fichier trop volumineux (>50MB)", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -123,7 +123,7 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("État vide", () => {
-    test("message 'Médiathèque vide' affiché quand aucun asset", async ({ page }) => {
+    test("message 'Médiathèque vide' affiché quand aucun asset", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -138,14 +138,14 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("Titre + compteur", () => {
-    test("titre 'Médiathèque' est affiché", async ({ page }) => {
+    test("titre 'Médiathèque' est affiché", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
       await expect(page.getByRole("heading", { name: "Médiathèque" })).toBeVisible()
     })
 
-    test("compteur de fichiers est affiché", async ({ page }) => {
+    test("compteur de fichiers est affiché", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -155,7 +155,7 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("Sécurité", () => {
-    test("XSS dans la recherche — pas d'exécution de script", async ({ page }) => {
+    test("XSS dans la recherche — pas d'exécution de script", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
@@ -171,7 +171,7 @@ test.describe("Médiathèque", () => {
   })
 
   test.describe("Lightbox", () => {
-    test("lightbox n'est pas visible par défaut", async ({ page }) => {
+    test("lightbox n'est pas visible par défaut", async ({ onboardedPage: page }) => {
       await page.goto("/dashboard/library")
       if (page.url().includes("login")) { test.skip(); return }
 
