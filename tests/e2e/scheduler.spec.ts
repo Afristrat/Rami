@@ -643,6 +643,181 @@ test.describe('Calendrier — Sidebar toggle (desktop)', () => {
   })
 })
 
+test.describe('Calendrier — Brouillons (posts sans date)', () => {
+  test('créer un post sans date affiche la section Brouillons', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    // Créer un post SANS date → doit aller en brouillon
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Brouillon sans date')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    // Ne pas remplir la date
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(800)
+
+    // La section Brouillons doit apparaître dans la sidebar
+    await expect(page.getByText(/brouillons/i).first()).toBeVisible()
+    await expect(page.getByText('Brouillon sans date')).toBeVisible()
+  })
+
+  test('le brouillon ne s\'affiche pas dans le calendrier', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Brouillon hors calendrier')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(800)
+
+    // Le post ne doit PAS être dans la grille du calendrier
+    // (il est seulement dans la section Brouillons de la sidebar)
+    const grid = page.getByRole('grid', { name: /calendrier de publication/i })
+    await expect(grid).not.toContainText('Brouillon hors calendrier')
+  })
+
+  test('cliquer sur un brouillon ouvre le panneau de détail', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Brouillon cliquable')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(800)
+
+    // Cliquer sur le brouillon dans la liste
+    await page.getByText('Brouillon cliquable').click()
+    await page.waitForTimeout(300)
+
+    // Le panneau de détail doit s'ouvrir avec le statut Brouillon
+    await expect(page.getByText(/brouillon/i).first()).toBeVisible()
+  })
+
+  test('supprimer un brouillon depuis la liste', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Brouillon à supprimer')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(800)
+
+    // Hover sur le brouillon pour faire apparaître le bouton supprimer
+    const draftItem = page.locator('[role="button"]').filter({ hasText: 'Brouillon à supprimer' })
+    await draftItem.hover()
+    await page.getByTitle(/supprimer ce brouillon/i).click()
+    await page.waitForTimeout(600)
+
+    // Toast de confirmation
+    await expect(page.getByText(/brouillon supprimé/i)).toBeVisible()
+  })
+
+  test('dupliquer un post planifié crée un brouillon dans la section', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    // Créer un post planifié
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post à dupliquer vers brouillon')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    const future = new Date(Date.now() + 3600_000)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    // Ouvrir le panneau et dupliquer
+    await page.getByText('Post à dupliquer vers brouillon').first().click()
+    await page.waitForTimeout(300)
+    await page.getByRole('button', { name: /dupliquer/i }).click()
+    await page.waitForTimeout(600)
+
+    // Le brouillon dupliqué doit apparaître dans la section Brouillons
+    await expect(page.getByText(/brouillons/i).first()).toBeVisible()
+  })
+})
+
+test.describe('Calendrier — Création post planifié (conversion datetime)', () => {
+  test('post avec date apparaît dans le calendrier du mois courant', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    const now = new Date()
+    // Utiliser un jour dans la 2e moitié du mois pour éviter les dépassements de mois
+    const targetDay = Math.min(now.getDate() + 1, 28)
+    const target = new Date(now.getFullYear(), now.getMonth(), targetDay, 14, 30)
+
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${target.getFullYear()}-${pad(target.getMonth() + 1)}-${pad(target.getDate())}T${pad(target.getHours())}:${pad(target.getMinutes())}`
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post planifié dans le calendrier')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    // Le post doit apparaître dans la grille du calendrier (via PostChip)
+    const grid = page.getByRole('grid', { name: /calendrier de publication/i })
+    await expect(grid).toContainText('Post planifié dans le calendrier')
+  })
+
+  test('post planifié apparaît dans la liste "Posts à venir"', async ({
+    onboardedPage: page,
+  }) => {
+    await goToCalendar(page)
+
+    const future = new Date(Date.now() + 2 * 24 * 3600_000) // +2 jours
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const dtValue = `${future.getFullYear()}-${pad(future.getMonth() + 1)}-${pad(future.getDate())}T${pad(future.getHours())}:${pad(future.getMinutes())}`
+
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+    await page.getByLabel(/contenu/i).fill('Post liste à venir')
+    await page.getByRole('button', { name: 'LinkedIn' }).click()
+    await page.getByLabel(/date de publication/i).fill(dtValue)
+    await page.getByRole('button', { name: /créer le post/i }).click()
+    await page.waitForTimeout(1000)
+
+    // La liste "Posts à venir" doit contenir le post
+    await expect(page.getByText('Post liste à venir')).toBeVisible()
+  })
+
+  test('cliquer sur un jour du calendrier pré-remplit la date dans le dialog', async ({
+    onboardedPage: page,
+  }) => {
+    // Viewport desktop pour avoir la grille visible
+    await page.setViewportSize({ width: 1280, height: 900 })
+    await goToCalendar(page)
+
+    // Récupérer la date d'aujourd'hui (+1 jour pour être sûr d'être dans le futur)
+    const tomorrow = new Date(Date.now() + 24 * 3600_000)
+    const dayNumber = tomorrow.getDate()
+
+    // Cliquer sur la cellule du lendemain dans la grille
+    const grid = page.getByRole('grid', { name: /calendrier de publication/i })
+    await grid.getByText(String(dayNumber), { exact: true }).first().click()
+    await page.waitForTimeout(200)
+
+    // Ouvrir le dialog après avoir sélectionné le jour
+    await page.getByRole('button', { name: /nouveau post/i }).click()
+
+    // Le champ de date doit être pré-rempli avec le jour sélectionné
+    const dateInput = page.getByLabel(/date de publication/i)
+    const dateValue = await dateInput.inputValue()
+    expect(dateValue).toContain(String(tomorrow.getFullYear()))
+  })
+})
+
 test.describe('Calendrier — Sécurité', () => {
   test('XSS dans le contenu du post ne s\'exécute pas', async ({
     onboardedPage: page,
