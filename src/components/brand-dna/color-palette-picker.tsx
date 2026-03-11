@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils"
 import {
   CAUSSE_COLORS,
   SECTOR_COLOR_RULES,
+  CULTURE_COLOR_NOTES,
+  CULTURES,
   type CausseColor,
 } from "@/lib/schemas/brand-dna.schema"
 
@@ -110,6 +112,7 @@ interface ColorPalettePickerProps {
   secondary: string
   accent: string
   sector?: string
+  primaryCulture?: string
   onChangePrimary: (id: string) => void
   onChangeSecondary: (id: string) => void
   onChangeAccent: (id: string) => void
@@ -121,6 +124,7 @@ export function ColorPalettePicker({
   secondary,
   accent,
   sector,
+  primaryCulture,
   onChangePrimary,
   onChangeSecondary,
   onChangeAccent,
@@ -278,6 +282,20 @@ export function ColorPalettePicker({
               <p className="mt-1 text-xs text-foreground/80 leading-relaxed">
                 {getColorById(selected)!.psycho}
               </p>
+
+              {/* Note culturelle si une culture cible est définie */}
+              {primaryCulture && CULTURE_COLOR_NOTES[selected]?.[primaryCulture] && (
+                <div className="mt-2 rounded-md border border-blue-200/60 bg-blue-50/60 p-2 dark:border-blue-800/40 dark:bg-blue-950/30">
+                  <p className="text-[11px] font-medium text-blue-700 dark:text-blue-300">
+                    {CULTURES.find((c) => c.id === primaryCulture)?.flag}{" "}
+                    {CULTURES.find((c) => c.id === primaryCulture)?.label} — contexte culturel
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-blue-700/80 leading-relaxed dark:text-blue-400/80">
+                    {CULTURE_COLOR_NOTES[selected][primaryCulture]}
+                  </p>
+                </div>
+              )}
+
               <div className="mt-2 flex flex-wrap gap-1">
                 {getColorById(selected)!.sectors.map((s) => (
                   <span

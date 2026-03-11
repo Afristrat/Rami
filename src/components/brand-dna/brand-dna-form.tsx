@@ -251,8 +251,9 @@ function StepPalette({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDat
   const colorPrimary = useWatch({ control: form.control, name: "colorPrimary", defaultValue: "" })
   const colorSecondary = useWatch({ control: form.control, name: "colorSecondary", defaultValue: "" })
   const colorAccent = useWatch({ control: form.control, name: "colorAccent", defaultValue: "" })
-  // Le secteur sélectionné à l'étape 1 guide les recommandations Causse
+  // Le secteur guide les recommandations Causse, la culture guide les notes contextuelles
   const sector = useWatch({ control: form.control, name: "sector", defaultValue: "" })
+  const primaryCulture = useWatch({ control: form.control, name: "primaryCulture", defaultValue: "" })
 
   return (
     <div className="space-y-4">
@@ -272,6 +273,7 @@ function StepPalette({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDat
         secondary={colorSecondary}
         accent={colorAccent}
         sector={sector || undefined}
+        primaryCulture={primaryCulture || undefined}
         onChangePrimary={(id) => setValue("colorPrimary", id, { shouldValidate: true })}
         onChangeSecondary={(id) => setValue("colorSecondary", id, { shouldValidate: true })}
         onChangeAccent={(id) => setValue("colorAccent", id, { shouldValidate: true })}

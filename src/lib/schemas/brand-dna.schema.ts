@@ -215,6 +215,54 @@ export const SECTORS = [
 ] as const
 
 /**
+ * Notes culturelles Causse × culture pour chaque couleur.
+ * Source : CLAUDE.md Annexe A — causse-matrix.ts
+ * Utilisées dans le picker pour enrichir la justification psychologique
+ * quand une culture cible est sélectionnée.
+ */
+export const CULTURE_COLOR_NOTES: Record<string, Partial<Record<string, string>>> = {
+  bleu_marine: {
+    maroc: "🇲🇦 Très positif au Maroc — évoque Chefchaouen, le ciel et la mer. Couleur de confiance universelle.",
+    moyen_orient: "✦ Associé à la sagesse et à la protection dans la culture arabe.",
+    europe_francophone: "Couleur préférée des Européens — signal de professionnalisme immédiat.",
+  },
+  bleu_roi: {
+    maroc: "🇲🇦 Positif — code couleur institution et État au Maroc.",
+    europe_francophone: "Référence institutionnelle forte (UE, État français).",
+    international: "Couleur corporate la plus reconnue à l'échelle mondiale.",
+  },
+  rouge_passion: {
+    maroc: "🇲🇦 IDENTITAIRE FORT — couleur nationale du drapeau marocain. Très puissant mais délicat à doser.",
+    moyen_orient: "⚠️ Charge symbolique variable — prudence dans les contextes formels.",
+    afrique_subsaharienne: "🌍 Richesse, célébration et vitalité dans les cultures subsahariennes.",
+  },
+  vert_emeraude: {
+    maroc: "🇲🇦 CRITIQUE — couleur de l'Islam, charge symbolique très forte. Obligatoire pour Finance Islamique.",
+    moyen_orient: "🌙 Couleur sacrée de l'Islam — signal immédiat de conformité aux valeurs.",
+    afrique_subsaharienne: "🌍 Nature, espoir et renouveau — très positif dans toute l'Afrique.",
+    international: "Signal écologique et durabilité reconnu mondialement.",
+  },
+  or_prestige: {
+    maroc: "🇲🇦 Artisanat, zellige et patrimoine — ancre dans l'excellence locale.",
+    moyen_orient: "✦ Opulence et hospitalité — code luxe dominant dans le Golfe.",
+    afrique_subsaharienne: "🌍 Richesse et accomplissement — très positif dans le contexte entrepreneurial.",
+  },
+  noir_elegance: {
+    europe_francophone: "Code luxe parisien — référence mode et haute couture.",
+    moyen_orient: "✦ Formalité et prestige dans les contextes business.",
+    international: "Code luxe universel — signal d'exclusivité sans frontière culturelle.",
+  },
+  rose_empathique: {
+    maroc: "🇲🇦 Couleur festive (henna) — associée à la célébration et la féminité.",
+    europe_francophone: "Code bien-être et tendresse — très efficace dans le secteur beauté.",
+  },
+  turquoise_innovation: {
+    maroc: "🇲🇦 Évoque la mosaïque et le zellige marocain — ancrage culturel fort.",
+    moyen_orient: "✦ Couleur des dômes et de l'architecture islamique — très positive.",
+  },
+}
+
+/**
  * Recommandations Causse par secteur.
  * Sources : CLAUDE.md §2.2 + matrice Causse × secteur × culture.
  *
