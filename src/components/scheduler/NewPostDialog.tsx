@@ -166,19 +166,11 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
                   className="min-h-[120px]"
                   {...form.register("content")}
                 />
-                <div className="flex items-center justify-between">
-                  {form.formState.errors.content && (
-                    <p className="text-xs text-destructive">
-                      {form.formState.errors.content.message}
-                    </p>
-                  )}
-                  <p className={cn(
-                    "ml-auto text-xs tabular-nums",
-                    content.length > 2800 ? "text-destructive" : "text-muted-foreground"
-                  )}>
-                    {content.length} / 3000
-                  </p>
-                </div>
+                <CharLimitIndicator
+                  contentLength={content.length}
+                  platforms={selectedPlatforms}
+                  error={form.formState.errors.content?.message}
+                />
               </div>
 
               {/* Plateformes */}
@@ -248,6 +240,60 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
         </DialogContent>
       </Dialog>
     </>
+  )
+}
+
+// ── Indicateur de limite de caractères par plateforme ────────────────────────
+
+function CharLimitIndicator({
+  contentLength,
+  platforms,
+  error,
+}: {
+  contentLength: number
+  platforms: string[]
+  error?: string
+}) {
+  // Trouver les plateformes dépassant leur limite
+  const violations = platforms
+    .map((p) => {
+      const cfg = PLATFORM_CONFIG[p as keyof typeof PLATFORM_CONFIG]
+      if (!cfg || contentLength <= cfg.charLimit) return null
+      return { label: cfg.label, limit: cfg.charLimit, color: cfg.color }
+    })
+    .filter(Boolean) as { label: string; limit: number; color: string }[]
+
+  // Limite la plus restrictive parmi les plateformes sélectionnées
+  const minLimit = platforms.length > 0
+    ? Math.min(...platforms.map((p) => PLATFORM_CONFIG[p as keyof typeof PLATFORM_CONFIG]?.charLimit ?? 3000))
+    : 3000
+
+  const isOverMin = contentLength > minLimit
+  const isNearMin = contentLength > minLimit * 0.9 && !isOverMin
+
+  return (
+    <div className="space-y-1">
+      {/* Violations par plateforme */}
+      {violations.map((v) => (
+        <p key={v.label} className="text-xs text-destructive">
+          Dépasse la limite {v.label} ({v.limit} car.)
+        </p>
+      ))}
+      {/* Erreur de validation Zod */}
+      {error && !violations.length && (
+        <p className="text-xs text-destructive">{error}</p>
+      )}
+      {/* Compteur */}
+      <div className="flex items-center justify-end">
+        <span className={cn(
+          "text-xs tabular-nums",
+          isOverMin ? "text-destructive font-semibold" : isNearMin ? "text-orange-500" : "text-muted-foreground"
+        )}>
+          {contentLength}
+          {platforms.length > 0 && minLimit < 3000 ? ` / ${minLimit}` : " / 3000"}
+        </span>
+      </div>
+    </div>
   )
 }
 

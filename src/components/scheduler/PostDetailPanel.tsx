@@ -345,19 +345,11 @@ function EditForm({
             className="min-h-[120px]"
             {...form.register("content")}
           />
-          <div className="flex items-center justify-between">
-            {form.formState.errors.content && (
-              <p className="text-xs text-destructive">
-                {form.formState.errors.content.message}
-              </p>
-            )}
-            <p className={cn(
-              "ml-auto text-xs tabular-nums",
-              content.length > 2800 ? "text-destructive" : "text-muted-foreground"
-            )}>
-              {content.length} / 3000
-            </p>
-          </div>
+          <PanelCharLimitIndicator
+            contentLength={content.length}
+            platforms={selectedPlatforms}
+            error={form.formState.errors.content?.message}
+          />
         </div>
 
         {/* Plateformes */}
@@ -491,5 +483,53 @@ function toLocalDateTimeString(date: Date): string {
   return (
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` +
     `T${pad(date.getHours())}:${pad(date.getMinutes())}`
+  )
+}
+
+// ── Indicateur de limite par plateforme (version panel) ───────────────────────
+
+function PanelCharLimitIndicator({
+  contentLength,
+  platforms,
+  error,
+}: {
+  contentLength: number
+  platforms: string[]
+  error?: string
+}) {
+  const violations = platforms
+    .map((p) => {
+      const cfg = PLATFORM_CONFIG[p as keyof typeof PLATFORM_CONFIG]
+      if (!cfg || contentLength <= cfg.charLimit) return null
+      return { label: cfg.label, limit: cfg.charLimit }
+    })
+    .filter(Boolean) as { label: string; limit: number }[]
+
+  const minLimit = platforms.length > 0
+    ? Math.min(...platforms.map((p) => PLATFORM_CONFIG[p as keyof typeof PLATFORM_CONFIG]?.charLimit ?? 3000))
+    : 3000
+
+  const isOverMin = contentLength > minLimit
+  const isNearMin = contentLength > minLimit * 0.9 && !isOverMin
+
+  return (
+    <div className="space-y-1">
+      {violations.map((v) => (
+        <p key={v.label} className="text-xs text-destructive">
+          Dépasse {v.label} ({v.limit} car.)
+        </p>
+      ))}
+      {error && !violations.length && (
+        <p className="text-xs text-destructive">{error}</p>
+      )}
+      <div className="flex justify-end">
+        <span className={cn(
+          "text-xs tabular-nums",
+          isOverMin ? "text-destructive font-semibold" : isNearMin ? "text-orange-500" : "text-muted-foreground"
+        )}>
+          {contentLength}{platforms.length > 0 && minLimit < 3000 ? ` / ${minLimit}` : " / 3000"}
+        </span>
+      </div>
+    </div>
   )
 }
