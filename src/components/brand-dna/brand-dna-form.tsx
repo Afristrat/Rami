@@ -1,18 +1,21 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useState, useTransition } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
+  AlertCircle,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Dna,
+  Loader2,
   Palette,
   Target,
   User,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { saveBrandDnaAction } from "@/lib/actions/brand-dna.actions"
 import {
   brandDnaFormSchema,
   type BrandDnaFormData,
@@ -479,15 +482,21 @@ function StepRecap({ data }: { data: BrandDnaFormData }) {
 
 /* ─── Composant principal ────────────────────────── */
 
-export function BrandDnaForm() {
+interface BrandDnaFormProps {
+  initialData?: BrandDnaFormData | null
+}
+
+export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
 
   const form = useForm<BrandDnaFormData>({
     resolver: zodResolver(brandDnaFormSchema),
     mode: "onTouched",
-    defaultValues: {
+    defaultValues: initialData ?? {
       brandName: "",
       tagline: "",
       sector: "",
@@ -531,9 +540,15 @@ export function BrandDnaForm() {
   }, [])
 
   const handleSubmit = form.handleSubmit((data) => {
-    // TODO: appel Server Action Supabase
-    void data
-    setIsSubmitted(true)
+    setServerError(null)
+    startTransition(async () => {
+      const result = await saveBrandDnaAction(data)
+      if ("error" in result) {
+        setServerError(result.error)
+      } else {
+        setIsSubmitted(true)
+      }
+    })
   })
 
   const formValues = form.getValues()
@@ -563,7 +578,7 @@ export function BrandDnaForm() {
           size="lg"
           className="mt-2"
         >
-          Créer un nouveau Brand DNA
+          Modifier le Brand DNA
         </Button>
       </div>
     )
@@ -612,13 +627,21 @@ export function BrandDnaForm() {
         </div>
       )}
 
+      {/* Erreur serveur */}
+      {serverError && (
+        <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-destructive/30 bg-destructive/5 p-3.5">
+          <AlertCircle className="size-4 shrink-0 text-destructive" />
+          <p className="text-sm text-destructive">{serverError}</p>
+        </div>
+      )}
+
       {/* Navigation */}
       <div className="mt-4 flex items-center justify-between gap-3">
         <Button
           type="button"
           variant="outline"
           onClick={handleBack}
-          disabled={currentStep === 0}
+          disabled={currentStep === 0 || isPending}
           className={cn(currentStep === 0 && "invisible")}
         >
           <ChevronLeft className="size-4" />
@@ -630,12 +653,21 @@ export function BrandDnaForm() {
         </span>
 
         {isLastStep ? (
-          <Button type="submit" size="lg" className="gap-1.5">
-            <CheckCircle2 className="size-4" />
-            Sauvegarder le Brand DNA
+          <Button type="submit" size="lg" className="gap-1.5" disabled={isPending}>
+            {isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                Sauvegarde...
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="size-4" />
+                Sauvegarder le Brand DNA
+              </>
+            )}
           </Button>
         ) : (
-          <Button type="button" onClick={handleNext}>
+          <Button type="button" onClick={handleNext} disabled={isPending}>
             Suivant
             <ChevronRight className="size-4" />
           </Button>
