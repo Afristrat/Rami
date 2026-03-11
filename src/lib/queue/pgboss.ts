@@ -3,10 +3,17 @@
  * Conforme SOP-004 : scheduling via pg-boss avec job singletonKey par postId
  *
  * pg-boss crée ses propres tables dans le schéma "pgboss" de la DB Supabase.
- * Connexion via SUPABASE_DB_URL (service role, pas de RLS pour le worker).
+ *
+ * Stratégie de connexion (ordre de priorité) :
+ *  1. SUPABASE_DB_POOLER_URL  — connection pooler Supabase (IPv4, recommandé en production)
+ *  2. SUPABASE_DB_URL          — connexion directe (IPv6, pour migrations locales)
+ *
+ * Le pooler Supabase utilise pgBouncer en mode "transaction", compatible avec pg-boss.
+ * URL format pooler : postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
  */
 
 import { PgBoss } from "pg-boss"
+import { log } from "@/lib/utils/logger"
 
 // ── Noms de jobs ──────────────────────────────────────────────────────────────
 
@@ -21,17 +28,37 @@ export interface PublishPostPayload {
   tenantId: string
 }
 
-// ── Singleton pg-boss ─────────────────────────────────────────────────────────
+// ── État du boss ──────────────────────────────────────────────────────────────
 
 let bossInstance: PgBoss | null = null
+let bossUnavailable = false // fallback gracieux si DB inaccessible
+
+// ── Résolution de la connection string ───────────────────────────────────────
+
+function resolveConnectionString(): string {
+  // Priorité 1 : connection pooler IPv4 (Supabase Pooler — recommandé production)
+  const poolerUrl = process.env.SUPABASE_DB_POOLER_URL
+  if (poolerUrl) return poolerUrl
+
+  // Priorité 2 : connexion directe (IPv6 — dev local ou migrations)
+  const directUrl = process.env.SUPABASE_DB_URL
+  if (directUrl) return directUrl
+
+  throw new Error(
+    "Aucune URL DB configurée. Définir SUPABASE_DB_POOLER_URL (production) ou SUPABASE_DB_URL (développement)."
+  )
+}
+
+// ── Singleton pg-boss ─────────────────────────────────────────────────────────
 
 export async function getBoss(): Promise<PgBoss> {
   if (bossInstance) return bossInstance
 
-  const connectionString = process.env.SUPABASE_DB_URL
-  if (!connectionString) {
-    throw new Error("SUPABASE_DB_URL manquant — impossible d'initialiser pg-boss")
+  if (bossUnavailable) {
+    throw new Error("[pg-boss] Service de queue temporairement indisponible")
   }
+
+  const connectionString = resolveConnectionString()
 
   const boss = new PgBoss({
     connectionString,
@@ -42,11 +69,19 @@ export async function getBoss(): Promise<PgBoss> {
   })
 
   boss.on("error", (error: Error) => {
-    console.error("[pg-boss] Erreur interne :", error)
+    log({ level: "error", module: "pgboss", action: "internal_error", metadata: { message: error.message } })
   })
 
-  await boss.start()
-  bossInstance = boss
+  try {
+    await boss.start()
+    bossInstance = boss
+    log({ level: "info", module: "pgboss", action: "started", metadata: { url_type: process.env.SUPABASE_DB_POOLER_URL ? "pooler" : "direct" } })
+  } catch (err) {
+    // Fallback gracieux : la queue est indisponible mais l'app continue
+    bossUnavailable = true
+    log({ level: "error", module: "pgboss", action: "start_failed", metadata: { message: String(err) } })
+    throw err
+  }
 
   return boss
 }
