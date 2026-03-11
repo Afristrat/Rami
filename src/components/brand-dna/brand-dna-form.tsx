@@ -250,6 +250,8 @@ function StepPalette({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDat
   const colorPrimary = useWatch({ control: form.control, name: "colorPrimary", defaultValue: "" })
   const colorSecondary = useWatch({ control: form.control, name: "colorSecondary", defaultValue: "" })
   const colorAccent = useWatch({ control: form.control, name: "colorAccent", defaultValue: "" })
+  // Le secteur sélectionné à l'étape 1 guide les recommandations Causse
+  const sector = useWatch({ control: form.control, name: "sector", defaultValue: "" })
 
   return (
     <div className="space-y-4">
@@ -260,6 +262,7 @@ function StepPalette({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDat
         <p className="mt-1 text-xs text-amber-700/90 dark:text-amber-400/90 leading-relaxed">
           Chaque couleur produit un effet neuropsychologique précis sur votre audience. Choisissez
           3 couleurs alignées avec l&apos;émotion que vous souhaitez déclencher.
+          {sector && " Les badges ★ signalent les couleurs les plus efficaces pour votre secteur."}
         </p>
       </div>
 
@@ -267,6 +270,7 @@ function StepPalette({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDat
         primary={colorPrimary}
         secondary={colorSecondary}
         accent={colorAccent}
+        sector={sector || undefined}
         onChangePrimary={(id) => setValue("colorPrimary", id, { shouldValidate: true })}
         onChangeSecondary={(id) => setValue("colorSecondary", id, { shouldValidate: true })}
         onChangeAccent={(id) => setValue("colorAccent", id, { shouldValidate: true })}

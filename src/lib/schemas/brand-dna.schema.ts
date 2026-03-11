@@ -199,3 +199,69 @@ export const SECTORS = [
   "Industrie & BTP",
   "Autre",
 ] as const
+
+/**
+ * Recommandations Causse par secteur.
+ * Sources : CLAUDE.md §2.2 + matrice Causse × secteur × culture.
+ *
+ * recommended : couleurs à mettre en avant (badge "Recommandé")
+ * avoid       : couleurs à déconseiller (badge "Déconseillé" + alternative)
+ */
+export const SECTOR_COLOR_RULES: Record<string, {
+  recommended: string[]
+  avoid: string[]
+  avoidReason?: string
+  avoidAlternative?: string
+}> = {
+  "Finance & Banque": {
+    recommended: ["bleu_marine", "bleu_roi", "or_prestige", "noir_elegance"],
+    avoid: ["orange_chaleureux", "rose_empathique", "jaune_optimiste"],
+  },
+  "Finance Islamique": {
+    recommended: ["vert_emeraude", "bleu_marine", "or_prestige"],
+    avoid: ["rouge_passion", "rose_empathique"],
+    avoidReason: "Symbolisme culturel — le rouge est associé à la passion profane dans ce contexte",
+    avoidAlternative: "bordeaux_premium",
+  },
+  "Santé & Médical": {
+    recommended: ["bleu_marine", "bleu_roi", "turquoise_innovation", "vert_emeraude"],
+    avoid: ["rouge_passion"],
+    avoidReason: "Le rouge augmente la tension artérielle — contre-productif en contexte médical",
+    avoidAlternative: "bordeaux_premium",
+  },
+  "Tech & SaaS": {
+    recommended: ["bleu_roi", "violet_creatif", "turquoise_innovation", "noir_elegance"],
+    avoid: [],
+  },
+  "Luxe & Mode": {
+    recommended: ["noir_elegance", "or_prestige", "bordeaux_premium", "violet_creatif"],
+    avoid: ["orange_chaleureux", "jaune_optimiste"],
+    avoidReason: "L'orange et le jaune évoquent l'accessibilité — incompatible avec le positionnement luxe",
+  },
+  "Éducation & Formation": {
+    recommended: ["bleu_roi", "jaune_optimiste", "vert_emeraude", "orange_chaleureux"],
+    avoid: ["noir_elegance", "bordeaux_premium"],
+  },
+  "Agroalimentaire": {
+    recommended: ["vert_emeraude", "orange_chaleureux", "rouge_passion", "or_prestige"],
+    avoid: ["noir_elegance", "violet_creatif"],
+  },
+  "ONG & Social": {
+    recommended: ["vert_emeraude", "bleu_marine", "orange_chaleureux", "rose_empathique"],
+    avoid: ["noir_elegance", "or_prestige"],
+    avoidReason: "Le noir et l'or évoquent le luxe — en opposition avec les valeurs associatives",
+  },
+  "Sport & Fitness": {
+    recommended: ["rouge_passion", "orange_chaleureux", "noir_elegance", "bleu_roi"],
+    avoid: ["rose_empathique", "violet_creatif"],
+  },
+  "Beauté & Bien-être": {
+    recommended: ["rose_empathique", "violet_creatif", "or_prestige", "turquoise_innovation"],
+    avoid: [],
+  },
+  "Juridique & Droit": {
+    recommended: ["bleu_marine", "bordeaux_premium", "noir_elegance", "or_prestige"],
+    avoid: ["orange_chaleureux", "jaune_optimiste", "rouge_passion"],
+    avoidReason: "Ces couleurs évoquent l'impulsivité — contraire à la rigueur juridique",
+  },
+}

@@ -1,8 +1,12 @@
 "use client"
 
-import { Check } from "lucide-react"
+import { AlertTriangle, Check, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { CAUSSE_COLORS, type CausseColor } from "@/lib/schemas/brand-dna.schema"
+import {
+  CAUSSE_COLORS,
+  SECTOR_COLOR_RULES,
+  type CausseColor,
+} from "@/lib/schemas/brand-dna.schema"
 
 interface ColorSwatchProps {
   color: CausseColor
@@ -10,9 +14,19 @@ interface ColorSwatchProps {
   disabled?: boolean
   onSelect: (id: string) => void
   showBadge?: "primary" | "secondary" | "accent"
+  isRecommended?: boolean
+  isAvoided?: boolean
 }
 
-function ColorSwatch({ color, selected, disabled, onSelect, showBadge }: ColorSwatchProps) {
+function ColorSwatch({
+  color,
+  selected,
+  disabled,
+  onSelect,
+  showBadge,
+  isRecommended,
+  isAvoided,
+}: ColorSwatchProps) {
   const badgeLabel = {
     primary: "Principale",
     secondary: "Secondaire",
@@ -24,7 +38,7 @@ function ColorSwatch({ color, selected, disabled, onSelect, showBadge }: ColorSw
       type="button"
       disabled={disabled}
       onClick={() => onSelect(color.id)}
-      aria-label={`${color.name} — ${color.emotion}${selected ? " (sélectionnée)" : ""}${disabled ? " (déjà utilisée)" : ""}`}
+      aria-label={`${color.name} — ${color.emotion}${selected ? " (sélectionnée)" : ""}${disabled ? " (déjà utilisée)" : ""}${isRecommended ? " (recommandée pour votre secteur)" : ""}${isAvoided ? " (déconseillée pour votre secteur)" : ""}`}
       aria-pressed={selected}
       aria-disabled={disabled}
       className={cn(
@@ -32,9 +46,13 @@ function ColorSwatch({ color, selected, disabled, onSelect, showBadge }: ColorSw
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         selected
           ? "border-primary bg-primary/5 shadow-sm"
-          : disabled
-            ? "cursor-not-allowed border-border opacity-40"
-            : "border-border hover:border-primary/40 hover:bg-muted/50"
+          : isAvoided && !disabled
+            ? "border-destructive/30 bg-destructive/5 hover:border-destructive/50"
+            : isRecommended && !disabled
+              ? "border-green-400/50 bg-green-50/50 hover:border-green-500 dark:bg-green-950/20 dark:border-green-700/50"
+              : disabled
+                ? "cursor-not-allowed border-border opacity-40"
+                : "border-border hover:border-primary/40 hover:bg-muted/50"
       )}
       title={color.psycho}
     >
@@ -42,6 +60,22 @@ function ColorSwatch({ color, selected, disabled, onSelect, showBadge }: ColorSw
       {showBadge && (
         <span className="absolute -right-2 -top-2 z-10 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground">
           {badgeLabel[showBadge]}
+        </span>
+      )}
+
+      {/* Badge recommandé secteur */}
+      {isRecommended && !selected && !disabled && (
+        <span className="absolute -left-1.5 -top-1.5 z-10 flex items-center gap-0.5 rounded-full bg-green-500 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-sm">
+          <Star className="size-2.5" />
+          Conseillé
+        </span>
+      )}
+
+      {/* Badge déconseillé secteur */}
+      {isAvoided && !selected && !disabled && (
+        <span className="absolute -left-1.5 -top-1.5 z-10 flex items-center gap-0.5 rounded-full bg-destructive/80 px-1.5 py-0.5 text-[9px] font-bold text-white shadow-sm">
+          <AlertTriangle className="size-2.5" />
+          Éviter
         </span>
       )}
 
@@ -75,6 +109,7 @@ interface ColorPalettePickerProps {
   primary: string
   secondary: string
   accent: string
+  sector?: string
   onChangePrimary: (id: string) => void
   onChangeSecondary: (id: string) => void
   onChangeAccent: (id: string) => void
@@ -85,12 +120,18 @@ export function ColorPalettePicker({
   primary,
   secondary,
   accent,
+  sector,
   onChangePrimary,
   onChangeSecondary,
   onChangeAccent,
   errors,
 }: ColorPalettePickerProps) {
   const selectedIds = new Set([primary, secondary, accent].filter(Boolean))
+
+  // Règles Causse pour le secteur sélectionné
+  const sectorRules = sector ? SECTOR_COLOR_RULES[sector] : undefined
+  const recommendedIds = new Set(sectorRules?.recommended ?? [])
+  const avoidedIds = new Set(sectorRules?.avoid ?? [])
 
   const getColorById = (id: string) => CAUSSE_COLORS.find((c) => c.id === id)
 
@@ -169,6 +210,24 @@ export function ColorPalettePicker({
             <p className="text-xs text-muted-foreground">{description}</p>
             {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
           </div>
+          {/* Légende recommandations si un secteur est choisi */}
+          {sectorRules && (recommendedIds.size > 0 || avoidedIds.size > 0) && (
+            <div className="flex flex-wrap gap-3 text-[10px] text-muted-foreground">
+              {recommendedIds.size > 0 && (
+                <span className="flex items-center gap-1">
+                  <Star className="size-3 text-green-500" />
+                  Conseillé pour {sector}
+                </span>
+              )}
+              {avoidedIds.size > 0 && (
+                <span className="flex items-center gap-1">
+                  <AlertTriangle className="size-3 text-destructive/70" />
+                  À éviter — raison neuropsychologique
+                </span>
+              )}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {CAUSSE_COLORS.map((color) => {
               const isSelected = selected === color.id
@@ -181,10 +240,34 @@ export function ColorPalettePicker({
                   disabled={isUsedElsewhere}
                   onSelect={onChange}
                   showBadge={isSelected ? role : undefined}
+                  isRecommended={recommendedIds.has(color.id) && !isUsedElsewhere}
+                  isAvoided={avoidedIds.has(color.id) && !isUsedElsewhere && !isSelected}
                 />
               )
             })}
           </div>
+
+          {/* Alerte si couleur déconseillée sélectionnée */}
+          {selected && avoidedIds.has(selected) && sectorRules?.avoidReason && (
+            <div className="flex items-start gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-2.5">
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-destructive/70" />
+              <div>
+                <p className="text-[11px] font-medium text-destructive/90">
+                  Déconseillé pour {sector}
+                </p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  {sectorRules.avoidReason}
+                  {sectorRules.avoidAlternative && (
+                    <> — Alternative recommandée :{" "}
+                      <span className="font-medium text-foreground">
+                        {CAUSSE_COLORS.find((c) => c.id === sectorRules.avoidAlternative)?.name}
+                      </span>
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Justification psychologique */}
           {selected && getColorById(selected) && (
