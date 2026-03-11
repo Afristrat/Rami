@@ -186,6 +186,56 @@ export async function deletePost(postId: string): Promise<ActionResult> {
 }
 
 /**
+ * Met à jour le contenu, les plateformes et la date d'un post existant.
+ */
+export async function updatePost(
+  postId: string,
+  data: Partial<NewPostData>
+): Promise<ActionResult<ScheduledPost>> {
+  const tenantId = await getTenantId()
+  if (!tenantId) return { success: false, error: "Non authentifié" }
+
+  const UpdateSchema = z.object({
+    title: z.string().max(500).trim().optional(),
+    content: z.string().min(1, "Le contenu est requis").max(3000).trim().optional(),
+    platforms: z
+      .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
+      .min(1, "Sélectionnez au moins une plateforme")
+      .optional(),
+    scheduled_at: z.string().datetime({ offset: true }).optional().nullable(),
+    status: z.enum(["draft", "review", "approved", "scheduled"]).optional(),
+  })
+
+  const parsed = UpdateSchema.safeParse(data)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "Données invalides" }
+  }
+
+  const { title, content, platforms, scheduled_at, status } = parsed.data
+  const finalStatus = scheduled_at ? "scheduled" : (status ?? undefined)
+
+  try {
+    const [updated] = await db
+      .update(posts)
+      .set({
+        ...(title !== undefined && { title: title ?? null }),
+        ...(content && { content }),
+        ...(platforms && { platforms: platforms as typeof posts.$inferInsert["platforms"] }),
+        ...(scheduled_at !== undefined && { scheduled_at: scheduled_at ? new Date(scheduled_at) : null }),
+        ...(finalStatus && { status: finalStatus }),
+        updated_at: new Date(),
+      })
+      .where(and(eq(posts.id, postId), eq(posts.tenant_id, tenantId)))
+      .returning()
+
+    if (!updated) return { success: false, error: "Post introuvable" }
+    return { success: true, data: mapPost(updated) }
+  } catch {
+    return { success: false, error: "Erreur lors de la mise à jour" }
+  }
+}
+
+/**
  * Met à jour le statut d'un post.
  */
 export async function updatePostStatus(

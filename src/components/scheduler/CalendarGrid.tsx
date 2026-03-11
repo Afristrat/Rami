@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import { Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PostChip } from "./PostChip"
 import type { ScheduledPost } from "@/lib/scheduler/types"
@@ -78,6 +79,7 @@ interface CalendarCellProps {
 }
 
 function CalendarCell({ day, isLast, isSelected, onPostClick, onDayClick }: CalendarCellProps) {
+  const isFuture = day.date >= new Date(new Date().setHours(0, 0, 0, 0))
   const MAX_VISIBLE = 3
   const overflow = day.posts.length - MAX_VISIBLE
 
@@ -135,6 +137,12 @@ function CalendarCell({ day, isLast, isSelected, onPostClick, onDayClick }: Cale
           <p className="pl-1 text-[10px] text-muted-foreground">
             +{overflow} de plus
           </p>
+        )}
+        {/* Hint "+" sur les jours vides à venir au survol */}
+        {day.posts.length === 0 && day.isCurrentMonth && isFuture && (
+          <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity mt-2">
+            <Plus className="size-3.5 text-muted-foreground/50" />
+          </div>
         )}
       </div>
     </div>

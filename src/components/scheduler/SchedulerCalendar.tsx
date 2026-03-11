@@ -92,6 +92,12 @@ export function SchedulerCalendar({
     if (selectedPost?.id === postId) setSelectedPost(null)
   }
 
+  function handlePostUpdated(updated: ScheduledPost) {
+    setCalendarPosts((prev) => prev.map((p) => p.id === updated.id ? updated : p))
+    setUpcomingPosts((prev) => prev.map((p) => p.id === updated.id ? updated : p))
+    setSelectedPost(updated)
+  }
+
   const isCurrentMonth =
     year === today.getFullYear() && month === today.getMonth()
 
@@ -207,6 +213,7 @@ export function SchedulerCalendar({
                 post={selectedPost}
                 onClose={() => setSelectedPost(null)}
                 onDeleted={handlePostDeleted}
+                onUpdated={handlePostUpdated}
               />
             </div>
           ) : (
@@ -242,6 +249,7 @@ export function SchedulerCalendar({
               post={selectedPost}
               onClose={() => setSelectedPost(null)}
               onDeleted={handlePostDeleted}
+              onUpdated={handlePostUpdated}
             />
           </div>
         ) : (
