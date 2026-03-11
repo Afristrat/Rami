@@ -68,14 +68,30 @@ describe("computeDnaScore", () => {
     expect(score).toBe(0.15)
   })
 
-  test("audience complète : +0.20 total", () => {
+  test("audience complète (description + culture + âge + géo + pain) : +0.20 total", () => {
+    const score = computeDnaScore({
+      audienceDescription: "Directeurs d'agences digitales au Maroc, 30-50 ans.",
+      primaryCulture: "maroc",
+      audienceAge: "30-50 ans",
+      audienceLocation: "Maroc",
+      audiencePainPoints: "Manque de temps pour le contenu.",
+    })
+    expect(score).toBe(0.20)
+  })
+
+  test("culture cible seule : +0.04", () => {
+    const score = computeDnaScore({ primaryCulture: "maroc" })
+    expect(score).toBe(0.04)
+  })
+
+  test("audience sans culture : 0.16 (description + âge + géo + pain)", () => {
     const score = computeDnaScore({
       audienceDescription: "Directeurs d'agences digitales au Maroc, 30-50 ans.",
       audienceAge: "30-50 ans",
       audienceLocation: "Maroc",
       audiencePainPoints: "Manque de temps pour le contenu.",
     })
-    expect(score).toBe(0.20)
+    expect(score).toBe(0.16)
   })
 
   test("audience description trop courte (<20 chars) n'ajoute pas de score", () => {
@@ -94,6 +110,7 @@ describe("computeDnaScore", () => {
       colorSecondary: "vert_emeraude",
       colorAccent: "or_prestige",
       voiceTone: "expert",
+      primaryCulture: "maroc",
       audienceDescription: "Directeurs d'agences digitales au Maroc et en Afrique francophone.",
       audienceAge: "30-50 ans",
       audienceLocation: "Maroc, Tunisie",
@@ -113,6 +130,7 @@ describe("computeDnaScore", () => {
       colorSecondary: "vert_emeraude",
       colorAccent: "or_prestige",
       voiceTone: "expert",
+      primaryCulture: "international",
       audienceDescription: "Une description d'audience très détaillée qui dépasse largement les 20 caractères minimaux.",
       audienceAge: "25-55 ans",
       audienceLocation: "Monde entier",

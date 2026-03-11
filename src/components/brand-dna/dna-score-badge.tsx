@@ -10,7 +10,7 @@ import { CAUSSE_COLORS, VOICE_TONES, type BrandDnaFormData } from "@/lib/schemas
  *   - Logo uploadé : 15%
  *   - Palette Causse 3 couleurs : 25%
  *   - Ton de voix : 15%
- *   - Audience complète (description + âge + géo + pain points) : 20%
+ *   - Audience & culture (description + culture + âge + géo + pain points) : 20%
  */
 export function computeDnaScore(data: Partial<BrandDnaFormData>): number {
   let score = 0
@@ -32,11 +32,13 @@ export function computeDnaScore(data: Partial<BrandDnaFormData>): number {
   // Ton (15%)
   if (data.voiceTone) score += 0.15
 
-  // Audience (20%)
+  // Audience & culture (20%)
+  // description(10) + primaryCulture(4) + age(3) + location(2) + painPoints(1) = 20%
   if (data.audienceDescription && data.audienceDescription.length >= 20) score += 0.1
-  if (data.audienceAge && data.audienceAge.length > 0) score += 0.04
-  if (data.audienceLocation && data.audienceLocation.length > 0) score += 0.04
-  if (data.audiencePainPoints && data.audiencePainPoints.length > 0) score += 0.02
+  if (data.primaryCulture && data.primaryCulture.length > 0) score += 0.04
+  if (data.audienceAge && data.audienceAge.length > 0) score += 0.03
+  if (data.audienceLocation && data.audienceLocation.length > 0) score += 0.02
+  if (data.audiencePainPoints && data.audiencePainPoints.length > 0) score += 0.01
 
   return Math.min(Math.round(score * 100) / 100, 1)
 }

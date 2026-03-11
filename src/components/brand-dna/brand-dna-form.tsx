@@ -22,6 +22,7 @@ import {
   type BrandDnaFormData,
   SECTORS,
   CULTURES,
+  type CultureId,
 } from "@/lib/schemas/brand-dna.schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -477,11 +478,19 @@ function StepRecap({ data }: { data: BrandDnaFormData }) {
           {data.voiceTone && <VoiceToneBadge toneId={data.voiceTone} />}
         </div>
 
-        {/* Audience */}
+        {/* Audience & culture */}
         <div className="rounded-xl border border-border bg-muted/20 p-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Audience
           </p>
+          {data.primaryCulture && (() => {
+            const cult = CULTURES.find((c) => c.id === (data.primaryCulture as CultureId))
+            return cult ? (
+              <span className="mb-2 inline-flex items-center gap-1 rounded-full border border-blue-200/60 bg-blue-50/60 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:border-blue-800/40 dark:bg-blue-950/30 dark:text-blue-300">
+                {cult.flag} {cult.label}
+              </span>
+            ) : null
+          })()}
           <p className="line-clamp-3 text-xs text-foreground/80">{data.audienceDescription}</p>
           {(data.audienceAge || data.audienceLocation) && (
             <div className="mt-2 flex flex-wrap gap-1.5">
