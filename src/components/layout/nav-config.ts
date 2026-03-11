@@ -11,7 +11,6 @@ import {
   Users,
   CreditCard,
   Settings,
-  Link2,
 } from "lucide-react"
 
 export interface NavItem {
@@ -38,6 +37,5 @@ export const navAdvanced: NavItem[] = [
 ]
 
 export const navBottom: NavItem[] = [
-  { href: "/dashboard/settings/connections", label: "Connexions", icon: Link2 },
   { href: "/dashboard/settings", label: "Paramètres", icon: Settings },
 ]
