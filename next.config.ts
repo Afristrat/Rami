@@ -39,6 +39,9 @@ const CSP = [
     // PostHog analytics
     "https://app.posthog.com",
     "https://eu.posthog.com",
+    // Sentry error reporting
+    "https://*.sentry.io",
+    "https://o*.ingest.sentry.io",
   ].join(" "),
   // Frames : Stripe
   "frame-src https://js.stripe.com",
