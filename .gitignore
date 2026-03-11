@@ -62,3 +62,4 @@ playwright/.cache/
 # ============================================================
 /public/uploads/
 /tmp/
+.claude/ralph-loop.local.md
