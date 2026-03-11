@@ -1,18 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import {
-  getOAuthConfig,
-  type OAuthPlatform,
-} from "@/lib/services/oauth/config"
+import { getOAuthConfig } from "@/lib/services/oauth/config"
 import { generateOAuthState } from "@/lib/services/oauth/state"
-
-const VALID_PLATFORMS: OAuthPlatform[] = [
-  "twitter",
-  "linkedin",
-  "instagram",
-  "facebook",
-  "pinterest",
-]
+import { PlatformParamSchema } from "@/lib/schemas/oauth.schema"
 
 export async function GET(
   _req: NextRequest,
@@ -20,8 +10,8 @@ export async function GET(
 ) {
   const { platform } = await params
 
-  // Validation de la plateforme
-  if (!VALID_PLATFORMS.includes(platform as OAuthPlatform)) {
+  const platformResult = PlatformParamSchema.safeParse(platform)
+  if (!platformResult.success) {
     return NextResponse.json({ error: "Plateforme invalide." }, { status: 400 })
   }
 
@@ -36,7 +26,8 @@ export async function GET(
     return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL))
   }
 
-  const config = getOAuthConfig(platform as OAuthPlatform)
+  const validPlatform = platformResult.data
+  const config = getOAuthConfig(validPlatform)
   const clientId = process.env[config.clientIdEnv]
 
   if (!clientId) {
@@ -46,8 +37,8 @@ export async function GET(
     )
   }
 
-  const state = generateOAuthState(platform, user.id)
-  const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/oauth/${platform}/callback`
+  const state = generateOAuthState(validPlatform, user.id)
+  const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/oauth/${validPlatform}/callback`
 
   const url = new URL(config.authorizeUrl)
   url.searchParams.set("client_id", clientId)
@@ -57,7 +48,7 @@ export async function GET(
   url.searchParams.set("response_type", "code")
 
   // Twitter PKCE spécifique
-  if (platform === "twitter") {
+  if (validPlatform === "twitter") {
     url.searchParams.set("code_challenge_method", "plain")
     url.searchParams.set("code_challenge", state.slice(0, 43))
   }

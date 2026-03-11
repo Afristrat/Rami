@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getValidToken } from "@/lib/services/oauth/refresh"
-import type { OAuthPlatform } from "@/lib/services/oauth/config"
-
-const VALID_PLATFORMS: OAuthPlatform[] = [
-  "twitter",
-  "linkedin",
-  "instagram",
-  "facebook",
-  "pinterest",
-]
+import {
+  PlatformParamSchema,
+  RefreshBodySchema,
+} from "@/lib/schemas/oauth.schema"
 
 /**
  * POST /api/oauth/[platform]/refresh
- * Body: { connectionId: string }
+ * Body: { connectionId?: string }
  *
  * Rafraîchit le token OAuth si nécessaire (expires_at < now() + 5min).
  * Appelé par le publishing service avant chaque publication.
@@ -27,7 +22,9 @@ export async function POST(
 ) {
   const { platform } = await params
 
-  if (!VALID_PLATFORMS.includes(platform as OAuthPlatform)) {
+  // Validation Zod du paramètre platform
+  const platformResult = PlatformParamSchema.safeParse(platform)
+  if (!platformResult.success) {
     return NextResponse.json({ error: "Plateforme invalide." }, { status: 400 })
   }
 
@@ -42,28 +39,35 @@ export async function POST(
     return NextResponse.json({ error: "Non authentifié." }, { status: 401 })
   }
 
-  // Récupération du connectionId depuis le body
+  // Validation Zod du body JSON
   let connectionId: string | undefined
   try {
-    const body = await req.json()
-    connectionId = body.connectionId as string | undefined
+    const rawBody = await req.json()
+    const bodyResult = RefreshBodySchema.safeParse(rawBody)
+    if (!bodyResult.success) {
+      return NextResponse.json(
+        { error: "Body invalide.", details: bodyResult.error.issues },
+        { status: 400 }
+      )
+    }
+    connectionId = bodyResult.data.connectionId
   } catch {
-    return NextResponse.json({ error: "Body JSON invalide." }, { status: 400 })
+    // Body vide ou non-JSON : connectionId reste undefined → lookup automatique
   }
 
   if (!connectionId) {
-    // Si pas de connectionId, chercher la connexion active de la plateforme pour ce tenant
+    // Lookup de la connexion active du tenant pour cette plateforme
     const { data: conn, error: fetchError } = await supabase
       .from("oauth_connections")
       .select("id")
       .eq("tenant_id", user.id)
-      .eq("platform", platform)
+      .eq("platform", platformResult.data)
       .eq("is_active", true)
       .single()
 
     if (fetchError || !conn) {
       return NextResponse.json(
-        { error: `Aucune connexion ${platform} active trouvée.` },
+        { error: `Aucune connexion ${platformResult.data} active trouvée.` },
         { status: 404 }
       )
     }
@@ -73,15 +77,11 @@ export async function POST(
   try {
     const result = await getValidToken(connectionId)
     return NextResponse.json(
-      {
-        accessToken: result.accessToken,
-        expiresAt: result.expiresAt,
-      },
+      { accessToken: result.accessToken, expiresAt: result.expiresAt },
       { status: 200 }
     )
   } catch (err) {
     const message = err instanceof Error ? err.message : "Refresh échoué."
-    // Si le token est révoqué ou invalide → 401 pour signaler au publishing service
     const status = message.includes("Reconnectez") ? 401 : 500
     return NextResponse.json({ error: message }, { status })
   }
