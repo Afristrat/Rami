@@ -1,0 +1,201 @@
+import { z } from "zod"
+
+export const CAUSSE_COLORS = [
+  {
+    id: "bleu_marine",
+    hex: "#1E3A5F",
+    name: "Bleu Marine",
+    emotion: "Confiance & autorité",
+    psycho: "Renforce la crédibilité et inspire confiance. Couleur préférée dans la majorité des cultures mondiales.",
+    sectors: ["finance", "tech", "santé", "B2B"],
+  },
+  {
+    id: "bleu_roi",
+    hex: "#1D4ED8",
+    name: "Bleu Royal",
+    emotion: "Sécurité & fiabilité",
+    psycho: "Abaisse la fréquence cardiaque et apaise. Signe de professionnalisme universel.",
+    sectors: ["tech", "corporate", "éducation"],
+  },
+  {
+    id: "rouge_passion",
+    hex: "#DC2626",
+    name: "Rouge Passion",
+    emotion: "Urgence & énergie",
+    psycho: "Augmente la pression artérielle et le rythme cardiaque. Crée un sentiment d'urgence immédiat.",
+    sectors: ["retail", "food", "sport", "entertainment"],
+  },
+  {
+    id: "vert_emeraude",
+    hex: "#059669",
+    name: "Vert Émeraude",
+    emotion: "Croissance & espoir",
+    psycho: "Libère de la sérotonine. Dans un bureau, augmente la créativité de 15%. Symbole d'équilibre universel.",
+    sectors: ["santé", "bio", "finance_durable", "islam"],
+  },
+  {
+    id: "violet_creatif",
+    hex: "#7C3AED",
+    name: "Violet Créatif",
+    emotion: "Luxe & mystère",
+    psycho: "Combine la stabilité du bleu et l'énergie du rouge. Associé à la sagesse, la créativité et la royauté.",
+    sectors: ["luxe", "beauté", "tech_créative", "spirituel"],
+  },
+  {
+    id: "orange_chaleureux",
+    hex: "#EA580C",
+    name: "Orange Chaleureux",
+    emotion: "Enthousiasme & accessibilité",
+    psycho: "Stimule l'appétit et la sociabilité. Combinaison optimiste du rouge et du jaune. Très attrayant pour les jeunes adultes.",
+    sectors: ["food", "divertissement", "startup", "sport"],
+  },
+  {
+    id: "jaune_optimiste",
+    hex: "#D97706",
+    name: "Jaune Optimiste",
+    emotion: "Joie & créativité",
+    psycho: "Active le cortex visuel plus rapidement que toute autre couleur. Stimule la mémorisation et l'attention.",
+    sectors: ["éducation", "enfants", "créativité", "tourisme"],
+  },
+  {
+    id: "rose_empathique",
+    hex: "#DB2777",
+    name: "Rose Empathique",
+    emotion: "Douceur & espoir",
+    psycho: "Apaise l'agressivité. Le rose baker-miller réduit la tension musculaire en 10 minutes. Évoque la tendresse.",
+    sectors: ["beauté", "santé_mentale", "bien-être", "mode_feminine"],
+  },
+  {
+    id: "or_prestige",
+    hex: "#B45309",
+    name: "Or Prestige",
+    emotion: "Succès & excellence",
+    psycho: "Associé au triomphe et à l'accomplissement dans toutes les cultures. Signal de qualité supérieure immédiat.",
+    sectors: ["luxe", "finance", "hospitality", "bijouterie"],
+  },
+  {
+    id: "noir_elegance",
+    hex: "#0F172A",
+    name: "Noir Élégance",
+    emotion: "Pouvoir & sophistication",
+    psycho: "Couleur la plus puissante du spectre. Crée un sentiment d'exclusivité et d'autorité absolue.",
+    sectors: ["luxe", "mode", "tech_premium", "automotive"],
+  },
+  {
+    id: "turquoise_innovation",
+    hex: "#0891B2",
+    name: "Turquoise Innovation",
+    emotion: "Innovation & clarté",
+    psycho: "Évoque la créativité et la clarté d'esprit. Très efficace dans les secteurs en transformation digitale.",
+    sectors: ["tech", "santé", "bien-être", "environnement"],
+  },
+  {
+    id: "bordeaux_premium",
+    hex: "#9F1239",
+    name: "Bordeaux Premium",
+    emotion: "Raffinement & passion maîtrisée",
+    psycho: "Alternative au rouge dans les secteurs sensibles (santé). Combine passion et sobriété institutionnelle.",
+    sectors: ["santé", "éducation", "droit", "vin"],
+  },
+] as const
+
+export type CausseColor = typeof CAUSSE_COLORS[number]
+
+export const VOICE_TONES = [
+  {
+    id: "expert",
+    label: "Expert & Autorité",
+    description: "Positionne la marque comme référence incontestable du secteur",
+    icon: "🎓",
+    keywords: ["analytique", "précis", "data-driven", "professionnel"],
+  },
+  {
+    id: "bienveillant",
+    label: "Bienveillant & Empathique",
+    description: "Crée un lien émotionnel profond avec l'audience, chaleureux et humain",
+    icon: "🤝",
+    keywords: ["humain", "chaleureux", "à l'écoute", "engagé"],
+  },
+  {
+    id: "inspirant",
+    label: "Inspirant & Motivant",
+    description: "Pousse l'audience à l'action et à se dépasser, visionnaire",
+    icon: "🚀",
+    keywords: ["visionnaire", "ambitieux", "transformateur", "engagé"],
+  },
+  {
+    id: "ludique",
+    label: "Ludique & Créatif",
+    description: "Marque mémorable grâce à l'humour et la créativité disruptive",
+    icon: "🎨",
+    keywords: ["créatif", "fun", "inattendu", "mémorable"],
+  },
+  {
+    id: "premium",
+    label: "Premium & Élégant",
+    description: "Chaque mot reflète l'exclusivité et la qualité supérieure",
+    icon: "💎",
+    keywords: ["exclusif", "raffiné", "sobre", "prestige"],
+  },
+  {
+    id: "direct",
+    label: "Direct & Percutant",
+    description: "Va à l'essentiel, sans fioritures. Chaque mot compte.",
+    icon: "⚡",
+    keywords: ["concis", "impactant", "clair", "efficace"],
+  },
+] as const
+
+export type VoiceTone = typeof VOICE_TONES[number]
+
+export const brandDnaFormSchema = z.object({
+  // Identité
+  brandName: z.string().min(1, "Le nom de la marque est requis").max(100),
+  tagline: z.string().max(150).optional(),
+  sector: z.string().min(1, "Le secteur est requis"),
+  positioning: z.string().min(10, "Décrivez le positionnement (min 10 caractères)").max(500),
+
+  // Logo
+  logoDataUrl: z.string().optional(),
+  logoFileName: z.string().optional(),
+
+  // Palette couleurs (3 couleurs Causse)
+  colorPrimary: z.string().min(1, "Choisissez la couleur principale"),
+  colorSecondary: z.string().min(1, "Choisissez la couleur secondaire"),
+  colorAccent: z.string().min(1, "Choisissez la couleur d'accent"),
+
+  // Ton de voix
+  voiceTone: z.string().min(1, "Choisissez le ton de voix"),
+
+  // Audience
+  audienceDescription: z
+    .string()
+    .min(20, "Décrivez votre audience cible (min 20 caractères)")
+    .max(1000),
+  audienceAge: z.string().optional(),
+  audienceLocation: z.string().optional(),
+  audiencePainPoints: z.string().max(500).optional(),
+})
+
+export type BrandDnaFormData = z.infer<typeof brandDnaFormSchema>
+
+export const SECTORS = [
+  "Finance & Banque",
+  "Finance Islamique",
+  "Santé & Médical",
+  "Tech & SaaS",
+  "E-commerce & Retail",
+  "Éducation & Formation",
+  "Agroalimentaire",
+  "Luxe & Mode",
+  "Tourisme & Hospitality",
+  "Immobilier",
+  "Consulting & Conseil",
+  "ONG & Social",
+  "Sport & Fitness",
+  "Beauté & Bien-être",
+  "Média & Entertainment",
+  "Juridique & Droit",
+  "Industrie & BTP",
+  "Autre",
+] as const
