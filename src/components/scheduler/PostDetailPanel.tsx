@@ -301,11 +301,15 @@ function EditForm({
 
   function onSubmit(data: EditFormData) {
     startSaveTransition(async () => {
+      // datetime-local produit "YYYY-MM-DDTHH:mm" sans offset → convertir en ISO UTC
+      const scheduled_at = data.scheduled_at
+        ? new Date(data.scheduled_at).toISOString()
+        : null
       const result = await updatePost(post.id, {
         title: data.title || undefined,
         content: data.content,
         platforms: data.platforms,
-        scheduled_at: data.scheduled_at || null,
+        scheduled_at,
       })
       if (result.success) {
         toast.success("Post mis à jour")

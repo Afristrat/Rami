@@ -130,7 +130,8 @@ export function SchedulerCalendar({
   }
 
   function handlePostDuplicated(duplicated: ScheduledPost) {
-    // Le dupliqué est un brouillon sans scheduled_at → pas dans le calendrier
+    // Le dupliqué est un brouillon sans scheduled_at → ajouter dans la section Brouillons
+    setDraftPosts((prev) => [...prev, duplicated])
     toast.success("Brouillon dupliqué créé", { description: duplicated.title ?? undefined })
   }
 

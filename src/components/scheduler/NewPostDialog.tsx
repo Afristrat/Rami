@@ -102,7 +102,13 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
 
   function onSubmit(data: FormData) {
     startTransition(async () => {
-      const result = await createPost(data as NewPostData)
+      // datetime-local produit "YYYY-MM-DDTHH:mm" sans offset → convertir en ISO UTC
+      const result = await createPost({
+        ...data,
+        scheduled_at: data.scheduled_at
+          ? new Date(data.scheduled_at).toISOString()
+          : null,
+      } as NewPostData)
       if (result.success) {
         toast.success("Post créé avec succès !")
         onCreated?.(result.data)
