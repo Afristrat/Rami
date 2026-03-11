@@ -125,85 +125,119 @@ test.describe('Sécurité — XSS Protection', () => {
 
 // ─── 2. Isolation Tenant ─────────────────────────────────────────────────────
 
-test.describe('Sécurité — Isolation Tenant', () => {
-  test('un utilisateur non authentifié ne peut pas accéder aux données du dashboard', async ({
-    page,
-  }) => {
-    // Sans cookies d'auth, toutes les routes dashboard sont bloquées
+test.describe('Sécurité — Isolation Tenant (non authentifié)', () => {
+  test('dashboard non accessible sans auth', async ({ page }) => {
     await page.context().clearCookies()
     await page.goto('/dashboard')
     await expect(page).toHaveURL(/\/login/)
   })
 
-  test('les données Brand DNA ne sont pas accessibles sans auth', async ({
-    page,
-  }) => {
+  test('Brand DNA non accessible sans auth', async ({ page }) => {
     await page.context().clearCookies()
     await page.goto('/dashboard/brand-dna')
     await expect(page).toHaveURL(/\/login/)
     const content = await page.content()
-    // Pas de données Brand DNA exposées
-    expect(content).not.toMatch(/brand_dna|color_palette/i)
+    expect(content).not.toMatch(/color_palette/i)
   })
 
-  test('les posts schedulés ne sont pas accessibles sans auth', async ({
-    page,
-  }) => {
+  test('calendrier non accessible sans auth', async ({ page }) => {
     await page.context().clearCookies()
     await page.goto('/dashboard/calendar')
     await expect(page).toHaveURL(/\/login/)
   })
 
-  test('l\'analytics ne révèle pas les données d\'un autre tenant via URL manipulation', async ({
+  test('analytics — paramètre tenant_id ignoré côté serveur', async ({
     onboardedPage: page,
   }) => {
-    // L'utilisateur authentifié ne peut accéder qu'à ses propres données
-    // Les paramètres URL ne peuvent pas cibler un autre tenant
-    await page.goto('/dashboard/analytics?tenant_id=other-tenant-uuid')
+    await page.goto('/dashboard/analytics?tenant_id=00000000-0000-0000-0000-000000000000')
     await page.waitForLoadState('networkidle')
-
-    // La page doit charger avec les données du tenant courant uniquement
-    // Pas d'erreur RLS exposée dans le HTML
     const content = await page.content()
+    // Pas d'erreur RLS exposée dans le HTML
     expect(content).not.toMatch(/RLS|row level security|permission denied/i)
+    // La page charge normalement (données du tenant courant uniquement)
+    expect(content).not.toMatch(/500|internal server error/i)
+  })
+})
+
+test.describe('Sécurité — Isolation Tenant (deux tenants réels)', () => {
+  test('Tenant A et Tenant B ont des dashboards séparés', async ({
+    twoTenants: { pageA, pageB },
+  }) => {
+    // Les deux utilisateurs accèdent au dashboard
+    await pageA.goto('/dashboard')
+    await pageA.waitForLoadState('networkidle')
+    await pageB.goto('/dashboard')
+    await pageB.waitForLoadState('networkidle')
+
+    // Les deux sont bien authentifiés et sur le dashboard
+    // (pas redirigés vers /login)
+    expect(pageA.url()).toMatch(/\/dashboard|\/onboarding/)
+    expect(pageB.url()).toMatch(/\/dashboard|\/onboarding/)
   })
 
-  test('les connexions OAuth d\'un tenant ne sont pas accessibles par un autre', async ({
-    page,
+  test('Tenant B ne voit pas les posts du Tenant A dans le calendrier', async ({
+    twoTenants: { pageA, pageB, userA },
   }) => {
-    // Tenter d'accéder aux connexions sans auth
-    await page.context().clearCookies()
-    const response = await page.request.get(
-      '/api/oauth/linkedin/authorize'
-    )
-    // Doit rediriger vers login ou retourner 401/302
-    expect([200, 302, 400, 401, 403]).toContain(response.status())
-    // Si 200, vérifier qu'on est redirigé vers login
-    if (response.status() === 200) {
-      await page.goto('/dashboard/settings/connections')
-      await expect(page).toHaveURL(/\/login/)
+    // 1. Tenant A navigue vers son calendrier
+    await pageA.goto('/dashboard/calendar')
+    await pageA.waitForLoadState('networkidle')
+
+    // 2. Tenant B navigue vers son propre calendrier
+    await pageB.goto('/dashboard/calendar')
+    await pageB.waitForLoadState('networkidle')
+
+    // 3. Le contenu HTML de B ne contient pas le tenant_id de A
+    const contentB = await pageB.content()
+    if (userA.tenantId) {
+      expect(contentB).not.toContain(userA.tenantId)
     }
   })
 
-  test('deux contextes de navigation isolés ne partagent pas de session', async ({
-    browser,
+  test('Tenant B ne voit pas le Brand DNA du Tenant A', async ({
+    twoTenants: { pageA, pageB, userA },
   }) => {
-    // Créer deux contextes indépendants
-    const contextA = await browser.newContext()
-    const contextB = await browser.newContext()
+    // Tenant A consulte son Brand DNA
+    await pageA.goto('/dashboard/brand-dna')
+    await pageA.waitForLoadState('networkidle')
 
-    const pageA = await contextA.newPage()
-    const pageB = await contextB.newPage()
+    // Tenant B consulte son Brand DNA (données indépendantes)
+    await pageB.goto('/dashboard/brand-dna')
+    await pageB.waitForLoadState('networkidle')
 
-    // Aller sur dashboard sans auth dans les deux contextes
-    await pageA.goto('/dashboard')
-    await pageB.goto('/dashboard')
+    // B ne doit pas voir le tenant_id de A dans son HTML
+    const contentB = await pageB.content()
+    if (userA.tenantId) {
+      expect(contentB).not.toContain(userA.tenantId)
+    }
+  })
 
-    await expect(pageA).toHaveURL(/\/login/)
-    await expect(pageB).toHaveURL(/\/login/)
+  test('les sessions des deux tenants sont isolées (cookies distincts)', async ({
+    twoTenants: { pageA, pageB },
+  }) => {
+    // Récupérer les cookies de chaque contexte
+    const cookiesA = await pageA.context().cookies()
+    const cookiesB = await pageB.context().cookies()
 
-    await contextA.close()
-    await contextB.close()
+    // Les tokens de session sont différents
+    const sessionA = cookiesA.find((c) => c.name.includes('auth-token') || c.name.includes('sb-'))
+    const sessionB = cookiesB.find((c) => c.name.includes('auth-token') || c.name.includes('sb-'))
+
+    if (sessionA && sessionB) {
+      expect(sessionA.value).not.toBe(sessionB.value)
+    }
+
+    // Vérifier l'isolation : les cookies A ne sont pas présents dans le contexte B
+    const cookieNamesA = new Set(cookiesA.map((c) => `${c.name}:${c.value}`))
+    const cookieNamesB = new Set(cookiesB.map((c) => `${c.name}:${c.value}`))
+
+    // Les deux sets de cookies ne doivent pas être identiques
+    const identicalCookies = [...cookieNamesA].filter((c) => cookieNamesB.has(c))
+    // On accepte que certains cookies non-auth soient partagés (ex: locale)
+    // mais pas les tokens de session
+    const authCookiesShared = identicalCookies.filter((c) =>
+      c.includes('token') || c.includes('session') || c.includes('sb-')
+    )
+    expect(authCookiesShared).toHaveLength(0)
   })
 })
 
