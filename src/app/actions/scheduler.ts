@@ -7,6 +7,7 @@ import { and, eq, gte, lte, asc, count, sql } from "drizzle-orm"
 import { z } from "zod"
 import type { ScheduledPost } from "@/lib/scheduler/types"
 import type { Platform } from "@/lib/scheduler/platform-config"
+import { enqueuePublish, enqueueScheduledPublish } from "@/lib/queue/pgboss"
 
 // ── Schémas de validation ───────────────────────────────────────────────────
 
@@ -401,5 +402,68 @@ export async function getSchedulerStats(): Promise<ActionResult<SchedulerStats>>
     }
   } catch {
     return { success: false, error: "Erreur lors du calcul des statistiques" }
+  }
+}
+
+/**
+ * Enqueue un post pour publication (immédiate ou programmée).
+ * Conforme SOP-004 : statut → "scheduled" puis pg-boss prend le relais.
+ */
+export async function publishPost(
+  postId: string,
+  scheduledAt?: Date | null
+): Promise<ActionResult<{ jobId: string | null }>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "Non authentifié" }
+
+  const tenantId = await getTenantId()
+  if (!tenantId) return { success: false, error: "Aucun espace de travail trouvé" }
+
+  // Vérifier que le post appartient au tenant
+  const post = await db.query.posts.findFirst({
+    where: and(eq(posts.id, postId), eq(posts.tenant_id, tenantId)),
+    columns: { id: true, status: true, platforms: true, scheduled_at: true },
+  })
+
+  if (!post) return { success: false, error: "Post introuvable" }
+
+  // Statuts non republiables
+  if (post.status === "publishing") {
+    return { success: false, error: "Publication déjà en cours pour ce post." }
+  }
+
+  if ((post.platforms as string[])?.length === 0) {
+    return { success: false, error: "Sélectionnez au moins une plateforme avant de publier." }
+  }
+
+  try {
+    // Mettre à jour le statut et la date
+    const dateToSchedule = scheduledAt ?? (post.scheduled_at as Date | null)
+    await db
+      .update(posts)
+      .set({
+        status: "scheduled",
+        scheduled_at: dateToSchedule,
+        updated_at: new Date(),
+      })
+      .where(and(eq(posts.id, postId), eq(posts.tenant_id, tenantId)))
+
+    // Enqueue le job pg-boss
+    const payload = { postId, tenantId }
+    let jobId: string | null
+
+    if (scheduledAt && scheduledAt > new Date()) {
+      jobId = await enqueueScheduledPublish(payload, scheduledAt)
+    } else {
+      jobId = await enqueuePublish(payload)
+    }
+
+    return { success: true, data: { jobId } }
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Erreur lors de la mise en queue",
+    }
   }
 }
