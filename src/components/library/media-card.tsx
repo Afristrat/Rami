@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Trash2, Send, FileText, Play, Image as ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { MediaAsset } from "@/lib/actions/library.actions"
@@ -23,12 +24,13 @@ function MediaPreview({ asset }: { asset: MediaAsset }) {
 
   if (asset.fileType === "image" && asset.publicUrl && !imgError) {
     return (
-      <img
+      <Image
         src={asset.publicUrl}
         alt={asset.originalFilename}
-        className="h-full w-full object-cover"
+        fill
+        className="object-cover"
         onError={() => setImgError(true)}
-        loading="lazy"
+        sizes="(max-width: 768px) 50vw, 25vw"
       />
     )
   }

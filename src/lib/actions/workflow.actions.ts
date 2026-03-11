@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { db } from "@/lib/db"
-import { users, posts } from "@/lib/db/schema"
+import { users } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import Anthropic from "@anthropic-ai/sdk"
 import { sanitizePromptInput } from "@/lib/utils/sanitize"
@@ -205,7 +205,7 @@ export type GenerateVisualResult =
 
 export async function generateVisualContentAction(
   step1: Step1Data,
-  _step2: Step2Data
+  _step2: Step2Data  // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<GenerateVisualResult> {
   const ctx = await getAuthContext()
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }
@@ -356,7 +356,6 @@ export async function saveWorkflowPostAction(data: {
     const { createPost } = await import("@/app/actions/scheduler")
 
     const content = data.finalCaption
-    const mediaUrls = data.finalVisualUrl ? [data.finalVisualUrl] : []
 
     const postData: NewPostData = {
       title: data.step1.titre,

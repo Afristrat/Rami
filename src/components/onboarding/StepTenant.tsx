@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react"
@@ -55,7 +55,7 @@ export function StepTenant({ defaultValues, onNext }: StepTenantProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     setValue,
     formState: { errors, isValid },
   } = useForm<StepData>({
@@ -64,8 +64,8 @@ export function StepTenant({ defaultValues, onNext }: StepTenantProps) {
     mode: "onChange",
   })
 
-  const watchedName = watch("name")
-  const watchedSlug = watch("slug")
+  const watchedName = useWatch({ control, name: "name", defaultValue: "" })
+  const watchedSlug = useWatch({ control, name: "slug", defaultValue: "" })
 
   // Auto-génération du slug depuis le nom
   useEffect(() => {

@@ -5,7 +5,6 @@ import { Upload, X, CheckCircle2, AlertCircle, Loader2, Image as ImageIcon, File
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { uploadFileAction } from "@/lib/actions/storage.actions"
-import { ALLOWED_MIME_TYPES } from "@/lib/services/storage/mime"
 import type { ResizePreset } from "@/lib/services/storage"
 
 // ─── Types ─────────────────────────────────────────────────────────────────

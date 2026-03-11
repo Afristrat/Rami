@@ -1,6 +1,7 @@
 "use client"
 
 import * as DialogPrimitive from "@radix-ui/react-dialog"
+import Image from "next/image"
 import { X, Trash2, Send, Download, FileText, Play, Calendar, HardDrive } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { MediaAsset } from "@/lib/actions/library.actions"
@@ -32,10 +33,12 @@ function formatDate(iso: string): string {
 function LightboxPreview({ asset }: { asset: MediaAsset }) {
   if (asset.fileType === "image" && asset.publicUrl) {
     return (
-      <img
+      <Image
         src={asset.publicUrl}
         alt={asset.originalFilename}
-        className="max-h-full max-w-full rounded-lg object-contain"
+        fill
+        className="rounded-lg object-contain"
+        sizes="(max-width: 1280px) 80vw, 60vw"
       />
     )
   }

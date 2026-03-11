@@ -212,7 +212,6 @@ describe('getPlanConfig', () => {
   })
 
   test('plan inconnu → retourne free par défaut', () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(getPlanConfig('unknown' as Plan).id).toBe('free')
   })
 })
