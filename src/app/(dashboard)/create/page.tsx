@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { CreatePageClient } from '@/components/visual/CreatePageClient'
 import { getTenantBrandDNAAction } from '@/lib/actions/visual.actions'
+import { getCurrentTenantPlan } from '@/lib/billing/require-feature'
 
 export const metadata: Metadata = {
   title: 'Créer des visuels — RAMI',
@@ -8,13 +9,17 @@ export const metadata: Metadata = {
 }
 
 export default async function CreatePage() {
-  const dnaInfo = await getTenantBrandDNAAction()
+  const [dnaInfo, planData] = await Promise.all([
+    getTenantBrandDNAAction(),
+    getCurrentTenantPlan(),
+  ])
 
   return (
     <CreatePageClient
       hasBrandDNA={dnaInfo.hasDNA}
       brandName={dnaInfo.brandName}
       defaultPlatform={dnaInfo.platform ?? 'instagram'}
+      currentPlan={planData?.plan ?? 'free'}
     />
   )
 }
