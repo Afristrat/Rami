@@ -12,6 +12,7 @@ interface CalendarGridProps {
   year: number
   month: number // 0-indexed
   posts: ScheduledPost[]
+  selectedDate?: Date | null
   onPostClick?: (post: ScheduledPost) => void
   onDayClick?: (date: Date) => void
 }
@@ -20,6 +21,7 @@ export function CalendarGrid({
   year,
   month,
   posts,
+  selectedDate,
   onPostClick,
   onDayClick,
 }: CalendarGridProps) {
@@ -45,15 +47,21 @@ export function CalendarGrid({
 
       {/* Grille des jours */}
       <div className="grid grid-cols-7">
-        {days.map((day, idx) => (
-          <CalendarCell
-            key={idx}
-            day={day}
-            isLast={idx >= days.length - 7}
-            onPostClick={onPostClick}
-            onDayClick={onDayClick}
-          />
-        ))}
+        {days.map((day, idx) => {
+          const isSelected = selectedDate
+            ? day.date.toDateString() === selectedDate.toDateString()
+            : false
+          return (
+            <CalendarCell
+              key={idx}
+              day={day}
+              isLast={idx >= days.length - 7}
+              isSelected={isSelected}
+              onPostClick={onPostClick}
+              onDayClick={onDayClick}
+            />
+          )
+        })}
       </div>
     </div>
   )
@@ -64,11 +72,12 @@ export function CalendarGrid({
 interface CalendarCellProps {
   day: CalendarDay
   isLast: boolean
+  isSelected?: boolean
   onPostClick?: (post: ScheduledPost) => void
   onDayClick?: (date: Date) => void
 }
 
-function CalendarCell({ day, isLast, onPostClick, onDayClick }: CalendarCellProps) {
+function CalendarCell({ day, isLast, isSelected, onPostClick, onDayClick }: CalendarCellProps) {
   const MAX_VISIBLE = 3
   const overflow = day.posts.length - MAX_VISIBLE
 
@@ -82,6 +91,8 @@ function CalendarCell({ day, isLast, onPostClick, onDayClick }: CalendarCellProp
         "last:border-r-0 [&:nth-child(7n)]:border-r-0",
         // Mois non courant : fond atténué
         !day.isCurrentMonth && "bg-muted/30",
+        // Jour sélectionné
+        isSelected && "ring-2 ring-inset ring-primary/40 bg-primary/5",
         // Hover
         "hover:bg-accent/30 cursor-pointer"
       )}
