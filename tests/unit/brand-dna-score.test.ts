@@ -1,4 +1,4 @@
-import { computeDnaScore } from "@/lib/utils/dna-score"
+import { computeDnaScore, getDnaScoreLevel } from "@/lib/utils/dna-score"
 import {
   brandDnaFormSchema,
   CAUSSE_COLORS,
@@ -523,5 +523,43 @@ describe("COGNITIVE_OBJECTIVES", () => {
     expect(obj).toBeDefined()
     expect(obj?.visualStyles).toContain("Narratif")
     expect(obj?.visualStyles).toContain("Carte/Tuile")
+  })
+})
+
+// ─── getDnaScoreLevel ────────────────────────────────────────────────────────
+
+describe("getDnaScoreLevel", () => {
+  test("score 0.85+ → label 'Excellent'", () => {
+    expect(getDnaScoreLevel(0.85).label).toBe("Excellent")
+    expect(getDnaScoreLevel(1.0).label).toBe("Excellent")
+  })
+
+  test("score 0.65–0.84 → label 'Bon'", () => {
+    expect(getDnaScoreLevel(0.65).label).toBe("Bon")
+    expect(getDnaScoreLevel(0.84).label).toBe("Bon")
+  })
+
+  test("score 0.40–0.64 → label 'En cours'", () => {
+    expect(getDnaScoreLevel(0.40).label).toBe("En cours")
+    expect(getDnaScoreLevel(0.64).label).toBe("En cours")
+  })
+
+  test("score < 0.40 → label 'Incomplet'", () => {
+    expect(getDnaScoreLevel(0).label).toBe("Incomplet")
+    expect(getDnaScoreLevel(0.39).label).toBe("Incomplet")
+  })
+
+  test("chaque niveau a color, bgColor, borderColor et description non vides", () => {
+    for (const score of [0, 0.25, 0.50, 0.75, 1.0]) {
+      const level = getDnaScoreLevel(score)
+      expect(level.color).toBeTruthy()
+      expect(level.bgColor).toBeTruthy()
+      expect(level.borderColor).toBeTruthy()
+      expect(level.description).toBeTruthy()
+    }
+  })
+
+  test("description du niveau Excellent mentionne Brand DNA", () => {
+    expect(getDnaScoreLevel(1.0).description.toLowerCase()).toContain("brand dna")
   })
 })
