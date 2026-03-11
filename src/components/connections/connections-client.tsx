@@ -4,6 +4,7 @@ import * as React from "react"
 import { CheckCircle2, AlertCircle, ExternalLink, RefreshCw, Unplug } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { disconnectConnectionAction, type OAuthConnection } from "@/lib/actions/connections.actions"
 import {
   TwitterXIcon,
   LinkedInIcon,
@@ -23,20 +24,10 @@ interface Platform {
   Icon: React.FC<{ className?: string }>
   color: string
   bgColor: string
-  oauthPath: string
   phase: "MVP" | "Phase 2"
 }
 
-interface Connection {
-  platformId: string
-  status: ConnectionStatus
-  accountName?: string
-  accountAvatar?: string
-  connectedAt?: string
-  expiresAt?: string
-}
-
-// ─── Platform definitions ─────────────────────────────────────────────────────
+// ─── Plateformes disponibles ──────────────────────────────────────────────────
 
 const PLATFORMS: Platform[] = [
   {
@@ -46,7 +37,6 @@ const PLATFORMS: Platform[] = [
     Icon: TwitterXIcon,
     color: "text-[#000000] dark:text-white",
     bgColor: "bg-[#000000]/10 dark:bg-white/10",
-    oauthPath: "/api/oauth/twitter/authorize",
     phase: "MVP",
   },
   {
@@ -56,7 +46,6 @@ const PLATFORMS: Platform[] = [
     Icon: LinkedInIcon,
     color: "text-[#0A66C2]",
     bgColor: "bg-[#0A66C2]/10",
-    oauthPath: "/api/oauth/linkedin/authorize",
     phase: "MVP",
   },
   {
@@ -66,7 +55,6 @@ const PLATFORMS: Platform[] = [
     Icon: InstagramIcon,
     color: "text-[#E1306C]",
     bgColor: "bg-[#E1306C]/10",
-    oauthPath: "/api/oauth/instagram/authorize",
     phase: "MVP",
   },
   {
@@ -76,7 +64,6 @@ const PLATFORMS: Platform[] = [
     Icon: FacebookIcon,
     color: "text-[#1877F2]",
     bgColor: "bg-[#1877F2]/10",
-    oauthPath: "/api/oauth/facebook/authorize",
     phase: "MVP",
   },
   {
@@ -86,19 +73,7 @@ const PLATFORMS: Platform[] = [
     Icon: PinterestIcon,
     color: "text-[#E60023]",
     bgColor: "bg-[#E60023]/10",
-    oauthPath: "/api/oauth/pinterest/authorize",
     phase: "MVP",
-  },
-]
-
-// ─── Mock connections (remplacer par fetch Supabase) ──────────────────────────
-
-const MOCK_CONNECTIONS: Connection[] = [
-  {
-    platformId: "linkedin",
-    status: "connected",
-    accountName: "Amine S.",
-    connectedAt: "2026-03-01",
   },
 ]
 
@@ -117,13 +92,13 @@ function StatusBadge({ status }: { status: ConnectionStatus }) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
         <AlertCircle className="size-3.5" />
-        Erreur
+        Token expiré
       </span>
     )
   }
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-      <span className="size-3.5 rounded-full border-2 border-current opacity-50" />
+      <span className="size-2 rounded-full border-2 border-current opacity-50" />
       Non connecté
     </span>
   )
@@ -136,33 +111,33 @@ function PlatformCard({
   connection,
 }: {
   platform: Platform
-  connection?: Connection
+  connection?: OAuthConnection
 }) {
   const [loading, setLoading] = React.useState(false)
-  const status = connection?.status ?? "disconnected"
+  const status: ConnectionStatus = connection?.status ?? "disconnected"
   const isConnected = status === "connected"
 
+  const oauthPath = `/api/oauth/${platform.id}/authorize`
+
   function handleConnect() {
-    setLoading(true)
-    // Redirige vers le flow OAuth — l'URL sera implémentée côté serveur
-    window.location.href = platform.oauthPath
+    window.location.href = oauthPath
   }
 
-  function handleDisconnect() {
+  async function handleDisconnect() {
+    if (!connection?.id) return
     setLoading(true)
-    // TODO: appeler la Server Action de déconnexion
-    setTimeout(() => setLoading(false), 1000)
+    await disconnectConnectionAction(connection.id)
+    setLoading(false)
   }
 
   function handleReconnect() {
-    setLoading(true)
-    window.location.href = platform.oauthPath
+    window.location.href = oauthPath
   }
 
   return (
     <div
       className={cn(
-        "flex items-start gap-4 rounded-xl border border-border bg-card p-5 transition-all",
+        "flex items-start gap-4 rounded-xl border border-border bg-card p-5 transition-shadow",
         isConnected && "ring-1 ring-emerald-500/20",
         status === "error" && "ring-1 ring-destructive/20"
       )}
@@ -190,7 +165,12 @@ function PlatformCard({
             <span className="font-medium text-foreground">{connection.accountName}</span>
             {connection.connectedAt && (
               <span className="ml-2 opacity-60">
-                · depuis le {new Date(connection.connectedAt).toLocaleDateString("fr-FR")}
+                · depuis le{" "}
+                {new Date(connection.connectedAt).toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
               </span>
             )}
           </p>
@@ -201,38 +181,18 @@ function PlatformCard({
 
       {/* Actions */}
       <div className="flex shrink-0 items-center gap-2">
-        {!isConnected && status !== "error" && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={loading}
-            onClick={handleConnect}
-          >
-            {loading ? (
-              <RefreshCw className="size-3.5 animate-spin" />
-            ) : (
-              <ExternalLink className="size-3.5" />
-            )}
+        {status === "disconnected" && (
+          <Button variant="outline" size="sm" onClick={handleConnect}>
+            <ExternalLink className="size-3.5" />
             Connecter
           </Button>
         )}
 
         {status === "error" && (
-          <>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={loading}
-              onClick={handleReconnect}
-            >
-              {loading ? (
-                <RefreshCw className="size-3.5 animate-spin" />
-              ) : (
-                <RefreshCw className="size-3.5" />
-              )}
-              Reconnecter
-            </Button>
-          </>
+          <Button variant="outline" size="sm" onClick={handleReconnect}>
+            <RefreshCw className="size-3.5" />
+            Reconnecter
+          </Button>
         )}
 
         {isConnected && (
@@ -258,16 +218,20 @@ function PlatformCard({
 
 // ─── ConnectionsClient ────────────────────────────────────────────────────────
 
-export function ConnectionsClient() {
+interface Props {
+  initialConnections: OAuthConnection[]
+}
+
+export function ConnectionsClient({ initialConnections }: Props) {
   const connectionMap = React.useMemo(() => {
-    const map = new Map<string, Connection>()
-    for (const conn of MOCK_CONNECTIONS) {
+    const map = new Map<string, OAuthConnection>()
+    for (const conn of initialConnections) {
       map.set(conn.platformId, conn)
     }
     return map
-  }, [])
+  }, [initialConnections])
 
-  const connectedCount = MOCK_CONNECTIONS.filter(
+  const connectedCount = initialConnections.filter(
     (c) => c.status === "connected"
   ).length
 
@@ -276,8 +240,8 @@ export function ConnectionsClient() {
       {/* Résumé */}
       <div className="rounded-xl border border-border bg-muted/30 px-5 py-4">
         <p className="text-sm text-muted-foreground">
-          <span className="font-semibold text-foreground">{connectedCount}</span> compte
-          {connectedCount !== 1 ? "s" : ""} connecté
+          <span className="font-semibold text-foreground">{connectedCount}</span>{" "}
+          compte{connectedCount !== 1 ? "s" : ""} connecté
           {connectedCount !== 1 ? "s" : ""} sur{" "}
           <span className="font-semibold text-foreground">{PLATFORMS.length}</span>{" "}
           plateformes disponibles.
@@ -295,7 +259,7 @@ export function ConnectionsClient() {
         ))}
       </div>
 
-      {/* Note informative */}
+      {/* Note sécurité */}
       <p className="text-xs text-muted-foreground">
         Vos identifiants OAuth sont chiffrés AES-256 et ne sont jamais partagés.
         La déconnexion révoque l&apos;accès immédiatement.

@@ -1,12 +1,20 @@
-import { ConnectionsClient } from "@/components/connections/connections-client"
 import { Link2 } from "lucide-react"
+import { ConnectionsClient } from "@/components/connections/connections-client"
+import { getConnectionsAction } from "@/lib/actions/connections.actions"
 
 export const metadata = {
   title: "Connexions — RAMI",
   description: "Connectez vos comptes de réseaux sociaux à RAMI.",
 }
 
-export default function ConnectionsPage() {
+interface Props {
+  searchParams: Promise<{ success?: string; error?: string }>
+}
+
+export default async function ConnectionsPage({ searchParams }: Props) {
+  const { success, error } = await searchParams
+  const { data: connections } = await getConnectionsAction()
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -20,7 +28,20 @@ export default function ConnectionsPage() {
         </p>
       </div>
 
-      <ConnectionsClient />
+      {/* Toast feedback depuis OAuth callback */}
+      {success === "connected" && (
+        <div className="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-400">
+          Compte connecté avec succès.
+        </div>
+      )}
+      {error && (
+        <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          Erreur de connexion : <span className="font-medium">{error.replace(/_/g, " ")}</span>.
+          Veuillez réessayer.
+        </div>
+      )}
+
+      <ConnectionsClient initialConnections={connections} />
     </div>
   )
 }
