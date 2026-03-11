@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import { signOutAction } from "@/lib/actions/auth.actions"
 import { Button } from "@/components/ui/button"
@@ -8,13 +9,15 @@ export const metadata: Metadata = {
   title: "Dashboard",
 }
 
-const COMING_SOON_MODULES = [
+const MODULES = [
   {
     icon: Sparkles,
-    label: "Workflow créatif",
-    description: "Générez du contenu social media en 7 étapes guidées.",
+    label: "Visual Engine",
+    description: "Générez 4 directions × 5 visuels calibrés sur votre Brand DNA.",
     color: "text-violet-400",
     bg: "bg-violet-500/10 border-violet-500/20",
+    href: "/create",
+    available: true,
   },
   {
     icon: BarChart3,
@@ -22,6 +25,8 @@ const COMING_SOON_MODULES = [
     description: "Suivez les performances de vos posts en temps réel.",
     color: "text-blue-400",
     bg: "bg-blue-500/10 border-blue-500/20",
+    href: null,
+    available: false,
   },
   {
     icon: Calendar,
@@ -29,6 +34,8 @@ const COMING_SOON_MODULES = [
     description: "Planifiez et schedulez vos publications.",
     color: "text-emerald-400",
     bg: "bg-emerald-500/10 border-emerald-500/20",
+    href: null,
+    available: false,
   },
   {
     icon: Settings,
@@ -36,6 +43,8 @@ const COMING_SOON_MODULES = [
     description: "Configurez l'identité visuelle de votre marque.",
     color: "text-amber-400",
     bg: "bg-amber-500/10 border-amber-500/20",
+    href: null,
+    available: false,
   },
 ]
 
@@ -111,7 +120,7 @@ export default async function DashboardPage() {
                 prochains jours.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {["Auth ✅", "Brand DNA 🔄", "Workflow 📋", "Publishing 📋", "Analytics 📋"].map(
+                {["Auth ✅", "Visual Engine ✅", "Brand DNA 📋", "Publishing 📋", "Analytics 📋"].map(
                   (step) => (
                     <span
                       key={step}
@@ -128,12 +137,15 @@ export default async function DashboardPage() {
 
         {/* Modules grille */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {COMING_SOON_MODULES.map((mod) => {
+          {MODULES.map((mod) => {
             const Icon = mod.icon
-            return (
+            const card = (
               <div
-                key={mod.label}
-                className={`relative rounded-xl border p-5 ${mod.bg} opacity-60 cursor-not-allowed`}
+                className={`relative rounded-xl border p-5 ${mod.bg} ${
+                  mod.available
+                    ? 'cursor-pointer hover:scale-[1.02] transition-transform'
+                    : 'opacity-60 cursor-not-allowed'
+                }`}
               >
                 <div className="mb-3">
                   <Icon className={`h-5 w-5 ${mod.color}`} />
@@ -141,11 +153,25 @@ export default async function DashboardPage() {
                 <h3 className="font-medium text-white">{mod.label}</h3>
                 <p className="mt-1 text-xs text-white/40">{mod.description}</p>
                 <div className="mt-3">
-                  <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/30">
-                    Bientôt disponible
-                  </span>
+                  {mod.available ? (
+                    <span className="rounded-full bg-violet-500/20 px-2 py-0.5 text-[10px] uppercase tracking-wider text-violet-400">
+                      Disponible →
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-white/5 px-2 py-0.5 text-[10px] uppercase tracking-wider text-white/30">
+                      Bientôt disponible
+                    </span>
+                  )}
                 </div>
               </div>
+            )
+
+            return mod.available && mod.href ? (
+              <Link key={mod.label} href={mod.href}>
+                {card}
+              </Link>
+            ) : (
+              <div key={mod.label}>{card}</div>
             )
           })}
         </div>
