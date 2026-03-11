@@ -22,6 +22,7 @@ import {
   type BrandDnaFormData,
   SECTORS,
   CULTURES,
+  COGNITIVE_OBJECTIVES,
   type CultureId,
 } from "@/lib/schemas/brand-dna.schema"
 import { Input } from "@/components/ui/input"
@@ -159,6 +160,7 @@ function FormField({
 
 function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormData>> }) {
   const { register, formState: { errors }, setValue } = form
+  const objectifCognitif = useWatch({ control: form.control, name: "objectifCognitif", defaultValue: "" })
   // useWatch garantit que le logo s'affiche dès le premier rendu en mode édition
   // et se met à jour immédiatement après upload / suppression
   const logoDataUrl = useWatch({ control: form.control, name: "logoDataUrl", defaultValue: "" })
@@ -241,6 +243,55 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
           )}
         />
       </FormField>
+
+      {/* Objectif cognitif — détermine les styles visuels (CLAUDE.md §2.2) */}
+      <div className="space-y-2">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Objectif cognitif principal</p>
+          <p className="text-xs text-muted-foreground">
+            Quelle émotion ou réaction souhaitez-vous déclencher chez votre audience ?
+            Détermine les styles visuels générés par RAMI.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {COGNITIVE_OBJECTIVES.map((obj) => {
+            const isSelected = objectifCognitif === obj.id
+            return (
+              <button
+                key={obj.id}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                onClick={() => setValue("objectifCognitif", isSelected ? "" : obj.id, { shouldDirty: true })}
+                className={cn(
+                  "flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                  isSelected
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/40 hover:bg-muted/50"
+                )}
+              >
+                <span className="mt-0.5 text-xl" aria-hidden="true">{obj.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <p className={cn("text-sm font-medium leading-tight", isSelected ? "text-primary" : "text-foreground")}>
+                    {obj.label}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">{obj.description}</p>
+                  {isSelected && (
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {obj.visualStyles.map((style) => (
+                        <span key={style} className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary">
+                          {style}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
     </div>
   )
 }
@@ -454,6 +505,14 @@ function StepRecap({ data }: { data: BrandDnaFormData }) {
                 <p className="text-xs text-muted-foreground italic">&ldquo;{data.tagline}&rdquo;</p>
               )}
               <p className="mt-0.5 text-xs text-muted-foreground">{data.sector}</p>
+              {data.objectifCognitif && (() => {
+                const obj = COGNITIVE_OBJECTIVES.find((o) => o.id === data.objectifCognitif)
+                return obj ? (
+                  <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <span aria-hidden="true">{obj.icon}</span> {obj.label}
+                  </span>
+                ) : null
+              })()}
             </div>
           </div>
         </div>
@@ -543,6 +602,7 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
       colorSecondary: "",
       colorAccent: "",
       voiceTone: "",
+      objectifCognitif: "",
       primaryCulture: "",
       audienceDescription: "",
       audienceAge: "",
@@ -608,10 +668,11 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
         </div>
         <Button
           onClick={() => {
+            // Retour en mode édition : conserver les données, marquer toutes les
+            // étapes précédentes comme complètes pour navigation libre
             setIsSubmitted(false)
             setCurrentStep(0)
-            setCompletedSteps(new Set())
-            form.reset()
+            setCompletedSteps(new Set([0, 1, 2]))
           }}
           variant="outline"
           size="lg"

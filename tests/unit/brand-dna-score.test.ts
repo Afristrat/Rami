@@ -5,6 +5,7 @@ import {
   VOICE_TONES,
   SECTORS,
   SECTOR_COLOR_RULES,
+  COGNITIVE_OBJECTIVES,
 } from "@/lib/schemas/brand-dna.schema"
 
 // ─── computeDnaScore ────────────────────────────────────────────────────────
@@ -468,5 +469,59 @@ describe("SECTOR_COLOR_RULES", () => {
         throw new Error(`La clé "${sectorKey}" dans SECTOR_COLOR_RULES n'existe pas dans SECTORS`)
       }
     }
+  })
+})
+
+// ─── COGNITIVE_OBJECTIVES ────────────────────────────────────────────────────
+
+describe("COGNITIVE_OBJECTIVES", () => {
+  test("contient exactement 6 objectifs", () => {
+    expect(COGNITIVE_OBJECTIVES).toHaveLength(6)
+  })
+
+  test("chaque objectif a id, label, icon, description, visualStyles et keywords", () => {
+    for (const obj of COGNITIVE_OBJECTIVES) {
+      expect(obj.id).toBeTruthy()
+      expect(obj.label).toBeTruthy()
+      expect(obj.icon).toBeTruthy()
+      expect(obj.description).toBeTruthy()
+      expect(Array.isArray(obj.visualStyles)).toBe(true)
+      expect(obj.visualStyles.length).toBeGreaterThan(0)
+      expect(Array.isArray(obj.keywords)).toBe(true)
+      expect(obj.keywords.length).toBeGreaterThan(0)
+    }
+  })
+
+  test("tous les IDs sont uniques", () => {
+    const ids = COGNITIVE_OBJECTIVES.map((o) => o.id)
+    expect(new Set(ids).size).toBe(COGNITIVE_OBJECTIVES.length)
+  })
+
+  test("contient 'confiance' → styles Blueprint + Scientifique (CLAUDE.md §2.2)", () => {
+    const obj = COGNITIVE_OBJECTIVES.find((o) => o.id === "confiance")
+    expect(obj).toBeDefined()
+    expect(obj?.visualStyles).toContain("Blueprint")
+    expect(obj?.visualStyles).toContain("Scientifique")
+  })
+
+  test("contient 'urgence' → styles Machine + Narratif", () => {
+    const obj = COGNITIVE_OBJECTIVES.find((o) => o.id === "urgence")
+    expect(obj).toBeDefined()
+    expect(obj?.visualStyles).toContain("Machine")
+    expect(obj?.visualStyles).toContain("Narratif")
+  })
+
+  test("contient 'expertise' → styles Dashboard + Stack", () => {
+    const obj = COGNITIVE_OBJECTIVES.find((o) => o.id === "expertise")
+    expect(obj).toBeDefined()
+    expect(obj?.visualStyles).toContain("Dashboard")
+    expect(obj?.visualStyles).toContain("Stack")
+  })
+
+  test("contient 'communaute' → styles Narratif + Carte/Tuile", () => {
+    const obj = COGNITIVE_OBJECTIVES.find((o) => o.id === "communaute")
+    expect(obj).toBeDefined()
+    expect(obj?.visualStyles).toContain("Narratif")
+    expect(obj?.visualStyles).toContain("Carte/Tuile")
   })
 })

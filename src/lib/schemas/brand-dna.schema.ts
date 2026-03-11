@@ -167,6 +167,9 @@ export const brandDnaFormSchema = z.object({
   // Ton de voix
   voiceTone: z.string().min(1, "Choisissez le ton de voix"),
 
+  // Objectif cognitif — driver des styles visuels (CLAUDE.md §2.2)
+  objectifCognitif: z.string().optional(),
+
   // Culture cible
   primaryCulture: z.string().optional(),
 
@@ -181,6 +184,63 @@ export const brandDnaFormSchema = z.object({
 })
 
 export type BrandDnaFormData = z.infer<typeof brandDnaFormSchema>
+
+/**
+ * Objectifs cognitifs — moteur de sélection des styles visuels.
+ * Source : CLAUDE.md §2.2 règles de décision.
+ */
+export const COGNITIVE_OBJECTIVES = [
+  {
+    id: "confiance",
+    label: "Confiance & Crédibilité",
+    icon: "🏛️",
+    description: "Établir l'autorité et rassurer l'audience sur votre fiabilité",
+    visualStyles: ["Blueprint", "Scientifique"],
+    keywords: ["sécurité", "institution", "expertise", "garantie"],
+  },
+  {
+    id: "urgence",
+    label: "Urgence & Action",
+    icon: "⚡",
+    description: "Déclencher un passage à l'action immédiat chez l'audience",
+    visualStyles: ["Machine", "Narratif"],
+    keywords: ["CTA", "offre limitée", "maintenant", "opportunité"],
+  },
+  {
+    id: "aspiration",
+    label: "Aspiration & Désir",
+    icon: "✨",
+    description: "Créer un sentiment de désir et projeter l'audience dans le succès",
+    visualStyles: ["Carte/Tuile", "Narratif"],
+    keywords: ["premium", "lifestyle", "réussite", "transformation"],
+  },
+  {
+    id: "expertise",
+    label: "Expertise & Savoir",
+    icon: "🎓",
+    description: "Démontrer la maîtrise technique et la profondeur d'analyse",
+    visualStyles: ["Dashboard", "Stack"],
+    keywords: ["data", "analyse", "méthode", "résultats"],
+  },
+  {
+    id: "communaute",
+    label: "Communauté & Appartenance",
+    icon: "🤝",
+    description: "Renforcer le sentiment d'appartenance et la solidarité",
+    visualStyles: ["Narratif", "Carte/Tuile"],
+    keywords: ["ensemble", "collectif", "partage", "engagement"],
+  },
+  {
+    id: "joie",
+    label: "Joie & Légèreté",
+    icon: "🎉",
+    description: "Générer une émotion positive et mémorable chez l'audience",
+    visualStyles: ["Narratif", "Machine"],
+    keywords: ["fun", "célébration", "humour", "enthousiasme"],
+  },
+] as const
+
+export type CognitiveObjective = typeof COGNITIVE_OBJECTIVES[number]
 
 export const CULTURES = [
   { id: "maroc", label: "Maroc", flag: "🇲🇦" },
