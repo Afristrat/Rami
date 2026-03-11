@@ -1,0 +1,23 @@
+import { getMediaAssetsAction } from "@/lib/actions/library.actions"
+import { MediaLibraryClient } from "@/components/library/media-library-client"
+
+export const metadata = {
+  title: "Médiathèque — RAMI",
+  description: "Gérez vos images, vidéos et documents.",
+}
+
+export default async function LibraryPage() {
+  const result = await getMediaAssetsAction()
+
+  const initialAssets = "error" in result ? [] : result.data
+  const initialTotal = "error" in result ? 0 : result.total
+
+  return (
+    <div className="h-full overflow-hidden">
+      <MediaLibraryClient
+        initialAssets={initialAssets}
+        initialTotal={initialTotal}
+      />
+    </div>
+  )
+}
