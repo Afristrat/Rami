@@ -215,7 +215,16 @@ export async function updatePost(
   }
 
   const { title, content, platforms, scheduled_at, status } = parsed.data
-  const finalStatus = scheduled_at ? "scheduled" : (status ?? undefined)
+
+  // Règle statut :
+  // - scheduled_at fourni         → forcer "scheduled"
+  // - scheduled_at = null (effacé) → revenir à "draft" sauf si statut explicite
+  // - scheduled_at non fourni      → ne pas toucher au statut
+  const finalStatus = scheduled_at
+    ? "scheduled"
+    : scheduled_at === null
+    ? (status ?? "draft")
+    : (status ?? undefined)
 
   try {
     const [updated] = await db
