@@ -16,6 +16,47 @@ export function LogoUploader({ value, fileName, onChange, onClear, error }: Logo
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
+  /**
+   * Redimensionne un logo PNG/JPG/WebP à max 256×256 px via Canvas API
+   * pour éviter des JSONB de plusieurs Mo dans Supabase.
+   * Les SVG sont passés tels quels (format vectoriel, déjà léger).
+   */
+  const resizeAndEncode = useCallback(
+    (dataUrl: string, mimeType: string, fileName: string) => {
+      if (mimeType === "image/svg+xml") {
+        // SVG : pas de redimensionnement nécessaire
+        onChange(dataUrl, fileName)
+        return
+      }
+
+      const MAX_PX = 256
+      const img = new window.Image()
+      img.onload = () => {
+        const scale = Math.min(1, MAX_PX / Math.max(img.width, img.height))
+        const w = Math.round(img.width * scale)
+        const h = Math.round(img.height * scale)
+
+        const canvas = document.createElement("canvas")
+        canvas.width = w
+        canvas.height = h
+        const ctx = canvas.getContext("2d")
+        if (!ctx) {
+          onChange(dataUrl, fileName)
+          return
+        }
+        ctx.drawImage(img, 0, 0, w, h)
+        const resized = canvas.toDataURL("image/webp", 0.85)
+        onChange(resized, fileName)
+      }
+      img.onerror = () => {
+        // En cas d'échec Canvas, on stocke l'original
+        onChange(dataUrl, fileName)
+      }
+      img.src = dataUrl
+    },
+    [onChange]
+  )
+
   const processFile = useCallback(
     (file: File) => {
       if (!["image/png", "image/jpeg", "image/svg+xml", "image/webp"].includes(file.type)) {
@@ -27,11 +68,11 @@ export function LogoUploader({ value, fileName, onChange, onClear, error }: Logo
       const reader = new FileReader()
       reader.onload = (e) => {
         const result = e.target?.result as string
-        onChange(result, file.name)
+        resizeAndEncode(result, file.type, file.name)
       }
       reader.readAsDataURL(file)
     },
-    [onChange]
+    [resizeAndEncode]
   )
 
   const handleFileChange = useCallback(

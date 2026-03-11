@@ -467,7 +467,11 @@ interface BrandDnaFormProps {
 
 export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
   const [currentStep, setCurrentStep] = useState(0)
-  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
+  // Si initialData existe, toutes les étapes précédentes sont considérées complètes
+  // → le récapitulatif s'affiche immédiatement à l'étape 4 en mode édition
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(
+    initialData ? new Set([0, 1, 2]) : new Set()
+  )
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
