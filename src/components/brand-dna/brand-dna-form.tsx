@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { saveBrandDnaAction } from "@/lib/actions/brand-dna.actions"
+import { DnaScoreBadge } from "./dna-score-badge"
 import {
   brandDnaFormSchema,
   type BrandDnaFormData,
@@ -618,6 +619,13 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
         {currentStep === 2 && <StepTonDeVoix form={form} />}
         {currentStep === 3 && <StepAudience form={form} />}
       </div>
+
+      {/* Score DNA en temps réel à l'étape 4 */}
+      {isLastStep && (
+        <div className="mt-4">
+          <DnaScoreBadge data={formValues} />
+        </div>
+      )}
 
       {/* Récap si dernière étape et valide */}
       {isLastStep && completedSteps.size >= 3 && (
