@@ -16,13 +16,11 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { saveBrandDnaAction } from "@/lib/actions/brand-dna.actions"
-import { DnaScoreBadge } from "./dna-score-badge"
+import { DnaScoreBadge, ColorPaletteSummary, VoiceToneBadge } from "./dna-score-badge"
 import {
   brandDnaFormSchema,
   type BrandDnaFormData,
   SECTORS,
-  CAUSSE_COLORS,
-  VOICE_TONES,
 } from "@/lib/schemas/brand-dna.schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -378,11 +376,6 @@ function StepAudience({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
 /* ─── Récap finale ───────────────────────────────── */
 
 function StepRecap({ data }: { data: BrandDnaFormData }) {
-  const primaryColor = CAUSSE_COLORS.find((c) => c.id === data.colorPrimary)
-  const secondaryColor = CAUSSE_COLORS.find((c) => c.id === data.colorSecondary)
-  const accentColor = CAUSSE_COLORS.find((c) => c.id === data.colorAccent)
-  const voiceTone = VOICE_TONES.find((t) => t.id === data.voiceTone)
-
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900/50 dark:bg-green-950/30">
@@ -420,39 +413,24 @@ function StepRecap({ data }: { data: BrandDnaFormData }) {
           </div>
         </div>
 
-        {/* Palette */}
+        {/* Palette Causse (utilise ColorPaletteSummary) */}
         <div className="rounded-xl border border-border bg-muted/20 p-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Palette Causse
           </p>
-          <div className="flex gap-2">
-            {[primaryColor, secondaryColor, accentColor].map((color, i) =>
-              color ? (
-                <div key={i} className="flex-1">
-                  <div
-                    className="mb-1 h-8 rounded-md"
-                    style={{ backgroundColor: color.hex }}
-                  />
-                  <p className="text-center text-[10px] text-muted-foreground truncate">
-                    {color.name}
-                  </p>
-                </div>
-              ) : null
-            )}
-          </div>
+          <ColorPaletteSummary
+            primaryId={data.colorPrimary}
+            secondaryId={data.colorSecondary}
+            accentId={data.colorAccent}
+          />
         </div>
 
-        {/* Ton */}
+        {/* Ton de voix (utilise VoiceToneBadge) */}
         <div className="rounded-xl border border-border bg-muted/20 p-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Ton de voix
           </p>
-          {voiceTone && (
-            <div className="flex items-center gap-2">
-              <span className="text-xl">{voiceTone.icon}</span>
-              <p className="text-sm font-medium text-foreground">{voiceTone.label}</p>
-            </div>
-          )}
+          {data.voiceTone && <VoiceToneBadge toneId={data.voiceTone} />}
         </div>
 
         {/* Audience */}
@@ -552,7 +530,9 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
     })
   })
 
-  const formValues = form.getValues()
+  // useWatch abonne le composant aux changements de formulaire (contrairement à getValues())
+  // Nécessaire pour que DnaScoreBadge et StepRecap se mettent à jour en temps réel
+  const watchedValues = useWatch({ control: form.control })
   const isLastStep = currentStep === STEPS.length - 1
 
   if (isSubmitted) {
@@ -623,7 +603,7 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
       {/* Score DNA en temps réel à l'étape 4 */}
       {isLastStep && (
         <div className="mt-4">
-          <DnaScoreBadge data={formValues} />
+          <DnaScoreBadge data={watchedValues} />
         </div>
       )}
 
@@ -631,7 +611,7 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
       {isLastStep && completedSteps.size >= 3 && (
         <div className="mt-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <h3 className="mb-4 text-sm font-bold text-foreground">Récapitulatif</h3>
-          <StepRecap data={formValues} />
+          <StepRecap data={watchedValues as BrandDnaFormData} />
         </div>
       )}
 
