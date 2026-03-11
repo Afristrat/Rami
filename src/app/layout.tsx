@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Geist } from "next/font/google"
+import { ThemeProvider } from "@/components/layout/theme-provider"
 import "./globals.css"
 
 const geistSans = Geist({
@@ -7,21 +8,9 @@ const geistSans = Geist({
   subsets: ["latin"],
 })
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-})
-
 export const metadata: Metadata = {
-  title: {
-    default: "RAMI — Agency OS by AI-MPower",
-    template: "%s | RAMI",
-  },
-  description:
-    "Générez du contenu social media psychologiquement calibré. Chaque post est une flèche conçue pour toucher l'émotion précise de votre audience.",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://rami.ai-mpower.com"
-  ),
+  title: "RAMI — Agency OS by AI-MPower",
+  description: "Générez du contenu social media psychologiquement calculé pour toucher votre audience cible.",
 }
 
 export default function RootLayout({
@@ -31,10 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} antialiased`}>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )
