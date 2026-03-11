@@ -1,6 +1,5 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 
 export type ConnectionStatus = "connected" | "disconnected" | "error"
@@ -34,15 +33,13 @@ export async function getConnectionsAction(): Promise<{
     return { data: [], error: "Non authentifié." }
   }
 
-  // La table oauth_connections sera créée lors de la migration DB J2
-  // Pour l'instant : tentative avec fallback gracieux
   const { data, error } = await supabase
     .from("oauth_connections")
     .select("id, platform, account_name, account_avatar, created_at, is_active, expires_at")
     .order("created_at", { ascending: false })
 
   if (error) {
-    // Table non encore créée en dev — retourner liste vide sans crasher
+    // Table non encore créée en dev — fallback gracieux
     if (error.code === "42P01") {
       return { data: [] }
     }
@@ -68,36 +65,4 @@ export async function getConnectionsAction(): Promise<{
   })
 
   return { data: connections }
-}
-
-/**
- * Désactive une connexion OAuth côté DB (révocation côté plateforme
- * sera gérée dans la route /api/oauth/[platform]/disconnect).
- */
-export async function disconnectConnectionAction(
-  connectionId: string
-): Promise<{ error?: string }> {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    return { error: "Non authentifié." }
-  }
-
-  const { error } = await supabase
-    .from("oauth_connections")
-    .update({ is_active: false })
-    .eq("id", connectionId)
-  // RLS garantit que seul le propriétaire peut modifier sa connexion
-
-  if (error) {
-    return { error: "Impossible de déconnecter le compte." }
-  }
-
-  revalidatePath("/dashboard/settings/connections")
-  return {}
 }
