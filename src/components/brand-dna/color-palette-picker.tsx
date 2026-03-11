@@ -24,6 +24,9 @@ function ColorSwatch({ color, selected, disabled, onSelect, showBadge }: ColorSw
       type="button"
       disabled={disabled}
       onClick={() => onSelect(color.id)}
+      aria-label={`${color.name} — ${color.emotion}${selected ? " (sélectionnée)" : ""}${disabled ? " (déjà utilisée)" : ""}`}
+      aria-pressed={selected}
+      aria-disabled={disabled}
       className={cn(
         "group relative w-full rounded-xl border-2 p-3 text-left transition-all",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
