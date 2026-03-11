@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { createBillingPortalAction, createCheckoutSessionAction } from '@/lib/billing/actions'
 import {
-  PLANS, PLAN_GENERATION_QUOTAS, getPlanConfig, getNextPlan
+  PLAN_GENERATION_QUOTAS, getPlanConfig, getNextPlan
 } from '@/lib/billing/plans'
 import type { Plan } from '@/lib/billing/plans'
 import { cn } from '@/lib/utils'

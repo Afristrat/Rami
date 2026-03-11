@@ -32,6 +32,7 @@ function formatDate(iso: string): string {
 function LightboxPreview({ asset }: { asset: MediaAsset }) {
   if (asset.fileType === "image" && asset.publicUrl) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element -- URL dynamique Supabase Storage (dimensions inconnues)
       <img
         src={asset.publicUrl}
         alt={asset.originalFilename}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import type { WorkflowState, Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data, Step7Data } from "@/lib/schemas/workflow.schema"
+import type { WorkflowState, Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data } from "@/lib/schemas/workflow.schema"
 import { WorkflowStepper } from "./WorkflowStepper"
 import { Step1Brief } from "./Step1Brief"
 import { Step2Platforms } from "./Step2Platforms"

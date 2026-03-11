@@ -254,7 +254,6 @@ describe("brandDnaFormSchema", () => {
   })
 
   test("tagline optionnel — valide sans tagline", () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { tagline: _tagline, ...withoutTagline } = validData
     const result = brandDnaFormSchema.safeParse(withoutTagline)
     expect(result.success).toBe(true)

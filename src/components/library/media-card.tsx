@@ -23,6 +23,7 @@ function MediaPreview({ asset }: { asset: MediaAsset }) {
 
   if (asset.fileType === "image" && asset.publicUrl && !imgError) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element -- URL dynamique Supabase Storage (dimensions inconnues) + onError requis
       <img
         src={asset.publicUrl}
         alt={asset.originalFilename}
