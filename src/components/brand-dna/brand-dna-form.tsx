@@ -156,14 +156,18 @@ function FormField({
 /* ─── Étape 0 — Identité ─────────────────────────── */
 
 function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormData>> }) {
-  const { register, formState: { errors }, setValue, getValues } = form
+  const { register, formState: { errors }, setValue } = form
+  // useWatch garantit que le logo s'affiche dès le premier rendu en mode édition
+  // et se met à jour immédiatement après upload / suppression
+  const logoDataUrl = useWatch({ control: form.control, name: "logoDataUrl", defaultValue: "" })
+  const logoFileName = useWatch({ control: form.control, name: "logoFileName", defaultValue: "" })
 
   return (
     <div className="space-y-5">
       <FormField label="Logo de la marque" hint="Optionnel — PNG, JPG, SVG ou WebP, max 10 Mo">
         <LogoUploader
-          value={getValues("logoDataUrl")}
-          fileName={getValues("logoFileName")}
+          value={logoDataUrl}
+          fileName={logoFileName}
           onChange={(dataUrl, fileName) => {
             setValue("logoDataUrl", dataUrl, { shouldDirty: true })
             setValue("logoFileName", fileName, { shouldDirty: true })
