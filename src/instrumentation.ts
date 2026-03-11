@@ -29,7 +29,8 @@ export async function register() {
     } catch (err) {
       // Ne pas crasher le serveur si pg-boss échoue au démarrage
       // (ex: DB indisponible en dev)
-      console.error("[instrumentation] Échec démarrage publish-worker :", err)
+      const { log } = await import("@/lib/utils/logger")
+      log({ level: "error", module: "instrumentation", action: "publish_worker_start_failed", metadata: { error: err instanceof Error ? err.message : String(err) } })
     }
   }
 }

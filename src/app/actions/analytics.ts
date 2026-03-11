@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { db } from "@/lib/db"
+import { log } from "@/lib/utils/logger"
 import { posts, users } from "@/lib/db/schema"
 import { and, eq, gte, lte, count, sql } from "drizzle-orm"
 import type { Platform } from "@/lib/scheduler/platform-config"
@@ -247,7 +248,7 @@ export async function getAnalyticsData(
       data: { kpis, dailyEngagement, postsByStatus, topPosts },
     }
   } catch (error) {
-    console.error("[analytics] getAnalyticsData error:", error)
+    log({ level: "error", module: "analytics", action: "getAnalyticsData_error", metadata: { error: error instanceof Error ? error.message : String(error) } })
     return { success: false, error: "Erreur lors du chargement des analytics" }
   }
 }

@@ -8,6 +8,7 @@ import Stripe from 'stripe'
 import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/billing/stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Plan } from '@/lib/billing/plans'
+import { log } from '@/lib/utils/logger'
 
 // Mapping Stripe status → subscription_status interne
 function mapStripeStatus(status: Stripe.Subscription.Status): string {
@@ -37,7 +38,7 @@ async function syncSubscription(subscription: Stripe.Subscription) {
 
   const tenantId = subscription.metadata?.tenant_id
   if (!tenantId) {
-    console.error('[Stripe webhook] tenant_id manquant dans les métadonnées de l\'abonnement', subscription.id)
+    log({ level: "error", module: "stripe-webhook", action: "missing_tenant_id", metadata: { subscriptionId: subscription.id } })
     return
   }
 
@@ -59,11 +60,11 @@ async function syncSubscription(subscription: Stripe.Subscription) {
     .eq('id', tenantId)
 
   if (error) {
-    console.error('[Stripe webhook] Erreur mise à jour tenant:', error)
+    log({ level: "error", module: "stripe-webhook", action: "db_update_failed", tenant_id: tenantId, metadata: { error: error.message } })
     throw new Error(`Erreur DB: ${error.message}`)
   }
 
-  console.info(`[Stripe webhook] Tenant ${tenantId} → plan ${effectivePlan} (${status})`)
+  log({ level: "info", module: "stripe-webhook", action: "tenant_synced", tenant_id: tenantId, metadata: { plan: effectivePlan, status } })
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
     event = stripe.webhooks.constructEvent(body, sig, STRIPE_WEBHOOK_SECRET)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Signature invalide'
-    console.error('[Stripe webhook] Signature invalide:', message)
+    log({ level: "error", module: "stripe-webhook", action: "invalid_signature", metadata: { message } })
     return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 })
   }
 
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erreur inconnue'
-    console.error('[Stripe webhook] Erreur traitement:', message)
+    log({ level: "error", module: "stripe-webhook", action: "processing_error", metadata: { message } })
     return NextResponse.json({ error: message }, { status: 500 })
   }
 }

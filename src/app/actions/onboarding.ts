@@ -6,6 +6,7 @@ import { tenants, users } from "@/lib/db/schema"
 import { z } from "zod"
 import { redirect } from "next/navigation"
 import { eq } from "drizzle-orm"
+import { log } from "@/lib/utils/logger"
 
 const OnboardingSchema = z.object({
   name: z
@@ -114,7 +115,7 @@ export async function createTenantOnboarding(
       data: { onboarding_completed: true },
     })
   } catch (error) {
-    console.error("[onboarding] Erreur création tenant:", error)
+    log({ level: "error", module: "onboarding", action: "create_tenant_error", metadata: { error: error instanceof Error ? error.message : String(error) } })
     return {
       success: false,
       error: "Une erreur est survenue. Veuillez réessayer.",

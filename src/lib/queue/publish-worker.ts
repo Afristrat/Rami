@@ -20,6 +20,7 @@ import type { PublishResult } from "@/lib/services/publishing"
 import type { Job } from "pg-boss"
 import { decryptToken } from "@/lib/services/oauth/state"
 import { createServiceClient } from "@/lib/supabase/service"
+import { log } from "@/lib/utils/logger"
 
 // ── Worker principal ──────────────────────────────────────────────────────────
 
@@ -34,14 +35,14 @@ export async function startPublishWorker(): Promise<void> {
       await Promise.all(
         jobs.map((job) => {
           const { postId, tenantId } = job.data
-          console.log(`[publish-worker] Job ${job.id} — post ${postId} (tenant ${tenantId})`)
+          log({ level: "info", module: "publish-worker", action: "job_start", tenant_id: tenantId, metadata: { jobId: job.id, postId } })
           return processPublishJob(postId, tenantId, job.id)
         })
       )
     }
   )
 
-  console.log("[publish-worker] Worker démarré — en écoute des jobs publish-post")
+  log({ level: "info", module: "publish-worker", action: "worker_started" })
 }
 
 // ── Logique de publication ────────────────────────────────────────────────────
@@ -62,20 +63,20 @@ async function processPublishJob(
     .single()
 
   if (postError || !post) {
-    console.error(`[publish-worker] Post ${postId} introuvable :`, postError)
+    log({ level: "error", module: "publish-worker", action: "post_not_found", tenant_id: tenantId, metadata: { postId, error: postError?.message } })
     // On ne throw pas → pg-boss marque le job comme failed après retries
     throw new Error(`Post ${postId} introuvable en DB`)
   }
 
   // 2. Vérifier le statut — éviter double-publication
   if (post.status === "published") {
-    console.log(`[publish-worker] Post ${postId} déjà publié — skip`)
+    log({ level: "info", module: "publish-worker", action: "skip_already_published", tenant_id: tenantId, metadata: { postId } })
     return
   }
 
   if (post.status === "failed" || post.status === "draft") {
     // Statuts terminaux — on ne retente pas sans action utilisateur
-    console.log(`[publish-worker] Post ${postId} en statut "${post.status}" — skip`)
+    log({ level: "info", module: "publish-worker", action: "skip_terminal_status", tenant_id: tenantId, metadata: { postId, status: post.status } })
     return
   }
 
@@ -149,13 +150,9 @@ async function processPublishJob(
     results[platform] = result
 
     if (result.status === "failed") {
-      console.warn(
-        `[publish-worker] Échec publication ${platform} pour post ${postId} : ${result.error}`
-      )
+      log({ level: "warn", module: "publish-worker", action: "platform_failed", tenant_id: tenantId, metadata: { postId, platform, error: result.error } })
     } else {
-      console.log(
-        `[publish-worker] Publié sur ${platform} — postId: ${result.postId}`
-      )
+      log({ level: "info", module: "publish-worker", action: "platform_published", tenant_id: tenantId, metadata: { postId, platform, platformPostId: result.postId } })
     }
   }
 
