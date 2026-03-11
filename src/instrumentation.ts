@@ -1,0 +1,26 @@
+/**
+ * Next.js Instrumentation — démarrage du worker pg-boss
+ *
+ * Ce fichier est exécuté une seule fois au démarrage du serveur Next.js.
+ * En production (Vercel), il tourne dans le runtime Node.js.
+ * Conforme SOP-004 : scheduling via pg-boss.
+ *
+ * @see https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
+ */
+
+export async function register() {
+  // Démarrer le worker uniquement côté serveur Node.js
+  // (pas dans Edge Runtime ni côté client)
+  if (process.env.NEXT_RUNTIME === "nodejs") {
+    // Import dynamique pour éviter le bundling côté Edge
+    const { startPublishWorker } = await import("@/lib/queue/publish-worker")
+
+    try {
+      await startPublishWorker()
+    } catch (err) {
+      // Ne pas crasher le serveur si pg-boss échoue au démarrage
+      // (ex: DB indisponible en dev)
+      console.error("[instrumentation] Échec démarrage publish-worker :", err)
+    }
+  }
+}
