@@ -33,9 +33,9 @@ export const navAdvanced: NavItem[] = [
   { href: "/dashboard/documents", label: "Documents", icon: FileText, badge: "Agency" },
   { href: "/dashboard/transcriptions", label: "Transcriptions", icon: Mic, badge: "Pro" },
   { href: "/dashboard/leads", label: "Leads", icon: Users, badge: "Agency" },
-  { href: "/dashboard/billing", label: "Facturation", icon: CreditCard, badge: "Agency" },
+  { href: "/billing", label: "Facturation", icon: CreditCard, badge: "Agency" },
 ]
 
 export const navBottom: NavItem[] = [
-  { href: "/dashboard/settings", label: "Paramètres", icon: Settings },
+  { href: "/settings", label: "Paramètres", icon: Settings },
 ]
