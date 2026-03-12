@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useTransition, useEffect } from "react"
-import { Search, Images, FileText, Play, LayoutGrid, Loader2, FolderOpen } from "lucide-react"
+import { Search, Images, FileText, Play, LayoutGrid, Loader2, FolderOpen, UploadCloud, Wand2 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -206,19 +206,54 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
 function EmptyState({ search, filter }: { search: string; filter: FilterType }) {
   const isFiltered = search.trim() || filter !== "all"
 
-  return (
-    <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
-        <FolderOpen className="size-8" />
+  if (isFiltered) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 text-center">
+        <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+          <Search className="size-8" />
+        </div>
+        <h3 className="text-base font-semibold text-foreground">Aucun résultat</h3>
+        <p className="mt-1 max-w-xs text-sm text-muted-foreground">
+          Aucun fichier ne correspond à votre recherche. Essayez d&apos;autres mots-clés.
+        </p>
       </div>
-      <h3 className="text-base font-semibold text-foreground">
-        {isFiltered ? "Aucun résultat" : "Médiathèque vide"}
-      </h3>
-      <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-        {isFiltered
-          ? "Aucun fichier ne correspond à votre recherche."
-          : "Glissez-déposez vos fichiers dans la zone ci-dessus pour commencer."}
+    )
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      {/* Illustration */}
+      <div className="relative mb-6">
+        <div className="flex size-24 items-center justify-center rounded-3xl bg-primary/10">
+          <FolderOpen className="size-12 text-primary/60" />
+        </div>
+        <div className="absolute -right-2 -top-2 flex size-8 items-center justify-center rounded-full bg-primary text-primary-foreground shadow">
+          <UploadCloud className="size-4" />
+        </div>
+      </div>
+
+      <h3 className="text-lg font-semibold text-foreground">Médiathèque vide</h3>
+      <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+        Importez vos images, vidéos et documents pour les réutiliser dans vos publications.
+        Vos visuels générés par RAMI apparaîtront aussi ici.
       </p>
+
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <label
+          htmlFor="media-upload-trigger"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          <UploadCloud className="size-4" />
+          Importer un fichier
+        </label>
+        <a
+          href="/dashboard/create"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+        >
+          <Wand2 className="size-4" />
+          Générer des visuels
+        </a>
+      </div>
     </div>
   )
 }
