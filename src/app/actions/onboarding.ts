@@ -1,11 +1,9 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { db } from "@/lib/db"
-import { tenants, users } from "@/lib/db/schema"
+import { createServiceClient } from "@/lib/supabase/service"
 import { z } from "zod"
 import { redirect } from "next/navigation"
-import { eq } from "drizzle-orm"
 
 const OnboardingSchema = z.object({
   name: z
@@ -45,7 +43,6 @@ export async function createTenantOnboarding(
     return { success: false, error: "Non authentifié" }
   }
 
-  // Validation Zod
   const parsed = OnboardingSchema.safeParse(data)
   if (!parsed.success) {
     return {
@@ -58,39 +55,40 @@ export async function createTenantOnboarding(
   }
 
   const { name, slug, plan, logoUrl } = parsed.data
+  const service = createServiceClient()
 
   try {
     // Vérifier que le slug n'est pas déjà pris
-    const existing = await db.query.tenants.findFirst({
-      where: eq(tenants.slug, slug),
-    })
+    const { data: existing } = await service
+      .from("tenants")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle()
 
     if (existing) {
       return {
         success: false,
         error: "Ce slug est déjà utilisé",
-        fieldErrors: {
-          slug: ["Ce slug est déjà pris, choisissez-en un autre"],
-        },
+        fieldErrors: { slug: ["Ce slug est déjà pris, choisissez-en un autre"] },
       }
     }
 
     // Créer le tenant
-    const [newTenant] = await db
-      .insert(tenants)
-      .values({
-        name,
-        slug,
-        owner_id: user.id,
-        plan,
-        logo_url: logoUrl ?? null,
-      })
-      .returning()
+    const { data: newTenant, error: tenantError } = await service
+      .from("tenants")
+      .insert({ name, slug, owner_id: user.id, plan, logo_url: logoUrl ?? null })
+      .select("id")
+      .single()
 
-    // Mettre à jour l'utilisateur : lier au tenant + marquer onboarding complété
-    await db
-      .insert(users)
-      .values({
+    if (tenantError || !newTenant) {
+      console.error("[onboarding] Erreur création tenant:", tenantError)
+      return { success: false, error: "Impossible de créer le tenant : " + tenantError?.message }
+    }
+
+    // Upsert utilisateur
+    const { error: userError } = await service
+      .from("users")
+      .upsert({
         id: user.id,
         email: user.email!,
         full_name: user.user_metadata?.full_name ?? null,
@@ -98,27 +96,20 @@ export async function createTenantOnboarding(
         role: "agency_owner",
         tenant_id: newTenant.id,
         onboarding_completed: true,
-      })
-      .onConflictDoUpdate({
-        target: users.id,
-        set: {
-          tenant_id: newTenant.id,
-          onboarding_completed: true,
-          updated_at: new Date(),
-        },
+        updated_at: new Date().toISOString(),
       })
 
-    // Stocker onboarding_completed dans les métadonnées Supabase Auth
-    // Permet au middleware de vérifier sans requête DB
-    await supabase.auth.updateUser({
-      data: { onboarding_completed: true },
-    })
-  } catch (error) {
-    console.error("[onboarding] Erreur création tenant:", error)
-    return {
-      success: false,
-      error: "Une erreur est survenue. Veuillez réessayer.",
+    if (userError) {
+      console.error("[onboarding] Erreur upsert user:", userError)
+      return { success: false, error: "Impossible de lier l'utilisateur : " + userError.message }
     }
+
+    // Marquer onboarding dans Supabase Auth metadata
+    await supabase.auth.updateUser({ data: { onboarding_completed: true } })
+
+  } catch (error) {
+    console.error("[onboarding] Erreur inattendue:", error)
+    return { success: false, error: "Une erreur est survenue. Veuillez réessayer." }
   }
 
   redirect("/dashboard?welcome=1")
@@ -129,36 +120,32 @@ export async function checkSlugAvailability(
 ): Promise<{ available: boolean }> {
   if (!slug || slug.length < 2) return { available: false }
 
-  const existing = await db.query.tenants.findFirst({
-    where: eq(tenants.slug, slug),
-  })
+  const service = createServiceClient()
+  const { data } = await service
+    .from("tenants")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle()
 
-  return { available: !existing }
+  return { available: !data }
 }
 
 export async function uploadLogoToSupabase(
   formData: FormData
 ): Promise<{ url: string | null; error?: string }> {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) return { url: null, error: "Non authentifié" }
 
   const file = formData.get("logo") as File | null
   if (!file) return { url: null, error: "Aucun fichier fourni" }
 
-  // Validation MIME type
   const allowedMimes = ["image/png", "image/jpeg", "image/svg+xml", "image/webp"]
   if (!allowedMimes.includes(file.type)) {
-    return {
-      url: null,
-      error: "Format non supporté. Utilisez PNG, JPEG, SVG ou WebP.",
-    }
+    return { url: null, error: "Format non supporté. Utilisez PNG, JPEG, SVG ou WebP." }
   }
 
-  // Validation taille (10 MB max)
   if (file.size > 10 * 1024 * 1024) {
     return { url: null, error: "Le fichier ne doit pas dépasser 10 MB." }
   }
@@ -167,16 +154,13 @@ export async function uploadLogoToSupabase(
   const path = `logos/${user.id}-${Date.now()}.${ext}`
 
   const { error } = await supabase.storage
-    .from("rami-assets")
+    .from("logos")
     .upload(path, file, { upsert: true, contentType: file.type })
 
   if (error) {
     return { url: null, error: "Échec de l'upload : " + error.message }
   }
 
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("rami-assets").getPublicUrl(path)
-
+  const { data: { publicUrl } } = supabase.storage.from("logos").getPublicUrl(path)
   return { url: publicUrl }
 }

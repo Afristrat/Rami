@@ -6,9 +6,11 @@ import { WORKFLOW_STEPS } from "@/lib/schemas/workflow.schema"
 
 interface WorkflowStepperProps {
   currentStep: number
+  mode: 'guided' | 'expert'
+  onStepClick?: (step: number) => void
 }
 
-export function WorkflowStepper({ currentStep }: WorkflowStepperProps) {
+export function WorkflowStepper({ currentStep, mode, onStepClick }: WorkflowStepperProps) {
   const progress = ((currentStep - 1) / (WORKFLOW_STEPS.length - 1)) * 100
 
   return (
@@ -31,6 +33,7 @@ export function WorkflowStepper({ currentStep }: WorkflowStepperProps) {
           const isCompleted = currentStep > step.number
           const isCurrent = currentStep === step.number
           const isUpcoming = currentStep < step.number
+          const isClickable = mode === 'expert' && !isCurrent
 
           return (
             <div key={step.number} className="flex flex-1 items-center">
@@ -46,12 +49,17 @@ export function WorkflowStepper({ currentStep }: WorkflowStepperProps) {
 
               {/* Cercle + label */}
               <div className="flex flex-col items-center gap-1.5">
-                <div
+                <button
+                  type="button"
+                  disabled={!isClickable}
+                  onClick={() => isClickable && onStepClick?.(step.number)}
                   className={cn(
                     "flex size-8 items-center justify-center rounded-full border-2 text-xs font-bold transition-all duration-300",
                     isCompleted && "border-violet-500 bg-violet-500 text-white",
                     isCurrent && "border-violet-500 bg-background text-violet-500 shadow-[0_0_0_4px] shadow-violet-500/20",
-                    isUpcoming && "border-border bg-background text-muted-foreground"
+                    isUpcoming && "border-border bg-background text-muted-foreground",
+                    isClickable && "cursor-pointer hover:scale-110 hover:border-violet-400",
+                    !isClickable && "cursor-default"
                   )}
                 >
                   {isCompleted ? (
@@ -59,7 +67,7 @@ export function WorkflowStepper({ currentStep }: WorkflowStepperProps) {
                   ) : (
                     <span>{step.number}</span>
                   )}
-                </div>
+                </button>
                 <span
                   className={cn(
                     "hidden sm:block text-[10px] font-medium transition-colors",

@@ -1,9 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { db } from "@/lib/db"
-import { users } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard"
 
 export const metadata: Metadata = {
@@ -21,10 +18,15 @@ export default async function OnboardingPage() {
   // Non authentifié → login
   if (!user) redirect("/login")
 
-  // Déjà onboardé → dashboard
-  const existingUser = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-  }).catch(() => null)
+  // Déjà onboardé via user_metadata
+  if (user.user_metadata?.onboarding_completed === true) redirect("/dashboard")
+
+  // Vérification complémentaire via la table users (Supabase HTTP, pas Drizzle)
+  const { data: existingUser } = await supabase
+    .from('users')
+    .select('onboarding_completed')
+    .eq('id', user.id)
+    .maybeSingle()
 
   if (existingUser?.onboarding_completed) {
     redirect("/dashboard")
