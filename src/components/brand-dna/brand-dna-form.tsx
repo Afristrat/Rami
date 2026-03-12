@@ -32,6 +32,8 @@ import { Button } from "@/components/ui/button"
 import { LogoUploader } from "./logo-uploader"
 import { ColorPalettePicker } from "./color-palette-picker"
 import { VoiceTonePicker } from "./voice-tone-picker"
+import { AiAssistButton } from "./ai-assist-button"
+import { PrefillSectionButton } from "./prefill-section-button"
 
 /* ─── Étapes ─────────────────────────────────────── */
 
@@ -163,15 +165,30 @@ function FormField({
 /* ─── Étape 0 — Identité ─────────────────────────── */
 
 function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormData>> }) {
-  const { register, formState: { errors }, setValue } = form
+  const { register, formState: { errors }, setValue, getValues } = form
   const objectifCognitif = useWatch({ control: form.control, name: "objectifCognitif", defaultValue: "" })
   // useWatch garantit que le logo s'affiche dès le premier rendu en mode édition
   // et se met à jour immédiatement après upload / suppression
   const logoDataUrl = useWatch({ control: form.control, name: "logoDataUrl", defaultValue: "" })
   const logoFileName = useWatch({ control: form.control, name: "logoFileName", defaultValue: "" })
+  // Watches pour les boutons IA (Feature 5 & 6)
+  const taglineValue = useWatch({ control: form.control, name: "tagline", defaultValue: "" })
+  const positioningValue = useWatch({ control: form.control, name: "positioning", defaultValue: "" })
+  const brandName = useWatch({ control: form.control, name: "brandName", defaultValue: "" })
+  const sector = useWatch({ control: form.control, name: "sector", defaultValue: "" })
+
+  const aiContext = { brandName, sector, objectifCognitif }
 
   return (
     <div className="space-y-5">
+      {/* Feature 6 — Pré-remplir toute la section Identité */}
+      <PrefillSectionButton
+        section="identite"
+        context={aiContext}
+        setValue={setValue}
+        getValues={getValues}
+      />
+
       <FormField label="Logo de la marque" hint="Optionnel — PNG, JPG, SVG ou WebP, max 10 Mo">
         <LogoUploader
           value={logoDataUrl}
@@ -195,17 +212,26 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
         />
       </FormField>
 
-      <FormField
-        label="Tagline"
-        hint="Slogan ou promesse de marque (optionnel)"
-        error={errors.tagline?.message}
-      >
-        <Input
-          {...register("tagline")}
-          placeholder="ex : L'IA qui vise juste."
-          aria-invalid={!!errors.tagline}
+      {/* Feature 5 — Tagline : Générer / Améliorer */}
+      <div className="space-y-1">
+        <FormField
+          label="Tagline"
+          hint="Slogan ou promesse de marque (optionnel)"
+          error={errors.tagline?.message}
+        >
+          <Input
+            {...register("tagline")}
+            placeholder="ex : L'IA qui vise juste."
+            aria-invalid={!!errors.tagline}
+          />
+        </FormField>
+        <AiAssistButton
+          value={taglineValue ?? ""}
+          field="tagline"
+          context={aiContext}
+          onApply={(text) => setValue("tagline", text, { shouldDirty: true, shouldValidate: true })}
         />
-      </FormField>
+      </div>
 
       <FormField label="Secteur d'activité" required error={errors.sector?.message}>
         <select
@@ -227,26 +253,35 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
         </select>
       </FormField>
 
-      <FormField
-        label="Positionnement"
-        required
-        error={errors.positioning?.message}
-        hint="Comment vous différenciez-vous de la concurrence ? Quelle est votre proposition de valeur unique ?"
-      >
-        <textarea
-          {...register("positioning")}
-          placeholder="ex : Nous aidons les agences digitales d'Afrique du Nord à produire 10x plus de contenu premium grâce à une IA qui comprend la neuropsychologie des couleurs et les codes culturels locaux."
-          rows={4}
-          aria-invalid={!!errors.positioning}
-          className={cn(
-            "flex min-h-[100px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors resize-y",
-            "placeholder:text-muted-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-            errors.positioning && "border-destructive ring-2 ring-destructive/20"
-          )}
+      {/* Feature 5 — Positionnement : Générer / Améliorer */}
+      <div className="space-y-1">
+        <FormField
+          label="Positionnement"
+          required
+          error={errors.positioning?.message}
+          hint="Comment vous différenciez-vous de la concurrence ? Quelle est votre proposition de valeur unique ?"
+        >
+          <textarea
+            {...register("positioning")}
+            placeholder="ex : Nous aidons les agences digitales d'Afrique du Nord à produire 10x plus de contenu premium grâce à une IA qui comprend la neuropsychologie des couleurs et les codes culturels locaux."
+            rows={4}
+            aria-invalid={!!errors.positioning}
+            className={cn(
+              "flex min-h-[100px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors resize-y",
+              "placeholder:text-muted-foreground",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              errors.positioning && "border-destructive ring-2 ring-destructive/20"
+            )}
+          />
+        </FormField>
+        <AiAssistButton
+          value={positioningValue ?? ""}
+          field="positioning"
+          context={aiContext}
+          onApply={(text) => setValue("positioning", text, { shouldDirty: true, shouldValidate: true })}
         />
-      </FormField>
+      </div>
 
       {/* Objectif cognitif — détermine les styles visuels (CLAUDE.md §2.2) */}
       <div className="space-y-2">
@@ -346,11 +381,23 @@ function StepPalette({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDat
 /* ─── Étape 2 — Ton de voix ──────────────────────── */
 
 function StepTonDeVoix({ form }: { form: ReturnType<typeof useForm<BrandDnaFormData>> }) {
-  const { setValue, formState: { errors } } = form
+  const { setValue, getValues, formState: { errors } } = form
   const voiceTone = useWatch({ control: form.control, name: "voiceTone", defaultValue: "" })
+  // Watches pour le contexte IA (Feature 6)
+  const brandName = useWatch({ control: form.control, name: "brandName", defaultValue: "" })
+  const sector = useWatch({ control: form.control, name: "sector", defaultValue: "" })
+  const objectifCognitif = useWatch({ control: form.control, name: "objectifCognitif", defaultValue: "" })
 
   return (
     <div className="space-y-4">
+      {/* Feature 6 — Pré-remplir la section Style (ton de voix) */}
+      <PrefillSectionButton
+        section="style"
+        context={{ brandName, sector, objectifCognitif, voiceTone }}
+        setValue={setValue}
+        getValues={getValues}
+      />
+
       <p className="text-sm text-muted-foreground">
         Le ton de voix détermine comment la marque s&apos;exprime sur toutes les plateformes — des
         captions Instagram aux posts LinkedIn.
@@ -367,11 +414,25 @@ function StepTonDeVoix({ form }: { form: ReturnType<typeof useForm<BrandDnaFormD
 /* ─── Étape 3 — Audience ─────────────────────────── */
 
 function StepAudience({ form }: { form: ReturnType<typeof useForm<BrandDnaFormData>> }) {
-  const { register, setValue, formState: { errors } } = form
+  const { register, setValue, getValues, formState: { errors } } = form
   const primaryCulture = useWatch({ control: form.control, name: "primaryCulture", defaultValue: "" })
+  // Watches pour le contexte IA (Feature 6)
+  const brandName = useWatch({ control: form.control, name: "brandName", defaultValue: "" })
+  const sector = useWatch({ control: form.control, name: "sector", defaultValue: "" })
+  const tagline = useWatch({ control: form.control, name: "tagline", defaultValue: "" })
+  const positioning = useWatch({ control: form.control, name: "positioning", defaultValue: "" })
+  const objectifCognitif = useWatch({ control: form.control, name: "objectifCognitif", defaultValue: "" })
 
   return (
     <div className="space-y-5">
+      {/* Feature 6 — Pré-remplir toute la section Audience */}
+      <PrefillSectionButton
+        section="audience"
+        context={{ brandName, sector, objectifCognitif, tagline, positioning, primaryCulture }}
+        setValue={setValue}
+        getValues={getValues}
+      />
+
       {/* Culture cible — SOP-005 Bloc B */}
       <div className="space-y-2">
         <p className="text-sm font-semibold text-foreground">Culture cible principale</p>

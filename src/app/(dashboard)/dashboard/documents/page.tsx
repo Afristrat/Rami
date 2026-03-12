@@ -33,7 +33,7 @@ export default function DocumentsPage() {
         </p>
       </div>
 
-      <Button asChild className="bg-gradient-to-r from-violet-600 to-blue-600 hover:opacity-90 text-white font-semibold px-6">
+      <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:opacity-90 text-white font-semibold px-6">
         <Link href="/pricing">Passer au plan Agency</Link>
       </Button>
     </div>
