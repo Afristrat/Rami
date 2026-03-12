@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import { withSentryConfig } from "@sentry/nextjs"
 
 // ─── Headers de sécurité ──────────────────────────────────────────────────────
 // Conforme CLAUDE.md Section 4.8 + 4.10
@@ -14,6 +15,10 @@ const CSP = [
     "img-src 'self' data: blob:",
     "https://*.supabase.co",
     "https://*.r2.cloudflarestorage.com",
+    // Fal.ai generated images CDN
+    "https://fal.media",
+    "https://*.fal.media",
+    "https://storage.googleapis.com",
     // Twitter / X avatars
     "https://pbs.twimg.com",
     "https://abs.twimg.com",
@@ -38,6 +43,14 @@ const CSP = [
     // PostHog analytics
     "https://app.posthog.com",
     "https://eu.posthog.com",
+    // Sentry error reporting
+    "https://*.sentry.io",
+    "https://o*.ingest.sentry.io",
+    // Image generation providers (API calls côté serveur — mais CSP couvre les fetch() client)
+    "https://fal.run",
+    "https://queue.fal.run",
+    "https://api.replicate.com",
+    "https://api.together.xyz",
   ].join(" "),
   // Frames : Stripe
   "frame-src https://js.stripe.com",
@@ -144,6 +157,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.cdninstagram.com" },
       // Pinterest
       { protocol: "https", hostname: "i.pinimg.com" },
+      // Fal.ai generated images
+      { protocol: "https", hostname: "fal.media" },
+      { protocol: "https", hostname: "*.fal.media" },
+      // Replicate outputs
+      { protocol: "https", hostname: "replicate.delivery" },
+      { protocol: "https", hostname: "pbxt.replicate.delivery" },
     ],
   },
 
@@ -153,4 +172,25 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+// ─── Sentry instrumentation (wrap en dernier) ─────────────────────────────────
+export default withSentryConfig(nextConfig, {
+  // Organisation et projet Sentry (optionnel — pour le source maps upload)
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Upload des source maps uniquement si le token est présent
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+
+  // Désactiver le tunnel Sentry (évite les CORS en dev)
+  tunnelRoute: undefined,
+
+  // Source maps en production uniquement
+  sourcemaps: {
+    disable: process.env.NODE_ENV !== "production",
+  },
+
+  // Ne pas interférer avec le build en l'absence de config Sentry
+  disableLogger: true,
+  automaticVercelMonitors: false,
+})

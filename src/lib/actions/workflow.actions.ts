@@ -205,7 +205,7 @@ export type GenerateVisualResult =
 
 export async function generateVisualContentAction(
   step1: Step1Data,
-  _step2: Step2Data
+  _step2: Step2Data  // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<GenerateVisualResult> {
   const ctx = await getAuthContext()
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }

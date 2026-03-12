@@ -1,17 +1,20 @@
 #!/usr/bin/env tsx
 /**
- * RAMI — Promotion d'un utilisateur en super_admin
+ * RAMI — Script de promotion super_admin
+ *
+ * Promeut un utilisateur existant en super_admin via le service role Supabase.
+ * La promotion consiste à :
+ *  1. Trouver l'utilisateur par email dans auth.users
+ *  2. Mettre à jour raw_app_meta_data avec { role: "super_admin" }
+ *  3. Mettre à jour la table profiles (si elle existe) avec role = "super_admin"
  *
  * Usage :
  *   npx tsx scripts/create-super-admin.ts <email>
+ *   npx tsx scripts/create-super-admin.ts admin@example.com
  *
  * Prérequis :
- *   - SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans .env.local
- *   - L'utilisateur doit déjà exister dans Supabase Auth
- *   - La table profiles doit exister (migration 20260311_profiles.sql)
- *
- * Ce script ne peut être exécuté que localement par un développeur
- * disposant de la clé service_role (jamais en CI/CD public).
+ *   - SUPABASE_SERVICE_ROLE_KEY définie dans .env.local
+ *   - NEXT_PUBLIC_SUPABASE_URL définie dans .env.local
  */
 
 import { createClient } from "@supabase/supabase-js"
@@ -20,124 +23,113 @@ import { resolve } from "path"
 
 // Charger les variables d'environnement depuis .env.local
 config({ path: resolve(process.cwd(), ".env.local") })
-// Fallback sur .env si .env.local absent
-config({ path: resolve(process.cwd(), ".env") })
 
-// ── Validation des arguments ──────────────────────────────────────────────────
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-const email = process.argv[2]
-
-if (!email) {
-  console.error("❌  Usage : npx tsx scripts/create-super-admin.ts <email>")
-  console.error("   Exemple : npx tsx scripts/create-super-admin.ts admin@example.com")
+function usage(): void {
+  console.error("Usage : npx tsx scripts/create-super-admin.ts <email>")
+  console.error("Exemple : npx tsx scripts/create-super-admin.ts admin@example.com")
   process.exit(1)
 }
 
-if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-  console.error(`❌  Email invalide : "${email}"`)
-  process.exit(1)
-}
+async function main(): Promise<void> {
+  // ── Validation arguments ───────────────────────────────────────────────────
+  const email = process.argv[2]
+  if (!email || !email.includes("@")) {
+    console.error("Erreur : email invalide ou manquant.")
+    usage()
+  }
 
-// ── Validation des variables d'environnement ──────────────────────────────────
+  if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
+    console.error(
+      "Erreur : NEXT_PUBLIC_SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY manquant dans .env.local"
+    )
+    process.exit(1)
+  }
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-if (!supabaseUrl || !serviceRoleKey) {
-  console.error("❌  Variables manquantes :")
-  if (!supabaseUrl)      console.error("   • NEXT_PUBLIC_SUPABASE_URL")
-  if (!serviceRoleKey)   console.error("   • SUPABASE_SERVICE_ROLE_KEY")
-  console.error("   Vérifiez votre fichier .env.local")
-  process.exit(1)
-}
-
-// ── Client Supabase avec service role ────────────────────────────────────────
-
-const supabase = createClient(supabaseUrl, serviceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
-
-// ── Promotion en super_admin ──────────────────────────────────────────────────
-
-async function promoteToSuperAdmin(targetEmail: string): Promise<void> {
-  console.log(`\n🔍  Recherche de l'utilisateur : ${targetEmail}`)
-
-  // 1. Trouver l'utilisateur dans auth.users via l'Admin API
-  const { data: usersData, error: listError } = await supabase.auth.admin.listUsers({
-    page: 1,
-    perPage: 1000,
+  // ── Client Supabase service role (bypass RLS) ──────────────────────────────
+  const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
   })
 
+  console.log(`\n🔍 Recherche de l'utilisateur : ${email}`)
+
+  // ── Étape 1 : Trouver l'utilisateur par email ──────────────────────────────
+  const { data: listData, error: listError } = await supabase.auth.admin.listUsers()
+
   if (listError) {
-    throw new Error(`Impossible de lister les utilisateurs : ${listError.message}`)
+    console.error("Erreur lors de la récupération des utilisateurs :", listError.message)
+    process.exit(1)
   }
 
-  const user = usersData.users.find(
-    (u) => u.email?.toLowerCase() === targetEmail.toLowerCase()
-  )
+  const user = listData.users.find((u) => u.email === email)
 
   if (!user) {
-    throw new Error(
-      `Aucun utilisateur trouvé avec l'email : ${targetEmail}\n` +
-      "  Assurez-vous que l'utilisateur s'est inscrit et a confirmé son email."
-    )
+    console.error(`Utilisateur introuvable avec l'email : ${email}`)
+    console.error("Vérifiez que l'utilisateur est bien inscrit dans Supabase Auth.")
+    process.exit(1)
   }
 
-  console.log(`✅  Utilisateur trouvé : ${user.id} (${user.email})`)
-  console.log(`    Créé le : ${new Date(user.created_at).toLocaleString("fr-FR")}`)
+  console.log(`✅ Utilisateur trouvé : ${user.id} (${user.email})`)
+  console.log(`   Rôle actuel : ${JSON.stringify(user.app_metadata?.role ?? "(aucun)")}`)
 
-  // 2. Upsert dans la table profiles avec global_role = 'super_admin'
-  const { error: upsertError } = await supabase
+  // ── Étape 2 : Mettre à jour raw_app_meta_data ──────────────────────────────
+  const { data: updateData, error: updateError } = await supabase.auth.admin.updateUserById(
+    user.id,
+    {
+      app_metadata: {
+        ...user.app_metadata,
+        role: "super_admin",
+      },
+    }
+  )
+
+  if (updateError) {
+    console.error("Erreur lors de la mise à jour des métadonnées :", updateError.message)
+    process.exit(1)
+  }
+
+  console.log(`✅ app_metadata mis à jour : role = "super_admin"`)
+  console.log(`   Nouveau app_metadata : ${JSON.stringify(updateData.user.app_metadata)}`)
+
+  // ── Étape 3 : Mettre à jour la table profiles (si elle existe) ─────────────
+  const { error: profileError } = await supabase
     .from("profiles")
     .upsert(
-      {
-        id: user.id,
-        email: user.email,
-        global_role: "super_admin",
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "id" }
+      { user_id: user.id, role: "super_admin", updated_at: new Date().toISOString() },
+      { onConflict: "user_id" }
     )
 
-  if (upsertError) {
-    // Si la table profiles n'existe pas encore
-    if (upsertError.code === "42P01") {
-      throw new Error(
-        "La table profiles n'existe pas.\n" +
-        "  Exécutez d'abord : supabase db push\n" +
-        "  (ou appliquez la migration supabase/migrations/20260311_profiles.sql)"
-      )
+  if (profileError) {
+    if (profileError.code === "42P01") {
+      // Table profiles inexistante — pas bloquant
+      console.log("ℹ️  Table profiles absente (normal si non encore créée).")
+    } else {
+      console.warn("Avertissement : erreur table profiles :", profileError.message)
     }
-    throw new Error(`Erreur lors de la mise à jour : ${upsertError.message}`)
+  } else {
+    console.log(`✅ Table profiles mise à jour.`)
   }
 
-  // 3. Vérification
-  const { data: profile, error: fetchError } = await supabase
-    .from("profiles")
-    .select("id, email, global_role, updated_at")
-    .eq("id", user.id)
-    .single()
+  // ── Résumé ─────────────────────────────────────────────────────────────────
+  console.log(`
+═══════════════════════════════════════════════
+✅ PROMOTION SUPER_ADMIN RÉUSSIE
 
-  if (fetchError || !profile) {
-    throw new Error("Mise à jour effectuée mais impossible de vérifier le profil.")
-  }
+  Email    : ${email}
+  User ID  : ${user.id}
+  Rôle     : super_admin
+═══════════════════════════════════════════════
 
-  console.log("\n🎉  Promotion réussie !")
-  console.log(`    ID          : ${profile.id}`)
-  console.log(`    Email       : ${profile.email}`)
-  console.log(`    Rôle global : ${profile.global_role}`)
-  console.log(`    Mis à jour  : ${new Date(profile.updated_at as string).toLocaleString("fr-FR")}`)
-  console.log("\n⚠️   Ce compte a maintenant accès à toutes les fonctionnalités super_admin.")
-  console.log("    Gardez cette information confidentielle.\n")
+Le rôle est accessible dans les Server Actions via :
+  const session = await supabase.auth.getSession()
+  const role = session.data.session?.user?.app_metadata?.role
+  // → "super_admin"
+`)
 }
 
-// ── Point d'entrée ────────────────────────────────────────────────────────────
-
-promoteToSuperAdmin(email).catch((error: unknown) => {
-  const msg = error instanceof Error ? error.message : String(error)
-  console.error(`\n❌  Erreur : ${msg}\n`)
+main().catch((err) => {
+  console.error("Erreur inattendue :", err)
   process.exit(1)
 })

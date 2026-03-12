@@ -2,16 +2,18 @@
  * Singleton pg-boss — Queue Postgres-native pour RAMI
  * Conforme SOP-004 : scheduling via pg-boss avec job singletonKey par postId
  *
- * Connexion : tente SUPABASE_DB_URL_POOLER (session mode, IPv4) en premier,
- * puis SUPABASE_DB_URL (direct, potentiellement IPv6) en fallback.
- * pg-boss requiert le mode SESSION (pas TRANSACTION) — les advisory locks
- * et prepared statements ne sont pas compatibles avec le mode transaction.
+ * pg-boss crée ses propres tables dans le schéma "pgboss" de la DB Supabase.
  *
- * Si la DB est indisponible, le module dégrade gracieusement :
- * getBoss() retourne null et les fonctions enqueue/cancel sont no-op.
+ * Stratégie de connexion (ordre de priorité) :
+ *  1. SUPABASE_DB_POOLER_URL  — connection pooler Supabase (IPv4, recommandé en production)
+ *  2. SUPABASE_DB_URL          — connexion directe (IPv6, pour migrations locales)
+ *
+ * Le pooler Supabase utilise pgBouncer en mode "transaction", compatible avec pg-boss.
+ * URL format pooler : postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
  */
 
 import { PgBoss } from "pg-boss"
+import { log } from "@/lib/utils/logger"
 
 // ── Noms de jobs ──────────────────────────────────────────────────────────────
 
@@ -26,98 +28,72 @@ export interface PublishPostPayload {
   tenantId: string
 }
 
-// ── Singleton pg-boss ─────────────────────────────────────────────────────────
+// ── État du boss ──────────────────────────────────────────────────────────────
 
 let bossInstance: PgBoss | null = null
-let initializationFailed = false
+let bossUnavailable = false // fallback gracieux si DB inaccessible
 
-/**
- * Résout la chaîne de connexion à utiliser.
- * Priorité : SUPABASE_DB_URL_POOLER (session mode IPv4) → SUPABASE_DB_URL (direct).
- * Le pooler session mode est préféré car il utilise IPv4 et est compatible
- * avec les advisory locks et les prepared statements requis par pg-boss.
- */
-function resolveConnectionString(): string | null {
-  // Mode session pooler IPv4 — format :
-  // postgresql://postgres.[project-id]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres
-  const poolerUrl = process.env.SUPABASE_DB_URL_POOLER
+// ── Résolution de la connection string ───────────────────────────────────────
+
+function resolveConnectionString(): string {
+  // Priorité 1 : connection pooler IPv4 (Supabase Pooler — recommandé production)
+  const poolerUrl = process.env.SUPABASE_DB_POOLER_URL
   if (poolerUrl) return poolerUrl
 
-  // Connexion directe (peut être IPv6 selon l'hébergeur)
+  // Priorité 2 : connexion directe (IPv6 — dev local ou migrations)
   const directUrl = process.env.SUPABASE_DB_URL
   if (directUrl) return directUrl
 
-  return null
+  throw new Error(
+    "Aucune URL DB configurée. Définir SUPABASE_DB_POOLER_URL (production) ou SUPABASE_DB_URL (développement)."
+  )
 }
 
-export async function getBoss(): Promise<PgBoss | null> {
-  // Déjà initialisé
+// ── Singleton pg-boss ─────────────────────────────────────────────────────────
+
+export async function getBoss(): Promise<PgBoss> {
   if (bossInstance) return bossInstance
 
-  // Échec précédent — ne pas retenter indéfiniment
-  if (initializationFailed) return null
+  if (bossUnavailable) {
+    throw new Error("[pg-boss] Service de queue temporairement indisponible")
+  }
 
   const connectionString = resolveConnectionString()
-  if (!connectionString) {
-    console.warn(
-      "[pg-boss] SUPABASE_DB_URL_POOLER et SUPABASE_DB_URL sont absents — " +
-        "la queue est désactivée. Les posts programmés ne seront pas traités."
-    )
-    initializationFailed = true
-    return null
-  }
+
+  const boss = new PgBoss({
+    connectionString,
+    // Monitoring toutes les 30 secondes
+    monitorIntervalSeconds: 30,
+    // Maintenance toutes les 2 minutes
+    maintenanceIntervalSeconds: 120,
+  })
+
+  boss.on("error", (error: Error) => {
+    log({ level: "error", module: "pgboss", action: "internal_error", metadata: { message: error.message } })
+  })
 
   try {
-    const boss = new PgBoss({
-      connectionString,
-      // Monitoring toutes les 30 secondes
-      monitorIntervalSeconds: 30,
-      // Maintenance toutes les 2 minutes
-      maintenanceIntervalSeconds: 120,
-      // Délai de connexion : 10 secondes
-      connectionTimeoutMillis: 10_000,
-    })
-
-    boss.on("error", (error: Error) => {
-      console.error("[pg-boss] Erreur interne :", error.message)
-    })
-
     await boss.start()
     bossInstance = boss
-
-    const urlType = process.env.SUPABASE_DB_URL_POOLER
-      ? "pooler session (IPv4)"
-      : "direct (IPv6 possible)"
-    console.info(`[pg-boss] Démarré via connexion ${urlType}`)
-
-    return boss
-  } catch (error) {
-    initializationFailed = true
-    const msg = error instanceof Error ? error.message : String(error)
-    console.error(
-      `[pg-boss] Impossible de démarrer — queue désactivée. Raison : ${msg}`
-    )
-    return null
+    log({ level: "info", module: "pgboss", action: "started", metadata: { url_type: process.env.SUPABASE_DB_POOLER_URL ? "pooler" : "direct" } })
+  } catch (err) {
+    // Fallback gracieux : la queue est indisponible mais l'app continue
+    bossUnavailable = true
+    log({ level: "error", module: "pgboss", action: "start_failed", metadata: { message: String(err) } })
+    throw err
   }
+
+  return boss
 }
 
 /**
  * Enqueue un job de publication immédiate.
  * singletonKey = postId → un seul job en attente par post.
- * Retourne null si la queue est indisponible (fallback gracieux).
  */
-export async function enqueuePublish(
-  payload: PublishPostPayload
-): Promise<string | null> {
+export async function enqueuePublish(payload: PublishPostPayload): Promise<string | null> {
   const boss = await getBoss()
-  if (!boss) {
-    console.warn(
-      `[pg-boss] Queue indisponible — enqueuePublish ignoré pour post ${payload.postId}`
-    )
-    return null
-  }
 
-  return boss.send(JOBS.PUBLISH_POST, payload, {
+  const jobId = await boss.send(JOBS.PUBLISH_POST, payload, {
     singletonKey: `publish:${payload.postId}`,
     retryLimit: 3,
     retryDelay: 60, // secondes entre les retries
@@ -125,25 +101,20 @@ export async function enqueuePublish(
     expireInSeconds: 600, // timeout d'exécution : 10 minutes
     priority: 0,
   })
+
+  return jobId
 }
 
 /**
  * Enqueue un job de publication programmée (scheduled_at).
- * Retourne null si la queue est indisponible (fallback gracieux).
  */
 export async function enqueueScheduledPublish(
   payload: PublishPostPayload,
   scheduledAt: Date
 ): Promise<string | null> {
   const boss = await getBoss()
-  if (!boss) {
-    console.warn(
-      `[pg-boss] Queue indisponible — enqueueScheduledPublish ignoré pour post ${payload.postId}`
-    )
-    return null
-  }
 
-  return boss.send(JOBS.PUBLISH_POST, payload, {
+  const jobId = await boss.send(JOBS.PUBLISH_POST, payload, {
     singletonKey: `publish:${payload.postId}`,
     startAfter: scheduledAt,
     retryLimit: 3,
@@ -152,20 +123,14 @@ export async function enqueueScheduledPublish(
     expireInSeconds: 600,
     priority: 0,
   })
+
+  return jobId
 }
 
 /**
  * Annule un job en attente via son jobId (stocké en posts.queue_job_id).
- * No-op si la queue est indisponible.
  */
 export async function cancelPublishJob(jobId: string): Promise<void> {
   const boss = await getBoss()
-  if (!boss) {
-    console.warn(
-      `[pg-boss] Queue indisponible — cancelPublishJob ignoré pour job ${jobId}`
-    )
-    return
-  }
-
   await boss.cancel(JOBS.PUBLISH_POST, jobId)
 }

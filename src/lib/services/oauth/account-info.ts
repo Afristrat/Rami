@@ -50,7 +50,7 @@ async function fetchTwitterAccount(token: string): Promise<AccountInfo> {
 // ─── LinkedIn ─────────────────────────────────────────────────────────────────
 
 async function fetchLinkedInAccount(token: string): Promise<AccountInfo> {
-  const [profileRes, _pictureRes] = await Promise.allSettled([
+  const [profileRes] = await Promise.allSettled([
     fetch("https://api.linkedin.com/v2/userinfo", {
       headers: { Authorization: `Bearer ${token}` },
     }),

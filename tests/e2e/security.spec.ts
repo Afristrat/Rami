@@ -466,6 +466,44 @@ test.describe('Sécurité — Injection et paramètres malveillants', () => {
   })
 })
 
+// ─── 7. Endpoints infrastructure J10 ─────────────────────────────────────────
+
+pwTest.describe('Infrastructure — Health & Cron', () => {
+  pwTest('/api/health répond 200 ou 503 avec JSON structuré', async ({ request }) => {
+    const response = await request.get('/api/health')
+    expect([200, 503]).toContain(response.status())
+    const body = await response.json() as Record<string, unknown>
+    expect(body).toHaveProperty('status')
+    expect(['ok', 'degraded', 'down']).toContain(body.status)
+  })
+
+  pwTest('/api/health retourne les checks attendus', async ({ request }) => {
+    const response = await request.get('/api/health')
+    const body = await response.json() as Record<string, unknown>
+    // Le endpoint doit documenter les checks système
+    expect(body).toHaveProperty('checks')
+  })
+
+  pwTest('/api/cron/stripe-reconcile sans secret → 401', async ({ request }) => {
+    const response = await request.get('/api/cron/stripe-reconcile')
+    expect(response.status()).toBe(401)
+  })
+
+  pwTest('/api/cron/stripe-reconcile avec secret invalide → 401', async ({ request }) => {
+    const response = await request.get('/api/cron/stripe-reconcile', {
+      headers: { Authorization: 'Bearer invalid-secret-xyz' },
+    })
+    expect(response.status()).toBe(401)
+  })
+
+  pwTest('/api/health — aucun secret exposé dans la réponse', async ({ request }) => {
+    const response = await request.get('/api/health')
+    const text = await response.text()
+    expect(text).not.toMatch(/sk-ant-|sk_live_|whsec_|service_role/)
+    expect(text).not.toMatch(/OAUTH_TOKEN_ENCRYPTION_KEY/)
+  })
+})
+
 // ─── 7. Pas de données sensibles dans le HTML public ─────────────────────────
 
 test.describe('Sécurité — Pas de données sensibles dans le HTML', () => {
