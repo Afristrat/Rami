@@ -86,7 +86,11 @@ export function PerplexityBenchmarkPanel({
   primaryCulture: _primaryCulture,
 }: PanelProps) {
   const [benchmark, setBenchmark] = useState<PerplexityBenchmarkData | null>(initialBenchmark)
-  const [fetchState, setFetchState] = useState<FetchState>("idle")
+  // Si pas de données initiales ou cache périmé, démarrer en état "loading" pour éviter
+  // le flash de l'état vide avant l'auto-fetch (setTimeout 0 dans l'effet).
+  const [fetchState, setFetchState] = useState<FetchState>(
+    !initialBenchmark || initialStale ? "loading" : "idle"
+  )
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isStale, setIsStale] = useState(initialStale)
 
