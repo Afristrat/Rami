@@ -2,7 +2,7 @@
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { LogOut, Settings, Sun, Moon, Monitor } from "lucide-react"
-import { useTheme } from "./theme-provider"
+import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 
 const MOCK_USER = {
