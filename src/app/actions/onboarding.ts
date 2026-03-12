@@ -150,17 +150,28 @@ export async function uploadLogoToSupabase(
     return { url: null, error: "Le fichier ne doit pas dépasser 10 MB." }
   }
 
-  const ext = file.name.split(".").pop() ?? "png"
-  const path = `logos/${user.id}-${Date.now()}.${ext}`
+  try {
+    const { uploadToStorage, buildStoragePath, STORAGE_PREFIXES } = await import(
+      "@/lib/services/storage/client"
+    )
+    const ext = file.name.split(".").pop() ?? "png"
+    const objectPath = buildStoragePath(user.id, `logo.${ext}`)
+    const buffer = Buffer.from(await file.arrayBuffer())
 
-  const { error } = await supabase.storage
-    .from("logos")
-    .upload(path, file, { upsert: true, contentType: file.type })
+    const { data, error } = await uploadToStorage({
+      prefix: STORAGE_PREFIXES.logos,
+      path: objectPath,
+      buffer,
+      mimeType: file.type,
+    })
 
-  if (error) {
-    return { url: null, error: "Échec de l'upload : " + error.message }
+    if (error || !data) {
+      return { url: null, error: "Échec de l'upload : " + (error?.message ?? "erreur inconnue") }
+    }
+
+    return { url: data.publicUrl }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Erreur upload"
+    return { url: null, error: "Échec de l'upload : " + message }
   }
-
-  const { data: { publicUrl } } = supabase.storage.from("logos").getPublicUrl(path)
-  return { url: publicUrl }
 }
