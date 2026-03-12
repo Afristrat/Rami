@@ -290,7 +290,7 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
         />
       </FormField>
 
-      {/* ── Secteur — Feature 2 : 30 secteurs + Autre ── */}
+      {/* ── Secteur — Feature 2 : 30 secteurs groupés + Autre ── */}
       <div className="space-y-2">
         <FormField label="Secteur d'activité" required error={errors.sector?.message}>
           <select
@@ -304,11 +304,53 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
             )}
           >
             <option value="">Choisissez un secteur...</option>
-            {SECTORS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            <optgroup label="Finance & Services">
+              <option>Finance & Banque</option>
+              <option>Finance Islamique</option>
+              <option>Assurance & Mutuelles</option>
+            </optgroup>
+            <optgroup label="Immobilier & Industrie">
+              <option>Immobilier & Promotion</option>
+              <option>BTP & Construction</option>
+              <option>Industrie & Manufacturing</option>
+              <option>Agroalimentaire & Agriculture</option>
+              <option>Énergie & Environnement</option>
+            </optgroup>
+            <optgroup label="Santé & Bien-être">
+              <option>Santé & Médical</option>
+              <option>Pharmacie & Parapharmacie</option>
+              <option>Bien-être & Spa</option>
+            </optgroup>
+            <optgroup label="Tech & Digital">
+              <option>Tech & SaaS</option>
+              <option>Intelligence Artificielle & Data</option>
+              <option>Cybersécurité</option>
+              <option>E-commerce & Marketplace</option>
+              <option>Télécommunications</option>
+            </optgroup>
+            <optgroup label="Éducation & Médias">
+              <option>Éducation & Formation</option>
+              <option>EdTech & E-learning</option>
+              <option>Média & Presse</option>
+              <option>Marketing & Publicité</option>
+            </optgroup>
+            <optgroup label="Conseil & Droit">
+              <option>Consulting & Conseil</option>
+              <option>Ressources Humaines</option>
+              <option>Juridique & Droit</option>
+            </optgroup>
+            <optgroup label="Luxe & Lifestyle">
+              <option>Luxe & Haute Couture</option>
+              <option>Mode & Prêt-à-porter</option>
+              <option>Beauté & Cosmétiques</option>
+              <option>Sport & Fitness</option>
+              <option>Tourisme & Hospitality</option>
+              <option>Restauration & Food</option>
+            </optgroup>
+            <optgroup label="Impact & Autre">
+              <option>ONG & Social Impact</option>
+              <option>Autre</option>
+            </optgroup>
           </select>
         </FormField>
 
