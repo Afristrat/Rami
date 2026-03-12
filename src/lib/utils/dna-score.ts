@@ -20,7 +20,11 @@ export function computeDnaScore(data: Partial<BrandDnaFormData>): number {
   if (data.sector && data.sector.length > 0) score += 0.05
   if (data.positioning && data.positioning.length >= 10) score += 0.05
   if (data.tagline && data.tagline.length > 0) score += 0.02
-  if (data.objectifCognitif && data.objectifCognitif.length > 0) score += 0.03
+  // Compatibilité v1.0 (objectifCognitif) + v1.1 (objectifsCognitifs)
+  const hasObjectif =
+    (data.objectifsCognitifs && data.objectifsCognitifs.length > 0) ||
+    (data.objectifCognitif && data.objectifCognitif.length > 0)
+  if (hasObjectif) score += 0.03
 
   // Logo (15%)
   if (data.logoDataUrl && data.logoDataUrl.length > 0) score += 0.15

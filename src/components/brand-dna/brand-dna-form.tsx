@@ -9,10 +9,14 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Crown,
   Dna,
+  ExternalLink,
+  Link2,
   Loader2,
   Palette,
   Target,
+  TriangleAlert,
   User,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -32,6 +36,13 @@ import { Button } from "@/components/ui/button"
 import { LogoUploader } from "./logo-uploader"
 import { ColorPalettePicker } from "./color-palette-picker"
 import { VoiceTonePicker } from "./voice-tone-picker"
+import {
+  TwitterXIcon,
+  LinkedInIcon,
+  InstagramIcon,
+  FacebookIcon,
+  PinterestIcon,
+} from "@/components/connections/platform-icons"
 
 /* ─── Étapes ─────────────────────────────────────── */
 
@@ -59,6 +70,62 @@ const STEPS = [
     label: "Audience",
     icon: Target,
     description: "Qui sont vos clients idéaux ?",
+  },
+  {
+    id: 4,
+    label: "Connexions",
+    icon: Link2,
+    description: "Connectez vos comptes sociaux",
+  },
+] as const
+
+/* ─── Plateformes onboarding (Feature 1) ──────────── */
+
+const ONBOARDING_PLATFORMS = [
+  {
+    id: "twitter",
+    label: "X (Twitter)",
+    description: "Tweets, threads — 280 caractères",
+    Icon: TwitterXIcon,
+    color: "text-foreground",
+    bgColor: "bg-foreground/[0.08]",
+    borderColor: "border-foreground/10",
+  },
+  {
+    id: "linkedin",
+    label: "LinkedIn",
+    description: "Contenu professionnel — 3 000 caractères",
+    Icon: LinkedInIcon,
+    color: "text-[#0A66C2]",
+    bgColor: "bg-[#0A66C2]/10",
+    borderColor: "border-[#0A66C2]/20",
+  },
+  {
+    id: "facebook",
+    label: "Facebook",
+    description: "Pages et publications planifiées",
+    Icon: FacebookIcon,
+    color: "text-[#1877F2]",
+    bgColor: "bg-[#1877F2]/10",
+    borderColor: "border-[#1877F2]/20",
+  },
+  {
+    id: "instagram",
+    label: "Instagram",
+    description: "Photos, reels — 2 200 caractères",
+    Icon: InstagramIcon,
+    color: "text-[#E1306C]",
+    bgColor: "bg-[#E1306C]/10",
+    borderColor: "border-[#E1306C]/20",
+  },
+  {
+    id: "pinterest",
+    label: "Pinterest",
+    description: "Épingles visuelles haute durée de vie",
+    Icon: PinterestIcon,
+    color: "text-[#E60023]",
+    bgColor: "bg-[#E60023]/10",
+    borderColor: "border-[#E60023]/20",
   },
 ] as const
 
@@ -164,11 +231,27 @@ function FormField({
 
 function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormData>> }) {
   const { register, formState: { errors }, setValue } = form
-  const objectifCognitif = useWatch({ control: form.control, name: "objectifCognitif", defaultValue: "" })
-  // useWatch garantit que le logo s'affiche dès le premier rendu en mode édition
-  // et se met à jour immédiatement après upload / suppression
+
   const logoDataUrl = useWatch({ control: form.control, name: "logoDataUrl", defaultValue: "" })
   const logoFileName = useWatch({ control: form.control, name: "logoFileName", defaultValue: "" })
+  const sector = useWatch({ control: form.control, name: "sector", defaultValue: "" })
+  const objectifsCognitifs = useWatch({ control: form.control, name: "objectifsCognitifs", defaultValue: [] })
+  const objectifCognitifCustom = useWatch({ control: form.control, name: "objectifCognitifCustom", defaultValue: "" })
+
+  const selectedObjectifs = objectifsCognitifs ?? []
+  const dominantId = selectedObjectifs[0] ?? null
+
+  function handleObjectifToggle(id: string) {
+    const current = selectedObjectifs
+    if (current.includes(id)) {
+      setValue("objectifsCognitifs", current.filter((x) => x !== id), { shouldDirty: true })
+    } else {
+      setValue("objectifsCognitifs", [...current, id], { shouldDirty: true })
+    }
+  }
+
+  const showCustomInput = selectedObjectifs.includes("epatez_nous")
+  const overLimit = selectedObjectifs.length > 3
 
   return (
     <div className="space-y-5">
@@ -207,25 +290,44 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
         />
       </FormField>
 
-      <FormField label="Secteur d'activité" required error={errors.sector?.message}>
-        <select
-          {...register("sector")}
-          aria-invalid={!!errors.sector}
-          className={cn(
-            "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-            errors.sector && "border-destructive ring-2 ring-destructive/20"
-          )}
-        >
-          <option value="">Choisissez un secteur...</option>
-          {SECTORS.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
-      </FormField>
+      {/* ── Secteur — Feature 2 : 30 secteurs + Autre ── */}
+      <div className="space-y-2">
+        <FormField label="Secteur d'activité" required error={errors.sector?.message}>
+          <select
+            {...register("sector")}
+            aria-invalid={!!errors.sector}
+            className={cn(
+              "flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              errors.sector && "border-destructive ring-2 ring-destructive/20"
+            )}
+          >
+            <option value="">Choisissez un secteur...</option>
+            {SECTORS.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </FormField>
+
+        {/* Champ libre obligatoire si "Autre" */}
+        {sector === "Autre" && (
+          <FormField
+            label="Précisez votre secteur"
+            required
+            error={errors.sectorCustom?.message}
+          >
+            <Input
+              {...register("sectorCustom")}
+              placeholder="ex : Aquaculture, Architecture d'intérieur, Édition jeunesse..."
+              aria-invalid={!!errors.sectorCustom}
+              autoFocus
+            />
+          </FormField>
+        )}
+      </div>
 
       <FormField
         label="Positionnement"
@@ -248,25 +350,38 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
         />
       </FormField>
 
-      {/* Objectif cognitif — détermine les styles visuels (CLAUDE.md §2.2) */}
+      {/* ── Objectifs cognitifs — Feature 3 + 4 : multi-select + promesses ── */}
       <div className="space-y-2">
         <div>
-          <p className="text-sm font-semibold text-foreground">Objectif cognitif principal</p>
+          <p className="text-sm font-semibold text-foreground">Objectifs cognitifs</p>
           <p className="text-xs text-muted-foreground">
-            Quelle émotion ou réaction souhaitez-vous déclencher chez votre audience ?
-            Détermine les styles visuels générés par RAMI.
+            Quelle(s) réaction(s) souhaitez-vous déclencher ? Le premier sélectionné est
+            l&apos;objectif dominant. Détermine les styles visuels générés par RAMI.
           </p>
         </div>
+
+        {/* Avertissement si > 3 sélectionnés */}
+        {overLimit && (
+          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-900/50 dark:bg-amber-950/30">
+            <TriangleAlert className="size-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              Plus de 3 objectifs peuvent diluer le message. Nous recommandons d&apos;en choisir 1 à 3.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {COGNITIVE_OBJECTIVES.map((obj) => {
-            const isSelected = objectifCognitif === obj.id
+            const isSelected = selectedObjectifs.includes(obj.id)
+            const isDominant = obj.id === dominantId
+
             return (
               <button
                 key={obj.id}
                 type="button"
-                role="radio"
+                role="checkbox"
                 aria-checked={isSelected}
-                onClick={() => setValue("objectifCognitif", isSelected ? "" : obj.id, { shouldDirty: true })}
+                onClick={() => handleObjectifToggle(obj.id)}
                 className={cn(
                   "flex items-start gap-3 rounded-xl border-2 p-3 text-left transition-all",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -275,13 +390,35 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
                     : "border-border hover:border-primary/40 hover:bg-muted/50"
                 )}
               >
-                <span className="mt-0.5 text-xl" aria-hidden="true">{obj.icon}</span>
+                {/* Checkbox custom */}
+                <div
+                  className={cn(
+                    "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded border-2 transition-all",
+                    isSelected
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border"
+                  )}
+                  aria-hidden="true"
+                >
+                  {isSelected && <CheckCircle2 className="size-3" />}
+                </div>
+
+                <span className="mt-0.5 text-xl leading-none" aria-hidden="true">{obj.icon}</span>
+
                 <div className="min-w-0 flex-1">
-                  <p className={cn("text-sm font-medium leading-tight", isSelected ? "text-primary" : "text-foreground")}>
-                    {obj.label}
-                  </p>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className={cn("text-sm font-semibold leading-tight", isSelected ? "text-primary" : "text-foreground")}>
+                      {obj.label}
+                    </p>
+                    {isDominant && (
+                      <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
+                        <Crown className="size-2.5" />
+                        Dominant
+                      </span>
+                    )}
+                  </div>
                   <p className="mt-0.5 text-[11px] text-muted-foreground leading-snug">{obj.description}</p>
-                  {isSelected && (
+                  {isSelected && obj.visualStyles.length > 0 && (
                     <div className="mt-1.5 flex flex-wrap gap-1">
                       {obj.visualStyles.map((style) => (
                         <span key={style} className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-primary">
@@ -295,6 +432,29 @@ function StepIdentite({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
             )
           })}
         </div>
+
+        {/* Textarea "Épatez-nous" — visible quand cette carte est sélectionnée */}
+        {showCustomInput && (
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
+            <p className="text-xs font-semibold text-primary">
+              🎨 Décrivez l&apos;effet que vous souhaitez produire
+            </p>
+            <textarea
+              value={objectifCognitifCustom ?? ""}
+              onChange={(e) => setValue("objectifCognitifCustom", e.target.value, { shouldDirty: true })}
+              placeholder="ex : Je veux que mes clients ressentent la sécurité d'un partenaire qui a tout prévu, combinée à l'excitation d'une technologie qui change la donne..."
+              rows={3}
+              className={cn(
+                "flex min-h-[80px] w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm transition-colors resize-y",
+                "placeholder:text-muted-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-transparent"
+              )}
+            />
+            {errors.objectifCognitifCustom && (
+              <p className="text-xs text-destructive">{errors.objectifCognitifCustom.message}</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -307,7 +467,6 @@ function StepPalette({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDat
   const colorPrimary = useWatch({ control: form.control, name: "colorPrimary", defaultValue: "" })
   const colorSecondary = useWatch({ control: form.control, name: "colorSecondary", defaultValue: "" })
   const colorAccent = useWatch({ control: form.control, name: "colorAccent", defaultValue: "" })
-  // Le secteur guide les recommandations Causse, la culture guide les notes contextuelles
   const sector = useWatch({ control: form.control, name: "sector", defaultValue: "" })
   const primaryCulture = useWatch({ control: form.control, name: "primaryCulture", defaultValue: "" })
 
@@ -372,7 +531,7 @@ function StepAudience({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
 
   return (
     <div className="space-y-5">
-      {/* Culture cible — SOP-005 Bloc B */}
+      {/* Culture cible */}
       <div className="space-y-2">
         <p className="text-sm font-semibold text-foreground">Culture cible principale</p>
         <p className="text-xs text-muted-foreground">
@@ -412,7 +571,7 @@ function StepAudience({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
       >
         <textarea
           {...register("audienceDescription")}
-          placeholder="ex : Directeurs et directrices d'agences digitales au Maroc et en Afrique francophone, 30-50 ans, gérant 10 à 50 marques clientes. Ils cherchent à produire plus de contenu premium sans recruter. Leur douleur principale : maintenir la cohérence de marque sur plusieurs clients simultanément."
+          placeholder="ex : Directeurs et directrices d'agences digitales au Maroc et en Afrique francophone, 30-50 ans, gérant 10 à 50 marques clientes. Ils cherchent à produire plus de contenu premium sans recruter."
           rows={5}
           aria-invalid={!!errors.audienceDescription}
           className={cn(
@@ -473,9 +632,103 @@ function StepAudience({ form }: { form: ReturnType<typeof useForm<BrandDnaFormDa
   )
 }
 
+/* ─── Étape 4 — Connexions (Feature 1) ───────────── */
+
+function StepConnexions() {
+  // Suivi local optimiste : plateformes dont le flow OAuth a été ouvert
+  const [initiated, setInitiated] = useState<Set<string>>(new Set())
+
+  function handleConnect(platformId: string) {
+    setInitiated((prev) => new Set([...prev, platformId]))
+    window.open(`/api/oauth/${platformId}/authorize`, "_blank", "noopener,noreferrer")
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-blue-200 bg-blue-50 p-3.5 dark:border-blue-900/50 dark:bg-blue-950/30">
+        <p className="text-xs font-semibold text-blue-800 dark:text-blue-300">
+          🔗 Connectez vos comptes sociaux
+        </p>
+        <p className="mt-1 text-xs text-blue-700/90 dark:text-blue-400/90 leading-relaxed">
+          Publiez directement depuis RAMI en 1 clic. Cette étape est optionnelle — vous pouvez
+          connecter vos comptes maintenant ou plus tard depuis{" "}
+          <span className="font-semibold">Paramètres → Connexions</span>.
+        </p>
+      </div>
+
+      <div className="space-y-2.5">
+        {ONBOARDING_PLATFORMS.map((platform) => {
+          const wasInitiated = initiated.has(platform.id)
+          return (
+            <div
+              key={platform.id}
+              className={cn(
+                "flex items-center gap-4 rounded-xl border bg-card p-4 transition-all",
+                wasInitiated
+                  ? "border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20"
+                  : "border-border hover:border-primary/20 hover:shadow-sm"
+              )}
+            >
+              {/* Icône plateforme */}
+              <div
+                className={cn(
+                  "flex size-10 shrink-0 items-center justify-center rounded-xl border",
+                  platform.bgColor,
+                  platform.borderColor
+                )}
+              >
+                <platform.Icon className={cn("size-5", platform.color)} />
+              </div>
+
+              {/* Infos */}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground">{platform.label}</p>
+                <p className="text-xs text-muted-foreground">{platform.description}</p>
+              </div>
+
+              {/* Bouton */}
+              {wasInitiated ? (
+                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="size-3.5" />
+                  En cours…
+                </span>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 gap-1.5"
+                  onClick={() => handleConnect(platform.id)}
+                >
+                  <ExternalLink className="size-3.5" />
+                  Connecter
+                </Button>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/30 px-4 py-3">
+        <span className="text-base" aria-hidden="true">🔒</span>
+        <p className="text-xs text-muted-foreground">
+          Vos tokens OAuth sont chiffrés AES-256-GCM avant stockage et ne sont jamais partagés
+          avec des tiers. Déconnectez un compte à tout moment depuis{" "}
+          <span className="font-medium">Paramètres → Connexions</span>.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 /* ─── Récap finale ───────────────────────────────── */
 
 function StepRecap({ data }: { data: BrandDnaFormData }) {
+  // v1.1 : premier objectif = dominant ; fallback v1.0
+  const dominantId = data.objectifsCognitifs?.[0] ?? data.objectifCognitif
+  const dominantObjective = COGNITIVE_OBJECTIVES.find((o) => o.id === dominantId)
+  const extraObjectives = (data.objectifsCognitifs ?? []).slice(1)
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900/50 dark:bg-green-950/30">
@@ -503,25 +756,30 @@ function StepRecap({ data }: { data: BrandDnaFormData }) {
                 <img src={data.logoDataUrl} alt="Logo" className="size-full object-contain p-0.5" />
               </div>
             )}
-            <div>
+            <div className="min-w-0">
               <p className="font-semibold text-foreground">{data.brandName}</p>
               {data.tagline && (
                 <p className="text-xs text-muted-foreground italic">&ldquo;{data.tagline}&rdquo;</p>
               )}
-              <p className="mt-0.5 text-xs text-muted-foreground">{data.sector}</p>
-              {data.objectifCognitif && (() => {
-                const obj = COGNITIVE_OBJECTIVES.find((o) => o.id === data.objectifCognitif)
-                return obj ? (
-                  <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                    <span aria-hidden="true">{obj.icon}</span> {obj.label}
-                  </span>
-                ) : null
-              })()}
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {data.sector === "Autre" && data.sectorCustom
+                  ? data.sectorCustom
+                  : data.sector}
+              </p>
+              {dominantObjective && (
+                <span className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                  <span aria-hidden="true">{dominantObjective.icon}</span>
+                  <span>{dominantObjective.shortName}</span>
+                  {extraObjectives.length > 0 && (
+                    <span className="opacity-60">+{extraObjectives.length}</span>
+                  )}
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Palette Causse (utilise ColorPaletteSummary) */}
+        {/* Palette Causse */}
         <div className="rounded-xl border border-border bg-muted/20 p-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Palette Causse
@@ -533,7 +791,7 @@ function StepRecap({ data }: { data: BrandDnaFormData }) {
           />
         </div>
 
-        {/* Ton de voix (utilise VoiceToneBadge) */}
+        {/* Ton de voix */}
         <div className="rounded-xl border border-border bg-muted/20 p-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Ton de voix
@@ -584,10 +842,9 @@ interface BrandDnaFormProps {
 export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
-  // Si initialData existe, toutes les étapes précédentes sont considérées complètes
-  // → le récapitulatif s'affiche immédiatement à l'étape 4 en mode édition
+  // En mode édition, toutes les étapes précédentes sont considérées complètes
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(
-    initialData ? new Set([0, 1, 2]) : new Set()
+    initialData ? new Set([0, 1, 2, 3]) : new Set()
   )
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -600,6 +857,7 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
       brandName: "",
       tagline: "",
       sector: "",
+      sectorCustom: "",
       positioning: "",
       logoDataUrl: "",
       logoFileName: "",
@@ -607,7 +865,9 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
       colorSecondary: "",
       colorAccent: "",
       voiceTone: "",
+      objectifsCognitifs: [],
       objectifCognitif: "",
+      objectifCognitifCustom: "",
       primaryCulture: "",
       audienceDescription: "",
       audienceAge: "",
@@ -618,14 +878,16 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
 
   // Champs par étape pour la validation partielle
   const STEP_FIELDS: (keyof BrandDnaFormData)[][] = [
-    ["brandName", "sector", "positioning"],
+    ["brandName", "sector", "sectorCustom", "positioning"],
     ["colorPrimary", "colorSecondary", "colorAccent"],
     ["voiceTone"],
     ["audienceDescription"],
+    [], // connexions : pas de champ requis
   ]
 
   const validateCurrentStep = useCallback(async () => {
     const fields = STEP_FIELDS[currentStep]
+    if (fields.length === 0) return true
     const result = await form.trigger(fields)
     return result
   }, [currentStep, form]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -633,9 +895,25 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
   const handleNext = useCallback(async () => {
     const valid = await validateCurrentStep()
     if (!valid) return
+
+    // Validation manuelle : sectorCustom obligatoire si secteur = "Autre"
+    if (currentStep === 0) {
+      const sectorVal = form.getValues("sector")
+      if (sectorVal === "Autre") {
+        const customVal = form.getValues("sectorCustom")
+        if (!customVal || customVal.trim().length === 0) {
+          form.setError("sectorCustom", {
+            type: "manual",
+            message: "Précisez votre secteur d'activité",
+          })
+          return
+        }
+      }
+    }
+
     setCompletedSteps((prev) => new Set([...prev, currentStep]))
     setCurrentStep((s) => Math.min(s + 1, STEPS.length - 1))
-  }, [currentStep, validateCurrentStep])
+  }, [currentStep, validateCurrentStep, form])
 
   const handleBack = useCallback(() => {
     setCurrentStep((s) => Math.max(s - 1, 0))
@@ -649,14 +927,11 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
         setServerError(result.error)
       } else {
         setIsSubmitted(true)
-        // Invalide le cache Next.js pour mettre à jour la bannière "Brand DNA actif"
         router.refresh()
       }
     })
   })
 
-  // useWatch abonne le composant aux changements de formulaire (contrairement à getValues())
-  // Nécessaire pour que DnaScoreBadge et StepRecap se mettent à jour en temps réel
   const watchedValues = useWatch({ control: form.control })
   const isLastStep = currentStep === STEPS.length - 1
 
@@ -682,11 +957,9 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
           </Button>
           <Button
             onClick={() => {
-              // Retour en mode édition : conserver les données, marquer toutes les
-              // étapes précédentes comme complètes pour navigation libre
               setIsSubmitted(false)
               setCurrentStep(0)
-              setCompletedSteps(new Set([0, 1, 2]))
+              setCompletedSteps(new Set([0, 1, 2, 3]))
             }}
             variant="outline"
             size="lg"
@@ -731,17 +1004,18 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
         {currentStep === 1 && <StepPalette form={form} />}
         {currentStep === 2 && <StepTonDeVoix form={form} />}
         {currentStep === 3 && <StepAudience form={form} />}
+        {currentStep === 4 && <StepConnexions />}
       </div>
 
-      {/* Score DNA en temps réel à l'étape 4 */}
+      {/* Score DNA en temps réel à la dernière étape */}
       {isLastStep && (
         <div className="mt-4">
           <DnaScoreBadge data={watchedValues} />
         </div>
       )}
 
-      {/* Récap si dernière étape et valide */}
-      {isLastStep && completedSteps.size >= 3 && (
+      {/* Récap si dernière étape et étapes précédentes complètes */}
+      {isLastStep && completedSteps.size >= 4 && (
         <div className="mt-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <h3 className="mb-4 text-sm font-bold text-foreground">Récapitulatif</h3>
           <StepRecap data={watchedValues as BrandDnaFormData} />
@@ -783,7 +1057,7 @@ export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
             ) : (
               <>
                 <CheckCircle2 className="size-4" />
-                Sauvegarder le Brand DNA
+                Continuer &amp; Sauvegarder
               </>
             )}
           </Button>
