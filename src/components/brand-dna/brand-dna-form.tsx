@@ -25,7 +25,6 @@ import { DnaScoreBadge, ColorPaletteSummary, VoiceToneBadge } from "./dna-score-
 import {
   brandDnaFormSchema,
   type BrandDnaFormData,
-  SECTORS,
   CULTURES,
   COGNITIVE_OBJECTIVES,
   type CultureId,
