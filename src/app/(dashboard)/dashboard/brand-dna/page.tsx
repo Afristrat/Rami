@@ -1,6 +1,8 @@
 import { Sparkles } from "lucide-react"
 import { getBrandDnaAction } from "@/lib/actions/brand-dna.actions"
+import { getBenchmarkAction } from "@/lib/actions/perplexity-benchmark.actions"
 import { BrandDnaForm } from "@/components/brand-dna/brand-dna-form"
+import { PerplexityBenchmarkPanel } from "@/components/brand-dna/perplexity-benchmark-panel"
 import { computeDnaScore, getDnaScoreLevel } from "@/lib/utils/dna-score"
 import { CAUSSE_COLORS, VOICE_TONES, CULTURES, COGNITIVE_OBJECTIVES } from "@/lib/schemas/brand-dna.schema"
 
@@ -10,8 +12,14 @@ export const metadata = {
 }
 
 export default async function BrandDnaPage() {
-  const result = await getBrandDnaAction()
-  const initialData = "data" in result ? result.data : null
+  const [brandDnaResult, benchmarkResult] = await Promise.all([
+    getBrandDnaAction(),
+    getBenchmarkAction(),
+  ])
+
+  const initialData = "data" in brandDnaResult ? brandDnaResult.data : null
+  const benchmarkData = "data" in benchmarkResult ? benchmarkResult.data : null
+  const benchmarkStale = "stale" in benchmarkResult ? benchmarkResult.stale : false
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -120,6 +128,18 @@ export default async function BrandDnaPage() {
           )
         })()}
       </div>
+
+      {/* Benchmark sectoriel Perplexity — affiché uniquement si Brand DNA renseigné */}
+      {initialData?.sector && (
+        <div className="mb-8">
+          <PerplexityBenchmarkPanel
+            initialBenchmark={benchmarkData}
+            initialStale={benchmarkStale}
+            sector={initialData.sector}
+            primaryCulture={initialData.primaryCulture}
+          />
+        </div>
+      )}
 
       {/* Formulaire Brand DNA */}
       <BrandDnaForm initialData={initialData} />
