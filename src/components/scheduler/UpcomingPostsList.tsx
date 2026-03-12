@@ -1,6 +1,6 @@
 "use client"
 
-import { Clock, Trash2 } from "lucide-react"
+import { Clock, Trash2, CalendarPlus } from "lucide-react"
 import { toast } from "sonner"
 import { useTransition } from "react"
 import { cn } from "@/lib/utils"
@@ -17,14 +17,23 @@ interface UpcomingPostsListProps {
 export function UpcomingPostsList({ posts, onDeleted }: UpcomingPostsListProps) {
   if (posts.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-muted/20 p-8 text-center">
-        <Clock className="mx-auto mb-3 size-8 text-muted-foreground/50" />
-        <p className="text-sm font-medium text-muted-foreground">
-          Aucun post planifié dans les 30 prochains jours
+      <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">
+        <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10">
+          <Clock className="size-6 text-primary/60" />
+        </div>
+        <p className="text-sm font-semibold text-foreground">
+          Aucun post planifié
         </p>
-        <p className="mt-1 text-xs text-muted-foreground/70">
-          Créez un nouveau post pour commencer à planifier.
+        <p className="mt-1 text-xs text-muted-foreground">
+          Aucune publication prévue dans les 30 prochains jours.
         </p>
+        <a
+          href="/dashboard/create"
+          className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
+          <CalendarPlus className="size-3.5" />
+          Créer un post
+        </a>
       </div>
     )
   }

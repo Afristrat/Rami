@@ -1,10 +1,17 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
-import { BarChart3 } from "lucide-react"
+import { BarChart3, TrendingUp } from "lucide-react"
+import Link from "next/link"
 import { getAnalyticsData } from "@/app/actions/analytics"
 import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard"
 import type { PeriodOption } from "@/app/actions/analytics"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import { ALL_PLATFORMS } from "@/lib/scheduler/platform-config"
+
+export const metadata: Metadata = {
+  title: "Analytics — RAMI",
+  description: "Analysez les performances de vos publications sur toutes les plateformes sociales.",
+}
 
 interface PageProps {
   searchParams: Promise<{
@@ -33,6 +40,37 @@ async function AnalyticsContent({ searchParams }: PageProps) {
       <div className="flex h-64 flex-col items-center justify-center gap-3 text-center">
         <BarChart3 className="size-12 text-muted-foreground/30" />
         <p className="text-sm text-muted-foreground">{result.error}</p>
+      </div>
+    )
+  }
+
+  // Empty state illustré — aucun post publié sur la période
+  if (result.data.kpis.publishedCount === 0 && result.data.topPosts.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        {/* Illustration SVG */}
+        <div className="mb-6 flex size-24 items-center justify-center rounded-3xl bg-violet-500/10">
+          <TrendingUp className="size-12 text-violet-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-foreground">Pas encore de données</h3>
+        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+          Publiez vos premiers posts pour voir apparaître vos statistiques d&apos;engagement,
+          de portée et de performance ici.
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <Link
+            href="/dashboard/create"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Créer du contenu
+          </Link>
+          <Link
+            href="/dashboard/calendar"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          >
+            Voir le calendrier
+          </Link>
+        </div>
       </div>
     )
   }

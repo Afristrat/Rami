@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useTransition, useEffect } from "react"
-import { ChevronLeft, ChevronRight, CalendarDays, FileEdit, PanelRightOpen, PanelRightClose } from "lucide-react"
+import { ChevronLeft, ChevronRight, CalendarDays, FileEdit, PanelRightOpen, PanelRightClose, Sparkles } from "lucide-react"
+import Link from "next/link"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -261,6 +262,28 @@ export function SchedulerCalendar({
 
           {/* Légende plateformes */}
           {!isLoadingMonth && <PlatformLegend posts={calendarPosts} />}
+
+          {/* Empty state — mois sans aucun post */}
+          {!isLoadingMonth && calendarPosts.length === 0 && (
+            <div className="rounded-xl border border-dashed border-primary/20 bg-primary/5 p-6 text-center">
+              <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10">
+                <Sparkles className="size-6 text-primary/60" />
+              </div>
+              <p className="text-sm font-semibold text-foreground">
+                Aucun post ce mois-ci
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Planifiez vos publications pour maintenir une présence régulière sur vos réseaux.
+              </p>
+              <Link
+                href="/dashboard/create"
+                className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <Sparkles className="size-3.5" />
+                Créer un contenu
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Sidebar : détail post OU liste à venir */}
