@@ -55,7 +55,9 @@ export default async function BrandDnaPage() {
           const accentColor = CAUSSE_COLORS.find((c) => c.id === initialData.colorAccent)
           const tone = VOICE_TONES.find((t) => t.id === initialData.voiceTone)
           const culture = CULTURES.find((c) => c.id === initialData.primaryCulture)
-          const objective = COGNITIVE_OBJECTIVES.find((o) => o.id === initialData.objectifCognitif)
+          // v1.1 : objectifsCognitifs[0] = dominant ; fallback v1.0 objectifCognitif
+          const dominantId = initialData.objectifsCognitifs?.[0] ?? initialData.objectifCognitif
+          const objective = COGNITIVE_OBJECTIVES.find((o) => o.id === dominantId)
 
           return (
             <div className={`mt-4 rounded-xl border p-4 ${level.bgColor} ${level.borderColor}`}>

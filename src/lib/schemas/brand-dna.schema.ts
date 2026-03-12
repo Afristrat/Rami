@@ -153,6 +153,8 @@ export const brandDnaFormSchema = z.object({
   brandName: z.string().min(1, "Le nom de la marque est requis").max(100),
   tagline: z.string().max(150).optional(),
   sector: z.string().min(1, "Le secteur est requis"),
+  /** Précision libre obligatoire quand sector === "Autre" */
+  sectorCustom: z.string().max(200).optional(),
   positioning: z.string().min(10, "Décrivez le positionnement (min 10 caractères)").max(500),
 
   // Logo
@@ -167,7 +169,12 @@ export const brandDnaFormSchema = z.object({
   // Ton de voix
   voiceTone: z.string().min(1, "Choisissez le ton de voix"),
 
-  // Objectif cognitif — driver des styles visuels (CLAUDE.md §2.2)
+  // Objectifs cognitifs — multi-sélection (FEATURE 3)
+  // objectifsCognitifs[0] = objectif dominant (premier sélectionné)
+  objectifsCognitifs: z.array(z.string()).optional(),
+  /** Textarea libre pour la carte "Épatez-nous" */
+  objectifCognitifCustom: z.string().max(500).optional(),
+  /** Compatibilité ascendante avec les données sauvegardées avant v1.1 */
   objectifCognitif: z.string().optional(),
 
   // Culture cible
@@ -187,56 +194,73 @@ export type BrandDnaFormData = z.infer<typeof brandDnaFormSchema>
 
 /**
  * Objectifs cognitifs — moteur de sélection des styles visuels.
+ * FEATURE 3 + 4 : multi-sélection + promesses concrètes.
  * Source : CLAUDE.md §2.2 règles de décision.
  */
 export const COGNITIVE_OBJECTIVES = [
   {
     id: "confiance",
-    label: "Confiance & Crédibilité",
+    shortName: "Confiance",
+    label: "Vos clients vous font confiance avant de vous rencontrer",
     icon: "🏛️",
-    description: "Établir l'autorité et rassurer l'audience sur votre fiabilité",
+    description: "Établit l'autorité et rassure l'audience sur votre fiabilité",
     visualStyles: ["Blueprint", "Scientifique"],
     keywords: ["sécurité", "institution", "expertise", "garantie"],
   },
   {
     id: "urgence",
-    label: "Urgence & Action",
+    shortName: "Urgence",
+    label: "Ils agissent maintenant, pas demain",
     icon: "⚡",
-    description: "Déclencher un passage à l'action immédiat chez l'audience",
+    description: "Déclenche un passage à l'action immédiat chez l'audience",
     visualStyles: ["Machine", "Narratif"],
     keywords: ["CTA", "offre limitée", "maintenant", "opportunité"],
   },
   {
     id: "aspiration",
-    label: "Aspiration & Désir",
+    shortName: "Aspiration",
+    label: "Ils se projettent dans votre univers",
     icon: "✨",
-    description: "Créer un sentiment de désir et projeter l'audience dans le succès",
+    description: "Crée un sentiment de désir et projette l'audience dans le succès",
     visualStyles: ["Carte/Tuile", "Narratif"],
     keywords: ["premium", "lifestyle", "réussite", "transformation"],
   },
   {
     id: "expertise",
-    label: "Expertise & Savoir",
+    shortName: "Expertise",
+    label: "Vous devenez la référence de votre secteur",
     icon: "🎓",
-    description: "Démontrer la maîtrise technique et la profondeur d'analyse",
+    description: "Démontre la maîtrise technique et la profondeur d'analyse",
     visualStyles: ["Dashboard", "Stack"],
     keywords: ["data", "analyse", "méthode", "résultats"],
   },
   {
     id: "communaute",
-    label: "Communauté & Appartenance",
+    shortName: "Communauté",
+    label: "Ils se sentent membres d'un mouvement",
     icon: "🤝",
-    description: "Renforcer le sentiment d'appartenance et la solidarité",
+    description: "Renforce le sentiment d'appartenance et la solidarité",
     visualStyles: ["Narratif", "Carte/Tuile"],
     keywords: ["ensemble", "collectif", "partage", "engagement"],
   },
   {
     id: "joie",
-    label: "Joie & Légèreté",
+    shortName: "Joie",
+    label: "Votre marque leur fait du bien",
     icon: "🎉",
-    description: "Générer une émotion positive et mémorable chez l'audience",
+    description: "Génère une émotion positive et mémorable chez l'audience",
     visualStyles: ["Narratif", "Machine"],
     keywords: ["fun", "célébration", "humour", "enthousiasme"],
+  },
+  {
+    id: "epatez_nous",
+    shortName: "Sur mesure",
+    label: "Épatez-nous",
+    icon: "🎨",
+    description: "Décrivez librement l'effet que vous voulez produire",
+    visualStyles: [] as string[],
+    keywords: [] as string[],
+    hasCustomInput: true,
   },
 ] as const
 
@@ -253,32 +277,56 @@ export const CULTURES = [
 export type Culture = typeof CULTURES[number]
 export type CultureId = Culture["id"]
 
+/** 30 secteurs détaillés + "Autre" avec champ libre (FEATURE 2) */
 export const SECTORS = [
+  // Finance
   "Finance & Banque",
   "Finance Islamique",
+  "Assurance & Mutuelles",
+  // Immobilier & Construction
+  "Immobilier & Promotion",
+  "BTP & Construction",
+  // Industrie
+  "Industrie & Manufacturing",
+  "Agroalimentaire & Agriculture",
+  "Énergie & Environnement",
+  // Santé
   "Santé & Médical",
+  "Pharmacie & Parapharmacie",
+  "Bien-être & Spa",
+  // Tech
   "Tech & SaaS",
-  "E-commerce & Retail",
+  "Intelligence Artificielle & Data",
+  "Cybersécurité",
+  "E-commerce & Marketplace",
+  "Télécommunications",
+  // Éducation
   "Éducation & Formation",
-  "Agroalimentaire",
-  "Luxe & Mode",
-  "Tourisme & Hospitality",
-  "Immobilier",
+  "EdTech & E-learning",
+  // Médias & Marketing
+  "Média & Presse",
+  "Marketing & Publicité",
+  // Services
   "Consulting & Conseil",
-  "ONG & Social",
-  "Sport & Fitness",
-  "Beauté & Bien-être",
-  "Média & Entertainment",
+  "Ressources Humaines",
   "Juridique & Droit",
-  "Industrie & BTP",
+  // Luxe & Mode
+  "Luxe & Haute Couture",
+  "Mode & Prêt-à-porter",
+  "Beauté & Cosmétiques",
+  // Lifestyle
+  "Sport & Fitness",
+  "Tourisme & Hospitality",
+  "Restauration & Food",
+  // Impact
+  "ONG & Social Impact",
+  // Libre
   "Autre",
 ] as const
 
 /**
  * Notes culturelles Causse × culture pour chaque couleur.
  * Source : CLAUDE.md Annexe A — causse-matrix.ts
- * Utilisées dans le picker pour enrichir la justification psychologique
- * quand une culture cible est sélectionnée.
  */
 export const CULTURE_COLOR_NOTES: Record<string, Partial<Record<string, string>>> = {
   bleu_marine: {
@@ -323,11 +371,7 @@ export const CULTURE_COLOR_NOTES: Record<string, Partial<Record<string, string>>
 }
 
 /**
- * Recommandations Causse par secteur.
- * Sources : CLAUDE.md §2.2 + matrice Causse × secteur × culture.
- *
- * recommended : couleurs à mettre en avant (badge "Recommandé")
- * avoid       : couleurs à déconseiller (badge "Déconseillé" + alternative)
+ * Recommandations Causse par secteur (clés alignées sur SECTORS v1.1).
  */
 export const SECTOR_COLOR_RULES: Record<string, {
   recommended: string[]
@@ -345,30 +389,71 @@ export const SECTOR_COLOR_RULES: Record<string, {
     avoidReason: "Symbolisme culturel — le rouge est associé à la passion profane dans ce contexte",
     avoidAlternative: "bordeaux_premium",
   },
+  "Assurance & Mutuelles": {
+    recommended: ["bleu_marine", "bleu_roi", "vert_emeraude"],
+    avoid: ["rouge_passion", "orange_chaleureux"],
+  },
   "Santé & Médical": {
     recommended: ["bleu_marine", "bleu_roi", "turquoise_innovation", "vert_emeraude"],
     avoid: ["rouge_passion"],
     avoidReason: "Le rouge augmente la tension artérielle — contre-productif en contexte médical",
     avoidAlternative: "bordeaux_premium",
   },
+  "Pharmacie & Parapharmacie": {
+    recommended: ["bleu_roi", "vert_emeraude", "turquoise_innovation"],
+    avoid: ["rouge_passion"],
+    avoidAlternative: "bordeaux_premium",
+  },
+  "Bien-être & Spa": {
+    recommended: ["turquoise_innovation", "vert_emeraude", "rose_empathique", "violet_creatif"],
+    avoid: ["noir_elegance"],
+  },
   "Tech & SaaS": {
     recommended: ["bleu_roi", "violet_creatif", "turquoise_innovation", "noir_elegance"],
     avoid: [],
   },
-  "Luxe & Mode": {
+  "Intelligence Artificielle & Data": {
+    recommended: ["bleu_marine", "violet_creatif", "turquoise_innovation", "noir_elegance"],
+    avoid: [],
+  },
+  "Cybersécurité": {
+    recommended: ["bleu_marine", "noir_elegance", "turquoise_innovation"],
+    avoid: ["jaune_optimiste", "rose_empathique"],
+  },
+  "E-commerce & Marketplace": {
+    recommended: ["orange_chaleureux", "rouge_passion", "bleu_roi"],
+    avoid: [],
+  },
+  "Luxe & Haute Couture": {
     recommended: ["noir_elegance", "or_prestige", "bordeaux_premium", "violet_creatif"],
     avoid: ["orange_chaleureux", "jaune_optimiste"],
     avoidReason: "L'orange et le jaune évoquent l'accessibilité — incompatible avec le positionnement luxe",
+  },
+  "Mode & Prêt-à-porter": {
+    recommended: ["noir_elegance", "rose_empathique", "or_prestige"],
+    avoid: [],
+  },
+  "Beauté & Cosmétiques": {
+    recommended: ["rose_empathique", "violet_creatif", "or_prestige", "turquoise_innovation"],
+    avoid: [],
   },
   "Éducation & Formation": {
     recommended: ["bleu_roi", "jaune_optimiste", "vert_emeraude", "orange_chaleureux"],
     avoid: ["noir_elegance", "bordeaux_premium"],
   },
-  "Agroalimentaire": {
+  "EdTech & E-learning": {
+    recommended: ["bleu_roi", "violet_creatif", "orange_chaleureux"],
+    avoid: [],
+  },
+  "Agroalimentaire & Agriculture": {
     recommended: ["vert_emeraude", "orange_chaleureux", "rouge_passion", "or_prestige"],
     avoid: ["noir_elegance", "violet_creatif"],
   },
-  "ONG & Social": {
+  "Énergie & Environnement": {
+    recommended: ["vert_emeraude", "bleu_marine", "turquoise_innovation"],
+    avoid: ["rouge_passion"],
+  },
+  "ONG & Social Impact": {
     recommended: ["vert_emeraude", "bleu_marine", "orange_chaleureux", "rose_empathique"],
     avoid: ["noir_elegance", "or_prestige"],
     avoidReason: "Le noir et l'or évoquent le luxe — en opposition avec les valeurs associatives",
@@ -377,13 +462,25 @@ export const SECTOR_COLOR_RULES: Record<string, {
     recommended: ["rouge_passion", "orange_chaleureux", "noir_elegance", "bleu_roi"],
     avoid: ["rose_empathique", "violet_creatif"],
   },
-  "Beauté & Bien-être": {
-    recommended: ["rose_empathique", "violet_creatif", "or_prestige", "turquoise_innovation"],
-    avoid: [],
-  },
   "Juridique & Droit": {
     recommended: ["bleu_marine", "bordeaux_premium", "noir_elegance", "or_prestige"],
     avoid: ["orange_chaleureux", "jaune_optimiste", "rouge_passion"],
     avoidReason: "Ces couleurs évoquent l'impulsivité — contraire à la rigueur juridique",
+  },
+  "Tourisme & Hospitality": {
+    recommended: ["or_prestige", "turquoise_innovation", "orange_chaleureux", "bleu_roi"],
+    avoid: [],
+  },
+  "Restauration & Food": {
+    recommended: ["rouge_passion", "orange_chaleureux", "jaune_optimiste"],
+    avoid: ["violet_creatif", "bleu_marine"],
+  },
+  "Marketing & Publicité": {
+    recommended: ["orange_chaleureux", "violet_creatif", "rouge_passion"],
+    avoid: [],
+  },
+  "Consulting & Conseil": {
+    recommended: ["bleu_marine", "bleu_roi", "noir_elegance"],
+    avoid: ["jaune_optimiste", "rose_empathique"],
   },
 }
