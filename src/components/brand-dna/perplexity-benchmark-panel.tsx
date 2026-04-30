@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { useEffect, useRef, useState, useCallback } from "react"
 import {
   TrendingUp,
@@ -12,7 +14,7 @@ import {
   Clock,
   AlertCircle,
 } from "lucide-react"
-import type { PerplexityBenchmarkData } from "@/lib/actions/perplexity-benchmark.actions"
+import type { PerplexityBenchmarkData } from "@/lib/services/perplexity/benchmark"
 
 type PanelProps = {
   /** Données initiales depuis le serveur (cache DB). Null si pas encore généré. */
@@ -27,64 +29,65 @@ type PanelProps = {
 
 type FetchState = "idle" | "loading" | "error"
 
-const SECTIONS = [
-  {
-    key: "tendancesVisuelles" as const,
-    icon: TrendingUp,
-    label: "Tendances visuelles",
-    color: "text-violet-400",
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/20",
-  },
-  {
-    key: "tendancesCouleurs" as const,
-    icon: Palette,
-    label: "Tendances couleurs",
-    color: "text-pink-400",
-    bg: "bg-pink-500/10",
-    border: "border-pink-500/20",
-  },
-  {
-    key: "formatContenu" as const,
-    icon: Layout,
-    label: "Formats de contenu",
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/20",
-  },
-  {
-    key: "tonEditorial" as const,
-    icon: MessageSquare,
-    label: "Ton éditorial",
-    color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/20",
-  },
-  {
-    key: "strategieHashtags" as const,
-    icon: Hash,
-    label: "Stratégie hashtags",
-    color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20",
-  },
-] as const
-
-function formatCacheAge(cachedAt: string): string {
-  const diffMs = Date.now() - new Date(cachedAt).getTime()
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  if (diffHours < 1) return "il y a moins d'une heure"
-  if (diffHours < 24) return `il y a ${diffHours}h`
-  const diffDays = Math.floor(diffHours / 24)
-  return `il y a ${diffDays} jour${diffDays > 1 ? "s" : ""}`
-}
-
 export function PerplexityBenchmarkPanel({
   initialBenchmark,
   initialStale = false,
   sector,
   primaryCulture: _primaryCulture,
 }: PanelProps) {
+  const t = useTranslations("brandDna.benchmark")
+
+  const SECTIONS = [
+    {
+      key: "tendancesVisuelles" as const,
+      icon: TrendingUp,
+      label: t("visualTrends"),
+      color: "text-violet-400",
+      bg: "bg-violet-500/10",
+      border: "border-violet-500/20",
+    },
+    {
+      key: "tendancesCouleurs" as const,
+      icon: Palette,
+      label: t("colorTrends"),
+      color: "text-pink-400",
+      bg: "bg-pink-500/10",
+      border: "border-pink-500/20",
+    },
+    {
+      key: "formatContenu" as const,
+      icon: Layout,
+      label: t("contentFormats"),
+      color: "text-blue-400",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20",
+    },
+    {
+      key: "tonEditorial" as const,
+      icon: MessageSquare,
+      label: t("editorialTone"),
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
+    },
+    {
+      key: "strategieHashtags" as const,
+      icon: Hash,
+      label: t("hashtagStrategy"),
+      color: "text-amber-400",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
+    },
+  ] as const
+
+  function formatCacheAge(cachedAt: string): string {
+    const diffMs = Date.now() - new Date(cachedAt).getTime()
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    if (diffHours < 1) return t("lessThanHour")
+    if (diffHours < 24) return t("hoursAgo", { count: diffHours })
+    const diffDays = Math.floor(diffHours / 24)
+    return t("daysAgo", { count: diffDays })
+  }
   const [benchmark, setBenchmark] = useState<PerplexityBenchmarkData | null>(initialBenchmark)
   // Si pas de données initiales ou cache périmé, démarrer en état "loading" pour éviter
   // le flash de l'état vide avant l'auto-fetch (setTimeout 0 dans l'effet).
@@ -106,7 +109,7 @@ export function PerplexityBenchmarkPanel({
       const json = await res.json() as { data?: PerplexityBenchmarkData; error?: string }
 
       if (!res.ok || json.error) {
-        setErrorMessage(json.error ?? "Erreur inconnue")
+        setErrorMessage(json.error ?? t("errorDesc"))
         setFetchState("error")
         return
       }
@@ -140,18 +143,18 @@ export function PerplexityBenchmarkPanel({
   const isLoading = fetchState === "loading"
 
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div className="glass-card rounded-xl overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border bg-muted/30">
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-violet-400 shrink-0" />
           <div>
             <p className="text-sm font-semibold text-foreground">
-              Benchmark sectoriel IA
+              {t("title")}
             </p>
             <p className="text-[11px] text-muted-foreground leading-tight">
-              Tendances visuelles &amp; éditoriales · Powered by Perplexity
-              {sector && <span className="ml-1 opacity-60">· {sector}</span>}
+              {t("subtitle")}
+              {sector && <span className="ml-1 opacity-60">{sector}</span>}
             </p>
           </div>
         </div>
@@ -161,7 +164,7 @@ export function PerplexityBenchmarkPanel({
             <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <Clock className="size-3" />
               {formatCacheAge(benchmark.cachedAt)}
-              {isStale && <span className="text-amber-400 ml-0.5">(périmé)</span>}
+              {isStale && <span className="text-amber-400 ml-0.5">{`(${t("stale")})`}</span>}
             </span>
           )}
           <button
@@ -169,10 +172,10 @@ export function PerplexityBenchmarkPanel({
             onClick={() => void triggerFetch()}
             disabled={isLoading}
             className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Rafraîchir le benchmark"
+            title={t("refresh")}
           >
             <RefreshCw className={`size-3 ${isLoading ? "animate-spin" : ""}`} />
-            {isLoading ? "Analyse en cours…" : "Actualiser"}
+            {isLoading ? t("analyzing") : t("refreshBtn")}
           </button>
         </div>
       </div>
@@ -182,10 +185,10 @@ export function PerplexityBenchmarkPanel({
         <div className="flex flex-col items-center justify-center gap-3 px-4 py-10 text-center">
           <div className="size-8 rounded-full border-2 border-violet-500/30 border-t-violet-500 animate-spin" />
           <p className="text-sm text-muted-foreground">
-            Perplexity analyse les tendances de votre secteur…
+            {t("loadingDesc")}
           </p>
           <p className="text-xs text-muted-foreground/60">
-            Première génération — 10 à 30 secondes
+            {t("firstGeneration")}
           </p>
         </div>
       )}
@@ -195,9 +198,9 @@ export function PerplexityBenchmarkPanel({
         <div className="flex items-start gap-3 px-4 py-4">
           <AlertCircle className="size-4 text-red-400 mt-0.5 shrink-0" />
           <div>
-            <p className="text-sm text-red-400 font-medium">Erreur benchmark</p>
+            <p className="text-sm text-red-400 font-medium">{t("errorTitle")}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {errorMessage ?? "Impossible de générer le benchmark. Vérifiez PERPLEXITY_API_KEY."}
+              {errorMessage ?? t("errorDesc")}
             </p>
           </div>
         </div>
@@ -229,7 +232,7 @@ export function PerplexityBenchmarkPanel({
             <div className="flex items-center gap-2 px-4 py-2.5 bg-amber-500/5">
               <AlertCircle className="size-3.5 text-amber-400 shrink-0" />
               <p className="text-xs text-amber-400">
-                Données de plus de 7 jours — cliquez sur Actualiser pour rafraîchir.
+                {t("staleWarning")}
               </p>
             </div>
           )}
@@ -241,10 +244,10 @@ export function PerplexityBenchmarkPanel({
         <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center">
           <Sparkles className="size-6 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground">
-            Aucun benchmark disponible pour ce secteur.
+            {t("noData")}
           </p>
           <p className="text-xs text-muted-foreground/60">
-            Enregistrez votre Brand DNA pour déclencher l&apos;analyse.
+            {t("noDataHint")}
           </p>
         </div>
       )}

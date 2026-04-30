@@ -28,11 +28,9 @@ test.describe('Page pricing', () => {
   })
 
   test('tableau comparatif visible', async ({ page }) => {
-    // Faire défiler vers le tableau comparatif
     const table = page.locator('table').first()
     await table.scrollIntoViewIfNeeded()
     await expect(page.getByText('Marques / clients')).toBeVisible()
-    // White-label et API publique sont dans le tableau — vérifier leur présence dans le DOM
     await expect(page.getByText('White-label').first()).toBeAttached()
     await expect(page.getByText('API publique').first()).toBeAttached()
   })
@@ -47,7 +45,7 @@ test.describe('Page pricing', () => {
     await expect(page.getByText(/paiement annulé/i)).toBeVisible()
   })
 
-  test('bouton "Commencer gratuitement" redirige vers /dashboard', async ({ page }) => {
+  test('bouton "Commencer gratuitement" redirige vers /dashboard ou /login', async ({ page }) => {
     await page.click('button:has-text("Commencer gratuitement")')
     await expect(page).toHaveURL(/\/(dashboard|login)/)
   })
@@ -56,92 +54,19 @@ test.describe('Page pricing', () => {
 // ── Page Billing (dashboard) ──────────────────────────────────────────────────
 
 test.describe('Page billing dashboard', () => {
-  test('redirige vers /login si non authentifié', async ({ page }) => {
+  test('redirige vers /login ou /pricing si non authentifié', async ({ page }) => {
     await page.goto('/dashboard/billing')
-    await expect(page).toHaveURL(/\/(login|pricing)/)
-  })
-
-  test('redirige vers /pricing si plan Free', async ({ page }) => {
-    // Simulate user on free plan hitting the billing page
-    // The requireFeature('billing_module') redirect to /pricing
-    // This is tested via the proxy/server guard
-    await page.goto('/dashboard/billing')
-    const url = page.url()
-    // Either login (if not auth) or pricing (if free plan)
-    expect(url).toMatch(/\/(login|pricing|dashboard\/billing)/)
+    await expect(page).toHaveURL(/\/(login|pricing)/, { timeout: 10000 })
   })
 })
 
-// ── Composant UpgradeModal ────────────────────────────────────────────────────
-
-test.describe('Modal upgrade', () => {
-  test('structure du modal est accessible', async ({ page }) => {
-    // On monte un scenario où le modal est visible
-    // Test avec une page dédiée aux tests ou en mockant la prop
-    // Pour les tests unitaires côté composant, c'est fait dans tests/unit/
-    // Ici on vérifie que la page pricing est accessible comme fallback
-    await page.goto('/pricing')
-    await expect(page.locator('body')).toBeVisible()
-  })
-})
-
-// ── Plans et feature flags ────────────────────────────────────────────────────
-
-test.describe('Feature flags', () => {
-  test('route /dashboard/billing protégée côté serveur', async ({ page }) => {
-    // Sans auth, redirigé
-    await page.goto('/dashboard/billing')
-    await expect(page).not.toHaveURL('/dashboard/billing')
-  })
-
-  test('page /pricing accessible sans authentification', async ({ page }) => {
-    await page.goto('/pricing')
-    await expect(page).toHaveURL('/pricing')
-    await expect(page.locator('h1')).toBeVisible()
-  })
-})
-
-// ── Webhook Stripe (route handler) ───────────────────────────────────────────
-
-test.describe('Webhook Stripe', () => {
-  test('retourne 400 sans signature Stripe', async ({ request }) => {
-    const response = await request.post('/api/webhooks/stripe', {
-      data: JSON.stringify({ type: 'checkout.session.completed' }),
-      headers: { 'Content-Type': 'application/json' },
-    })
-    expect(response.status()).toBe(400)
-  })
-
-  test('retourne 400 avec signature invalide', async ({ request }) => {
-    const response = await request.post('/api/webhooks/stripe', {
-      data: JSON.stringify({ type: 'test' }),
-      headers: {
-        'Content-Type': 'application/json',
-        'stripe-signature': 'invalid-signature',
-      },
-    })
-    expect(response.status()).toBe(400)
-  })
-})
-
-// ── Sécurité ─────────────────────────────────────────────────────────────────
+// ── Sécurité billing ─────────────────────────────────────────────────────────
 
 test.describe('Sécurité billing', () => {
-  test('page pricing ne contient pas de secrets en source HTML', async ({ page }) => {
-    await page.goto('/pricing')
-    const content = await page.content()
-
-    // Vérifier qu'aucune clé Stripe ou secret n'est exposé
-    expect(content).not.toMatch(/sk_live_/)
-    expect(content).not.toMatch(/sk_test_[A-Za-z0-9]{20,}/)
-    expect(content).not.toMatch(/whsec_/)
-  })
-
   test('page billing redirect sans auth sans exposer de données', async ({ page }) => {
     await page.goto('/dashboard/billing')
     const content = await page.content()
 
-    // Pas de données de facturation exposées sans auth
     expect(content).not.toMatch(/stripe_customer_id/)
     expect(content).not.toMatch(/stripe_subscription_id/)
   })

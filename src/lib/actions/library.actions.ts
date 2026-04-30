@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 export type MediaFileType = "image" | "video" | "document"
 
@@ -74,15 +75,10 @@ export async function getMediaAssetsAction(options?: {
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return { error: "Non authentifié." }
 
-  const { data: userData, error: userError } = await supabase
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single()
+  const tenantId = await resolveUserTenant(supabase, user.id)
 
-  if (userError || !userData?.tenant_id) return { error: "Tenant introuvable." }
+  if (!tenantId) return { error: "Tenant introuvable." }
 
-  const tenantId = userData.tenant_id
   const limit = options?.limit ?? 100
   const offset = options?.offset ?? 0
 
@@ -138,15 +134,9 @@ export async function uploadMediaAssetAction(
   const { data: { user }, error: authError } = await supabase.auth.getUser()
   if (authError || !user) return { error: "Non authentifié." }
 
-  const { data: userData, error: userError } = await supabase
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single()
+  const tenantId = await resolveUserTenant(supabase, user.id)
 
-  if (userError || !userData?.tenant_id) return { error: "Tenant introuvable." }
-
-  const tenantId = userData.tenant_id
+  if (!tenantId) return { error: "Tenant introuvable." }
 
   const file = formData.get("file") as File | null
   if (!file) return { error: "Aucun fichier fourni." }

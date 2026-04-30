@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "secondary": "#2563eb",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-pattern {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .blur-blob {
+            filter: blur(80px);
+            z-index: -1;
+        }
+        .backdrop-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen relative overflow-x-hidden">
+<div class="fixed inset-0 grid-pattern pointer-events-none"></div>
+<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-blob"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 rounded-full blur-blob"></div>
+<div class="fixed top-[30%] right-[10%] w-[20%] h-[20%] bg-primary/10 rounded-full blur-blob"></div>
+<div class="relative z-10 max-w-7xl mx-auto px-6 py-8">
+<div class="mb-12">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-bold tracking-widest uppercase text-primary">Workflow RAMI — Étape 5 sur 7</span>
+<span class="text-xs font-medium text-slate-400">71% Terminé</span>
+</div>
+<div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-right bg-primary w-[71%] rounded-full"></div>
+</div>
+<div class="mt-8">
+<h1 class="text-4xl font-extrabold text-slate-100 tracking-tight">Revue finale</h1>
+<p class="text-slate-400 mt-2 text-lg">Vérifiez et ajustez votre contenu avant approbation.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<div class="lg:col-span-5 flex flex-col gap-6">
+<div class="flex gap-2 p-1 bg-slate-900/50 rounded-lg w-fit border border-white/5">
+<button class="px-4 py-2 bg-primary/20 text-primary border border-primary/30 rounded-md text-sm font-semibold">Instagram</button>
+<button class="px-4 py-2 text-slate-500 hover:text-slate-300 text-sm font-semibold">LinkedIn (Desktop)</button>
+</div>
+<div class="relative mx-auto w-full max-w-[320px] aspect-[9/18.5] bg-black rounded-[3rem] border-[8px] border-slate-800 shadow-2xl overflow-hidden">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-800 rounded-b-2xl"></div>
+<div class="pt-10 h-full overflow-y-auto bg-white text-black scrollbar-hide">
+<div class="px-3 py-2 flex items-center gap-2 border-b border-gray-100">
+<div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User avatar profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBin9eQSmqmYA1MMqXeFwgrT8MvWzJzz0Lkm9DNWBQhDhF4PNLUpzUlMC8CO--GbkFvyKUGa8QiPZx6x9M82QEkn2ZK2OamdH52d6cnrJx24mwyCqntnCAoz9n79tQRqJZl_I3rX2Q-l7rNdtcgUUo4T3lz9usPbhGjkIGZzS3gUSNXsPLPfdi0fszW7ww9mbwC7c0zgu5Em1lZ1byO34OniJyIAriTrNpoF1jT61CJyZJ4PWtefHR6oiVAeWW_dHHdI6WzjK4b9bUo"/>
+</div>
+<span class="text-xs font-bold">rami_workspace</span>
+</div>
+<div class="aspect-square bg-slate-100 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Modern office interior with clean furniture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCUisXArAVBoQxINhs-TkVCsuWgbP-QK8CM09yi2ltmnjb-qs7sAKRth8J_SMYS7-bf0T0t5NNWsduSMNE1h-zuz7tjHFIFXnhFE_Wi-Q9OSJzprKI_0-TsQyZADBxS_hT4HKqTmkJwHAqQIWV_rwgcm7exbESaLbh7Lep8hrxwlHbOQJaJv6j3fhojzRZtt18nAFckIO28dypzcg-A4JCBzg-P3ehwFiXowoYt69V7pR6K8VAOtEpunSaboj6YF1tTJrzHh0PkB7KZ"/>
+</div>
+<div class="p-3">
+<div class="flex gap-3 mb-2">
+<span class="material-icons text-xl">favorite_border</span>
+<span class="material-icons text-xl">chat_bubble_outline</span>
+<span class="material-icons text-xl">send</span>
+</div>
+<p class="text-[11px] leading-relaxed">
+<span class="font-bold">rami_workspace</span> Notre nouvel espace de travail est enfin prêt ! 🚀 Un environnement pensé pour la créativité et la performance neuropsychologique. #DeepWork #Design #Innovations
+                            </p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="backdrop-card rounded-2xl p-6">
+<label class="block text-sm font-medium text-slate-400 mb-3">Légende du post</label>
+<textarea class="w-full bg-slate-900/50 border border-white/10 rounded-xl p-4 text-sm text-slate-200 h-40 focus:ring-2 focus:ring-primary focus:border-transparent resize-none">Notre nouvel espace de travail est enfin prêt ! 🚀 Un environnement pensé pour la créativité et la performance neuropsychologique.
+
+#DeepWork #Design #Innovations #Workplace #Productivity</textarea>
+<div class="mt-6">
+<label class="block text-sm font-medium text-slate-400 mb-3">Hashtags suggérés</label>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary flex items-center gap-1 cursor-grab">#NeuroDesign <span class="material-icons text-[14px]">drag_indicator</span></span>
+<span class="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full text-xs text-primary flex items-center gap-1 cursor-grab">#Creativity <span class="material-icons text-[14px]">drag_indicator</span></span>
+<span class="px-3 py-1 bg-slate-800 border border-white/5 rounded-full text-xs text-slate-400 flex items-center gap-1 cursor-grab">+ Ajouter</span>
+</div>
+</div>
+<button class="w-full mt-6 py-3 border border-dashed border-white/20 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/5 transition-colors">
+<span class="material-icons align-middle text-lg mr-2">image</span> Changer de visuel
+                    </button>
+</div>
+<div class="backdrop-card rounded-2xl overflow-hidden">
+<button class="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-icons text-slate-400">link</span>
+<span class="text-sm font-medium text-slate-200">Paramètres UTM</span>
+</div>
+<span class="material-icons text-slate-400">expand_more</span>
+</button>
+</div>
+</div>
+<div class="lg:col-span-3 flex flex-col gap-6">
+<div class="backdrop-card rounded-2xl p-6 border-l-4 border-l-primary">
+<h3 class="text-lg font-bold text-slate-100 mb-1">Qualité du contenu</h3>
+<p class="text-xs text-slate-400 mb-4">Analyse automatique par l'IA</p>
+<div class="flex items-center gap-2 mb-6">
+<div class="flex-1 h-2 bg-slate-800 rounded-full">
+<div class="h-full bg-emerald-500 w-[66%] rounded-full"></div>
+</div>
+<span class="text-sm font-bold text-emerald-500">4/6</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-start gap-3">
+<span class="material-icons text-emerald-500 text-lg">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-200">Nombre de caractères</p>
+<p class="text-[11px] text-slate-500">Optimal pour Instagram</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-icons text-emerald-500 text-lg">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-200">Score ADN de marque</p>
+<p class="text-[11px] text-slate-500">92% de correspondance</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-icons text-emerald-500 text-lg">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-200">Volume de Hashtags</p>
+<p class="text-[11px] text-slate-500">5/30 utilisés</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-icons text-amber-500 text-lg">warning</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-200">Détection CTA</p>
+<p class="text-[11px] text-amber-500/80">Aucun appel à l'action détecté</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-icons text-emerald-500 text-lg">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-200">Résolution d'image</p>
+<p class="text-[11px] text-slate-500">Haute définition (4K)</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-icons text-emerald-500 text-lg">check_circle</span>
+<div class="flex-1">
+<p class="text-sm font-medium text-slate-200">Contenu prohibé</p>
+<p class="text-[11px] text-slate-500">Conforme aux règles</p>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full bg-gradient-to-r from-primary to-secondary text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all">
+                    Planifier directement →
+                </button>
+<button class="w-full bg-slate-800/50 hover:bg-slate-800 text-slate-300 py-3 rounded-xl font-medium text-sm transition-all border border-white/5">
+                    Enregistrer en brouillon
+                </button>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,12 +1,16 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { useState, useTransition, useEffect } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { V } from "@/lib/utils/validation-messages"
 import { Plus } from "lucide-react"
 import { toast } from "sonner"
 
+import { TranslatedFieldError } from "@/components/ui/field-error-i18n"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -30,12 +34,12 @@ const formSchema = z.object({
   title: z.string().max(500).trim().optional(),
   content: z
     .string()
-    .min(1, "Le contenu est requis")
-    .max(3000, "Contenu trop long")
+    .min(1, V.contentRequired)
+    .max(3000, V.contentTooLong)
     .trim(),
   platforms: z
     .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
-    .min(1, "Sélectionnez au moins une plateforme"),
+    .min(1, V.platformRequired),
   scheduled_at: z.string().optional().nullable(),
   status: z.enum(["draft", "review", "approved", "scheduled"]),
 })
@@ -53,6 +57,8 @@ interface NewPostDialogProps {
 // ── Composant ────────────────────────────────────────────────────────────────
 
 export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialogProps) {
+  const t = useTranslations("calendar.dialog")
+  const tCommon = useTranslations("common")
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -110,7 +116,7 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
           : null,
       } as NewPostData)
       if (result.success) {
-        toast.success("Post créé avec succès !")
+        toast.success(t("createPost"))
         onCreated?.(result.data)
         handleOpenChange(false)
       } else {
@@ -135,7 +141,7 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Nouveau post</DialogTitle>
+            <DialogTitle>{t("title")}</DialogTitle>
             <DialogDescription>
               Créez et planifiez un post sur vos plateformes sociales.
             </DialogDescription>
@@ -146,11 +152,11 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
               {/* Titre (optionnel) */}
               <div className="space-y-1.5">
                 <Label htmlFor="post-title">
-                  Titre <span className="text-muted-foreground text-xs">(optionnel)</span>
+                  Titre <span className="text-muted-foreground text-xs">{t("titleOptional")}</span>
                 </Label>
                 <Input
                   id="post-title"
-                  placeholder="Ex : Lancement produit Été 2026"
+                  placeholder={t("titlePlaceholder")}
                   {...form.register("title")}
                 />
               </div>
@@ -162,7 +168,7 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
                 </Label>
                 <Textarea
                   id="post-content"
-                  placeholder="Rédigez votre post…"
+                  placeholder={t("contentPlaceholder")}
                   className="min-h-[120px]"
                   {...form.register("content")}
                 />
@@ -201,9 +207,7 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
                   })}
                 </div>
                 {form.formState.errors.platforms && (
-                  <p className="text-xs text-destructive">
-                    {form.formState.errors.platforms.message}
-                  </p>
+                  <TranslatedFieldError message={form.formState.errors.platforms.message} />
                 )}
               </div>
 
@@ -233,7 +237,7 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
                 Annuler
               </Button>
               <Button type="submit" disabled={isPending}>
-                {isPending ? "Création…" : "Créer le post"}
+                {isPending ? t("creating") : t("createPost")}
               </Button>
             </DialogFooter>
           </form>

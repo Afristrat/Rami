@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0F;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(124, 59, 237, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(124, 59, 237, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .selected-card {
+            background: rgba(124, 59, 237, 0.1);
+            border: 2px solid #7c3bed;
+            box-shadow: 0 0 20px rgba(124, 59, 237, 0.2);
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between border-b border-white/10 bg-background-dark/80 backdrop-blur-md px-6 py-4 sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white">rocket_launch</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">RAMI</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex gap-2">
+<button class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+<div class="h-10 w-10 rounded-full border-2 border-primary/30 p-0.5">
+<div class="h-full w-full rounded-full bg-cover bg-center" data-alt="User profile avatar placeholder" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBlqwAF-zTqjyUjowoDvb5n5allCKj5m6h-kaE9hymZVy4hhh2P5XNIbcb-cOADO4K75Xjmx6d_5udVrX3nosGKfvGNnbQKEEoZVZ9BiS0aMimhsMiFD4uxI0KJ2QoFQ2tBcbiKAYlOg_SYa1CZMk-tiwZgYtZgTiMGPSIaSFnqBk5JsCrYzjNk60l0KmBWQIfcoHQuGELFoqgR-qwQrORID6so98yEf-1mza2vDaeezYIiu-XTCqiwfkViEqTvHTlsNupwyiFPzcXG')"></div>
+</div>
+</div>
+</header>
+<main class="max-w-5xl mx-auto w-full px-6 py-10 flex flex-col gap-10">
+<!-- Stepper -->
+<section class="flex flex-col gap-4">
+<div class="flex justify-between items-end">
+<div>
+<span class="text-primary font-semibold text-sm uppercase tracking-wider">Étape finale</span>
+<h1 class="text-4xl font-black tracking-tight mt-1">Planification</h1>
+<p class="text-slate-400 mt-2 text-lg">Choisissez quand publier votre contenu.</p>
+</div>
+<div class="text-right">
+<span class="text-2xl font-bold text-primary">100%</span>
+<p class="text-xs text-slate-500 uppercase font-medium">Progression</p>
+</div>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden flex gap-1">
+<div class="h-full bg-primary flex-1"></div>
+<div class="h-full bg-primary flex-1"></div>
+<div class="h-full bg-primary flex-1"></div>
+<div class="h-full bg-primary flex-1"></div>
+<div class="h-full bg-primary flex-1"></div>
+<div class="h-full bg-primary flex-1"></div>
+<div class="h-full bg-primary flex-1"></div>
+</div>
+<div class="flex justify-between px-1">
+<div class="flex items-center gap-1 text-green-500 text-xs font-medium"><span class="material-symbols-outlined text-sm">check_circle</span> Idée</div>
+<div class="flex items-center gap-1 text-green-500 text-xs font-medium"><span class="material-symbols-outlined text-sm">check_circle</span> Style</div>
+<div class="flex items-center gap-1 text-green-500 text-xs font-medium"><span class="material-symbols-outlined text-sm">check_circle</span> Médias</div>
+<div class="flex items-center gap-1 text-green-500 text-xs font-medium"><span class="material-symbols-outlined text-sm">check_circle</span> Texte</div>
+<div class="flex items-center gap-1 text-green-500 text-xs font-medium"><span class="material-symbols-outlined text-sm">check_circle</span> Review</div>
+<div class="flex items-center gap-1 text-green-500 text-xs font-medium"><span class="material-symbols-outlined text-sm">check_circle</span> Canaux</div>
+<div class="flex items-center gap-1 text-primary text-xs font-bold"><span class="material-symbols-outlined text-sm">schedule</span> Planif.</div>
+</div>
+</section>
+<!-- Publishing Options -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<label class="glass-card p-6 rounded-xl cursor-pointer hover:bg-white/10 transition-all flex flex-col gap-4 group">
+<input class="hidden" name="publish_type" type="radio"/>
+<div class="size-12 rounded-lg bg-white/5 flex items-center justify-center text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">bolt</span>
+</div>
+<div>
+<h3 class="font-bold text-lg">Publier maintenant</h3>
+<p class="text-sm text-slate-400 mt-1">Diffusion immédiate sur tous les canaux sélectionnés</p>
+</div>
+</label>
+<label class="selected-card p-6 rounded-xl cursor-pointer transition-all flex flex-col gap-4 relative overflow-hidden">
+<input checked="" class="hidden" name="publish_type" type="radio"/>
+<div class="size-12 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">calendar_month</span>
+</div>
+<div>
+<h3 class="font-bold text-lg">Planifier</h3>
+<p class="text-sm text-slate-300 mt-1">Choisissez une date et heure de publication précise</p>
+</div>
+<div class="absolute top-2 right-2">
+<span class="material-symbols-outlined text-primary">check_circle</span>
+</div>
+</label>
+<label class="glass-card p-6 rounded-xl cursor-pointer hover:bg-white/10 transition-all flex flex-col gap-4 group">
+<input class="hidden" name="publish_type" type="radio"/>
+<div class="size-12 rounded-lg bg-white/5 flex items-center justify-center text-slate-300 group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-3xl">draft</span>
+</div>
+<div>
+<h3 class="font-bold text-lg">Enregistrer en brouillon</h3>
+<p class="text-sm text-slate-400 mt-1">Sauvegardez pour révision ultérieure</p>
+</div>
+</label>
+</section>
+<!-- Scheduler Controls -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<div class="flex flex-col gap-6">
+<div class="glass-card p-6 rounded-xl flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h3 class="font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">event</span>
+                                Configuration temporelle
+                            </h3>
+<div class="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full text-xs text-slate-400">
+<span class="material-symbols-outlined text-sm">public</span>
+                                Europe/Paris (UTC+2)
+                            </div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2">
+<label class="text-xs font-bold text-slate-500 uppercase">Date</label>
+<div class="bg-white/5 border border-white/10 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:bg-white/10">
+<span class="font-medium text-slate-200">24 Octobre 2024</span>
+<span class="material-symbols-outlined text-slate-400">calendar_today</span>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="text-xs font-bold text-slate-500 uppercase">Heure (24h)</label>
+<div class="bg-white/5 border border-white/10 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:bg-white/10">
+<span class="font-medium text-slate-200">09:15</span>
+<span class="material-symbols-outlined text-slate-400">schedule</span>
+</div>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-primary/10 border border-primary/20 flex flex-col gap-3">
+<div class="flex items-start gap-3">
+<div class="bg-primary text-white p-1.5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-sm fill-1">star</span>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-100">Meilleur moment IA</p>
+<p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                                        LinkedIn : Mardi 09h15 — engagement optimal estimé <span class="text-primary font-bold">+23%</span>
+</p>
+</div>
+</div>
+<button class="w-full py-2 bg-primary text-white rounded-lg text-sm font-bold hover:bg-primary/90 transition-colors">
+                                Utiliser cette suggestion
+                            </button>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex items-center justify-between">
+<div class="flex flex-col">
+<h4 class="font-bold">Multidiffusion synchronisée</h4>
+<p class="text-sm text-slate-400">Publier tout en même temps sur tous les canaux</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<!-- Summary Table -->
+<div class="glass-card rounded-xl overflow-hidden flex flex-col">
+<div class="p-6 border-b border-white/10">
+<h3 class="font-bold text-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">list_alt</span>
+                            Récapitulatif de publication
+                        </h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-white/5 text-xs font-bold text-slate-500 uppercase">
+<tr>
+<th class="px-6 py-4">Plateforme</th>
+<th class="px-6 py-4">Date &amp; Heure</th>
+<th class="px-6 py-4">Statut</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr>
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="size-8 rounded bg-[#0A66C2] flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm">link</span>
+</div>
+<span class="font-medium text-sm">LinkedIn</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold">24 Oct 2024</span>
+<span class="text-xs text-slate-500">09:15</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-green-500 text-xs font-bold">
+<span class="material-symbols-outlined text-base">check_circle</span>
+                                            PRÊT
+                                        </div>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="size-8 rounded bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm">photo_camera</span>
+</div>
+<span class="font-medium text-sm">Instagram</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold">24 Oct 2024</span>
+<span class="text-xs text-slate-500">09:15</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-green-500 text-xs font-bold">
+<span class="material-symbols-outlined text-base">check_circle</span>
+                                            PRÊT
+                                        </div>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 flex items-center gap-3">
+<div class="size-8 rounded bg-black flex items-center justify-center border border-white/20">
+<span class="material-symbols-outlined text-white text-sm">close</span>
+</div>
+<span class="font-medium text-sm">X / Twitter</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="text-sm font-semibold">24 Oct 2024</span>
+<span class="text-xs text-slate-500">09:15</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-green-500 text-xs font-bold">
+<span class="material-symbols-outlined text-base">check_circle</span>
+                                            PRÊT
+                                        </div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Bottom Actions -->
+<section class="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 border-t border-white/10">
+<button class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-semibold group">
+<span class="material-symbols-outlined group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                    Retour à l'étape précédente
+                </button>
+<div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+<button class="px-10 py-5 bg-gradient-to-r from-primary to-[#2563EB] rounded-xl text-lg font-black flex items-center gap-3 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all w-full md:w-auto justify-center">
+<span class="material-symbols-outlined">rocket_launch</span>
+                        Confirmer la publication
+                    </button>
+</div>
+</section>
+</main>
+<!-- Footer Decoration -->
+<footer class="mt-20 py-8 text-center text-slate-600 text-sm">
+<p>© 2024 RAMI AI - Planificateur Intelligent de Contenu</p>
+</footer>
+</div>
+</body></html>

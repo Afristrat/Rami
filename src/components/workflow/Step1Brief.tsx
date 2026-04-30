@@ -3,22 +3,10 @@
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { step1Schema, type Step1Data } from "@/lib/schemas/workflow.schema"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-import { ChevronRight, Brain } from "lucide-react"
-
-const OBJECTIFS = [
-  { value: "confiance", label: "Confiance", desc: "Sécurité, autorité, fiabilité", color: "text-blue-500", bg: "bg-blue-500/10 hover:bg-blue-500/20 border-blue-500/20" },
-  { value: "urgence", label: "Urgence", desc: "Action immédiate, dynamisme", color: "text-red-500", bg: "bg-red-500/10 hover:bg-red-500/20 border-red-500/20" },
-  { value: "aspiration", label: "Aspiration", desc: "Luxe, élévation, prestige", color: "text-amber-500", bg: "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/20" },
-  { value: "expertise", label: "Expertise", desc: "Compétence, autorité sectorielle", color: "text-indigo-500", bg: "bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/20" },
-  { value: "communauté", label: "Communauté", desc: "Appartenance, engagement, lien", color: "text-orange-500", bg: "bg-orange-500/10 hover:bg-orange-500/20 border-orange-500/20" },
-  { value: "joie", label: "Joie", desc: "Positivité, célébration, légèreté", color: "text-yellow-500", bg: "bg-yellow-500/10 hover:bg-yellow-500/20 border-yellow-500/20" },
-  { value: "sérénité", label: "Sérénité", desc: "Calme, équilibre, bien-être", color: "text-teal-500", bg: "bg-teal-500/10 hover:bg-teal-500/20 border-teal-500/20" },
-] as const
+import { ArrowRight, Sparkles, ShieldCheck, AlertTriangle, TrendingUp, Settings, Users, Smile, Heart, Save } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { TranslatedFieldError } from "@/components/ui/field-error-i18n"
 
 interface Step1BriefProps {
   defaultValues?: Step1Data | null
@@ -26,6 +14,27 @@ interface Step1BriefProps {
 }
 
 export function Step1Brief({ defaultValues, onNext }: Step1BriefProps) {
+  const t = useTranslations("workflow.brief")
+  const tc = useTranslations("common")
+
+  const OBJECTIFS = [
+    { value: "confiance", label: t("confiance"), icon: ShieldCheck, activeColor: "border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]" },
+    { value: "urgence", label: t("urgence"), icon: AlertTriangle, activeColor: "border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]" },
+    { value: "aspiration", label: t("aspiration"), icon: TrendingUp, activeColor: "border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]" },
+    { value: "expertise", label: t("expertise"), icon: Settings, activeColor: "border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]" },
+    { value: "communauté", label: t("communaute"), icon: Users, activeColor: "border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]" },
+    { value: "joie", label: t("joie"), icon: Smile, activeColor: "border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]" },
+    { value: "sérénité", label: t("serenite"), icon: Heart, activeColor: "border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]" },
+  ] as const
+
+  const ANGLES = [
+    t("caseStudy"),
+    t("keyStat"),
+    t("behindTheScenes"),
+    t("userTestimonial"),
+    t("industryNews"),
+  ]
+
   const {
     register,
     handleSubmit,
@@ -46,96 +55,181 @@ export function Step1Brief({ defaultValues, onNext }: Step1BriefProps) {
   const description = useWatch({ control, name: "description", defaultValue: "" })
 
   return (
-    <form onSubmit={handleSubmit(onNext)} className="space-y-6">
-      {/* Titre */}
-      <div className="space-y-2">
-        <Label htmlFor="titre" className="text-sm font-medium">
-          Titre du contenu <span className="text-destructive">*</span>
-        </Label>
-        <Input
-          id="titre"
-          {...register("titre")}
-          placeholder="Ex. : Lancement de notre nouveau service IA…"
-          className={cn(errors.titre && "border-destructive")}
-        />
-        {errors.titre && (
-          <p className="text-xs text-destructive">{errors.titre.message}</p>
-        )}
-      </div>
-
-      {/* Description / Brief */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="description" className="text-sm font-medium">
-            Brief du contenu <span className="text-destructive">*</span>
-          </Label>
-          <span className={cn("text-xs", description.length > 1800 ? "text-destructive" : "text-muted-foreground")}>
-            {description.length} / 2000
-          </span>
+    <form onSubmit={handleSubmit(onNext)} className="space-y-10">
+      {/* Section A: Brief du contenu */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
+            {t("sectionA")}
+          </h3>
+          <span className="text-[10px] font-mono text-slate-400 dark:text-slate-600">BRIEF_ENGINE_V2</span>
         </div>
-        <Textarea
-          id="description"
-          {...register("description")}
-          placeholder="Décrivez le message principal, le contexte, les points clés à communiquer, les résultats attendus…"
-          rows={5}
-          className={cn("resize-none", errors.description && "border-destructive")}
-        />
+
+        {/* Titre */}
+        <div className="mb-4">
+          <input
+            id="titre"
+            {...register("titre")}
+            placeholder={t("titlePlaceholder")}
+            className={cn(
+              "w-full bg-slate-100 dark:bg-white/[0.06] border-0 rounded-xl px-4 py-3 text-sm",
+              "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600",
+              "focus:ring-2 focus:ring-violet-500/40 outline-none transition-all",
+              errors.titre && "ring-2 ring-red-500/40"
+            )}
+          />
+          {errors.titre && (
+            <TranslatedFieldError message={errors.titre.message} className="mt-1.5 text-xs text-red-500" />
+          )}
+        </div>
+
+        {/* Description textarea */}
+        <div className="relative">
+          <textarea
+            id="description"
+            {...register("description")}
+            placeholder={t("descriptionPlaceholder")}
+            rows={6}
+            className={cn(
+              "w-full bg-slate-100 dark:bg-white/[0.06] border-0 rounded-xl p-4 text-base resize-none",
+              "text-slate-900 dark:text-slate-100 placeholder:text-slate-400/40 dark:placeholder:text-slate-500/40",
+              "focus:ring-2 focus:ring-violet-500/40 outline-none transition-all",
+              errors.description && "ring-2 ring-red-500/40"
+            )}
+          />
+          <div className={cn(
+            "absolute bottom-4 right-4 text-xs",
+            description.length > 1800 ? "text-red-500" : "text-slate-400 dark:text-slate-600"
+          )}>
+            {description.length}/2000
+          </div>
+        </div>
         {errors.description && (
-          <p className="text-xs text-destructive">{errors.description.message}</p>
+          <TranslatedFieldError message={errors.description.message} className="mt-1.5 text-xs text-red-500" />
         )}
+
+        {/* Enrichir avec l'IA button */}
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            className={cn(
+              "flex items-center gap-2 px-4 py-2",
+              "bg-violet-500/20 hover:bg-violet-500/30 text-violet-500 dark:text-violet-400",
+              "border border-violet-500/30 rounded-lg text-sm font-semibold transition-all"
+            )}
+          >
+            <Sparkles className="size-4" />
+            {t("enrichWithAI")}
+          </button>
+        </div>
       </div>
 
-      {/* Objectif cognitif */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Brain className="size-4 text-violet-500" />
-          <Label className="text-sm font-medium">
-            Objectif cognitif <span className="text-destructive">*</span>
-          </Label>
-          <span className="text-xs text-muted-foreground">(neuropsychologie Causse)</span>
-        </div>
+      {/* Section B: Objectif cognitif */}
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400 mb-4">
+          {t("sectionB")}
+        </h3>
         {errors.objectif && (
-          <p className="text-xs text-destructive">{errors.objectif.message}</p>
+          <TranslatedFieldError message={errors.objectif.message} className="mb-3 text-xs text-red-500" />
         )}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-          {OBJECTIFS.map((obj) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {OBJECTIFS.map((obj) => {
+            const Icon = obj.icon
+            const isSelected = selectedObjectif === obj.value
+            return (
+              <button
+                key={obj.value}
+                type="button"
+                onClick={() => setValue("objectif", obj.value as Step1Data["objectif"], { shouldValidate: true })}
+                className={cn(
+                  "relative flex flex-col items-center justify-center p-4 rounded-xl transition-all",
+                  isSelected
+                    ? cn("border-2", obj.activeColor)
+                    : "border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent hover:border-violet-500/50 cursor-pointer"
+                )}
+              >
+                <Icon className={cn(
+                  "size-6 mb-2",
+                  isSelected ? "text-violet-500" : "text-slate-400 dark:text-slate-500"
+                )} />
+                <span className={cn(
+                  "text-sm font-bold",
+                  isSelected ? "text-slate-900 dark:text-slate-100" : "text-slate-600 dark:text-slate-400"
+                )}>
+                  {obj.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Section C: Angle editorial */}
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400 mb-4">
+          {t("sectionC")}
+        </h3>
+        <div className="flex flex-wrap gap-3">
+          {ANGLES.map((angle) => (
             <button
-              key={obj.value}
+              key={angle}
               type="button"
-              onClick={() => setValue("objectif", obj.value as Step1Data["objectif"], { shouldValidate: true })}
               className={cn(
-                "flex flex-col gap-0.5 rounded-lg border p-3 text-left transition-all",
-                selectedObjectif === obj.value
-                  ? `${obj.bg} border-current ring-2 ring-current/30`
-                  : "border-border bg-card hover:bg-accent"
+                "px-4 py-2 rounded-full border text-sm font-medium transition-all",
+                "border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.05]",
+                "text-slate-700 dark:text-slate-300",
+                "hover:bg-violet-600 hover:text-white hover:border-violet-600"
               )}
             >
-              <span className={cn("text-xs font-semibold", selectedObjectif === obj.value && obj.color)}>
-                {obj.label}
-              </span>
-              <span className="text-[10px] text-muted-foreground leading-tight">{obj.desc}</span>
+              {angle}
             </button>
           ))}
+          <button
+            type="button"
+            className="px-3 py-2 rounded-full border border-dashed border-slate-300 dark:border-white/20 text-sm text-slate-400 dark:text-slate-500 flex items-center gap-1"
+          >
+            {t("customAngle")}
+          </button>
         </div>
       </div>
 
-      {/* Cible (optionnel) */}
-      <div className="space-y-2">
-        <Label htmlFor="cible" className="text-sm font-medium">
-          Audience cible <span className="text-muted-foreground font-normal">(optionnel)</span>
-        </Label>
-        <Input
+      {/* Audience cible */}
+      <div>
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400 mb-4">
+          {t("targetAudience")} <span className="text-slate-400 dark:text-slate-600 font-normal lowercase">({t("targetAudienceOptional")})</span>
+        </h3>
+        <input
           id="cible"
           {...register("cible")}
-          placeholder="Ex. : Directeurs marketing PME marocaines, 35-50 ans…"
+          placeholder={t("targetAudiencePlaceholder")}
+          className={cn(
+            "w-full bg-slate-100 dark:bg-white/[0.06] border-0 rounded-xl px-4 py-3 text-sm",
+            "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600",
+            "focus:ring-2 focus:ring-violet-500/40 outline-none transition-all"
+          )}
         />
       </div>
 
-      <div className="flex justify-end pt-2">
-        <Button type="submit" className="gap-2">
-          Continuer
-          <ChevronRight className="size-4" />
-        </Button>
+      {/* Bottom Actions */}
+      <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/10">
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500">
+          <Save className="size-3.5" />
+          {t("draftSaved")}
+        </div>
+        <button
+          type="submit"
+          className={cn(
+            "px-8 py-2.5 rounded-xl",
+            "bg-gradient-to-r from-violet-600 to-blue-600",
+            "text-white text-sm font-bold",
+            "shadow-lg shadow-violet-500/20",
+            "hover:scale-[1.02] active:scale-[0.98] transition-all",
+            "flex items-center gap-2"
+          )}
+        >
+          {tc("next")}
+          <ArrowRight className="size-4" />
+        </button>
       </div>
     </form>
   )

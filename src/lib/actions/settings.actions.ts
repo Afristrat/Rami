@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -97,13 +98,7 @@ async function getTenantId(
   } = await supabase.auth.getUser()
   if (!user) return null
 
-  const { data } = await supabase
-    .from("tenants")
-    .select("id")
-    .eq("owner_id", user.id)
-    .single()
-
-  return data?.id ?? null
+  return resolveUserTenant(supabase, user.id)
 }
 
 export async function getTeamMembersAction(): Promise<{

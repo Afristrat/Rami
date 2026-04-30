@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Inscription - Agency OS</title>
+<!-- Google Fonts: Inter and Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            rami: {
+              dark: '#0A0A0F',
+              violet: '#7C3AED',
+              blue: '#2563EB',
+              success: '#10B981',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-backgrounds">
+    .grid-pattern {
+      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+      background-size: 40px 40px;
+    }
+    .blob {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      filter: blur(80px);
+      z-index: 0;
+      opacity: 0.15;
+    }
+    .blob-1 { background: radial-gradient(circle, #7C3AED 0%, transparent 70%); top: -10%; left: -10%; }
+    .blob-2 { background: radial-gradient(circle, #2563EB 0%, transparent 70%); bottom: -10%; right: -10%; }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    
+    .input-field {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s ease;
+    }
+    .input-field:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #7C3AED;
+      box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.2);
+      outline: none;
+    }
+
+    .cta-gradient {
+      background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%);
+      transition: opacity 0.2s ease;
+    }
+    .cta-gradient:hover {
+      opacity: 0.9;
+    }
+
+    /* Strength Bar Colors */
+    .strength-weak { background-color: #EF4444; width: 33%; }
+    .strength-medium { background-color: #F59E0B; width: 66%; }
+    .strength-strong { background-color: #10B981; width: 100%; }
+  </style>
+</head>
+<body class="bg-rami-dark text-white min-h-screen font-sans antialiased overflow-x-hidden">
+<!-- BEGIN: Main Layout -->
+<main class="flex flex-col lg:flex-row min-h-screen w-full">
+<!-- BEGIN: Left Panel (Content/Branding) -->
+<section class="hidden lg:flex w-full lg:w-[55%] relative flex-col justify-between p-12 overflow-hidden bg-rami-dark">
+<div class="grid-pattern absolute inset-0 z-0"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<!-- Logo -->
+<div class="relative z-10" data-purpose="brand-identity">
+<h1 class="text-3xl font-display font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+          RAMI
+        </h1>
+</div>
+<!-- Value Propositions -->
+<div class="relative z-10 max-w-lg" data-purpose="marketing-content">
+<h2 class="text-4xl font-display font-bold leading-tight mb-12">
+          Propulsez votre agence <br/>
+<span class="text-rami-violet">avec l'IA.</span>
+</h2>
+<div class="space-y-8">
+<!-- Benefit 1 -->
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-rami-violet to-rami-blue flex items-center justify-center shadow-lg shadow-rami-violet/20">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h3 class="text-lg font-semibold">Contenu calibré neuropsychologiquement</h3>
+<p class="text-gray-400 text-sm mt-1">Des algorithmes conçus pour maximiser la rétention et l'engagement cognitif.</p>
+</div>
+</div>
+<!-- Benefit 2 -->
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-rami-violet to-rami-blue flex items-center justify-center shadow-lg shadow-rami-violet/20">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h3 class="text-lg font-semibold">Publication multi-plateforme en 1 clic</h3>
+<p class="text-gray-400 text-sm mt-1">Diffusez votre contenu sur LinkedIn, Twitter et Instagram instantanément.</p>
+</div>
+</div>
+<!-- Benefit 3 -->
+<div class="flex items-start gap-4">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-rami-violet to-rami-blue flex items-center justify-center shadow-lg shadow-rami-violet/20">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 4v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M10 21h4m-2-3v3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<circle cx="12" cy="12" r="3"></circle>
+</svg>
+</div>
+<div>
+<h3 class="text-lg font-semibold">Brand DNA persistant par marque</h3>
+<p class="text-gray-400 text-sm mt-1">L'IA mémorise votre voix et votre style pour une cohérence absolue.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Left Footer -->
+<div class="relative z-10 text-gray-500 text-xs">
+        © 2024 RAMI AI Systems. Tous droits réservés.
+      </div>
+</section>
+<!-- END: Left Panel -->
+<!-- BEGIN: Right Panel (Form) -->
+<section class="w-full lg:w-[45%] flex items-center justify-center p-6 sm:p-12 md:p-16 relative">
+<div class="w-full max-w-md">
+<!-- Form Header -->
+<div class="mb-8 text-center lg:text-left">
+<h2 class="text-[#F8FAFC] text-[28px] font-display font-bold">Créer un compte</h2>
+<p class="text-white/60 mt-2">Commencez gratuitement. Aucune carte requise.</p>
+</div>
+<!-- Registration Card -->
+<div class="glass-card rounded-2xl p-8 shadow-2xl" data-purpose="registration-card">
+<form class="space-y-5" id="registrationForm">
+<!-- Full Name -->
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1.5 ml-1" for="full_name">Nom complet</label>
+<input class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 text-sm" id="full_name" placeholder="Jean Dupont" required="" type="text"/>
+</div>
+<!-- Business Email -->
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1.5 ml-1" for="email">Email professionnel</label>
+<input class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 text-sm" id="email" placeholder="nom@agence.com" required="" type="email"/>
+</div>
+<!-- Password -->
+<div class="space-y-2">
+<label class="block text-sm font-medium text-gray-300 mb-1.5 ml-1" for="password">Mot de passe</label>
+<input class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 text-sm" id="password" placeholder="••••••••" required="" type="password"/>
+<!-- Strength Indicator -->
+<div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden mt-3" data-purpose="password-strength-bar">
+<div class="h-full transition-all duration-300 ease-in-out" id="strength-meter" style="width: 0%"></div>
+</div>
+</div>
+<!-- Confirm Password -->
+<div>
+<label class="block text-sm font-medium text-gray-300 mb-1.5 ml-1" for="confirm_password">Confirmer le mot de passe</label>
+<input class="input-field w-full px-4 py-3 rounded-xl text-white placeholder-gray-500 text-sm" id="confirm_password" placeholder="••••••••" required="" type="password"/>
+</div>
+<!-- Password Checklist (Progressive Disclosure) -->
+<div class="space-y-2 pt-1" data-purpose="password-requirements">
+<div class="flex items-center gap-2 text-xs text-rami-success">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+<span>Au moins 8 caractères</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-gray-500">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+<span>Un caractère spécial (@, #, !, ...)</span>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="cta-gradient w-full py-3.5 rounded-xl font-semibold text-white mt-4 shadow-xl shadow-rami-violet/20" type="submit">
+              Créer mon compte
+            </button>
+</form>
+<!-- Terms -->
+<p class="text-xs text-center text-gray-500 mt-6 leading-relaxed">
+            En créant un compte, vous acceptez nos 
+            <a class="text-rami-violet hover:underline" href="#">CGU</a> et notre 
+            <a class="text-rami-violet hover:underline" href="#">Politique de confidentialité</a>.
+          </p>
+</div>
+<!-- Login Redirect -->
+<div class="mt-8 text-center">
+<p class="text-sm text-gray-400">
+            Déjà un compte ? <a class="text-rami-violet font-semibold hover:underline ml-1" href="#">Se connecter</a>
+</p>
+</div>
+</div>
+</section>
+<!-- END: Right Panel -->
+</main>
+<!-- END: Main Layout -->
+<!-- BEGIN: Interactive Scripts -->
+<script data-purpose="form-interactivity">
+    const passwordInput = document.getElementById('password');
+    const strengthMeter = document.getElementById('strength-meter');
+
+    passwordInput.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (val.length === 0) {
+        strengthMeter.style.width = '0%';
+        strengthMeter.className = 'h-full transition-all duration-300 ease-in-out';
+      } else if (val.length < 5) {
+        strengthMeter.style.width = '33%';
+        strengthMeter.className = 'h-full transition-all duration-300 ease-in-out strength-weak';
+      } else if (val.length < 10) {
+        strengthMeter.style.width = '66%';
+        strengthMeter.className = 'h-full transition-all duration-300 ease-in-out strength-medium';
+      } else {
+        strengthMeter.style.width = '100%';
+        strengthMeter.className = 'h-full transition-all duration-300 ease-in-out strength-strong';
+      }
+    });
+
+    document.getElementById('registrationForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Inscription en cours...');
+    });
+  </script>
+<!-- END: Interactive Scripts -->
+</body></html>

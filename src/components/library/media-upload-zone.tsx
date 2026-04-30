@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import React, { useCallback, useRef, useState } from "react"
 import { Upload, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -23,6 +25,7 @@ const ACCEPTED_TYPES = [
 const ACCEPT_STRING = ".jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.webm,.mov,.pdf,.doc,.docx,.xls,.xlsx,.txt"
 
 export function MediaUploadZone({ onUpload, disabled }: MediaUploadZoneProps) {
+  const t = useTranslations("library")
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,11 +33,11 @@ export function MediaUploadZone({ onUpload, disabled }: MediaUploadZoneProps) {
 
   const processFile = useCallback(async (file: File) => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError(`Type non supporté : ${file.type}`)
+      setError(t("unsupportedType", { type: file.type }))
       return
     }
     if (file.size > 50 * 1024 * 1024) {
-      setError("Fichier trop volumineux (max 50 MB).")
+      setError(t("fileTooLarge"))
       return
     }
     setError(null)
@@ -42,7 +45,7 @@ export function MediaUploadZone({ onUpload, disabled }: MediaUploadZoneProps) {
     try {
       await onUpload(file)
     } catch {
-      setError("Erreur lors de l'upload.")
+      setError(t("uploadErrorGeneric"))
     } finally {
       setIsUploading(false)
     }
@@ -98,7 +101,7 @@ export function MediaUploadZone({ onUpload, disabled }: MediaUploadZoneProps) {
       <div
         role="button"
         tabIndex={disabled ? -1 : 0}
-        aria-label="Zone d'upload — cliquer ou déposer des fichiers"
+        aria-label={t("uploadZoneLabel")}
         onClick={handleClick}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleClick() }}
         onDragEnter={handleDragEnter}
@@ -140,7 +143,7 @@ export function MediaUploadZone({ onUpload, disabled }: MediaUploadZoneProps) {
 
         <div className="text-center">
           <p className="text-sm font-medium text-foreground">
-            {isUploading ? "Upload en cours…" : isDragging ? "Déposer ici" : "Cliquez ou déposez vos fichiers"}
+            {isUploading ? t("uploading") : isDragging ? t("dropHere") : t("clickOrDrop")}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             Images, vidéos, documents — max 50 MB par fichier

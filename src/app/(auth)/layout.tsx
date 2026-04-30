@@ -11,30 +11,59 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="dark min-h-screen bg-[#0A0A0F] flex flex-col">
-      {/* Gradient d'ambiance */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-violet-600/10 blur-3xl" />
-        <div className="absolute top-1/2 -right-40 h-[500px] w-[500px] rounded-full bg-blue-600/8 blur-3xl" />
-        <div className="absolute -bottom-40 left-1/3 h-[400px] w-[400px] rounded-full bg-indigo-500/6 blur-3xl" />
+    <div className="flex h-screen w-full overflow-hidden">
+      {/* ═══════ Left Panel — Branding (55%) ═══════ */}
+      <div className="relative hidden lg:flex w-[55%] flex-col items-center justify-center overflow-hidden bg-[#f7f6f8] dark:bg-[#0A0A0F] border-r border-black/5 dark:border-white/5">
+        {/* Grid pattern */}
+        <div className="absolute inset-0 rami-grid-pattern" />
+
+        {/* Gradient blobs */}
+        <div className="rami-blob absolute top-1/4 left-1/4 size-96 bg-[#7c3bed]" />
+        <div className="rami-blob absolute bottom-1/4 right-1/4 size-96 bg-[#2563eb]" />
+        <div className="rami-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-80 bg-[#7c3bed]/50" />
+
+        {/* Center content — logo + tagline */}
+        <div className="relative z-10 flex flex-col items-center text-center px-12">
+          <div className="mb-6 flex flex-col items-center">
+            <h1 className="text-6xl font-bold tracking-tighter text-gray-900 dark:text-white">
+              RAMI
+            </h1>
+            <div className="mt-2 h-1.5 w-24 rounded-full bg-gradient-to-r from-[#7c3bed] to-[#2563eb]" />
+          </div>
+          <p className="text-xl font-medium text-gray-500 dark:text-white/60 tracking-wide">
+            L&apos;IA qui vise juste.
+          </p>
+        </div>
+
+        {/* Bottom decorative card */}
+        <div className="absolute bottom-12 left-12 right-12 flex justify-center opacity-10 dark:opacity-20">
+          <div className="h-48 w-full max-w-md rounded-2xl border border-black/10 dark:border-white/10 bg-gradient-to-br from-black/5 dark:from-white/5 to-transparent backdrop-blur-sm" />
+        </div>
       </div>
 
-      {/* Grille subtile */}
-      <div
-        className="pointer-events-none fixed inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
+      {/* ═══════ Right Panel — Form (45%) ═══════ */}
+      <div className="flex w-full lg:w-[45%] flex-col items-center justify-center bg-[#f7f6f8] dark:bg-[#0F0F14] px-6 py-12 overflow-y-auto">
+        {/* Mobile logo — visible only on small screens */}
+        <div className="lg:hidden mb-8 flex flex-col items-center">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">RAMI</h1>
+          <div className="mt-1 h-1 w-16 rounded-full bg-gradient-to-r from-[#7c3bed] to-[#2563eb]" />
+        </div>
 
-      <main className="relative flex flex-1 items-center justify-center px-4 py-12">
-        {children}
-      </main>
+        {/* Form slot */}
+        <div className="w-full max-w-[440px]">
+          {children}
+        </div>
 
-      <footer className="relative py-4 text-center text-xs text-white/20">
-        © 2026 AI-MPower Consulting — RAMI v1.0
-      </footer>
+        {/* Bottom legal links */}
+        <div className="mt-12 flex gap-6 text-xs text-gray-400 dark:text-white/20">
+          <a href="/legal/cgu" className="hover:text-gray-600 dark:hover:text-white/40 transition-colors">
+            Conditions d&apos;utilisation
+          </a>
+          <a href="/legal/confidentialite" className="hover:text-gray-600 dark:hover:text-white/40 transition-colors">
+            Confidentialité
+          </a>
+        </div>
+      </div>
     </div>
   )
 }

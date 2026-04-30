@@ -45,77 +45,96 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* RAMI branded colors — same in both themes */
+  --color-rami-violet: #7c3bed;
+  --color-rami-blue: #2563eb;
+  --color-rami-violet-light: #a78bfa;
+  --color-rami-blue-light: #60a5fa;
 }
 
+/* ═══════════════════════════════════════════════
+   LIGHT THEME — Clean, professional
+   ═══════════════════════════════════════════════ */
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --background: oklch(0.975 0.002 285);      /* #f7f6f8 */
+  --foreground: oklch(0.145 0.01 285);        /* near-black */
+  --card: oklch(1 0 0);                       /* white */
+  --card-foreground: oklch(0.145 0.01 285);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.45 0.22 264);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.145 0.01 285);
+  --primary: oklch(0.47 0.27 285);            /* #7c3bed violet */
+  --primary-foreground: oklch(0.985 0 0);     /* white */
+  --secondary: oklch(0.96 0.005 285);         /* subtle violet tint */
+  --secondary-foreground: oklch(0.25 0.01 285);
+  --muted: oklch(0.955 0.005 285);
+  --muted-foreground: oklch(0.5 0.01 285);
+  --accent: oklch(0.955 0.01 285);
+  --accent-foreground: oklch(0.25 0.01 285);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
+  --border: oklch(0.9 0.005 285);
+  --input: oklch(0.92 0.005 285);
+  --ring: oklch(0.47 0.27 285);              /* violet ring */
+  --chart-1: oklch(0.47 0.27 285);           /* violet */
+  --chart-2: oklch(0.55 0.22 262);           /* blue */
+  --chart-3: oklch(0.65 0.2 155);            /* green */
+  --chart-4: oklch(0.7 0.15 50);             /* amber */
+  --chart-5: oklch(0.6 0.2 330);             /* pink */
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+
+  /* Sidebar light */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.2 0.01 285);
+  --sidebar-primary: oklch(0.47 0.27 285);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-accent: oklch(0.955 0.015 285);
+  --sidebar-accent-foreground: oklch(0.2 0.01 285);
+  --sidebar-border: oklch(0.92 0.005 285);
+  --sidebar-ring: oklch(0.47 0.27 285);
 }
 
+/* ═══════════════════════════════════════════════
+   DARK THEME — RAMI glass-morphism
+   ═══════════════════════════════════════════════ */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.085 0.015 285);       /* #0A0A0F */
+  --foreground: oklch(0.93 0 0);              /* slate-100 */
+  --card: oklch(1 0 0 / 4%);                 /* glass card */
+  --card-foreground: oklch(0.93 0 0);
+  --popover: oklch(0.13 0.015 285);           /* #0F0F14 */
+  --popover-foreground: oklch(0.93 0 0);
+  --primary: oklch(0.47 0.27 285);            /* #7c3bed — SAME violet */
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(1 0 0 / 6%);
+  --secondary-foreground: oklch(0.93 0 0);
+  --muted: oklch(1 0 0 / 6%);
+  --muted-foreground: oklch(0.6 0 0);         /* slate-400 */
+  --accent: oklch(1 0 0 / 8%);
+  --accent-foreground: oklch(0.93 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 6%);
+  --ring: oklch(0.47 0.27 285 / 50%);
+  --chart-1: oklch(0.55 0.27 285);
+  --chart-2: oklch(0.55 0.22 262);
+  --chart-3: oklch(0.65 0.2 155);
+  --chart-4: oklch(0.7 0.15 50);
+  --chart-5: oklch(0.6 0.2 330);
+
+  /* Sidebar dark — glass */
+  --sidebar: oklch(0 0 0 / 20%);
+  --sidebar-foreground: oklch(0.93 0 0);
+  --sidebar-primary: oklch(0.47 0.27 285);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.47 0.27 285 / 20%);
+  --sidebar-accent-foreground: oklch(0.93 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.47 0.27 285 / 50%);
 }
 
+/* ═══════════════════════════════════════════════
+   BASE LAYER
+   ═══════════════════════════════════════════════ */
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -126,4 +145,136 @@
   html {
     @apply font-sans;
   }
+}
+
+/* ═══════════════════════════════════════════════
+   RAMI DESIGN UTILITIES
+   ═══════════════════════════════════════════════ */
+
+/* Grid pattern background */
+.rami-grid-pattern {
+  background-image: radial-gradient(circle, oklch(1 0 0 / 2%) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+:is(.dark) .rami-grid-pattern {
+  background-image: radial-gradient(circle, oklch(1 0 0 / 3%) 1px, transparent 1px);
+}
+
+/* Glass card — light mode (default) */
+.glass-card {
+  background: oklch(1 0 0);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid oklch(0 0 0 / 8%);
+  box-shadow: 0 1px 3px oklch(0 0 0 / 5%);
+}
+
+/* Glass card — dark mode (glass-morphism) */
+.dark .glass-card {
+  background: oklch(1 0 0 / 4%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid oklch(1 0 0 / 8%);
+  box-shadow: none;
+}
+
+/* Blur blob decorators — dark mode: visible, light mode: subtle */
+.rami-blob {
+  position: fixed;
+  border-radius: 9999px;
+  filter: blur(100px);
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .rami-blob {
+  opacity: 0.15;
+}
+
+/* Legacy selector kept for safety — will be removed */
+:root:not(.dark) .rami-blob {
+  opacity: 0.06;
+}
+
+/* Gradient text */
+.rami-gradient-text {
+  background: linear-gradient(135deg, #7c3bed, #2563eb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient border (for special cards) */
+.rami-gradient-border {
+  position: relative;
+}
+
+.rami-gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, #7c3bed, #2563eb);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+/* Gradient CTA button */
+.rami-btn-gradient {
+  background: linear-gradient(135deg, #7c3bed, #2563eb);
+  color: white;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.rami-btn-gradient:hover {
+  opacity: 0.9;
+}
+
+.rami-btn-gradient:active {
+  transform: scale(0.98);
+}
+
+/* Gauge gradient (for Brand DNA score) */
+.rami-gauge-gradient {
+  background: conic-gradient(from 180deg at 50% 50%, #7c3bed 0deg, #3b82f6 313deg, transparent 313deg);
+}
+
+/* Platform colors */
+.platform-linkedin { color: #0A66C2; }
+.platform-instagram { color: #E4405F; }
+.platform-facebook { color: #1877F2; }
+.platform-twitter { color: #1DA1F2; }
+.platform-pinterest { color: #E60023; }
+.platform-youtube { color: #FF0000; }
+.platform-tiktok { color: #000000; }
+.dark .platform-tiktok { color: #ffffff; }
+.platform-mastodon { color: #6364FF; }
+
+/* Instagram gradient */
+.instagram-gradient {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+}
+
+/* Scrollbar styling for dark theme */
+.dark ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(1 0 0 / 10%);
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(1 0 0 / 20%);
 }

@@ -98,6 +98,10 @@ export async function signUp(
     }
   }
 
+  // Vérifier si l'utilisateur qui vient de s'inscrire est super_admin
+  const { data: { user: newUser } } = await supabase.auth.getUser()
+  if (newUser?.app_metadata?.role === "super_admin") redirect("/dashboard")
+
   redirect("/onboarding")
 }
 

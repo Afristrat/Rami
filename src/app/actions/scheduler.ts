@@ -5,9 +5,11 @@ import { db } from "@/lib/db"
 import { posts } from "@/lib/db/schema"
 import { and, eq, gte, lte, asc, count, sql } from "drizzle-orm"
 import { z } from "zod"
+import { V } from "@/lib/utils/validation-messages"
 import type { ScheduledPost } from "@/lib/scheduler/types"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import { enqueuePublish, enqueueScheduledPublish } from "@/lib/queue/pgboss"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 // ── Schémas de validation ───────────────────────────────────────────────────
 
@@ -15,12 +17,12 @@ const NewPostSchema = z.object({
   title: z.string().max(500).trim().optional(),
   content: z
     .string()
-    .min(1, "Le contenu est requis")
-    .max(3000, "Contenu trop long")
+    .min(1, V.contentRequired)
+    .max(3000, V.contentTooLong)
     .trim(),
   platforms: z
     .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
-    .min(1, "Sélectionnez au moins une plateforme"),
+    .min(1, V.platformRequired),
   scheduled_at: z.string().datetime({ offset: true }).optional().nullable(),
   status: z.enum(["draft", "review", "approved", "scheduled"]).default("draft"),
 })
@@ -37,13 +39,7 @@ async function getTenantId(): Promise<string | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
-  // Utilise Supabase HTTP (pas Drizzle) pour éviter les blocages de connexion directe
-  const { data } = await supabase
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .maybeSingle()
-  return data?.tenant_id ?? null
+  return resolveUserTenant(supabase, user.id)
 }
 
 function mapPost(row: typeof posts.$inferSelect): ScheduledPost {
@@ -220,10 +216,10 @@ export async function updatePost(
 
   const UpdateSchema = z.object({
     title: z.string().max(500).trim().optional(),
-    content: z.string().min(1, "Le contenu est requis").max(3000).trim().optional(),
+    content: z.string().min(1, V.contentRequired).max(3000).trim().optional(),
     platforms: z
       .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
-      .min(1, "Sélectionnez au moins une plateforme")
+      .min(1, V.platformRequired)
       .optional(),
     scheduled_at: z.string().datetime({ offset: true }).optional().nullable(),
     status: z.enum(["draft", "review", "approved", "scheduled"]).optional(),
@@ -351,6 +347,56 @@ export async function getDraftPosts(limit = 20): Promise<ActionResult<ScheduledP
   } catch {
     return { success: true, data: [] }
   }
+}
+
+/**
+ * Replanifie un post à une nouvelle date (drag & drop calendrier).
+ * Conserve l'heure d'origine si elle existait, sinon place à 09:00.
+ */
+export async function reschedulePost(
+  postId: string,
+  newDateISO: string
+): Promise<ActionResult<ScheduledPost>> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "Non authentifié" }
+
+  const tenantId = await getTenantId()
+  if (!tenantId) return { success: false, error: "Non authentifié" }
+
+  // Récupérer le post actuel pour conserver l'heure
+  const { data: existing } = await supabase
+    .from("posts")
+    .select("scheduled_at")
+    .eq("id", postId)
+    .eq("tenant_id", tenantId)
+    .single()
+
+  if (!existing) return { success: false, error: "Post introuvable" }
+
+  const existingRow = existing as Record<string, unknown>
+  const newDate = new Date(newDateISO)
+  if (existingRow.scheduled_at) {
+    const oldDate = new Date(existingRow.scheduled_at as string)
+    newDate.setHours(oldDate.getHours(), oldDate.getMinutes(), oldDate.getSeconds())
+  } else {
+    newDate.setHours(9, 0, 0, 0)
+  }
+
+  const { data: updated, error } = await supabase
+    .from("posts")
+    .update({
+      scheduled_at: newDate.toISOString(),
+      status: "scheduled",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", postId)
+    .eq("tenant_id", tenantId)
+    .select()
+    .single()
+
+  if (error || !updated) return { success: false, error: "Erreur lors de la replanification" }
+  return { success: true, data: mapPostRow(updated as Record<string, unknown>) }
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────

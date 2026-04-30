@@ -15,12 +15,11 @@ import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/service"
 import { enqueuePublish, enqueueScheduledPublish } from "@/lib/queue/pgboss"
-import { db } from "@/lib/db"
-import { users } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
+import { db as _db } from "@/lib/db"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 const RequestSchema = z.object({
-  postId: z.string().uuid("postId doit être un UUID valide"),
+  postId: z.string().uuid(),
   scheduledAt: z.string().datetime({ offset: true }).optional(),
 })
 
@@ -35,17 +34,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
   }
 
-  // Récupérer le tenantId
-  const userRow = await db.query.users.findFirst({
-    where: eq(users.id, user.id),
-    columns: { tenant_id: true },
-  })
+  // Récupérer le tenantId (toutes stratégies : owner, member, legacy)
+  const tenantId = await resolveUserTenant(supabaseUser, user.id)
 
-  if (!userRow?.tenant_id) {
+  if (!tenantId) {
     return NextResponse.json({ error: "Tenant introuvable" }, { status: 403 })
   }
-
-  const tenantId = userRow.tenant_id
 
   // Validation du body
   let body: unknown
@@ -121,7 +115,7 @@ export async function POST(request: NextRequest) {
     jobId,
     scheduledAt: scheduledDate?.toISOString() ?? null,
     message: scheduledDate
-      ? `Post programmé pour le ${scheduledDate.toLocaleString("fr-FR")}`
+      ? `Post programmé pour le ${scheduledDate.toLocaleString("en-US")}`
       : "Post mis en queue pour publication immédiate",
   })
 }

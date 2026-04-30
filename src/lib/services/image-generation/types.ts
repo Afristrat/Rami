@@ -22,7 +22,7 @@ export interface GeneratedImage {
 
 export interface GenerationResult {
   images: GeneratedImage[]
-  provider: 'fal_ai' | 'replicate' | 'together_ai'
+  provider: 'nano_banana' | 'fal_ai' | 'google_imagen' | 'replicate' | 'together_ai'
   duration_ms: number
   model: string
 }

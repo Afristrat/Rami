@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .gradient-primary {
+            background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%);
+        }
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col h-screen sticky top-0 bg-background-light dark:bg-background-dark z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 rounded-xl gradient-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-none">RAMI</h1>
+<p class="text-xs text-slate-500 dark:text-slate-400">Vision AI Platform</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Tableau de bord</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">folder_open</span>
+<span class="text-sm font-medium">Bibliothèque</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">campaign</span>
+<span class="text-sm font-medium">Campagnes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-sm font-medium">Analyses</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Paramètres</span>
+</a>
+<div class="mt-4 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50">
+<p class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Stockage</p>
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%]"></div>
+</div>
+<p class="text-xs mt-2 text-slate-500">7.5 GB sur 10 GB</p>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+<!-- Top Bar -->
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 px-8 flex items-center justify-between bg-background-light dark:bg-background-dark z-10">
+<div class="flex items-center gap-4 flex-1 max-w-2xl">
+<span class="material-symbols-outlined text-slate-400">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-slate-500" placeholder="Rechercher par nom, tag, couleur..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-px h-6 bg-slate-200 dark:border-slate-800"></div>
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right">
+<p class="text-xs font-semibold">Jean Dupont</p>
+<p class="text-[10px] text-slate-500">Administrateur</p>
+</div>
+<div class="size-8 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Portrait of a smiling professional man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDO0xlPeu20Xsi3hn8mdwheGcWL0GCJtRSDto5N4lg6NCloXIyJ-JDVroNvYS5ZzlII8BEIt-nqxiwiABb4FvmD7IT836UZdHQbST1D15wvAo9tOIUlVJ6WbKVTEWA1I4igyiFbM-on-WTo0QmjSFDpjeN0XsmXb4-nHb-dXhtC8Zqh6G0Qf0Bz-Z8LqgouFTcXLExSMrF-P8n0C6xHlz-lBXQm_c-TvsOZcoEupuM-jkQsnahZ5ZIti8p-2V3f_ca8CZtmKdifUBE"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Library Header -->
+<div class="p-8 space-y-6">
+<div class="flex items-end justify-between">
+<div>
+<h2 class="text-3xl font-bold tracking-tight">Bibliothèque</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Gérez et analysez vos ressources média haute performance.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
+<button class="p-1.5 rounded-md bg-white dark:bg-slate-700 shadow-sm text-primary">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+</button>
+<button class="p-1.5 rounded-md text-slate-500">
+<span class="material-symbols-outlined text-[20px]">list</span>
+</button>
+</div>
+<button class="gradient-primary text-white px-5 py-2 rounded-lg font-semibold flex items-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+                        Importer
+                    </button>
+</div>
+</div>
+<!-- Filters -->
+<div class="flex flex-wrap items-center gap-3">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="text-xs font-medium">Format</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="text-xs font-medium">Plateforme</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 text-primary rounded-full cursor-pointer">
+<span class="text-xs font-semibold">Score DNA ≥ 0.9</span>
+<span class="material-symbols-outlined text-[16px]">close</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+<span class="text-xs font-medium">Date</span>
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+</div>
+<button class="text-xs font-medium text-slate-500 hover:text-primary transition-colors ml-2">Réinitialiser</button>
+</div>
+<!-- Grid Content -->
+<div class="masonry-grid pb-12">
+<!-- Grid Item 1 -->
+<div class="group relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 aspect-[3/4] border border-slate-200 dark:border-slate-800">
+<img alt="Abstract 1" class="w-full h-full object-cover" data-alt="Abstract vibrant violet and blue flowing 3D waves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmLM0Ps3Z4FpGLB_v9U1KoUksfwBWxlGKJBv_xav1coBbQ0w77eXOeL_tKpjGAwDzMzxdVYnYlaUOksAIc3wuMgrr5UD6435cNSdcJgCLF6LKRASzQjp-0RPcThUVJcP-yb5Ik6S8eEy1lZhuzS5eyKSVlJxCg8b6ZFNp35QaZ0vkIcWvTLozmcFT-cmhRPeatGtIQxjALflnUH5NTdFzqqjykmY2ORcIoYp3xWqRHuScttX0PvyUb4ygNwtAwSLTRFf7ybG2B6tsE"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">verified</span> 0.92 DNA
+                            </span>
+<button class="size-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+<div>
+<p class="text-white text-sm font-semibold truncate">summer_campaign_hero.png</p>
+<p class="text-white/60 text-xs mt-1">1080 × 1350 • PNG</p>
+</div>
+</div>
+</div>
+<!-- Grid Item 2 -->
+<div class="group relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 aspect-square border border-slate-200 dark:border-slate-800">
+<img alt="Tech" class="w-full h-full object-cover" data-alt="Close up of futuristic glowing hardware components" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBu1AzD7wVcwxbM71WONV_TN9ICPyra9NCQ8rx4oQLbS6OySmkAmMxn1Nzrxtc5GC_poJI5MG8xpAEJNWTzglOY8LYpmah6U9RVLVU-zeXAq27Ygq1GrSAulLeA7dj3uJtc4N93onExdrniFvFyqbLhmOEmMHjfwfp04EFAH0OjEMu3gL9_AxhNyU9qWx0G2G8LwrHAHveKbI2_F9TS0K5rid-OjwB2OnXgA5TmJyvhTaXW8lYWBRg13XVint9ED0aLnxFoYhiKPzS"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">verified</span> 0.95 DNA
+                            </span>
+<button class="size-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+<div>
+<p class="text-white text-sm font-semibold truncate">tech_minimal_01.jpg</p>
+<p class="text-white/60 text-xs mt-1">2000 × 2000 • JPG</p>
+</div>
+</div>
+<div class="absolute bottom-3 right-3 bg-black/40 backdrop-blur-sm p-1.5 rounded-lg">
+<span class="material-symbols-outlined text-white text-[18px]">movie</span>
+</div>
+</div>
+<!-- Grid Item 3 -->
+<div class="group relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 aspect-[4/5] border border-slate-200 dark:border-slate-800">
+<img alt="Abstract 2" class="w-full h-full object-cover" data-alt="Futuristic glass geometric structures with neon lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNV9qcITrJuZ9qYK4A6NFPxBMpOq0IxDfdS5-rmNLzRjVRgBpqxnhwtlxJAwQ0HAa46vmh9ZtSpD6nsCH-K8PL3ExmXdNJCe7NjcDh0EC_jV_nFFUT2L-pXk6jFIpB7MJqSRdY_dABgEL6ZyhB1_lpEzY16LL8n5ETvoWJ8pdJPVUJ9BNPaTycjH6NofF1u2C7Y67DiCQz27j6mZgJTjAefgRJg5kMeUcqhJVOScIcz2LB1vnr33bx8YNS-DRi6qXKHhWDlAYoDmuL"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">verified</span> 0.88 DNA
+                            </span>
+<button class="size-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+<div>
+<p class="text-white text-sm font-semibold truncate">neon_architecture.webp</p>
+<p class="text-white/60 text-xs mt-1">1440 × 1800 • WEBP</p>
+</div>
+</div>
+</div>
+<!-- Grid Item 4 -->
+<div class="group relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800 aspect-[3/2] border border-slate-200 dark:border-slate-800">
+<img alt="Gradient" class="w-full h-full object-cover" data-alt="Soft aesthetic purple to blue mesh gradient background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAojHCE-pNe1vkiMfhR4YbBIxOvFLK-A52VDHxEXq8nVsAJyZLdwjUI5QXv0cpE1bz0RBXddvlMICOlfNDl3bqqIz3cwYXjim49AHM7rGMAKa_zxy94UTeD7y1wBoJ34PzWiF3gGwAkGfdUXTiEh7x3T5tvvDupjIUWEoUTQt8Iye5kNbjGWfnXDPXOjdFnsw1T0TJwe6jOsKza7QO9GRRFdSMbKi58-VG8Q2qHlXVnuSjmQVQo0FoG6IwTrffhEgLp13h0YZqCg-Tz"/>
+<div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+<div class="flex justify-between items-start">
+<span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">info</span> 0.74 DNA
+                            </span>
+<button class="size-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+<div>
+<p class="text-white text-sm font-semibold truncate">background_mesh.png</p>
+<p class="text-white/60 text-xs mt-1">1920 × 1080 • PNG</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Upload Modal Overlay (Simulated) -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+<div class="bg-background-light dark:bg-[#0F0F1A] w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<h3 class="text-lg font-bold">Importer des médias</h3>
+<button class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-8">
+<!-- Drop Zone -->
+<div class="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-12 text-center group hover:border-primary transition-colors cursor-pointer bg-slate-50/50 dark:bg-slate-900/50">
+<div class="size-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-4xl">cloud_upload</span>
+</div>
+<h4 class="text-base font-semibold">Glissez-déposez vos fichiers ici</h4>
+<p class="text-sm text-slate-500 mt-1">PNG, JPG, MP4 ou WEBP (Max. 50MB par fichier)</p>
+<button class="mt-6 text-primary font-semibold text-sm hover:underline">ou parcourez vos fichiers</button>
+</div>
+<!-- Active Uploads -->
+<div class="mt-8 space-y-4">
+<div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50">
+<div class="flex items-center gap-4 mb-3">
+<div class="size-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+<span class="material-symbols-outlined">image</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between mb-1">
+<p class="text-sm font-medium truncate">lifestyle_modern_04.jpg</p>
+<p class="text-xs text-slate-500">65%</p>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full gradient-primary w-[65%]"></div>
+</div>
+</div>
+</div>
+<!-- Analysis Result -->
+<div class="flex items-center justify-between pl-14">
+<div class="flex items-center gap-2">
+<div class="size-2 bg-primary rounded-full animate-pulse"></div>
+<span class="text-[11px] font-medium text-slate-400">Analyse Vision AI en cours...</span>
+</div>
+</div>
+</div>
+<div class="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-500/10">
+<div class="flex items-center gap-4">
+<div class="size-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]">check_circle</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between">
+<p class="text-sm font-medium truncate">social_ad_creative.mp4</p>
+<span class="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">Score 0.98</span>
+</div>
+<p class="text-xs text-slate-500 mt-1">Analyse terminée • Prêt pour diffusion</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-end gap-3">
+<button class="px-6 py-2 rounded-lg border border-slate-200 dark:border-slate-800 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Annuler</button>
+<button class="px-6 py-2 rounded-lg gradient-primary text-white text-sm font-semibold hover:opacity-90 transition-opacity">Ajouter à la bibliothèque</button>
+</div>
+</div>
+</div>
+</body></html>

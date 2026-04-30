@@ -18,8 +18,8 @@ const VALID_PLATFORMS: OAuthPlatform[] = [
   "pinterest",
 ]
 
-const REDIRECT_SUCCESS = "/dashboard/settings/connections?success=connected"
-const REDIRECT_ERROR = "/dashboard/settings/connections?error="
+const REDIRECT_SUCCESS = "/settings/connections?success=connected"
+const REDIRECT_ERROR = "/settings/connections?error="
 
 export async function GET(
   req: NextRequest,

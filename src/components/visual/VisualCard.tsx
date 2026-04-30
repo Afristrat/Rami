@@ -1,8 +1,10 @@
 'use client'
 
-import { BrandDNAScoreBadge } from './BrandDNAScoreBadge'
+import { useState } from 'react'
 import { GeneratedVisual } from '@/lib/services/image-generation/types'
-import { Check, Download } from 'lucide-react'
+import { saveVisualToLibraryAction } from '@/lib/actions/visual.actions'
+import { Check, Download, BookmarkPlus, BookmarkCheck, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface VisualCardProps {
   visual: GeneratedVisual
@@ -11,12 +13,24 @@ interface VisualCardProps {
   index: number
 }
 
+function getScoreBadgeColor(score: number) {
+  if (score >= 80) return 'bg-emerald-500/80 text-white'
+  if (score >= 60) return 'bg-amber-500/80 text-white'
+  return 'bg-red-500/80 text-white'
+}
+
+const PROVIDER_LABELS: Record<string, string> = {
+  fal_ai: 'Fal.ai',
+  replicate: 'Replicate',
+  together_ai: 'Together',
+  nano_banana: 'Gemini',
+}
+
 export function VisualCard({ visual, isSelected, onToggleSelect, index }: VisualCardProps) {
-  const providerLabel: Record<string, string> = {
-    fal_ai: 'Fal.ai',
-    replicate: 'Replicate',
-    together_ai: 'Together',
-  }
+  const t = useTranslations('visuals')
+  const [isSaving, setIsSaving] = useState(false)
+  const [savedToLibrary, setSavedToLibrary] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -34,50 +48,119 @@ export function VisualCard({ visual, isSelected, onToggleSelect, index }: Visual
     }
   }
 
+  const handleSaveToLibrary = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (savedToLibrary || isSaving) return
+
+    setIsSaving(true)
+    setSaveError(null)
+
+    const result = await saveVisualToLibraryAction({
+      imageUrl: visual.image.url,
+      directionId: visual.direction.id,
+      directionName: visual.direction.name,
+      brandDnaScore: visual.brand_dna_score,
+    })
+
+    setIsSaving(false)
+
+    if (result.success) {
+      setSavedToLibrary(true)
+    } else {
+      setSaveError(result.error ?? t('saveError'))
+      setTimeout(() => setSaveError(null), 3000)
+    }
+  }
+
   return (
     <div
       className={`relative group cursor-pointer rounded-xl overflow-hidden border-2 transition-all duration-200 ${
         isSelected
           ? 'border-violet-500 ring-2 ring-violet-500/30'
-          : 'border-white/[0.08] hover:border-white/20'
+          : 'border-border hover:border-foreground/30'
       }`}
       onClick={() => onToggleSelect(visual)}
     >
       {/* Image */}
-      <div className="relative aspect-video bg-white/[0.04]">
+      <div className="relative aspect-video bg-muted">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={visual.image.url}
-          alt={`Direction ${visual.direction.id} — Image ${index + 1}`}
+          alt={`${t('directionLabel')} ${visual.direction.id} — Image ${index + 1}`}
           className="w-full h-full object-cover"
           loading="lazy"
         />
 
-        {/* Overlay au survol */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-          <button
-            onClick={handleDownload}
-            className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-colors text-white"
-            aria-label="Télécharger"
-          >
-            <Download className="w-4 h-4" />
-          </button>
+        {/* Score Brand DNA overlay — coin bas-droit */}
+        <div className={`absolute bottom-2 right-2 px-1.5 py-0.5 rounded-md text-[10px] font-bold backdrop-blur-sm ${getScoreBadgeColor(visual.brand_dna_score)}`}>
+          {visual.brand_dna_score}
         </div>
 
-        {/* Checkmark si sélectionné */}
+        {/* Hover overlay — provider + seed */}
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+          {/* Action buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDownload}
+              className="p-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/25 transition-colors text-white"
+              aria-label={t('downloadLabel')}
+              title={t('downloadLabel')}
+            >
+              <Download className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={handleSaveToLibrary}
+              disabled={isSaving || savedToLibrary}
+              className={`p-2 rounded-lg backdrop-blur-sm transition-all ${
+                savedToLibrary
+                  ? 'bg-emerald-500/30 text-emerald-300 cursor-default'
+                  : saveError
+                  ? 'bg-red-500/30 text-red-300'
+                  : 'bg-white/10 hover:bg-violet-500/40 text-white'
+              }`}
+              aria-label={savedToLibrary ? t('savedToLibrary') : t('saveToLibrary')}
+              title={savedToLibrary ? t('savedToLibrary') : t('saveToLibrary')}
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : savedToLibrary ? (
+                <BookmarkCheck className="w-4 h-4" />
+              ) : (
+                <BookmarkPlus className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+
+          {/* Provider + seed info on hover */}
+          <div className="text-[9px] text-white/60 text-center leading-tight mt-1">
+            <span>{PROVIDER_LABELS[visual.provider] ?? visual.provider}</span>
+            {visual.seed != null && (
+              <span className="ml-1.5">seed: {visual.seed}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Checkmark si selectionne */}
         {isSelected && (
           <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-violet-500 flex items-center justify-center">
             <Check className="w-3.5 h-3.5 text-white" />
           </div>
         )}
-      </div>
 
-      {/* Footer avec score */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-        <div className="flex items-center justify-between">
-          <BrandDNAScoreBadge score={visual.brand_dna_score} />
-          <span className="text-[10px] text-white/40">{providerLabel[visual.provider] ?? visual.provider}</span>
-        </div>
+        {/* Badge "Enregistre" persistant */}
+        {savedToLibrary && !isSelected && (
+          <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-emerald-500/90 flex items-center justify-center">
+            <BookmarkCheck className="w-3.5 h-3.5 text-white" />
+          </div>
+        )}
+
+        {/* Message erreur sauvegarde */}
+        {saveError && (
+          <div className="absolute bottom-8 left-1 right-1 px-1.5 py-1 rounded bg-red-500/90 text-[9px] text-white text-center leading-tight">
+            {t('saveError')}
+          </div>
+        )}
       </div>
     </div>
   )

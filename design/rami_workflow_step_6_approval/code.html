@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .blur-blob {
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen relative overflow-x-hidden">
+<!-- Background Blobs -->
+<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary blur-blob"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600 blur-blob"></div>
+<div class="fixed top-[30%] right-[10%] w-[30%] h-[30%] rounded-full bg-primary blur-blob"></div>
+<div class="relative z-10 grid-pattern min-h-screen">
+<!-- Top Navigation -->
+<header class="border-b border-white/10 bg-background-dark/50 backdrop-blur-md sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">bolt</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">RAMI</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" href="#">Dashboard</a>
+<a class="text-sm font-medium text-primary" href="#">Workflows</a>
+<a class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" href="#">Assets</a>
+<a class="text-sm font-medium opacity-60 hover:opacity-100 transition-opacity" href="#">Team</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-white/5 rounded-full transition-colors relative">
+<span class="material-symbols-outlined opacity-60">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full"></span>
+</button>
+<div class="size-9 rounded-full bg-white/10 border border-white/20 overflow-hidden">
+<img alt="User profile" data-alt="Portrait of a young professional man profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbrlUU8DK3R55S3WzEI5yg8eKo7jjYy-it_6rYDIxe_CNpTso8_841y4VEhJALdyBgkrBBeDtViB5zzfYYT_WJBwrWj_saiB3y-dtzAETpwMZuyaz_Em7loMKB3ReYA2Mo6zKJCfp8YAqymaJPq4X3RQ-CY-J01Ei1yTmrYbgUC8tdWHo4GWEAF-kG-2JESM5YXy3mVoa_I3gqm_qbEVSHPZsKgFWkIIBAhyEVXR4t0HfftQPc-3QQTwMEzD1OsRwFW19VRpq84ZgY"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 py-10">
+<!-- Workflow Stepper -->
+<div class="mb-12">
+<div class="flex items-center justify-between mb-4">
+<span class="text-xs font-semibold uppercase tracking-widest text-primary">Workflow Progress</span>
+<span class="text-sm font-medium opacity-60">Step 6 of 7 (85%)</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Steps 1-5 (Completed) -->
+<div class="h-1.5 flex-1 bg-primary rounded-full relative group">
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] bg-slate-800 px-2 py-1 rounded">Briefing</div>
+</div>
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+<!-- Step 6 (Active) -->
+<div class="h-1.5 flex-1 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full w-[85%] bg-primary"></div>
+</div>
+<!-- Step 7 (Pending) -->
+<div class="h-1.5 flex-1 bg-white/10 rounded-full"></div>
+</div>
+<div class="flex justify-between mt-4">
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5 opacity-40">
+<span class="material-symbols-outlined text-sm text-green-500">check_circle</span>
+<span class="text-[10px] font-bold uppercase">Briefing</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-sm text-primary">pending</span>
+<span class="text-[10px] font-bold uppercase text-primary">Approbation</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Page Title -->
+<div class="mb-10">
+<h2 class="text-3xl font-bold text-slate-100 mb-2">Approbation</h2>
+<p class="text-slate-400 font-medium">Envoyez pour validation avant publication.</p>
+</div>
+<!-- Main Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-10 gap-8">
+<!-- Left: Content Previews (60%) -->
+<div class="lg:col-span-6 space-y-6">
+<h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider px-1">Aperçu des contenus</h3>
+<!-- LinkedIn Card -->
+<div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 transition-all hover:border-white/20">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-blue-600/20 text-blue-400 rounded-xl flex items-center justify-center">
+<svg class="size-6 fill-current" viewbox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>
+</div>
+<div>
+<p class="font-bold">Post LinkedIn</p>
+<p class="text-xs text-slate-400">Agence Digitale Officiel</p>
+</div>
+</div>
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider">
+<span class="size-1.5 bg-amber-500 rounded-full animate-pulse"></span>
+                                En attente
+                            </span>
+</div>
+<div class="aspect-video rounded-xl bg-slate-800 overflow-hidden mb-4 border border-white/10">
+<img alt="LinkedIn content preview" class="w-full h-full object-cover" data-alt="Modern office workspace with laptop and abstract data visualisations" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDx8ayQUYbyOybfBVs3zOHeslsxiJmjK2YIGJoxg3dvDfy2vF41xt7-0kivXTwoBCK-zZudnhyvQoRykD4CRuRD8H_blR5K4jV7h3sRzi_hy4hyUFHZMNNOiqHov1TfGGrb3qLlKp8kADz0mNF_mKHwSbtGyyylMYJZl2sOv_Z5rzvx6wkJsAyr8_r6YoVDfPhvnXNsA_PSKKbvJP35Lsbw8DvrnXCkBEmWVkvrs_cYwPMhvzs3lhIIWsrwFH51CHkXJH-tEnOt3LFP"/>
+</div>
+<p class="text-slate-300 text-sm leading-relaxed mb-4 line-clamp-2">
+                            🚀 Nous sommes ravis de vous présenter notre nouvelle approche de l'IA générative pour les agences créatives... #innovation #IA #futureofwork
+                        </p>
+<div class="flex flex-wrap gap-2 mb-6">
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded border border-white/10 text-slate-400">#innovation</span>
+<span class="text-[10px] px-2 py-1 bg-white/5 rounded border border-white/10 text-slate-400">#IA</span>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-white/5 text-xs text-slate-500">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>24 Octobre, 10:00 AM</span>
+</div>
+<button class="text-primary font-bold hover:underline">Modifier</button>
+</div>
+</div>
+<!-- Instagram Card -->
+<div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 transition-all hover:border-white/20">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-pink-600/20 text-pink-400 rounded-xl flex items-center justify-center">
+<svg class="size-6 fill-current" viewbox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6m4.4 3a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m5-2.5a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"></path></svg>
+</div>
+<div>
+<p class="font-bold">Post Instagram</p>
+<p class="text-xs text-slate-400">@agencedigitale_off</p>
+</div>
+</div>
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-bold uppercase tracking-wider">
+<span class="size-1.5 bg-amber-500 rounded-full"></span>
+                                En attente
+                            </span>
+</div>
+<div class="aspect-square rounded-xl bg-slate-800 overflow-hidden mb-4 border border-white/10">
+<img alt="Instagram content preview" class="w-full h-full object-cover" data-alt="Abstract vibrant violet and blue flowing 3D wave pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASyYRqC3amaUlVf6zFmt-clED7NvvSm2HZ_n6PliAqazV66RtEqwHLCLq7bg0KloXrpBoYqw_3gsFmc2XXi7wRRydt0NvSAAkeWmiWUgzzn859yOzs3ldQ398WP7GnPf6VECG1_0nV29qUfjqdtVErEA9UgrBkXG3fxbKuVgu8XDCTXSW2LHN-JVJ_hqLiUlHd8yFiDYz9wQ0_-7cZK8iV6sisQUgykSZbKFtCeZML9hM9QGZw-a634sZHB_4IPCQjD0WGYTVlL9ll"/>
+</div>
+<div class="flex items-center justify-between pt-4 border-t border-white/5 text-xs text-slate-500">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>24 Octobre, 18:30 PM</span>
+</div>
+<button class="text-primary font-bold hover:underline">Modifier</button>
+</div>
+</div>
+</div>
+<!-- Right: Approval Settings (40%) -->
+<div class="lg:col-span-4 space-y-6">
+<h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider px-1">Paramètres d'approbation</h3>
+<div class="bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 space-y-6 sticky top-24">
+<!-- Approver -->
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Approbateur</label>
+<div class="relative group">
+<select class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent appearance-none">
+<option>Jean Dupont (Client - Marketing)</option>
+<option>Marie Curie (Team Lead)</option>
+<option>Sarah Parker (External)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">expand_more</span>
+</div>
+</div>
+<!-- External Link Toggle -->
+<div class="pt-4 border-t border-white/5">
+<div class="flex items-center justify-between mb-4">
+<span class="text-sm font-medium">Lien d'approbation externe</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="space-y-4">
+<div class="grid grid-cols-3 gap-2">
+<button class="px-2 py-2 text-[10px] font-bold border border-white/10 bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors">24h</button>
+<button class="px-2 py-2 text-[10px] font-bold border border-primary bg-primary/20 rounded-lg text-primary">48h</button>
+<button class="px-2 py-2 text-[10px] font-bold border border-white/10 bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors">7j</button>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 py-2.5 rounded-xl text-xs font-bold transition-all">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+                                        Copier le lien
+                                    </button>
+<button class="size-10 flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all">
+<span class="material-symbols-outlined text-lg">qr_code_2</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Message -->
+<div>
+<label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Message pour l'approbateur</label>
+<textarea class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-slate-600" placeholder="Décrivez les points clés pour cette validation..." rows="3"></textarea>
+</div>
+<!-- Main CTA -->
+<button class="w-full bg-gradient-to-r from-primary to-blue-600 hover:shadow-[0_0_20px_rgba(124,59,237,0.4)] text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 group">
+                            Envoyer pour approbation
+                            <span class="material-symbols-outlined text-lg group-hover:translate-x-1 transition-transform">send</span>
+</button>
+<!-- Auto-approve toggle -->
+<div class="flex items-center justify-between pt-4 border-t border-white/5">
+<span class="text-xs font-medium opacity-60">Auto-approuver (Propriétaire)</span>
+<label class="relative inline-flex items-center cursor-pointer scale-90">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- History Section -->
+<div class="pt-4">
+<button class="w-full flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider group">
+                                Historique des approbations
+                                <span class="material-symbols-outlined text-lg group-hover:rotate-180 transition-transform">expand_more</span>
+</button>
+<div class="mt-4 space-y-3">
+<div class="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-green-500/10 flex items-center justify-center text-green-500">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div>
+<p class="text-[11px] font-bold">Approuvé par RAMI AI</p>
+<p class="text-[9px] text-slate-500 uppercase">Hier à 14:20</p>
+</div>
+</div>
+<span class="text-[9px] font-bold text-green-500 px-2 py-0.5 bg-green-500/10 rounded uppercase">Clean</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5 opacity-60">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined text-sm">pending</span>
+</div>
+<div>
+<p class="text-[11px] font-bold">Validation Client</p>
+<p class="text-[9px] text-slate-500 uppercase">En attente</p>
+</div>
+</div>
+<span class="text-[9px] font-bold text-amber-500 px-2 py-0.5 bg-amber-500/10 rounded uppercase">Pending</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="mt-16 pt-8 border-t border-white/10 flex items-center justify-between">
+<button class="flex items-center gap-2 px-6 py-3 rounded-xl hover:bg-white/5 transition-colors text-sm font-medium opacity-60 hover:opacity-100">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+                    Retour
+                </button>
+<button class="flex items-center gap-2 px-8 py-3 rounded-xl bg-white/5 text-slate-500 font-bold text-sm cursor-not-allowed border border-white/10">
+                    Planifier
+                    <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Agency OS Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "accent-blue": "#2563eb",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                        "card-bg": "rgba(255, 255, 255, 0.04)",
+                        "card-border": "rgba(255, 255, 255, 0.08)",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0F;
+        }
+        .grid-pattern {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .blur-blob {
+            filter: blur(80px);
+            opacity: 0.15;
+            z-index: 0;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-100 min-h-screen overflow-hidden flex font-display">
+<!-- Decorative Elements -->
+<div class="fixed inset-0 grid-pattern pointer-events-none"></div>
+<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary blur-blob rounded-full pointer-events-none"></div>
+<div class="fixed bottom-[-10%] right-[10%] w-[35%] h-[35%] bg-accent-blue blur-blob rounded-full pointer-events-none"></div>
+<div class="fixed top-[20%] right-[-5%] w-[30%] h-[30%] bg-primary blur-blob rounded-full pointer-events-none"></div>
+<!-- Sidebar -->
+<aside class="w-[260px] flex-shrink-0 border-r border-white/10 bg-black/20 backdrop-blur-md flex flex-col z-20">
+<div class="p-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent-blue flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">temp_preferences_custom</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-white">RAMI</h1>
+</div>
+</div>
+<nav class="flex-1 px-4 py-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/20 text-primary border border-primary/20" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="font-medium">Projets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="font-medium">Calendrier</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">gallery_thumbnail</span>
+<span class="font-medium">Actifs AI</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-medium">Analytics</span>
+</a>
+<div class="pt-4 mt-4 border-t border-white/5">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-medium">Paramètres</span>
+</a>
+</div>
+</nav>
+<div class="p-4 border-t border-white/5">
+<div class="flex items-center gap-3 p-2 rounded-2xl bg-white/5">
+<img class="w-10 h-10 rounded-xl object-cover" data-alt="User profile avatar of an agency owner" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDubM6GkYbGLlYS_GX80HWMSYhSgq4tDxl75CW7C2gP3A85A34zQWX_rZvkrkbxEEOhKO_vFyenwns3rw6uzI9fmNIwZg47xTO4pLCiqrRUPJrNUPXnxqEQ6YTEx-LxbAcjUrqkcdjDny7VoJysXK4oCl83bWHHgf3rD5LlzS5mSMCJIza5t89EVFs8quq_jUABmuel8UpVAD_c9-nPLvWnUoI5vhpMv86fCNnf7vOYldvoFLTtB4bHDcy7MDr1RmHidAJB6zTfzCKH"/>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold text-white truncate">Julien Dupont</p>
+<p class="text-xs text-slate-500 truncate">Admin Agency</p>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm">unfold_more</span>
+</div>
+</div>
+</aside>
+<!-- Main View -->
+<main class="flex-1 flex flex-col h-screen relative z-10">
+<!-- Top Bar -->
+<header class="h-16 border-b border-white/10 px-8 flex items-center justify-between bg-black/10 backdrop-blur-sm">
+<h2 class="text-lg font-semibold text-white">Dashboard Overview</h2>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none text-slate-200 w-64" placeholder="Rechercher..." type="text"/>
+</div>
+<button class="w-10 h-10 rounded-xl glass-card flex items-center justify-center text-slate-300 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Nouveau Projet
+                </button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+<!-- Row 1: KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">post_add</span>
+</div>
+<span class="text-emerald-400 text-xs font-medium bg-emerald-400/10 px-2 py-0.5 rounded-full">+12%</span>
+</div>
+<p class="text-slate-400 text-sm">Posts ce mois</p>
+<h3 class="text-2xl font-bold text-white mt-1">42</h3>
+</div>
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 rounded-lg bg-accent-blue/10 text-accent-blue">
+<span class="material-symbols-outlined">palette</span>
+</div>
+<span class="text-emerald-400 text-xs font-medium bg-emerald-400/10 px-2 py-0.5 rounded-full">+24%</span>
+</div>
+<p class="text-slate-400 text-sm">Visuels générés</p>
+<h3 class="text-2xl font-bold text-white mt-1">128</h3>
+</div>
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group flex items-center justify-between">
+<div>
+<p class="text-slate-400 text-sm">Score Brand DNA</p>
+<h3 class="text-2xl font-bold text-white mt-1">94%</h3>
+<p class="text-emerald-400 text-xs mt-2">+2% vs last week</p>
+</div>
+<div class="relative w-16 h-16">
+<svg class="w-full h-full rotate-[-90deg]">
+<circle class="text-white/5" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-width="6"></circle>
+<circle class="text-primary" cx="32" cy="32" fill="transparent" r="28" stroke="currentColor" stroke-dasharray="175.9" stroke-dashoffset="10.5" stroke-width="6"></circle>
+</svg>
+<span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold">94%</span>
+</div>
+</div>
+<div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="p-2 rounded-lg bg-amber-400/10 text-amber-400">
+<span class="material-symbols-outlined">event_upcoming</span>
+</div>
+</div>
+<p class="text-slate-400 text-sm">Prochaine publication</p>
+<h3 class="text-lg font-bold text-white mt-1">Demain, 10:00</h3>
+<p class="text-slate-500 text-xs mt-1">Campagne Printemps</p>
+</div>
+</div>
+<!-- Row 2: Split Activity & Chart -->
+<div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
+<!-- Activity List -->
+<div class="lg:col-span-6 glass-card rounded-2xl flex flex-col overflow-hidden">
+<div class="p-6 border-b border-white/5 flex justify-between items-center">
+<h3 class="font-bold text-white">Activité récente</h3>
+<button class="text-primary text-sm font-medium hover:underline">Voir tout</button>
+</div>
+<div class="p-0">
+<table class="w-full text-left">
+<thead class="bg-white/[0.02] text-xs uppercase text-slate-500">
+<tr>
+<th class="px-6 py-4 font-semibold">Projet</th>
+<th class="px-6 py-4 font-semibold">Plateforme</th>
+<th class="px-6 py-4 font-semibold">Statut</th>
+<th class="px-6 py-4 font-semibold">Dernière MAJ</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5 text-sm">
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4 text-white font-medium">Campagne Printemps</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-pink-500/20 text-pink-500 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">photo_camera</span>
+</div>
+<span class="text-slate-300">Instagram</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 uppercase">Publié</span>
+</td>
+<td class="px-6 py-4 text-slate-500 italic">Il y a 2h</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4 text-white font-medium">Article IA &amp; Futur</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-blue-500/20 text-blue-500 flex items-center justify-center">
+<span class="material-symbols-outlined text-[16px]">article</span>
+</div>
+<span class="text-slate-300">LinkedIn</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 uppercase">En révision</span>
+</td>
+<td class="px-6 py-4 text-slate-500 italic">Il y a 5h</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4 text-white font-medium">Teaser Video v2</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded bg-black/40 text-white flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-[16px]">play_circle</span>
+</div>
+<span class="text-slate-300">TikTok</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-500/20 text-slate-400 uppercase">Brouillon</span>
+</td>
+<td class="px-6 py-4 text-slate-500 italic">Hier, 18:30</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Platform Chart -->
+<div class="lg:col-span-4 glass-card rounded-2xl flex flex-col p-6">
+<h3 class="font-bold text-white mb-6">Répartition par plateforme</h3>
+<div class="flex-1 flex flex-col justify-between">
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-xs mb-1.5">
+<span class="text-slate-300">Instagram</span>
+<span class="text-white font-bold">45%</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1.5">
+<span class="text-slate-300">LinkedIn</span>
+<span class="text-white font-bold">30%</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-accent-blue h-full w-[30%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1.5">
+<span class="text-slate-300">Twitter (X)</span>
+<span class="text-white font-bold">15%</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-sky-400 h-full w-[15%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1.5">
+<span class="text-slate-300">Autre</span>
+<span class="text-white font-bold">10%</span>
+</div>
+<div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+<div class="bg-slate-500 h-full w-[10%]"></div>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-6 border-t border-white/5 text-center">
+<p class="text-slate-500 text-xs">Total de 186 contenus actifs</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 3: Calendar Strip -->
+<div class="glass-card rounded-2xl overflow-hidden">
+<div class="p-6 border-b border-white/5 flex justify-between items-center">
+<h3 class="font-bold text-white">Calendrier aperçu</h3>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<span class="text-sm font-medium">Semaine du 12 Juin</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-7 border-collapse">
+<!-- Day Columns -->
+<div class="border-r border-white/5 p-4 bg-white/[0.01]">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-3">Lun 12</p>
+<div class="space-y-2">
+<div class="p-2 rounded-lg bg-primary/10 border-l-2 border-primary">
+<p class="text-[10px] text-white font-medium truncate">Reel IG #1</p>
+</div>
+</div>
+</div>
+<div class="border-r border-white/5 p-4">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-3">Mar 13</p>
+<div class="space-y-2">
+<div class="p-2 rounded-lg bg-accent-blue/10 border-l-2 border-accent-blue">
+<p class="text-[10px] text-white font-medium truncate">Article Blog</p>
+</div>
+<div class="p-2 rounded-lg bg-emerald-500/10 border-l-2 border-emerald-500">
+<p class="text-[10px] text-white font-medium truncate">Email Blast</p>
+</div>
+</div>
+</div>
+<div class="border-r border-white/5 p-4 bg-white/[0.01]">
+<p class="text-[10px] text-primary uppercase font-black mb-3">Mer 14 (Auj)</p>
+<div class="space-y-2">
+<div class="p-2 rounded-lg bg-primary/20 border-l-2 border-primary shadow-lg shadow-primary/10">
+<p class="text-[10px] text-white font-bold truncate">Webinar Live</p>
+<p class="text-[9px] text-primary mt-1">16:00</p>
+</div>
+</div>
+</div>
+<div class="border-r border-white/5 p-4">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-3">Jeu 15</p>
+<div class="flex items-center justify-center h-12 border border-dashed border-white/10 rounded-lg">
+<span class="material-symbols-outlined text-slate-700 text-sm">add</span>
+</div>
+</div>
+<div class="border-r border-white/5 p-4">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-3">Ven 16</p>
+<div class="space-y-2">
+<div class="p-2 rounded-lg bg-pink-500/10 border-l-2 border-pink-500">
+<p class="text-[10px] text-white font-medium truncate">IG Story X3</p>
+</div>
+</div>
+</div>
+<div class="border-r border-white/5 p-4 bg-white/[0.01]">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-3">Sam 17</p>
+</div>
+<div class="p-4">
+<p class="text-[10px] text-slate-500 uppercase font-bold mb-3">Dim 18</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</body></html>

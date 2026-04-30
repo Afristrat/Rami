@@ -49,44 +49,44 @@ export function computeDnaScore(data: Partial<BrandDnaFormData>): number {
 }
 
 export function getDnaScoreLevel(score: number): {
-  label: string
+  labelKey: string
   color: string
   bgColor: string
   borderColor: string
-  description: string
+  descriptionKey: string
 } {
   if (score >= 0.85) {
     return {
-      label: "Excellent",
+      labelKey: "excellent",
       color: "text-green-700 dark:text-green-400",
       bgColor: "bg-green-50 dark:bg-green-950/40",
       borderColor: "border-green-200 dark:border-green-900/60",
-      description: "Brand DNA complet. RAMI génèrera du contenu hautement calibré.",
+      descriptionKey: "excellent",
     }
   }
   if (score >= 0.65) {
     return {
-      label: "Bon",
+      labelKey: "good",
       color: "text-blue-700 dark:text-blue-400",
       bgColor: "bg-blue-50 dark:bg-blue-950/40",
       borderColor: "border-blue-200 dark:border-blue-900/60",
-      description: "Bon niveau de détail. Ajoutez logo et culture pour optimiser.",
+      descriptionKey: "good",
     }
   }
   if (score >= 0.40) {
     return {
-      label: "En cours",
+      labelKey: "inProgress",
       color: "text-amber-700 dark:text-amber-400",
       bgColor: "bg-amber-50 dark:bg-amber-950/40",
       borderColor: "border-amber-200 dark:border-amber-900/60",
-      description: "Continuez à remplir les informations pour améliorer la précision.",
+      descriptionKey: "inProgress",
     }
   }
   return {
-    label: "Incomplet",
+    labelKey: "incomplete",
     color: "text-muted-foreground",
     bgColor: "bg-muted/30",
     borderColor: "border-border",
-    description: "Commencez par renseigner le nom, secteur et positionnement.",
+    descriptionKey: "incomplete",
   }
 }

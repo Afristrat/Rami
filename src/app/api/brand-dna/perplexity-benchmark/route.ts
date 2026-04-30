@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { runPerplexityBenchmark } from "@/lib/services/perplexity/benchmark"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 export async function POST(_req: NextRequest) {
   const supabase = await createClient()
@@ -25,13 +26,9 @@ export async function POST(_req: NextRequest) {
   }
 
   // Récupérer le tenant de l'utilisateur
-  const { data: userData, error: userError } = await supabase
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single()
+  const tenantId = await resolveUserTenant(supabase, user.id)
 
-  if (userError || !userData?.tenant_id) {
+  if (!tenantId) {
     return NextResponse.json({ error: "Tenant introuvable" }, { status: 404 })
   }
 
@@ -39,7 +36,7 @@ export async function POST(_req: NextRequest) {
   const { data: tenant, error: tenantError } = await supabase
     .from("tenants")
     .select("brand_dna")
-    .eq("id", userData.tenant_id)
+    .eq("id", tenantId)
     .single()
 
   if (tenantError) {
@@ -57,7 +54,7 @@ export async function POST(_req: NextRequest) {
     )
   }
 
-  const result = await runPerplexityBenchmark(userData.tenant_id, sector, primaryCulture)
+  const result = await runPerplexityBenchmark(tenantId, sector, primaryCulture)
 
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 502 })

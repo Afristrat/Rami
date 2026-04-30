@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0a0a0f",
+                        "card-dark": "#111118",
+                        "table-dark": "#0e0e17",
+                        "border-dark": "#1e1e2e",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "cal": ["Inter", "sans-serif"] /* Fallback for Cal Sans if not available */
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "2rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen relative overflow-x-hidden">
+<!-- Background Blobs -->
+<div class="blob bg-primary top-[-10%] left-[-10%]"></div>
+<div class="blob bg-blue-600 bottom-[-10%] right-[-10%]"></div>
+<div class="blob bg-indigo-500 top-[20%] right-[20%]"></div>
+<div class="relative z-10 flex flex-col min-h-screen">
+<!-- Top Navigation -->
+<header class="border-b border-border-dark bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
+<div class="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">auto_awesome</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">RAMI Agency</h1>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary font-medium text-sm" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-slate-100 font-medium text-sm transition-colors" href="#">Marques</a>
+<a class="text-slate-400 hover:text-slate-100 font-medium text-sm transition-colors" href="#">Analytiques</a>
+<a class="text-slate-400 hover:text-slate-100 font-medium text-sm transition-colors" href="#">Paramètres</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="bg-card-dark border-border-dark rounded-xl pl-10 pr-4 py-1.5 text-sm w-64 focus:ring-primary focus:border-primary" placeholder="Rechercher..." type="text"/>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-card-dark border border-border-dark text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full border border-primary p-0.5">
+<img alt="Avatar de l'utilisateur" class="w-full h-full rounded-full bg-slate-800" data-alt="User profile avatar circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOli1NjdVeaEvznOAVupXYD_FXzCxBQi9Im0W1XzZqQWlO9IxSPf_s-3ZTPnbEsUI_PnAUIV_XIcYmF-qpuCPMj9II3iPVnV57XHvUXHSZpaDAZGn-yQHQcXxvmm-sPHJJ19gbLXmguF2wr4G_4yA43l5TMBEWaRZi9GkoMemapWtFZ9VQqPsUyGrxZVK1foE1TW-tL2IM66I8qShD9oUtvec0GAAITrUt4UZe5-hrY65sxR7-K_KY9mcOCp0PxuyCYDxxNs6szxA2"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1400px] mx-auto px-6 py-8 flex-1 w-full">
+<!-- Title & Date Selector -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h2 class="text-3xl font-black tracking-tight text-white mb-2">Vue d'ensemble — Toutes les marques</h2>
+<p class="text-slate-400 text-sm">Suivi de performance multi-tenant pour le plan Agency</p>
+</div>
+<div class="flex items-center bg-card-dark border border-border-dark rounded-xl p-1">
+<button class="p-2 hover:bg-white/5 rounded-lg text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<span class="px-4 text-sm font-semibold text-slate-200">Octobre 2023</span>
+<button class="p-2 hover:bg-white/5 rounded-lg text-slate-400 transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- KPI Pills Row -->
+<div class="flex flex-wrap gap-3 mb-8">
+<div class="flex items-center gap-2 bg-slate-800/40 border border-slate-700/50 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-slate-400 text-sm">check_circle</span>
+<span class="text-sm font-medium text-slate-300">12 marques actives</span>
+</div>
+<div class="flex items-center gap-2 bg-primary/20 border border-primary/30 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-primary text-sm">article</span>
+<span class="text-sm font-medium text-slate-100">4 820 posts ce mois</span>
+</div>
+<div class="flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-green-500 text-sm">groups</span>
+<span class="text-sm font-medium text-slate-100">Reach combiné : 2.4M</span>
+</div>
+</div>
+<!-- Aggregate Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-card-dark border border-border-dark p-6 rounded-2xl">
+<div class="flex justify-between items-start mb-4">
+<span class="text-slate-400 font-medium text-sm">Posts total</span>
+<div class="flex items-center gap-1 text-green-500 bg-green-500/10 px-2 py-0.5 rounded text-xs font-bold">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+                            +12.5%
+                        </div>
+</div>
+<div class="text-4xl font-bold tracking-tighter text-white font-cal">45.2K</div>
+<div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%] rounded-full"></div>
+</div>
+</div>
+<div class="bg-card-dark border border-border-dark p-6 rounded-2xl">
+<div class="flex justify-between items-start mb-4">
+<span class="text-slate-400 font-medium text-sm">Reach total</span>
+<div class="flex items-center gap-1 text-red-500 bg-red-500/10 px-2 py-0.5 rounded text-xs font-bold">
+<span class="material-symbols-outlined text-xs">trending_down</span>
+                            -2.1%
+                        </div>
+</div>
+<div class="text-4xl font-bold tracking-tighter text-white font-cal">2.4M</div>
+<div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-indigo-500 w-[62%] rounded-full"></div>
+</div>
+</div>
+<div class="bg-card-dark border border-border-dark p-6 rounded-2xl">
+<div class="flex justify-between items-start mb-4">
+<span class="text-slate-400 font-medium text-sm">Engagement moyen</span>
+<div class="flex items-center gap-1 text-green-500 bg-green-500/10 px-2 py-0.5 rounded text-xs font-bold">
+<span class="material-symbols-outlined text-xs">trending_up</span>
+                            +0.4%
+                        </div>
+</div>
+<div class="text-4xl font-bold tracking-tighter text-white font-cal">4.8%</div>
+<div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-green-500 w-[48%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Main Comparison Table -->
+<div class="bg-table-dark border border-border-dark rounded-2xl overflow-hidden">
+<div class="p-6 border-b border-border-dark flex justify-between items-center">
+<h3 class="font-bold text-lg">Comparaison des marques</h3>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Nouvelle marque
+                    </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead>
+<tr class="text-slate-400 font-medium border-b border-border-dark">
+<th class="px-6 py-4 w-10">
+<input class="rounded border-slate-700 bg-slate-900 text-primary focus:ring-primary/50" type="checkbox"/>
+</th>
+<th class="px-6 py-4">Marque</th>
+<th class="px-6 py-4">Posts ce mois</th>
+<th class="px-6 py-4">Reach</th>
+<th class="px-6 py-4">Engagement</th>
+<th class="px-6 py-4">Score DNA</th>
+<th class="px-6 py-4">Plan</th>
+<th class="px-6 py-4 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-dark/50">
+<!-- Row 1 -->
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<input class="rounded border-slate-700 bg-slate-900 text-primary focus:ring-primary/50" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-[10px] font-bold text-white uppercase">LV</div>
+<div>
+<div class="text-slate-100 font-semibold">Luxe Vision</div>
+<div class="text-slate-500 text-[11px]">Mode &amp; Luxe</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">124</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-primary/40 h-2 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-3 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-primary h-5 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-4 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">850K</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-indigo-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500 h-6 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-3 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-4 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">5.2%</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-green-500/40 h-3 rounded-t-sm"></div>
+<div class="w-full bg-green-500 h-5 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-2 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-500 border border-green-500/20">98 A+</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase tracking-wider">Agency</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-1 hover:bg-white/10 rounded-lg transition-colors text-slate-400">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<input class="rounded border-slate-700 bg-slate-900 text-primary focus:ring-primary/50" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">TK</div>
+<div>
+<div class="text-slate-100 font-semibold">TechKeep</div>
+<div class="text-slate-500 text-[11px]">SaaS Tech</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">42</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-primary/40 h-2 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-2 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-3 rounded-t-sm"></div>
+<div class="w-full bg-primary h-4 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-3 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">120K</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-indigo-500/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-2 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-3 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-5 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500 h-6 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">3.8%</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-green-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-green-500 h-4 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-5 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-3 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-2 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">84 B+</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20 uppercase tracking-wider">Solo</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-1 hover:bg-white/10 rounded-lg transition-colors text-slate-400">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<input class="rounded border-slate-700 bg-slate-900 text-primary focus:ring-primary/50" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">EF</div>
+<div>
+<div class="text-slate-100 font-semibold">EcoFlow</div>
+<div class="text-slate-500 text-[11px]">Solaire &amp; Durable</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">290</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-primary/40 h-5 rounded-t-sm"></div>
+<div class="w-full bg-primary h-6 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-5 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-4 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">1.4M</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-indigo-500 h-6 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-5 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-5 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-4 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">6.1%</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-green-500/40 h-3 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-green-500 h-5 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-4 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-5 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-500 border border-green-500/20">95 A</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-500 border border-red-500/20 uppercase tracking-wider">Agency+</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-1 hover:bg-white/10 rounded-lg transition-colors text-slate-400">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<input class="rounded border-slate-700 bg-slate-900 text-primary focus:ring-primary/50" type="checkbox"/>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-[10px] font-bold text-white uppercase">NM</div>
+<div>
+<div class="text-slate-100 font-semibold">NoMad</div>
+<div class="text-slate-500 text-[11px]">Voyage</div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">12</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-primary/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-2 rounded-t-sm"></div>
+<div class="w-full bg-primary h-3 rounded-t-sm"></div>
+<div class="w-full bg-primary/40 h-1 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">5K</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-indigo-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500 h-2 rounded-t-sm"></div>
+<div class="w-full bg-indigo-500/40 h-1 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-medium text-slate-200">1.2%</span>
+<div class="w-16 h-6 flex items-end gap-[1px]">
+<div class="w-full bg-green-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-green-500 h-1.5 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-1 rounded-t-sm"></div>
+<div class="w-full bg-green-500/40 h-1 rounded-t-sm"></div>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-500/10 text-slate-400 border border-slate-500/20">45 D</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-700/50 text-slate-400 border border-slate-600/50 uppercase tracking-wider">Free</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-1 hover:bg-white/10 rounded-lg transition-colors text-slate-400">
+<span class="material-symbols-outlined text-lg">more_horiz</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-border-dark flex items-center justify-between">
+<p class="text-slate-400 text-xs">Affichage de 4 sur 12 marques</p>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 bg-card-dark border border-border-dark rounded-lg text-xs font-bold hover:bg-white/5 transition-colors disabled:opacity-50" disabled="">Précédent</button>
+<button class="px-3 py-1.5 bg-card-dark border border-border-dark rounded-lg text-xs font-bold hover:bg-white/5 transition-colors">Suivant</button>
+</div>
+</div>
+</div>
+</main>
+<footer class="max-w-[1400px] mx-auto px-6 py-8 w-full border-t border-border-dark flex justify-between items-center mt-auto">
+<div class="text-slate-500 text-xs">© 2023 RAMI Agency — Plan Agency Pro</div>
+<div class="flex gap-4">
+<a class="text-slate-500 hover:text-slate-300 text-xs transition-colors" href="#">Documentation</a>
+<a class="text-slate-500 hover:text-slate-300 text-xs transition-colors" href="#">Support</a>
+<a class="text-slate-500 hover:text-slate-300 text-xs transition-colors" href="#">Confidentialité</a>
+</div>
+</footer>
+</div>
+</body></html>

@@ -2,66 +2,47 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Link2, User, Users, Bell, AlertTriangle } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
-
-const NAV_ITEMS = [
-  {
-    href: "/dashboard/settings/connections",
-    label: "Connexions",
-    icon: Link2,
-    danger: false,
-  },
-  {
-    href: "/dashboard/settings/profile",
-    label: "Profil",
-    icon: User,
-    danger: false,
-  },
-  {
-    href: "/dashboard/settings/team",
-    label: "Équipe",
-    icon: Users,
-    danger: false,
-  },
-  {
-    href: "/dashboard/settings/notifications",
-    label: "Notifications",
-    icon: Bell,
-    danger: false,
-  },
-  {
-    href: "/dashboard/settings/danger",
-    label: "Zone de danger",
-    icon: AlertTriangle,
-    danger: true,
-  },
-]
 
 export function SettingsNav() {
   const pathname = usePathname()
+  const t = useTranslations("settings")
+
+  const NAV_ITEMS = [
+    { href: "/settings/profile", labelKey: "general" as const },
+    { href: "/settings/connections", labelKey: "connections" as const },
+    { href: "/settings/team", labelKey: "team" as const },
+    { href: "/settings/billing", labelKey: "billingSettings" as const },
+  ]
 
   return (
-    <nav className="flex flex-row gap-1 lg:flex-col">
-      {NAV_ITEMS.map(({ href, label, icon: Icon, danger }) => {
-        const active = pathname === href || pathname.startsWith(href + "/")
+    <div className="flex gap-8 border-b border-border dark:border-white/5">
+      {NAV_ITEMS.map(({ href, labelKey }) => {
+        const active =
+          pathname === href ||
+          pathname.startsWith(href + "/") ||
+          // /settings/notifications and /settings/danger are sub-sections of Général
+          (href === "/settings/profile" &&
+            (pathname === "/settings/notifications" || pathname === "/settings/danger"))
         return (
           <Link
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              active && !danger && "bg-primary/10 text-primary",
-              active && danger && "bg-destructive/10 text-destructive",
-              !active && !danger && "text-muted-foreground hover:bg-muted hover:text-foreground",
-              !active && danger && "text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              "pb-4 text-sm font-medium transition-colors relative",
+              active
+                ? "text-foreground dark:text-white font-bold border-b-2 border-violet-600 dark:border-violet-500"
+                : "text-muted-foreground hover:text-foreground dark:text-slate-400 dark:hover:text-slate-200 border-b-2 border-transparent"
             )}
           >
-            <Icon className="size-4 shrink-0" />
-            {label}
+            {t(labelKey)}
+            {active && (
+              <span className="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-violet-500 blur-[2px] dark:block hidden" />
+            )}
           </Link>
         )
       })}
-    </nav>
+    </div>
   )
 }

@@ -1,12 +1,15 @@
-import type { Metadata } from "next"
 import { redirect } from "next/navigation"
+import { getTranslations } from "next-intl/server"
 import { createClient } from "@/lib/supabase/server"
 import { SchedulerCalendar } from "@/components/scheduler/SchedulerCalendar"
 import { getPostsForMonth, getUpcomingPosts, getDraftPosts } from "@/app/actions/scheduler"
 
-export const metadata: Metadata = {
-  title: "Calendrier — RAMI",
-  description: "Planifiez et gérez vos publications sur les réseaux sociaux.",
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return {
+    title: t("calendar"),
+    description: t("calendarDescription"),
+  }
 }
 
 export default async function CalendarPage() {
@@ -29,29 +32,12 @@ export default async function CalendarPage() {
   const initialDrafts = draftsResult.success ? draftsResult.data : []
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header de page */}
-      <div className="border-b border-border bg-card/50 px-6 py-4 backdrop-blur-sm">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
-              Calendrier de publication
-            </h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              Planifiez et visualisez vos posts par plateforme.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Contenu */}
-      <div className="flex-1 overflow-auto p-6">
-        <SchedulerCalendar
-          initialPosts={initialPosts}
-          initialUpcoming={initialUpcoming}
-          initialDrafts={initialDrafts}
-        />
-      </div>
+    <div className="flex h-full flex-col overflow-hidden">
+      <SchedulerCalendar
+        initialPosts={initialPosts}
+        initialUpcoming={initialUpcoming}
+        initialDrafts={initialDrafts}
+      />
     </div>
   )
 }

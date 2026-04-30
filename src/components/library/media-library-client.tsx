@@ -1,7 +1,22 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { useState, useCallback, useTransition, useEffect } from "react"
-import { Search, Images, FileText, Play, LayoutGrid, Loader2, FolderOpen, UploadCloud, Wand2 } from "lucide-react"
+import {
+  Search,
+  Images,
+  FileText,
+  Play,
+  LayoutGrid,
+  List,
+  Loader2,
+  FolderOpen,
+  UploadCloud,
+  Wand2,
+  X,
+  Plus,
+} from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -14,14 +29,15 @@ import {
 import { MediaUploadZone } from "./media-upload-zone"
 import { MediaCard } from "./media-card"
 import { MediaLightbox } from "./media-lightbox"
+import { MediaUploadDialog } from "./media-upload-dialog"
 
 type FilterType = "all" | MediaFileType
 
-const FILTER_TABS: { id: FilterType; label: string; icon: React.ElementType }[] = [
-  { id: "all", label: "Tous", icon: LayoutGrid },
-  { id: "image", label: "Images", icon: Images },
-  { id: "video", label: "Vidéos", icon: Play },
-  { id: "document", label: "Documents", icon: FileText },
+const FILTER_TABS: { id: FilterType; labelKey: string; icon: React.ElementType }[] = [
+  { id: "all", labelKey: "all", icon: LayoutGrid },
+  { id: "image", labelKey: "images", icon: Images },
+  { id: "video", labelKey: "videos", icon: Play },
+  { id: "document", labelKey: "documents", icon: FileText },
 ]
 
 interface MediaLibraryClientProps {
@@ -30,14 +46,17 @@ interface MediaLibraryClientProps {
 }
 
 export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibraryClientProps) {
+  const t = useTranslations("library")
   const [assets, setAssets] = useState<MediaAsset[]>(initialAssets)
   const [total, setTotal] = useState(initialTotal)
   const [filter, setFilter] = useState<FilterType>("all")
   const [search, setSearch] = useState("")
   const [lightboxAsset, setLightboxAsset] = useState<MediaAsset | null>(null)
+  const [showUploadDialog, setShowUploadDialog] = useState(false)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [dnaScoreFilter, setDnaScoreFilter] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  // Rechargement des assets lors du changement de filtre/recherche
   const loadAssets = useCallback((fileType: FilterType, searchQuery: string) => {
     startTransition(async () => {
       const result = await getMediaAssetsAction({
@@ -53,7 +72,6 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
     })
   }, [])
 
-  // Debounce de la recherche
   useEffect(() => {
     const timer = setTimeout(() => {
       loadAssets(filter, search)
@@ -73,7 +91,7 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
     if ("error" in result) {
       toast.error(result.error)
     } else {
-      toast.success(`"${file.name}" ajouté à la médiathèque.`)
+      toast.success(t("addedToLibrary", { name: file.name }))
       setAssets((prev) => [result.data, ...prev])
       setTotal((prev) => prev + 1)
     }
@@ -88,7 +106,7 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
       if ("error" in result) {
         toast.error(result.error)
       } else {
-        toast.success(`"${asset.originalFilename}" supprimé.`)
+        toast.success(t("deletedFromLibrary", { name: asset.originalFilename }))
         setAssets((prev) => prev.filter((a) => a.id !== id))
         setTotal((prev) => prev - 1)
       }
@@ -96,61 +114,116 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
   }, [assets])
 
   const handleUseInPost = useCallback((asset: MediaAsset) => {
-    // Navigation vers le workflow de création avec l'asset pré-sélectionné
     if (asset.publicUrl) {
       const url = `/dashboard/create?mediaUrl=${encodeURIComponent(asset.publicUrl)}&mediaId=${asset.id}`
       window.location.href = url
     } else {
-      toast.info("Utilisez cet asset depuis le workflow de création.")
+      toast.info(t("useFromWorkflow"))
     }
   }, [])
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <div className="shrink-0 border-b border-border px-6 py-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="shrink-0 px-6 py-6 lg:px-8">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">Médiathèque</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {total} fichier{total !== 1 ? "s" : ""} dans votre bibliothèque
+            <h1 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
+              Bibliothèque
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Gérez et analysez vos ressources média haute performance.
             </p>
           </div>
-        </div>
-
-        {/* Filtres + Recherche */}
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-          {/* Tabs filtres */}
-          <div className="flex shrink-0 gap-1 rounded-lg bg-muted p-1" role="tablist">
-            {FILTER_TABS.map(({ id, label, icon: Icon }) => (
+          <div className="flex items-center gap-3">
+            {/* View toggle */}
+            <div className="flex rounded-lg border border-gray-200/60 dark:border-white/10 bg-white dark:bg-white/5 p-1">
               <button
-                key={id}
-                role="tab"
-                aria-selected={filter === id}
-                onClick={() => handleFilterChange(id)}
+                onClick={() => setViewMode("grid")}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all",
-                  filter === id
-                    ? "bg-background text-foreground shadow-sm"
+                  "rounded-md p-1.5 transition-colors",
+                  viewMode === "grid"
+                    ? "bg-primary/10 dark:bg-white/10 text-primary shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <Icon className="size-3.5" />
-                {label}
+                <LayoutGrid className="size-4" />
               </button>
-            ))}
-          </div>
+              <button
+                onClick={() => setViewMode("list")}
+                className={cn(
+                  "rounded-md p-1.5 transition-colors",
+                  viewMode === "list"
+                    ? "bg-primary/10 dark:bg-white/10 text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <List className="size-4" />
+              </button>
+            </div>
 
-          {/* Recherche */}
-          <div className="relative flex-1 sm:max-w-xs">
+            {/* Import button */}
+            <button
+              onClick={() => setShowUploadDialog(true)}
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-rami-blue px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition-transform hover:scale-[1.02] hover:opacity-90"
+            >
+              <Plus className="size-4" />
+              Importer
+            </button>
+          </div>
+        </div>
+
+        {/* Filters row */}
+        <div className="mt-5 flex flex-wrap items-center gap-2.5">
+          {/* Format filter pills */}
+          {FILTER_TABS.map(({ id, labelKey, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => handleFilterChange(id)}
+              className={cn(
+                "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all",
+                filter === id
+                  ? "border-primary/20 bg-primary/10 text-primary"
+                  : "border-gray-200/60 dark:border-white/10 bg-white dark:bg-white/5 text-muted-foreground hover:bg-gray-100 dark:hover:bg-white/10 hover:text-foreground"
+              )}
+            >
+              <Icon className="size-3.5" />
+              {t(labelKey)}
+            </button>
+          ))}
+
+          {/* DNA Score filter */}
+          <button
+            onClick={() => setDnaScoreFilter(!dnaScoreFilter)}
+            className={cn(
+              "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all",
+              dnaScoreFilter
+                ? "border-primary/20 bg-primary/10 text-primary"
+                : "border-gray-200/60 dark:border-white/10 bg-white dark:bg-white/5 text-muted-foreground"
+            )}
+          >
+            Score DNA &ge; 0.9
+            {dnaScoreFilter && (
+              <X className="size-3" />
+            )}
+          </button>
+
+          {/* Date filter */}
+          <button className="flex items-center gap-1.5 rounded-full border border-gray-200/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+            Date
+            <Search className="size-3" />
+          </button>
+
+          {/* Search */}
+          <div className="relative flex-1 min-w-[200px] sm:max-w-xs ml-auto">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
-              placeholder="Rechercher un fichier…"
+              placeholder={t("searchPlaceholder")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className={cn(
-                "h-8 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm",
+                "h-8 w-full rounded-lg border border-gray-200/60 dark:border-white/10 bg-white dark:bg-white/5 pl-9 pr-3 text-sm",
                 "placeholder:text-muted-foreground",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0",
                 "transition-colors hover:border-primary/50"
@@ -158,34 +231,31 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
             />
           </div>
 
-          {/* Indicateur chargement */}
           {isPending && (
             <Loader2 className="size-4 shrink-0 animate-spin text-muted-foreground" />
           )}
         </div>
       </div>
 
-      {/* Contenu scrollable */}
-      <div className="flex-1 overflow-y-auto p-6">
-        {/* Zone d'upload */}
-        <div className="mb-6">
-          <MediaUploadZone onUpload={handleUpload} />
-        </div>
-
-        {/* Grille masonry */}
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto px-6 pb-8 lg:px-8">
         {assets.length === 0 ? (
           <EmptyState search={search} filter={filter} />
         ) : (
-          <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 xl:columns-5">
+          <div className={cn(
+            viewMode === "grid"
+              ? "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+              : "space-y-2"
+          )}>
             {assets.map((asset) => (
-              <div key={asset.id} className="mb-3 break-inside-avoid">
-                <MediaCard
-                  asset={asset}
-                  onDelete={handleDelete}
-                  onUseInPost={handleUseInPost}
-                  onClick={setLightboxAsset}
-                />
-              </div>
+              <MediaCard
+                key={asset.id}
+                asset={asset}
+                onDelete={handleDelete}
+                onUseInPost={handleUseInPost}
+                onClick={setLightboxAsset}
+                viewMode={viewMode}
+              />
             ))}
           </div>
         )}
@@ -199,22 +269,30 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
         onDelete={handleDelete}
         onUseInPost={handleUseInPost}
       />
+
+      {/* Upload Dialog */}
+      <MediaUploadDialog
+        open={showUploadDialog}
+        onClose={() => setShowUploadDialog(false)}
+        onUpload={handleUpload}
+      />
     </div>
   )
 }
 
 function EmptyState({ search, filter }: { search: string; filter: FilterType }) {
+  const t = useTranslations("library")
   const isFiltered = search.trim() || filter !== "all"
 
   if (isFiltered) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+        <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-muted dark:bg-white/5 text-muted-foreground">
           <Search className="size-8" />
         </div>
-        <h3 className="text-base font-semibold text-foreground">Aucun résultat</h3>
+        <h3 className="text-base font-semibold text-foreground">{t("noResultsTitle")}</h3>
         <p className="mt-1 max-w-xs text-sm text-muted-foreground">
-          Aucun fichier ne correspond à votre recherche. Essayez d&apos;autres mots-clés.
+          {t("noResultsDesc")}
         </p>
       </div>
     )
@@ -222,7 +300,6 @@ function EmptyState({ search, filter }: { search: string; filter: FilterType }) 
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      {/* Illustration */}
       <div className="relative mb-6">
         <div className="flex size-24 items-center justify-center rounded-3xl bg-primary/10">
           <FolderOpen className="size-12 text-primary/60" />
@@ -232,26 +309,25 @@ function EmptyState({ search, filter }: { search: string; filter: FilterType }) 
         </div>
       </div>
 
-      <h3 className="text-lg font-semibold text-foreground">Médiathèque vide</h3>
+      <h3 className="text-lg font-semibold text-foreground">{t("emptyTitle")}</h3>
       <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-        Importez vos images, vidéos et documents pour les réutiliser dans vos publications.
-        Vos visuels générés par RAMI apparaîtront aussi ici.
+        {t("emptyDesc")}
       </p>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <label
           htmlFor="media-upload-trigger"
-          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-rami-blue px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <UploadCloud className="size-4" />
-          Importer un fichier
+          {t("uploadFile")}
         </label>
         <a
           href="/dashboard/create"
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+          className="inline-flex items-center justify-center gap-2 rounded-lg border border-border dark:border-white/10 bg-white dark:bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-accent dark:hover:bg-white/[0.06]"
         >
           <Wand2 className="size-4" />
-          Générer des visuels
+          {t("generateVisuals")}
         </a>
       </div>
     </div>

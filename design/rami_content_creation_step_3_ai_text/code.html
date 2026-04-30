@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI - AI Text Generation Interface</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              background: '#0A0A0F',
+              violet: '#7C3AED',
+              blue: '#2563EB',
+              navy: '#1D4ED8',
+              gold: '#D4AF37',
+              text: '#F8FAFC'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          backdropBlur: {
+            xl: '24px',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-background">
+    body {
+      background-color: #0A0A0F;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+      color: #F8FAFC;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+<!-- BEGIN: Main Container -->
+<main class="max-w-7xl mx-auto px-6 py-8 flex flex-col min-h-screen">
+<!-- BEGIN: Stepper Header -->
+<header class="mb-12" data-purpose="stepper-section">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-4">
+<h1 class="text-2xl font-bold">Édition du contenu</h1>
+<span class="px-3 py-1 text-xs font-semibold bg-brand-violet/20 text-brand-violet rounded-full border border-brand-violet/30 uppercase tracking-wider">Step 3 of 7</span>
+</div>
+<div class="text-sm font-medium text-slate-400">Progression : 42%</div>
+</div>
+<!-- Progress Bar -->
+<div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex">
+<div class="h-full bg-gradient-to-r from-brand-violet to-brand-blue" style="width: 42%;"></div>
+</div>
+<!-- Steps Indicators -->
+<div class="flex justify-between mt-4">
+<div class="flex items-center gap-2 text-xs text-green-500 font-medium">
+<div class="w-5 h-5 rounded-full bg-green-500/20 border border-green-500/50 flex items-center justify-center">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
+</div>
+          DNA
+        </div>
+<div class="flex items-center gap-2 text-xs text-green-500 font-medium">
+<div class="w-5 h-5 rounded-full bg-green-500/20 border border-green-500/50 flex items-center justify-center">
+<svg class="w-3 h-3" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
+</div>
+          Concept
+        </div>
+<div class="flex items-center gap-2 text-xs text-brand-violet font-bold">
+<div class="w-5 h-5 rounded-full bg-brand-violet text-white flex items-center justify-center">3</div>
+          Texte
+        </div>
+<div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+<div class="w-5 h-5 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center">4</div>
+          Visuels
+        </div>
+<div class="flex items-center gap-2 text-xs text-slate-500 font-medium opacity-50">...</div>
+</div>
+</header>
+<!-- END: Stepper Header -->
+<!-- BEGIN: Grid Layout -->
+<div class="grid grid-cols-12 gap-8 flex-grow">
+<!-- BEGIN: Left Column (Editor) -->
+<section class="col-span-12 lg:col-span-7 space-y-8" data-purpose="content-editor">
+<!-- Platform Tabs -->
+<nav class="flex border-b border-white/10" data-purpose="platform-tabs">
+<button class="px-6 py-3 border-b-2 border-brand-violet text-brand-text font-medium text-sm transition-all">LinkedIn</button>
+<button class="px-6 py-3 border-b-2 border-transparent text-slate-400 font-medium text-sm hover:text-white transition-all">Instagram</button>
+<button class="px-6 py-3 border-b-2 border-transparent text-slate-400 font-medium text-sm hover:text-white transition-all">X (Twitter)</button>
+</nav>
+<!-- Caption Editor -->
+<div class="space-y-4" data-purpose="caption-section">
+<div class="flex items-center justify-between">
+<label class="text-sm font-semibold text-slate-300 uppercase tracking-widest">Légende du post</label>
+<span class="px-2 py-0.5 bg-brand-violet/10 text-brand-violet border border-brand-violet/20 rounded text-[10px] font-bold uppercase">Expert confiant</span>
+</div>
+<div class="relative">
+<textarea class="w-full h-80 glass-card rounded-xl p-6 text-slate-200 text-base leading-relaxed focus:ring-2 focus:ring-brand-violet focus:border-transparent outline-none resize-none transition-all" placeholder="Écrivez votre contenu ici...">L'intelligence artificielle n'est plus une option pour les entreprises en quête de croissance exponentielle. 🚀
+
+En 2024, l'efficacité opérationnelle passe par une intégration stratégique de l'IA générative. Ce n'est pas seulement une question d'outils, mais une transformation profonde de la culture d'entreprise. 
+
+Chez RAMI, nous avons observé qu'une implémentation maîtrisée permet de réduire les cycles de production de contenu de 60% tout en augmentant l'engagement qualitatif. 
+
+Votre équipe est-elle prête pour ce changement de paradigme ? Discutons-en en commentaires. 👇</textarea>
+<div class="absolute bottom-4 right-4 flex items-center gap-2">
+<span class="text-xs font-medium text-green-400">850 / 3000</span>
+<div class="w-1 h-1 rounded-full bg-green-400"></div>
+</div>
+</div>
+</div>
+<!-- Hooks Selection -->
+<div class="space-y-4" data-purpose="hooks-section">
+<h3 class="text-sm font-semibold text-slate-300 uppercase tracking-widest">Variantes d'accroches (Hooks)</h3>
+<div class="grid grid-cols-1 gap-3">
+<label class="flex items-start gap-4 p-4 glass-card rounded-xl border-l-4 border-brand-violet cursor-pointer hover:bg-white/5 transition-all">
+<input checked="" class="mt-1 text-brand-violet focus:ring-brand-violet bg-transparent border-white/20" name="hook" type="radio"/>
+<div>
+<p class="text-sm font-medium text-white italic">"Votre équipe est-elle prête pour ce changement de paradigme ?"</p>
+<span class="text-[10px] text-slate-500 uppercase mt-1 block">Question</span>
+</div>
+</label>
+<label class="flex items-start gap-4 p-4 glass-card rounded-xl border-l-4 border-transparent cursor-pointer hover:bg-white/5 transition-all">
+<input class="mt-1 text-brand-violet focus:ring-brand-violet bg-transparent border-white/20" name="hook" type="radio"/>
+<div>
+<p class="text-sm font-medium text-slate-300">"60% de gain d'efficacité grâce à l'IA : réalité ou fantasme ?"</p>
+<span class="text-[10px] text-slate-500 uppercase mt-1 block">Data-driven stats</span>
+</div>
+</label>
+<label class="flex items-start gap-4 p-4 glass-card rounded-xl border-l-4 border-transparent cursor-pointer hover:bg-white/5 transition-all">
+<input class="mt-1 text-brand-violet focus:ring-brand-violet bg-transparent border-white/20" name="hook" type="radio"/>
+<div>
+<p class="text-sm font-medium text-slate-300">"L'intelligence artificielle n'est plus une option."</p>
+<span class="text-[10px] text-slate-500 uppercase mt-1 block">Bold statement</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Hashtags -->
+<div class="space-y-4" data-purpose="hashtags-section">
+<h3 class="text-sm font-semibold text-slate-300 uppercase tracking-widest">Hashtags recommandés</h3>
+<div class="flex flex-wrap gap-2">
+<!-- Hashtag Chips -->
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#MarketingAI</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#SaaS</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#Growth</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#Productivity</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#GenAI</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#B2BMarketing</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#Strategy</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#StartupLife</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#Innovation</span>
+<span class="px-3 py-1.5 glass-card rounded-lg text-xs font-medium text-slate-300 border border-white/10 hover:border-brand-violet transition-colors cursor-pointer">#FutureOfWork</span>
+</div>
+</div>
+</section>
+<!-- END: Left Column -->
+<!-- BEGIN: Right Column (Context Sidebar) -->
+<aside class="col-span-12 lg:col-span-5 relative" data-purpose="sidebar-context">
+<div class="sticky top-8 space-y-6">
+<div class="glass-card rounded-2xl p-6 border border-white/10 shadow-2xl overflow-hidden relative">
+<!-- Background glow -->
+<div class="absolute -top-12 -right-12 w-48 h-48 bg-brand-violet/10 blur-[80px]"></div>
+<h2 class="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] mb-6">Brand DNA Context</h2>
+<!-- DNA Score -->
+<div class="flex items-center gap-6 mb-8 border-b border-white/5 pb-8">
+<div class="relative flex items-center justify-center">
+<svg class="w-20 h-20 transform -rotate-90">
+<circle cx="40" cy="40" fill="transparent" r="36" stroke="rgba(255,255,255,0.05)" stroke-width="4"></circle>
+<circle cx="40" cy="40" fill="transparent" r="36" stroke="url(#scoreGradient)" stroke-dasharray="226" stroke-dashoffset="20.3" stroke-linecap="round" stroke-width="4"></circle>
+<defs>
+<lineargradient id="scoreGradient" x1="0%" x2="100%" y1="0%" y2="0%">
+<stop offset="0%" style="stop-color:#7C3AED"></stop>
+<stop offset="100%" style="stop-color:#2563EB"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xl font-bold">.91</span>
+</div>
+</div>
+<div>
+<h4 class="text-white font-bold text-lg leading-tight">Alignement DNA</h4>
+<p class="text-slate-400 text-xs mt-1">Votre contenu respecte fidèlement les piliers de votre marque.</p>
+</div>
+</div>
+<div class="space-y-6">
+<!-- Objective & Tone -->
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<span class="text-[10px] font-bold text-slate-500 uppercase">Objectif Cognitif</span>
+<div class="flex items-center gap-2 text-brand-blue">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M10 1.944A11.94 11.94 0 012.144 5c.19 2.457.448 4.774.79 6.947a11.991 11.991 0 0013.13 0c.342-2.173.6-4.49.79-6.947A11.94 11.94 0 0110 1.944zM8.64 12.235l-2.433-2.433 1.06-1.06 1.373 1.372 3.373-3.373 1.06 1.06-4.433 4.434z" fill-rule="evenodd"></path></svg>
+<span class="text-sm font-semibold">Confiance</span>
+</div>
+</div>
+<div class="space-y-2">
+<span class="text-[10px] font-bold text-slate-500 uppercase">Tonalité</span>
+<div class="text-sm font-semibold text-white">Expert confiant</div>
+</div>
+</div>
+<!-- Palette -->
+<div class="space-y-3">
+<span class="text-[10px] font-bold text-slate-500 uppercase">Brand Palette</span>
+<div class="flex gap-3">
+<div class="flex items-center gap-2 bg-white/5 pr-3 rounded-full border border-white/5">
+<div class="w-5 h-5 rounded-full bg-brand-navy"></div>
+<span class="text-[10px] font-mono text-slate-300">#1D4ED8</span>
+</div>
+<div class="flex items-center gap-2 bg-white/5 pr-3 rounded-full border border-white/5">
+<div class="w-5 h-5 rounded-full bg-brand-gold"></div>
+<span class="text-[10px] font-mono text-slate-300">#D4AF37</span>
+</div>
+</div>
+</div>
+<!-- Personas -->
+<div class="space-y-3">
+<span class="text-[10px] font-bold text-slate-500 uppercase">Cible Prioritaire</span>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-1">
+<span class="text-xs font-bold text-white">Karim</span>
+<span class="text-[10px] text-slate-400">CEO Startup</span>
+</div>
+<div class="p-3 bg-white/5 rounded-xl border border-white/5 flex flex-col gap-1">
+<span class="text-xs font-bold text-white">Sarah</span>
+<span class="text-[10px] text-slate-400">CMO</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- END: Right Column -->
+</div>
+<!-- END: Grid Layout -->
+<!-- BEGIN: Sticky Bottom Bar -->
+<footer class="mt-12 py-8 border-t border-white/10 flex justify-between items-center bg-brand-background/80 backdrop-blur-md sticky bottom-0 z-50">
+<button class="px-8 py-3 rounded-xl text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all">
+        ← Retour
+      </button>
+<button class="px-8 py-4 bg-gradient-to-r from-brand-violet to-brand-blue rounded-xl text-sm font-bold text-white shadow-lg shadow-brand-violet/20 hover:shadow-brand-violet/40 hover:scale-[1.02] active:scale-95 transition-all">
+        Générer les visuels →
+      </button>
+</footer>
+<!-- END: Sticky Bottom Bar -->
+</main>
+<!-- END: Main Container -->
+</body></html>

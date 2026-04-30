@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0a0a0f",
+                        "neutral-dark": "#0e0e17",
+                        "border-dark": "#2d2d3d",
+                        "surface-dark": "#1e1e2e",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "heading": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-bg {
+            background-image: radial-gradient(circle at 1px 1px, #1e1e2e 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+        .blob {
+            filter: blur(80px);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen relative overflow-x-hidden">
+<!-- Background Decoration -->
+<div class="fixed inset-0 grid-bg opacity-40"></div>
+<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blob rounded-full"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blob rounded-full"></div>
+<div class="fixed top-[40%] right-[10%] w-[30%] h-[30%] bg-indigo-600/15 blob rounded-full"></div>
+<div class="relative flex h-full w-full flex-col">
+<header class="flex items-center justify-between border-b border-border-dark px-6 py-4 lg:px-40 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">transcribe</span>
+</div>
+<h2 class="text-slate-100 text-xl font-bold tracking-tight">RAMI</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center rounded-xl h-10 w-10 bg-surface-dark text-slate-300 hover:text-white border border-border-dark transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="h-10 w-10 rounded-full border-2 border-primary/50 overflow-hidden bg-surface-dark">
+<img alt="Photo de profil utilisateur" data-alt="Avatar de l'utilisateur en cercle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC32Zdcxo6Owxaidnj28XFdKln1oaLKZHpyxwPPzw4lolU3lxYxZvnTRY2qqLuLMYsHEiM83BW0mumWDK44wAioiC3ZMGOtVP322ESHS_AlKC0WDO6LbXULEuqXe8PJ2LFvDYCx89t2aNb1VQW-H_DCpQ4sXUqVA5dVDRNDXigo0gmOuUVJIo82frW3MdOuPMS6IUfneixSfRKs9OZCypbsXfoCKGmIYF5F_vs8SieCsJSz6PdL0ZCLL8tE6H5fSeT9JkXpjsAdOV7L"/>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center py-12 px-4">
+<div class="w-full max-w-[860px] space-y-8">
+<!-- Header -->
+<div class="flex flex-col gap-1">
+<h1 class="text-[#F8FAFC] text-3xl font-bold tracking-tight">Nouvelle Transcription</h1>
+<p class="text-slate-400 text-sm">Transformez vos fichiers audio et vidéo en texte en quelques secondes.</p>
+</div>
+<!-- Main Upload Zone -->
+<div class="bg-neutral-dark border-2 border-dashed border-border-dark rounded-2xl p-12 flex flex-col items-center justify-center text-center gap-6 group hover:border-primary/50 transition-all cursor-pointer">
+<div class="size-16 bg-indigo-600/10 rounded-full flex items-center justify-center text-indigo-500 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined !text-5xl">cloud_upload</span>
+</div>
+<div class="space-y-2">
+<p class="text-[#F8FAFC] text-xl font-semibold">Glissez-déposez votre fichier ici</p>
+<p class="text-slate-400 text-sm">Ou cliquez pour sélectionner un fichier sur votre ordinateur</p>
+</div>
+<button class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">file_open</span>
+                        Parcourir les fichiers
+                    </button>
+<div class="flex flex-col items-center gap-4 mt-4">
+<div class="flex flex-wrap justify-center gap-2">
+<span class="px-3 py-1 bg-surface-dark text-slate-300 text-xs font-medium rounded-full border border-border-dark">MP3</span>
+<span class="px-3 py-1 bg-surface-dark text-slate-300 text-xs font-medium rounded-full border border-border-dark">MP4</span>
+<span class="px-3 py-1 bg-surface-dark text-slate-300 text-xs font-medium rounded-full border border-border-dark">WAV</span>
+<span class="px-3 py-1 bg-surface-dark text-slate-300 text-xs font-medium rounded-full border border-border-dark">M4A</span>
+</div>
+<p class="text-slate-500 text-xs italic">Taille maximale : 500 Mo</p>
+</div>
+</div>
+<!-- Settings Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+<div class="space-y-2">
+<label class="text-slate-300 text-sm font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">language</span>
+                            Langue de l'audio
+                        </label>
+<select class="w-full h-14 bg-surface-dark border border-border-dark rounded-xl text-slate-100 px-4 focus:ring-2 focus:ring-primary focus:border-transparent outline-none">
+<option value="fr">🇫🇷 Français (FR)</option>
+<option value="ar">🇸🇦 Arabe (AR)</option>
+<option value="darija">🇲🇦 Darija (MA)</option>
+<option value="en">🇺🇸 Anglais (EN)</option>
+</select>
+</div>
+<div class="h-14 bg-primary/5 border border-primary/20 rounded-xl px-4 flex items-center justify-between">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-[20px]">info</span>
+<span class="text-sm font-medium">~12 min • Coût estimé : $0.12</span>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm">help_outline</span>
+</div>
+</div>
+<!-- Recent Activity -->
+<div class="space-y-4 pt-8">
+<div class="flex items-center justify-between">
+<h2 class="text-slate-100 text-lg font-bold">Transcriptions récentes</h2>
+<button class="text-primary text-sm font-semibold hover:underline">Voir tout</button>
+</div>
+<div class="bg-surface-dark/40 border border-border-dark rounded-2xl overflow-hidden divide-y divide-border-dark">
+<!-- Item 1: In Progress -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-dark/60 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 bg-amber-500/10 text-amber-500 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">audio_file</span>
+</div>
+<div>
+<p class="text-slate-100 font-medium">interview_marketing.mp3</p>
+<p class="text-slate-500 text-xs">Aujourd'hui, 14:20 • 45:12</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-bold animate-pulse">
+<span class="size-1.5 bg-amber-500 rounded-full"></span>
+                                    En cours
+                                </span>
+<button class="text-slate-400 hover:text-white"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+</div>
+<!-- Item 2: Completed -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-dark/60 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">video_file</span>
+</div>
+<div>
+<p class="text-slate-100 font-medium">reunion_hebdo_final.mp4</p>
+<p class="text-slate-500 text-xs">Hier, 18:05 • 12:45</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-bold">
+<span class="size-1.5 bg-emerald-500 rounded-full"></span>
+                                    Terminée
+                                </span>
+<a class="text-primary text-sm font-bold hover:underline" href="#">Voir</a>
+</div>
+</div>
+<!-- Item 3: Completed -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-dark/60 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">description</span>
+</div>
+<div>
+<p class="text-slate-100 font-medium">podcast_episode_04.wav</p>
+<p class="text-slate-500 text-xs">24 Oct, 09:12 • 58:20</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-bold">
+<span class="size-1.5 bg-emerald-500 rounded-full"></span>
+                                    Terminée
+                                </span>
+<a class="text-primary text-sm font-bold hover:underline" href="#">Voir</a>
+</div>
+</div>
+<!-- Item 4: Failed -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-dark/60 transition-colors">
+<div class="flex items-center gap-4">
+<div class="size-10 bg-red-500/10 text-red-500 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined">error</span>
+</div>
+<div>
+<p class="text-slate-100 font-medium">audio_corrompu.mp3</p>
+<p class="text-slate-500 text-xs">22 Oct, 11:45 • 00:00</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-xs font-bold">
+<span class="size-1.5 bg-red-500 rounded-full"></span>
+                                    Échec
+                                </span>
+<button class="text-slate-400 hover:text-white"><span class="material-symbols-outlined">refresh</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

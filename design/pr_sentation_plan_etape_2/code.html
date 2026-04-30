@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#171121",
+                        "surface-dark": "#251b36",
+                        "border-dark": "#312447",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col font-display">
+<!-- Top Navigation Bar -->
+<header class="border-b border-border-dark px-6 py-4 flex items-center justify-between sticky top-0 bg-background-dark/80 backdrop-blur-md z-10">
+<div class="flex items-center gap-3">
+<div class="bg-primary p-1.5 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">neurology</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-slate-100">RAMI</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-lg bg-surface-dark text-slate-300 hover:bg-border-dark transition-colors">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<div class="h-8 w-[1px] bg-border-dark"></div>
+<button class="p-2 rounded-lg bg-surface-dark text-slate-300 hover:bg-border-dark transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<main class="flex-1 max-w-3xl mx-auto w-full px-6 py-10">
+<!-- Stepper Progress -->
+<div class="mb-10">
+<div class="flex justify-between items-end mb-3">
+<div>
+<span class="text-primary font-bold text-sm uppercase tracking-wider">Étape 2 sur 4</span>
+<h2 class="text-2xl font-extrabold text-slate-100">Plan</h2>
+</div>
+<span class="text-slate-400 text-sm font-medium">50% complété</span>
+</div>
+<div class="w-full bg-surface-dark h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-1/2 rounded-full transition-all duration-500"></div>
+</div>
+<p class="mt-4 text-slate-400 text-sm">Organisez la structure de votre présentation neuropsychologique avant la génération du contenu.</p>
+</div>
+<!-- Editable List Section -->
+<div class="space-y-4">
+<h3 class="text-lg font-semibold text-slate-100 px-1">Structure des diapositives</h3>
+<!-- List Item 1 -->
+<div class="flex items-center gap-3 p-2 bg-surface-dark/50 border border-border-dark rounded-xl group hover:border-primary/50 transition-all">
+<div class="cursor-grab p-2 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 text-base font-medium py-2" placeholder="Titre de la diapositive" type="text" value="Introduction et Contexte Clinique"/>
+<button class="p-2 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+<!-- List Item 2 -->
+<div class="flex items-center gap-3 p-2 bg-surface-dark/50 border border-border-dark rounded-xl group hover:border-primary/50 transition-all">
+<div class="cursor-grab p-2 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 text-base font-medium py-2" placeholder="Titre de la diapositive" type="text" value="Problématique et Hypothèses"/>
+<button class="p-2 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+<!-- List Item 3 -->
+<div class="flex items-center gap-3 p-2 bg-surface-dark/50 border border-border-dark rounded-xl group hover:border-primary/50 transition-all">
+<div class="cursor-grab p-2 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 text-base font-medium py-2" placeholder="Titre de la diapositive" type="text" value="Méthodologie de l'Évaluation"/>
+<button class="p-2 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+<!-- List Item 4 -->
+<div class="flex items-center gap-3 p-2 bg-surface-dark/50 border border-border-dark rounded-xl group hover:border-primary/50 transition-all">
+<div class="cursor-grab p-2 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 text-base font-medium py-2" placeholder="Titre de la diapositive" type="text" value="Analyse des Données Neurocognitives"/>
+<button class="p-2 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+<!-- List Item 5 -->
+<div class="flex items-center gap-3 p-2 bg-surface-dark/50 border border-border-dark rounded-xl group hover:border-primary/50 transition-all">
+<div class="cursor-grab p-2 text-slate-500 hover:text-slate-300">
+<span class="material-symbols-outlined">drag_indicator</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-slate-100 text-base font-medium py-2" placeholder="Titre de la diapositive" type="text" value="Conclusion et Recommandations"/>
+<button class="p-2 text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+<!-- Add Button -->
+<button class="w-full mt-4 flex items-center justify-center gap-2 py-4 border-2 border-dashed border-border-dark rounded-xl text-slate-400 hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all group">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-semibold">Ajouter une diapositive</span>
+</button>
+</div>
+<!-- Suggestion Card -->
+<div class="mt-12 p-6 bg-primary/10 border border-primary/20 rounded-xl flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary text-3xl">auto_awesome</span>
+<div>
+<h4 class="text-primary font-bold">Conseil RAMI</h4>
+<p class="text-slate-300 text-sm mt-1 leading-relaxed">Pour une présentation de 15 minutes, nous recommandons entre 8 et 12 diapositives. Vous pouvez encore ajuster ce nombre à l'étape suivante.</p>
+</div>
+</div>
+</main>
+<!-- Footer Controls -->
+<footer class="border-t border-border-dark px-8 py-6 bg-background-dark/50 backdrop-blur-md">
+<div class="max-w-3xl mx-auto w-full flex justify-between items-center">
+<button class="flex items-center gap-2 px-6 py-2.5 rounded-lg text-slate-300 hover:bg-surface-dark transition-all font-semibold">
+<span class="material-symbols-outlined">arrow_back</span>
+                Retour
+            </button>
+<button class="flex items-center gap-2 px-8 py-2.5 rounded-lg bg-primary text-white hover:bg-primary/90 transition-all font-bold shadow-lg shadow-primary/20">
+                Suivant
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Social Analytics Dashboard</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Plus Jakarta Sans', 'sans-serif'],
+            jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            'rami-black': '#0A0A0F',
+            'rami-dark-bg': '#111118',
+            'rami-card-border': '#1E1E2E',
+            'rami-accent-violet': '#8B5CF6',
+            'rami-accent-blue': '#3B82F6',
+            'rami-emerald': '#10B981',
+            'chart-bg': '#0E0E17',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="background-effects">
+    body {
+      background-color: #0A0A0F;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: #F8FAFC;
+    }
+
+    .gradient-blob-1 {
+      position: fixed;
+      top: -10%;
+      right: -5%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .gradient-blob-2 {
+      position: fixed;
+      bottom: -10%;
+      left: -5%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .gradient-blob-3 {
+      position: fixed;
+      top: 40%;
+      left: 30%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .rami-gradient-text {
+      background: linear-gradient(90deg, #8B5CF6 0%, #3B82F6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1E1E2E;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased p-6 lg:p-10">
+<!-- BG Blobs -->
+<div class="gradient-blob-1"></div>
+<div class="gradient-blob-2"></div>
+<div class="gradient-blob-3"></div>
+<div class="max-w-[1400px] mx-auto space-y-8">
+<!-- BEGIN: Top Bar Navigation -->
+<header class="flex flex-col md:flex-row md:items-center justify-between gap-6" data-purpose="header-section">
+<div class="space-y-1">
+<h1 class="text-3xl font-jakarta font-bold tracking-tight">Social Analytics</h1>
+<p class="text-slate-400 text-sm">Vue d'ensemble des performances de RAMI OS</p>
+</div>
+<div class="flex flex-wrap items-center gap-4">
+<!-- Date Range Picker Mockup -->
+<div class="flex bg-rami-dark-bg border border-rami-card-border p-1 rounded-lg" data-purpose="date-picker">
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-colors">7J</button>
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md bg-rami-card-border text-white shadow-sm">30J</button>
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-colors">90J</button>
+<button class="px-4 py-1.5 text-xs font-semibold rounded-md text-slate-400 hover:text-white transition-colors">12M</button>
+</div>
+<!-- Platform Multi-select Mockup -->
+<div class="flex items-center gap-2 bg-rami-dark-bg border border-rami-card-border px-4 py-2 rounded-lg cursor-pointer hover:border-rami-accent-violet transition-all">
+<span class="text-xs font-semibold text-slate-300">Plateformes:</span>
+<div class="flex -space-x-1.5">
+<div class="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center ring-2 ring-rami-dark-bg text-[8px] font-bold">L</div>
+<div class="w-5 h-5 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 ring-2 ring-rami-dark-bg text-[8px] font-bold">I</div>
+<div class="w-5 h-5 rounded-full bg-slate-700 ring-2 ring-rami-dark-bg text-[8px] font-bold">X</div>
+<div class="w-5 h-5 rounded-full bg-blue-700 ring-2 ring-rami-dark-bg text-[8px] font-bold">F</div>
+</div>
+<svg class="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</header>
+<!-- END: Top Bar Navigation -->
+<!-- BEGIN: KPI Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6" data-purpose="kpi-cards">
+<!-- Reach Total -->
+<div class="bg-rami-dark-bg border border-rami-card-border p-6 rounded-[12px] flex flex-col justify-between hover:border-rami-accent-blue/50 transition-colors">
+<span class="text-slate-400 text-sm font-medium mb-4">Reach total</span>
+<div class="space-y-1">
+<div class="text-3xl font-bold font-jakarta">1.2M</div>
+<div class="flex items-center gap-1 text-rami-emerald text-xs font-semibold">
+<svg class="h-3 w-3" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" fill-rule="evenodd"></path>
+</svg>
+            +12.4%
+          </div>
+</div>
+</div>
+<!-- Impressions -->
+<div class="bg-rami-dark-bg border border-rami-card-border p-6 rounded-[12px] flex flex-col justify-between">
+<span class="text-slate-400 text-sm font-medium mb-4">Impressions</span>
+<div class="text-3xl font-bold font-jakarta">4.8M</div>
+</div>
+<!-- Taux d'engagement -->
+<div class="bg-rami-dark-bg border border-rami-card-border p-6 rounded-[12px] flex flex-col justify-between">
+<span class="text-slate-400 text-sm font-medium mb-4">Taux d'engagement</span>
+<div class="space-y-1">
+<div class="text-3xl font-bold font-jakarta text-indigo-400">5.8%</div>
+<div class="inline-flex items-center px-2 py-0.5 rounded-full bg-rami-emerald/10 text-rami-emerald text-[10px] font-bold border border-rami-emerald/20 uppercase tracking-wider">
+            Excellent
+          </div>
+</div>
+</div>
+<!-- Clics -->
+<div class="bg-rami-dark-bg border border-rami-card-border p-6 rounded-[12px] flex flex-col justify-between">
+<span class="text-slate-400 text-sm font-medium mb-4">Clics</span>
+<div class="text-3xl font-bold font-jakarta">84.2k</div>
+</div>
+<!-- Croissance Abonnés -->
+<div class="bg-rami-dark-bg border border-rami-card-border p-6 rounded-[12px] flex flex-col justify-between ring-1 ring-rami-emerald/20">
+<span class="text-slate-400 text-sm font-medium mb-4">Croissance Abonnés</span>
+<div class="text-3xl font-bold font-jakarta text-rami-emerald">+12,402</div>
+</div>
+</section>
+<!-- END: KPI Grid -->
+<!-- BEGIN: Grouped Bar Chart -->
+<section class="bg-chart-bg border border-rami-card-border p-8 rounded-[16px] overflow-hidden relative" data-purpose="main-chart">
+<div class="flex items-center justify-between mb-10">
+<h2 class="text-xl font-bold font-jakarta">Engagement par plateforme</h2>
+<div class="flex gap-4 text-xs font-medium text-slate-400">
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-blue-500"></span> LinkedIn</div>
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-indigo-500"></span> Instagram</div>
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-slate-500"></span> X</div>
+<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-sm bg-blue-700"></span> Facebook</div>
+</div>
+</div>
+<div class="h-[300px] w-full flex items-end justify-between gap-6 relative px-4" id="engagement-chart">
+<!-- Visual Bars Mockup -->
+<div class="flex-1 flex items-end justify-center gap-1 group relative">
+<div class="w-3 bg-blue-500 rounded-t-sm transition-all duration-300 h-[65%]"></div>
+<div class="w-3 bg-gradient-to-t from-orange-400 to-indigo-500 rounded-t-sm transition-all duration-300 h-[80%]"></div>
+<div class="w-3 bg-slate-500 rounded-t-sm transition-all duration-300 h-[40%]"></div>
+<div class="w-3 bg-blue-700 rounded-t-sm transition-all duration-300 h-[25%]"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Lun</span>
+<!-- Tooltip Example -->
+<div class="absolute bottom-[85%] left-1/2 -translate-x-1/2 bg-white text-black p-3 rounded shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-10 w-40">
+<p class="text-[10px] font-bold border-b border-gray-100 pb-1 mb-2">Détail Lundi</p>
+<div class="space-y-1 text-[9px]">
+<div class="flex justify-between"><span>LinkedIn</span> <span class="font-bold">2.4k</span></div>
+<div class="flex justify-between"><span>Instagram</span> <span class="font-bold">3.1k</span></div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex items-end justify-center gap-1 group relative">
+<div class="w-3 bg-blue-500 rounded-t-sm h-[55%]"></div>
+<div class="w-3 bg-gradient-to-t from-orange-400 to-indigo-500 rounded-t-sm h-[90%]"></div>
+<div class="w-3 bg-slate-500 rounded-t-sm h-[35%]"></div>
+<div class="w-3 bg-blue-700 rounded-t-sm h-[30%]"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Mar</span>
+</div>
+<div class="flex-1 flex items-end justify-center gap-1 group relative">
+<div class="w-3 bg-blue-500 rounded-t-sm h-[85%]"></div>
+<div class="w-3 bg-gradient-to-t from-orange-400 to-indigo-500 rounded-t-sm h-[75%]"></div>
+<div class="w-3 bg-slate-500 rounded-t-sm h-[50%]"></div>
+<div class="w-3 bg-blue-700 rounded-t-sm h-[40%]"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Mer</span>
+</div>
+<div class="flex-1 flex items-end justify-center gap-1 group relative">
+<div class="w-3 bg-blue-500 rounded-t-sm h-[45%]"></div>
+<div class="w-3 bg-gradient-to-t from-orange-400 to-indigo-500 rounded-t-sm h-[65%]"></div>
+<div class="w-3 bg-slate-500 rounded-t-sm h-[80%]"></div>
+<div class="w-3 bg-blue-700 rounded-t-sm h-[20%]"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Jeu</span>
+</div>
+<div class="flex-1 flex items-end justify-center gap-1 group relative">
+<div class="w-3 bg-blue-500 rounded-t-sm h-[70%]"></div>
+<div class="w-3 bg-gradient-to-t from-orange-400 to-indigo-500 rounded-t-sm h-[55%]"></div>
+<div class="w-3 bg-slate-500 rounded-t-sm h-[45%]"></div>
+<div class="w-3 bg-blue-700 rounded-t-sm h-[60%]"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Ven</span>
+</div>
+<div class="flex-1 flex items-end justify-center gap-1 group relative">
+<div class="w-3 bg-blue-500 rounded-t-sm h-[40%]"></div>
+<div class="w-3 bg-gradient-to-t from-orange-400 to-indigo-500 rounded-t-sm h-[40%]"></div>
+<div class="w-3 bg-slate-500 rounded-t-sm h-[30%]"></div>
+<div class="w-3 bg-blue-700 rounded-t-sm h-[15%]"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Sam</span>
+</div>
+<div class="flex-1 flex items-end justify-center gap-1 group relative">
+<div class="w-3 bg-blue-500 rounded-t-sm h-[30%]"></div>
+<div class="w-3 bg-gradient-to-t from-orange-400 to-indigo-500 rounded-t-sm h-[35%]"></div>
+<div class="w-3 bg-slate-500 rounded-t-sm h-[20%]"></div>
+<div class="w-3 bg-blue-700 rounded-t-sm h-[10%]"></div>
+<span class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500 uppercase tracking-widest font-bold">Dim</span>
+</div>
+</div>
+</section>
+<!-- END: Grouped Bar Chart -->
+<!-- BEGIN: Top Publications Table -->
+<section class="space-y-4" data-purpose="top-publications">
+<div class="flex items-center justify-between">
+<h2 class="text-xl font-bold font-jakarta">Top 5 Publications</h2>
+<button class="text-xs font-semibold text-rami-accent-violet hover:underline">Voir tout le rapport</button>
+</div>
+<div class="overflow-x-auto rounded-xl border border-rami-card-border bg-rami-dark-bg">
+<table class="w-full text-left text-sm whitespace-nowrap">
+<thead class="bg-chart-bg/50 text-slate-400 font-medium">
+<tr>
+<th class="px-6 py-4">Rang</th>
+<th class="px-6 py-4">Publication</th>
+<th class="px-6 py-4">Plateforme</th>
+<th class="px-6 py-4">Reach</th>
+<th class="px-6 py-4">Engagement</th>
+<th class="px-6 py-4">Clics</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-rami-card-border">
+<!-- Row 1 -->
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-bold text-rami-accent-violet">#1</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-rami-card-border">
+<img alt="Publication thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTPhvHNtRDrZlyLmw5LIqCubIStObkcEg9X-R2ulGss6pxRUABbg69-sA3J680xRfCerTsbzEOcUWK3roR1mXEglPe3BtC_vqO_K3Op5bP3Fm6Toh-UuJiEVll3Ypnj9DkFen7xbDyntkIogJO1Xvk-taZLxDLLaQmLxSXGmtfGwo0qfYtKbmdc7H0gaWmrs84QnFXGGwpU2qKQjpwOB9rLyHVOpZ6ofrtr7StmYxG8y9zdYfnnIsqDWR1A4BJa6_-OyDQtoE2gQWg"/>
+</div>
+<div class="max-w-[200px]">
+<p class="truncate italic text-slate-400">"Comment l'IA révolutionne le workflow des agences en 2024..."</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">L</div>
+</td>
+<td class="px-6 py-4 font-semibold text-white">45,200</td>
+<td class="px-6 py-4">
+<div class="w-24 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rami-accent-violet h-full" style="width: 85%"></div>
+</div>
+<span class="text-[10px] mt-1 block text-slate-400">8.2%</span>
+</td>
+<td class="px-6 py-4 font-semibold text-white">1,240</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-bold text-slate-400">#2</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-rami-card-border">
+<img alt="Publication thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPz4NgUfgcp9SuKV-kI26LYCIUWvVrypwPCDKy3_Bbl4JBAR69rOZKB2Fl1DYWbUM0qUdTwkWJj-CaoJnEZIHXIPA3b5fgnmXhIormgbo-AnGm7fw5QdZ6DfKDNryaNSEhMO0V104jNXklVupDF2o46IA90JJTY8P0yhWCv1bWeiTC970-IT46ehKk9DmJ3Xu0sju7gFeTOG3KW-YAw8t6yKpzrDPHVbgZxIK2VK4bCXHZj-x66MzDKBLNcLmMoWRXsRprZUO0OhGM"/>
+</div>
+<div class="max-w-[200px]">
+<p class="truncate italic text-slate-400">"Nouveau design system RAMI : La simplicité au service de la donnée"</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center text-xs font-bold">I</div>
+</td>
+<td class="px-6 py-4 font-semibold text-white">32,100</td>
+<td class="px-6 py-4">
+<div class="w-24 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rami-accent-violet h-full" style="width: 65%"></div>
+</div>
+<span class="text-[10px] mt-1 block text-slate-400">6.1%</span>
+</td>
+<td class="px-6 py-4 font-semibold text-white">890</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-bold text-slate-400">#3</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-rami-card-border">
+<img alt="Publication thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_oAcecfUBg8Kvi5uPZonnbNO6HKTTRhaH01CWu8JM0genpyuvfoQ60n1Q0k9RxfWm7CeE2lYgga6P3EgkQGSkKbWroJ3GB7fryl4jllHkWObCxadpB_1TcYTuZsXI5jyWYnSNPbH6W3gppgCq9wbfJJNO-OX5-LGaHZB0i1jMWJWboU1vdpmvaq5Sa6_-R-Sh-G0pNqKTFMPjZ43QqIEomtPw1s8if8ZJ30zw1gNGCJDtaY5FYOhxWcyRMKKe7OeJ_XV6c-49onkB"/>
+</div>
+<div class="max-w-[200px]">
+<p class="truncate italic text-slate-400">"Pourquoi votre agence doit passer à l'OS unifié ?"</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold">X</div>
+</td>
+<td class="px-6 py-4 font-semibold text-white">28,500</td>
+<td class="px-6 py-4">
+<div class="w-24 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rami-accent-violet h-full" style="width: 45%"></div>
+</div>
+<span class="text-[10px] mt-1 block text-slate-400">4.5%</span>
+</td>
+<td class="px-6 py-4 font-semibold text-white">410</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-bold text-slate-400">#4</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-rami-card-border">
+<img alt="Publication thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5vhB6yWldxkcq62fjTZMbH9dzRmTg0NRjlYag2b9-uGCNo6ph6vmJi4dzb9ZUfHYAHx09rNvILEajFdZIe6RAYNOuiLXXsIZ6hyMc_H5Cp9fSCXU9eiPcu6oARWr5uPK90az1sbyaONdK9aR_PLhVficlHyLb-7LKEs4HWt59epm1jQMuCB8owr8kpPksGiJC7ADWL9m8CQSQm0s0hj4y7hs6RNLNIeF-mh6bbRqenm5vX_QJhGFK1026Hp7Srd0cqBD1DPGMjuTO"/>
+</div>
+<div class="max-w-[200px]">
+<p class="truncate italic text-slate-400">"Behind the scenes : L'équipe derrière RAMI"</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold">L</div>
+</td>
+<td class="px-6 py-4 font-semibold text-white">19,400</td>
+<td class="px-6 py-4">
+<div class="w-24 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rami-accent-violet h-full" style="width: 35%"></div>
+</div>
+<span class="text-[10px] mt-1 block text-slate-400">3.8%</span>
+</td>
+<td class="px-6 py-4 font-semibold text-white">225</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-white/5 transition-colors group">
+<td class="px-6 py-4 font-bold text-slate-400">#5</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-rami-card-border">
+<img alt="Publication thumbnail" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDI8l17OfqS1BrRjaD6p7Cdkjisl9A4QByUIV1GvA5jMLLGT3zyXfUZHfGkrBmy6vogMItttLmCwtQLXzeR8eJ9_1t_AesVA32tw_V11vHonvgqZ-VC4gM-pKt1IAHzqN-uKTCRa-W5WKhjUKdN8tglxCrP04BEA5Sqdqw_9JsrCA5AIyx9nREOkVuM5ag4PB5mo_pYH3ga0Ql1eKul3Vk0DfcxxOQeSjz7KfndnAx064psT1QrAMDIiKfKsiy7w4b68_0ldUYOH1so"/>
+</div>
+<div class="max-w-[200px]">
+<p class="truncate italic text-slate-400">"Rejoignez notre prochain webinaire sur l'IA"</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="w-8 h-8 rounded-full bg-blue-700 flex items-center justify-center text-xs font-bold">F</div>
+</td>
+<td class="px-6 py-4 font-semibold text-white">12,100</td>
+<td class="px-6 py-4">
+<div class="w-24 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rami-accent-violet h-full" style="width: 25%"></div>
+</div>
+<span class="text-[10px] mt-1 block text-slate-400">2.1%</span>
+</td>
+<td class="px-6 py-4 font-semibold text-white">98</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- END: Top Publications Table -->
+<footer class="pt-8 border-t border-rami-card-border flex justify-between items-center text-[10px] uppercase tracking-widest text-slate-600 font-bold">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-rami-emerald animate-pulse"></span>
+        Système Live
+      </div>
+<div>RAMI AGENCY OS © 2024</div>
+</footer>
+</div>
+<!-- Custom JS for interactions -->
+<script data-purpose="chart-interactivity">
+    // Simple mock logic for bar hover animations if needed
+    const bars = document.querySelectorAll('#engagement-chart > div');
+    bars.forEach(barGroup => {
+      barGroup.addEventListener('mouseenter', () => {
+        barGroup.querySelectorAll('div').forEach(bar => {
+          bar.style.filter = 'brightness(1.2)';
+        });
+      });
+      barGroup.addEventListener('mouseleave', () => {
+        barGroup.querySelectorAll('div').forEach(bar => {
+          bar.style.filter = 'brightness(1)';
+        });
+      });
+    });
+  </script>
+</body></html>

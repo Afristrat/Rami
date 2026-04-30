@@ -9,6 +9,7 @@ import { stripe, STRIPE_WEBHOOK_SECRET } from '@/lib/billing/stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Plan } from '@/lib/billing/plans'
 import { log } from '@/lib/utils/logger'
+import { captureServerEvent } from '@/lib/utils/posthog-server'
 
 // Mapping Stripe status → subscription_status interne
 function mapStripeStatus(status: Stripe.Subscription.Status): string {
@@ -65,6 +66,18 @@ async function syncSubscription(subscription: Stripe.Subscription) {
   }
 
   log({ level: "info", module: "stripe-webhook", action: "tenant_synced", tenant_id: tenantId, metadata: { plan: effectivePlan, status } })
+
+  // PostHog — subscription_upgraded (ou subscription_cancelled)
+  captureServerEvent({
+    distinctId: tenantId,
+    event: status === 'canceled' ? 'subscription_cancelled' : 'subscription_upgraded',
+    properties: {
+      tenant_id: tenantId,
+      plan: effectivePlan,
+      stripe_status: status,
+      subscription_id: subscription.id,
+    },
+  })
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {

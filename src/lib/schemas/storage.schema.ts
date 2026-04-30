@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { V } from "@/lib/utils/validation-messages"
 
 export const ALLOWED_MIME_TYPES_LIST = [
 
@@ -20,17 +21,17 @@ export const ALLOWED_MIME_TYPES_LIST = [
 export const UploadFileSchema = z.object({
   filename: z
     .string()
-    .min(1, "Nom de fichier requis")
-    .max(255, "Nom de fichier trop long")
-    .regex(/^[a-zA-Z0-9._\-\s]+$/, "Nom de fichier invalide (caractères spéciaux non autorisés)"),
+    .min(1, V.filenameRequired)
+    .max(255, V.filenameTooLong)
+    .regex(/^[a-zA-Z0-9._\-\s]+$/, V.filenameInvalidChars),
   mimeType: z.enum(ALLOWED_MIME_TYPES_LIST, {
-    error: "Type de fichier non autorisé",
+    error: V.mimeTypeNotAllowed,
   }),
   sizeBytes: z
     .number()
     .int()
-    .positive("Taille de fichier invalide")
-    .max(500 * 1024 * 1024, "Fichier trop volumineux (max 500 MB)"),
+    .positive(V.fileSizeInvalid)
+    .max(500 * 1024 * 1024, V.fileTooLarge),
   category: z
     .enum(["posts", "logos", "audios", "docs"])
     .default("posts"),
@@ -39,11 +40,11 @@ export const UploadFileSchema = z.object({
 export type UploadFileInput = z.infer<typeof UploadFileSchema>
 
 export const DeleteFileSchema = z.object({
-  assetId: z.string().uuid("ID d'asset invalide"),
+  assetId: z.string().uuid(V.assetIdInvalid),
 })
 
 export const GetSignedUrlSchema = z.object({
-  assetId: z.string().uuid("ID d'asset invalide"),
+  assetId: z.string().uuid(V.assetIdInvalid),
   ttl: z.enum(["short", "medium", "long"]).default("medium"),
 })
 

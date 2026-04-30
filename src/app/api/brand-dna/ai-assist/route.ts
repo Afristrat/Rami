@@ -3,19 +3,20 @@
  * POST /api/brand-dna/ai-assist
  *
  * Actions :
- *  - generate      : Générer un texte (tagline, positioning) depuis le contexte Brand DNA
- *  - improve       : Améliorer un texte existant
+ *  - generate        : Générer un texte (tagline, positioning) depuis le contexte Brand DNA
+ *  - improve         : Améliorer un texte existant
  *  - prefill-section : Pré-remplir une section entière (identite | audience | style)
  *
  * Rate limit : 20 appels/heure/tenant (fail-open si table rate_limits absente)
- * Modèle     : Claude Haiku 4.5 (claude-haiku-4-5-20251001)
+ * Modèle     : chargé depuis ai_prompts_config (jamais hardcodé ici)
  */
 
 import { NextRequest, NextResponse } from "next/server"
-import Anthropic from "@anthropic-ai/sdk"
 import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { sanitizePromptInput } from "@/lib/utils/sanitize"
+import { getPromptConfig } from "@/lib/services/ai/prompt-config"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -23,7 +24,6 @@ export const dynamic = "force-dynamic"
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 
 const RATE_LIMIT_PER_HOUR = 20
-const MODEL = "claude-haiku-4-5-20251001"
 
 /* ─── Validation schema ──────────────────────────────────────────────────── */
 
@@ -90,109 +90,98 @@ async function recordUsage(supabase: SupabaseClient, tenantId: string): Promise<
   }
 }
 
-/* ─── Prompts ────────────────────────────────────────────────────────────── */
+/* ─── Mapping action+field+section → field_key ───────────────────────────── */
 
-function buildPrompt(body: RequestBody): string {
+function resolveFieldKey(body: RequestBody): string | null {
+  const { action, field, section } = body
+
+  if (action === "generate" && field === "tagline")    return "brand_dna_generate_tagline"
+  if (action === "generate" && field === "positioning") return "brand_dna_generate_positioning"
+  if (action === "improve"  && field === "tagline")    return "brand_dna_improve_tagline"
+  if (action === "improve"  && field === "positioning") return "brand_dna_improve_positioning"
+  if (action === "prefill-section" && section === "identite") return "brand_dna_prefill_identite"
+  if (action === "prefill-section" && section === "audience") return "brand_dna_prefill_audience"
+  if (action === "prefill-section" && section === "style")    return "brand_dna_prefill_style"
+
+  return null
+}
+
+/* ─── Construction du message utilisateur (données contextuelles uniquement) */
+
+function buildUserMessage(body: RequestBody): string {
   const { action, field, currentValue, section, context: ctx } = body
 
-  const brand = ctx.brandName || "non précisé"
-  const sector = ctx.sector || "non précisé"
+  const brand   = ctx.brandName || "non précisé"
+  const sector  = ctx.sector    || "non précisé"
   const objectif = ctx.objectifCognitif || "non précisé"
+  const culture  = ctx.primaryCulture   || "international"
 
   if (action === "generate" && field === "tagline") {
-    return `Tu es un expert en branding pour les marchés africains et MENA.
-Génère une tagline percutante pour cette marque :
-- Nom : ${brand}
-- Secteur : ${sector}
-- Objectif cognitif : ${objectif}
-
-Contraintes : maximum 80 caractères, en français, mémorable et différenciante.
-Retourne UNIQUEMENT la tagline, sans guillemets ni explication.`
+    return [
+      `Marque : ${brand}`,
+      `Secteur : ${sector}`,
+      `Objectif cognitif : ${objectif}`,
+      `Culture primaire : ${culture}`,
+      `Contraintes : maximum 80 caractères, en français.`,
+    ].join("\n")
   }
 
   if (action === "generate" && field === "positioning") {
-    return `Tu es un stratège en branding spécialisé dans les marchés africains et MENA.
-Génère une proposition de positionnement unique pour :
-- Marque : ${brand}
-- Secteur : ${sector}
-- Objectif cognitif : ${objectif}
-
-Contraintes : 80 à 300 caractères, en français, exprime clairement la différenciation concurrentielle.
-Retourne UNIQUEMENT le texte du positionnement, sans explication.`
+    return [
+      `Marque : ${brand}`,
+      `Secteur : ${sector}`,
+      `Objectif cognitif : ${objectif}`,
+      `Tagline actuelle : ${ctx.tagline || "non précisé"}`,
+      `Culture primaire : ${culture}`,
+      `Contraintes : 80 à 300 caractères, en français.`,
+    ].join("\n")
   }
 
   if (action === "improve" && field === "tagline") {
     const safe = sanitizePromptInput(currentValue || "")
-    return `Tu es un expert en branding. Améliore cette tagline pour la rendre plus impactante :
-Tagline actuelle : "${safe}"
-Contexte : marque "${brand}" dans le secteur ${sector}.
-
-Contraintes : maximum 80 caractères, en français, plus percutante que l'original.
-Retourne UNIQUEMENT la tagline améliorée, sans guillemets ni explication.`
+    return [
+      `Tagline actuelle : "${safe}"`,
+      `Marque : ${brand}`,
+      `Secteur : ${sector}`,
+      `Contraintes : maximum 80 caractères, même langue que l'original.`,
+    ].join("\n")
   }
 
   if (action === "improve" && field === "positioning") {
     const safe = sanitizePromptInput(currentValue || "")
-    return `Tu es un stratège en branding. Améliore ce positionnement pour le rendre plus différenciant :
-Positionnement actuel : "${safe}"
-Contexte : marque "${brand}" dans le secteur ${sector}, objectif cognitif : ${objectif}.
-
-Contraintes : 80 à 400 caractères, en français, plus spécifique que l'original.
-Retourne UNIQUEMENT le positionnement amélioré, sans explication.`
+    return [
+      `Positionnement actuel : "${safe}"`,
+      `Marque : ${brand}`,
+      `Secteur : ${sector}`,
+      `Objectif cognitif : ${objectif}`,
+      `Contraintes : 80 à 400 caractères, même langue que l'original.`,
+    ].join("\n")
   }
 
   if (action === "prefill-section" && section === "identite") {
-    return `Tu es un expert en branding spécialisé dans les marchés africains et MENA.
-Génère des contenus Brand DNA pour :
-- Nom de la marque : ${brand}
-- Secteur : ${sector}
-
-Retourne UNIQUEMENT un objet JSON valide avec ces deux champs :
-{
-  "tagline": "slogan court et percutant (max 80 chars, en français)",
-  "positioning": "proposition de valeur unique et différenciante (80-300 chars, en français)"
-}
-Aucun texte avant ou après le JSON.`
+    return [
+      `Marque : ${brand}`,
+      `Secteur : ${sector}`,
+      `Culture primaire : ${culture}`,
+    ].join("\n")
   }
 
   if (action === "prefill-section" && section === "audience") {
-    return `Tu es un expert en marketing spécialisé dans les marchés africains et MENA.
-Génère un profil d'audience pour :
-- Marque : ${brand}
-- Secteur : ${sector}
-- Tagline : ${ctx.tagline || "non précisé"}
-- Positionnement : ${sanitizePromptInput(ctx.positioning || "")}
-
-Retourne UNIQUEMENT un objet JSON valide :
-{
-  "audienceDescription": "description détaillée de l'audience idéale (80-400 chars, en français)",
-  "audienceAge": "tranche d'âge (ex : 28-45 ans)",
-  "audienceLocation": "zone géographique (ex : Maroc, Tunisie, France...)",
-  "audiencePainPoints": "3 douleurs principales, séparées par virgules (max 200 chars, en français)"
-}
-Aucun texte avant ou après le JSON.`
+    return [
+      `Marque : ${brand}`,
+      `Secteur : ${sector}`,
+      `Tagline : ${ctx.tagline || "non précisé"}`,
+      `Positionnement : ${sanitizePromptInput(ctx.positioning || "")}`,
+    ].join("\n")
   }
 
   if (action === "prefill-section" && section === "style") {
-    return `Tu es un expert en stratégie de marque.
-Identifie le meilleur ton de voix pour :
-- Marque : ${brand}
-- Secteur : ${sector}
-- Objectif cognitif : ${objectif}
-
-Tons disponibles (retourne exactement l'id) :
-- expert        : référence incontestable du secteur
-- bienveillant  : lien émotionnel profond, chaleureux
-- inspirant     : pousse à l'action et à se dépasser
-- ludique       : marque mémorable via humour et créativité
-- premium       : chaque mot reflète l'exclusivité
-- direct        : va à l'essentiel, sans fioritures
-
-Retourne UNIQUEMENT un objet JSON valide :
-{
-  "voiceTone": "id_du_ton_choisi"
-}
-Aucun texte avant ou après le JSON.`
+    return [
+      `Marque : ${brand}`,
+      `Secteur : ${sector}`,
+      `Objectif cognitif : ${objectif}`,
+      `Culture primaire : ${culture}`,
+    ].join("\n")
   }
 
   return ""
@@ -212,18 +201,88 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Non authentifié." }, { status: 401 })
   }
 
-  // ── Tenant ──────────────────────────────────────────────────────────────
-  const { data: userData, error: userError } = await supabase
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single()
+  // ── Appel LLM — supporte anthropic, moonshot (OpenAI-compatible), openai, openrouter ──
+  async function callLLM(opts: {
+    provider: string
+    model: string
+    systemPrompt: string
+    userMessage: string
+    apiKey: string | undefined
+    maxTokens?: number
+    temperature?: number
+  }): Promise<string> {
+    const { provider, model, systemPrompt, userMessage, apiKey, maxTokens = 512, temperature = 0.5 } = opts
+    if (!apiKey) throw new Error(`Clé API manquante pour le provider ${provider}`)
 
-  if (userError || !userData?.tenant_id) {
-    return NextResponse.json({ error: "Tenant introuvable." }, { status: 404 })
+    if (provider === "anthropic") {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ model, max_tokens: maxTokens, system: systemPrompt,
+          messages: [{ role: "user", content: userMessage }] }),
+        signal: AbortSignal.timeout(30_000),
+      })
+      if (!res.ok) throw new Error(`Anthropic API ${res.status}`)
+      const json = await res.json() as { content?: Array<{ text?: string }> }
+      return json.content?.[0]?.text?.trim() ?? ""
+    }
+
+    if (provider === "google" || provider === "gemini") {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: userMessage }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            generationConfig: { maxOutputTokens: maxTokens, temperature },
+          }),
+          signal: AbortSignal.timeout(30_000),
+        }
+      )
+      if (!res.ok) throw new Error(`Google Gemini API ${res.status}`)
+      const json = await res.json() as {
+        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+      }
+      return json.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? ""
+    }
+
+    // moonshot, openai, openrouter, perplexity — tous OpenAI-compatible
+    const baseUrl = provider === "moonshot"
+      ? "https://api.moonshot.ai/v1"
+      : provider === "openrouter"
+      ? "https://openrouter.ai/api/v1"
+      : provider === "perplexity"
+      ? "https://api.perplexity.ai"
+      : "https://api.openai.com/v1"
+
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userMessage }],
+        max_tokens: maxTokens,
+        temperature,
+      }),
+      signal: AbortSignal.timeout(30_000),
+    })
+    if (!res.ok) throw new Error(`${provider} API ${res.status}`)
+    const json = await res.json() as { choices?: Array<{ message?: { content?: string } }> }
+    return json.choices?.[0]?.message?.content?.trim() ?? ""
   }
 
-  const tenantId = userData.tenant_id as string
+  // ── Tenant ──────────────────────────────────────────────────────────────
+  const tenantId = await resolveUserTenant(supabase, user.id)
+
+  if (!tenantId) {
+    return NextResponse.json({ error: "Tenant introuvable." }, { status: 404 })
+  }
 
   // ── Rate limit ──────────────────────────────────────────────────────────
   const { allowed, remaining } = await checkRateLimit(supabase, tenantId)
@@ -273,27 +332,37 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     )
   }
 
-  // ── Prompt ──────────────────────────────────────────────────────────────
-  const prompt = buildPrompt(body)
-  if (!prompt) {
+  // ── Résolution du field_key et chargement de la config ──────────────────
+  const fieldKey = resolveFieldKey(body)
+  if (!fieldKey) {
     return NextResponse.json(
       { error: "Combinaison action/field/section non supportée." },
       { status: 400 }
     )
   }
 
-  // ── Appel Claude Haiku ──────────────────────────────────────────────────
-  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  const config = await getPromptConfig(fieldKey)
 
+  // ── Construction du message utilisateur ─────────────────────────────────
+  const userMessage = buildUserMessage(body)
+  if (!userMessage) {
+    return NextResponse.json(
+      { error: "Combinaison action/field/section non supportée." },
+      { status: 400 }
+    )
+  }
+
+  // ── Appel LLM via config DB ───────────────────────────────────────────
   try {
-    const message = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: 512,
-      messages: [{ role: "user", content: prompt }],
+    const rawOutput = await callLLM({
+      provider: config.provider,
+      model: config.model,
+      systemPrompt: config.systemPrompt,
+      userMessage,
+      apiKey: config.apiKey,
+      maxTokens: 512,
+      temperature: config.temperature,
     })
-
-    const rawOutput =
-      message.content[0].type === "text" ? message.content[0].text.trim() : ""
 
     // Enregistrement de l'usage (fail-silent)
     await recordUsage(supabase, tenantId)
@@ -326,7 +395,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // generate / improve → texte brut
     return NextResponse.json({ result: rawOutput }, { headers: rateLimitHeaders })
   } catch (err) {
-    if (err instanceof Anthropic.APIError) {
+    const message = err instanceof Error ? err.message : ""
+    if (message.includes("API 4") || message.includes("API 5")) {
       return NextResponse.json(
         { error: "Service IA temporairement indisponible." },
         { status: 503 }

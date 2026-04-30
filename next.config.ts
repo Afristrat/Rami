@@ -1,5 +1,8 @@
 import type { NextConfig } from "next"
 import { withSentryConfig } from "@sentry/nextjs"
+import createNextIntlPlugin from "next-intl/plugin"
+
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts")
 
 // ─── Headers de sécurité ──────────────────────────────────────────────────────
 // Conforme CLAUDE.md Section 4.8 + 4.10
@@ -173,7 +176,7 @@ const nextConfig: NextConfig = {
 }
 
 // ─── Sentry instrumentation (wrap en dernier) ─────────────────────────────────
-export default withSentryConfig(nextConfig, {
+export default withSentryConfig(withNextIntl(nextConfig), {
   // Organisation et projet Sentry (optionnel — pour le source maps upload)
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,

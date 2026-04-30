@@ -1,19 +1,33 @@
 // ============================================================
 // Image Generation — Orchestrateur avec fallback chain
-// Fal.ai → Replicate → Together AI
+// Nano Banana → Fal.ai FLUX1.1 Ultra → Google Imagen 4 → Replicate → Together AI
+//
+// Mise à jour mars 2026 :
+//   • Fal.ai : FLUX1.1 Pro Ultra (4MP, meilleure qualité)
+//   • Google Imagen 4 (preview) → Imagen 3 (stable) en fallback interne
+//   • Ordre optimisé : vitesse + qualité + coût
 // ============================================================
 
+import { NanoBananaProvider } from './nano-banana.provider'
 import { FalProvider } from './fal.provider'
+import { ImagenProvider } from './imagen.provider'
 import { ReplicateProvider } from './replicate.provider'
 import { TogetherProvider } from './together.provider'
 import { GenerationRequest, GenerationResult } from './types'
 
-const fal = new FalProvider()
-const replicate = new ReplicateProvider()
-const together = new TogetherProvider()
+const nanoBanana = new NanoBananaProvider()
+const fal        = new FalProvider()
+const imagen     = new ImagenProvider()
+const replicate  = new ReplicateProvider()
+const together   = new TogetherProvider()
 
-// Ordre de priorité : Fal.ai → Replicate → Together AI
-const PROVIDER_CHAIN = [fal, replicate, together]
+// Ordre de priorité :
+// 1. Nano Banana (ultra rapide, pas d'API key)
+// 2. Fal.ai FLUX1.1 Pro Ultra (qualité premium)
+// 3. Google Imagen 4/3 (photorealisme + cohérence couleurs Brand DNA)
+// 4. Replicate (fallback fiable)
+// 5. Together AI (dernier recours, moins cher)
+const PROVIDER_CHAIN = [nanoBanana, fal, imagen, replicate, together]
 
 export async function generateImage(req: GenerationRequest): Promise<GenerationResult> {
   const errors: string[] = []

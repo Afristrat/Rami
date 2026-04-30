@@ -1,13 +1,18 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { useState, useTransition } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { V } from "@/lib/utils/validation-messages"
+import { TranslatedFieldError } from "@/components/ui/field-error-i18n"
 import { X, Trash2, CalendarClock, Pencil, Check, RotateCcw, Copy, CheckCircle2, Clock, ThumbsUp } from "lucide-react"
 import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
+import { useIntlLocale } from "@/lib/utils/format-locale"
 import { PlatformBadge } from "./PlatformBadge"
 import { deletePost, updatePost, updatePostStatus, duplicatePost } from "@/app/actions/scheduler"
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/scheduler/types"
@@ -22,10 +27,10 @@ import { Label } from "@/components/ui/label"
 
 const editSchema = z.object({
   title: z.string().max(500).trim().optional(),
-  content: z.string().min(1, "Le contenu est requis").max(3000).trim(),
+  content: z.string().min(1, V.contentRequired).max(3000).trim(),
   platforms: z
     .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
-    .min(1, "Sélectionnez au moins une plateforme"),
+    .min(1, V.platformRequired),
   scheduled_at: z.string().optional().nullable(),
 })
 
@@ -44,6 +49,9 @@ interface PostDetailPanelProps {
 // ── Composant principal ──────────────────────────────────────────────────────
 
 export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplicated }: PostDetailPanelProps) {
+  const t = useTranslations("calendar.detail")
+  const _tCommon = useTranslations("common")
+  const intlLocale = useIntlLocale()
   const [isEditing, setIsEditing] = useState(false)
   const [currentPost, setCurrentPost] = useState<ScheduledPost>(post)
   const [isDeleting, startDeleteTransition] = useTransition()
@@ -53,7 +61,7 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplica
     startDeleteTransition(async () => {
       const result = await deletePost(currentPost.id)
       if (result.success) {
-        toast.success("Post supprimé")
+        toast.success(t("postDeleted"))
         onDeleted?.(currentPost.id)
         onClose()
       } else {
@@ -85,7 +93,7 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplica
     startActionTransition(async () => {
       const result = await duplicatePost(currentPost.id)
       if (result.success) {
-        toast.success("Post dupliqué en brouillon")
+        toast.success(t("duplicated"))
         onDuplicated?.(result.data)
       } else {
         toast.error(result.error)
@@ -95,7 +103,7 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplica
 
   const scheduledDate = currentPost.scheduled_at ? new Date(currentPost.scheduled_at) : null
   const formattedDateTime = scheduledDate
-    ? scheduledDate.toLocaleString("fr-FR", {
+    ? scheduledDate.toLocaleString(intlLocale, {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -126,7 +134,7 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplica
             </span>
           )}
           {isEditing && (
-            <p className="text-sm font-semibold text-foreground">Mode édition</p>
+            <p className="text-sm font-semibold text-foreground">{t("editMode")}</p>
           )}
         </div>
         <div className="ml-2 flex shrink-0 items-center gap-1">
@@ -135,7 +143,7 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplica
               type="button"
               onClick={() => setIsEditing(true)}
               className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              title="Modifier"
+              title={t("editBtn")}
             >
               <Pencil className="size-4" />
             </button>
@@ -209,7 +217,7 @@ export function PostDetailPanel({ post, onClose, onDeleted, onUpdated, onDuplica
 
             <div className="text-xs text-muted-foreground">
               Créé le{" "}
-              {new Date(currentPost.created_at).toLocaleDateString("fr-FR", {
+              {new Date(currentPost.created_at).toLocaleDateString(intlLocale, {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
@@ -266,6 +274,7 @@ function EditForm({
   onSaved: (updated: ScheduledPost) => void
   onCancel: () => void
 }) {
+  const t = useTranslations("calendar.detail")
   const [isSaving, startSaveTransition] = useTransition()
 
   const form = useForm<EditFormData>({
@@ -312,7 +321,7 @@ function EditForm({
         scheduled_at,
       })
       if (result.success) {
-        toast.success("Post mis à jour")
+        toast.success(t("postUpdated"))
         onSaved(result.data)
       } else {
         toast.error(result.error)
@@ -378,9 +387,7 @@ function EditForm({
             })}
           </div>
           {form.formState.errors.platforms && (
-            <p className="text-xs text-destructive">
-              {form.formState.errors.platforms.message}
-            </p>
+            <TranslatedFieldError message={form.formState.errors.platforms.message} />
           )}
         </div>
 
@@ -410,7 +417,7 @@ function EditForm({
         </Button>
         <Button type="submit" size="sm" className="flex-1" disabled={isSaving}>
           <Check className="size-3.5" />
-          {isSaving ? "Sauvegarde…" : "Sauvegarder"}
+          {isSaving ? t("saving") : t("saveBtn")}
         </Button>
       </div>
     </form>

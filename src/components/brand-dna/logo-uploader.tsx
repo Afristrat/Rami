@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { useCallback, useRef, useState } from "react"
 import { Upload, X, ImageIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -10,9 +12,11 @@ interface LogoUploaderProps {
   onChange: (dataUrl: string, fileName: string) => void
   onClear: () => void
   error?: string
+  compact?: boolean
 }
 
-export function LogoUploader({ value, fileName, onChange, onClear, error }: LogoUploaderProps) {
+export function LogoUploader({ value, fileName, onChange, onClear, error, compact }: LogoUploaderProps) {
+  const t = useTranslations("brandDna")
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -102,12 +106,50 @@ export function LogoUploader({ value, fileName, onChange, onClear, error }: Logo
     setIsDragging(false)
   }, [])
 
+  if (compact) {
+    return (
+      <div>
+        {value ? (
+          <div className="relative size-[100px] rounded-lg border border-border bg-muted/30 overflow-hidden group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={value} alt={fileName || "Logo"} className="size-full object-contain p-2" />
+            <button
+              type="button"
+              onClick={onClear}
+              className="absolute top-1 right-1 flex size-5 items-center justify-center rounded-full bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              aria-label="Supprimer"
+            >
+              <X className="size-3" />
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            className={cn(
+              "flex size-[100px] flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed text-center transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              isDragging ? "border-primary bg-primary/5" : "border-border bg-muted/20 hover:border-primary/50"
+            )}
+          >
+            <Upload className="size-5 text-muted-foreground" />
+            <span className="text-[10px] text-muted-foreground">PNG, JPG, SVG</span>
+          </button>
+        )}
+        <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/svg+xml,image/webp" className="hidden" onChange={handleFileChange} />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-2">
       {value ? (
         /* Preview */
         <div className="relative flex items-center gap-4 rounded-xl border border-border bg-muted/30 p-4">
-          <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-white">
+          <div className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-background">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={value}
@@ -117,7 +159,7 @@ export function LogoUploader({ value, fileName, onChange, onClear, error }: Logo
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-foreground">{fileName}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">Logo chargé avec succès</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t("loaded")}</p>
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
@@ -130,7 +172,7 @@ export function LogoUploader({ value, fileName, onChange, onClear, error }: Logo
             type="button"
             onClick={onClear}
             className="absolute right-3 top-3 flex size-6 items-center justify-center rounded-full bg-muted text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-            aria-label="Supprimer le logo"
+            aria-label={t("deleteLogo")}
           >
             <X className="size-3.5" />
           </button>
@@ -167,7 +209,7 @@ export function LogoUploader({ value, fileName, onChange, onClear, error }: Logo
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">
-              {isDragging ? "Déposez votre logo ici" : "Glissez votre logo ou cliquez"}
+              {isDragging ? t("dropHere") : t("dragOrClick")}
             </p>
             <p className="mt-0.5 text-xs text-muted-foreground">
               PNG, JPG, SVG, WebP — max 10 Mo

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI - Modal Creation</title>
+<!-- Tailwind CSS v3 CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Cal Sans is a local font, using a standard sans-serif fallback for this demo with a bold weight -->
+<style data-purpose="typography">
+    @font-face {
+      font-family: 'Cal Sans';
+      src: url('https://fonts.cdnfonts.com/s/77402/CalSans-SemiBold.woff');
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0a0a0f;
+    }
+    .font-cal {
+      font-family: 'Cal Sans', 'Inter', sans-serif;
+      font-weight: 600;
+    }
+  </style>
+<style data-purpose="layout-effects">
+    /* Subtle 40px grid pattern */
+    .grid-pattern {
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Gradient Blobs */
+    .blob {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      filter: blur(120px);
+      opacity: 0.15;
+      z-index: 0;
+      border-radius: 50%;
+    }
+
+    /* Modal Hover State */
+    .tile-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid #1e1e2e;
+      background: #16161f;
+    }
+    .tile-card:hover {
+      transform: scale(1.02);
+      border-color: #6366f1;
+      box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center overflow-hidden">
+<!-- BEGIN: Background Decor -->
+<div class="fixed inset-0 grid-pattern z-0"></div>
+<div class="blob bg-[#7C3AED] -top-20 -left-20"></div>
+<div class="blob bg-[#2563EB] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+<div class="blob bg-[#7C3AED] -bottom-20 -right-20"></div>
+<!-- END: Background Decor -->
+<!-- BEGIN: Modal Overlay -->
+<div class="fixed inset-0 bg-[#0a0a0f]/80 backdrop-blur-md flex items-center justify-center p-4 z-50">
+<!-- BEGIN: Modal Content -->
+<div class="w-full max-w-[680px] bg-[#111118] border border-[#1e1e2e] rounded-[16px] shadow-2xl relative overflow-hidden" data-purpose="creation-modal">
+<!-- BEGIN: Modal Header -->
+<div class="flex items-center justify-between p-6 border-b border-[#1e1e2e]">
+<h2 class="font-cal text-[22px] text-white tracking-tight">Que souhaitez-vous créer ?</h2>
+<button aria-label="Fermer" class="text-gray-400 hover:text-white transition-colors p-2">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<!-- END: Modal Header -->
+<!-- BEGIN: Modal Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-6">
+<!-- Tile 1: Post Social -->
+<div class="tile-card p-6 rounded-xl cursor-pointer group" data-purpose="creation-tile">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-indigo-500/10 flex items-center justify-center text-xl">📱</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400">Solo</span>
+</div>
+<h3 class="text-white font-semibold text-base mb-1">Post Social</h3>
+<p class="text-[#6b7280] text-[13px]">Workflow 7 étapes</p>
+</div>
+<!-- Tile 2: Offre / Devis -->
+<div class="tile-card p-6 rounded-xl cursor-pointer group" data-purpose="creation-tile">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl">📄</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400">Agency</span>
+</div>
+<h3 class="text-white font-semibold text-base mb-1">Offre / Devis</h3>
+<p class="text-[#6b7280] text-[13px]">Depuis votre CRM</p>
+</div>
+<!-- Tile 3: Transcription -->
+<div class="tile-card p-6 rounded-xl cursor-pointer group" data-purpose="creation-tile">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center text-xl">🎤</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-violet-500/20 text-violet-400">Pro</span>
+</div>
+<h3 class="text-white font-semibold text-base mb-1">Transcription</h3>
+<p class="text-[#6b7280] text-[13px]">Audio vers texte IA</p>
+</div>
+<!-- Tile 4: Présentation -->
+<div class="tile-card p-6 rounded-xl cursor-pointer group" data-purpose="creation-tile">
+<div class="flex justify-between items-start mb-4">
+<div class="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-xl">🎞️</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400">Agency+</span>
+</div>
+<h3 class="text-white font-semibold text-base mb-1">Présentation</h3>
+<p class="text-[#6b7280] text-[13px]">PPTX brandé</p>
+</div>
+</div>
+<!-- END: Modal Grid -->
+<!-- Optional Footer spacing -->
+<div class="h-6"></div>
+</div>
+<!-- END: Modal Content -->
+</div>
+<!-- END: Modal Overlay -->
+</body></html>

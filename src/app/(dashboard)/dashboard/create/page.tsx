@@ -1,9 +1,12 @@
-import type { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import { WorkflowClient } from "@/components/workflow/WorkflowClient"
 
-export const metadata: Metadata = {
-  title: "Créer du contenu — RAMI",
-  description: "Workflow 7 étapes pour créer du contenu social media psychologiquement ciblé.",
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return {
+    title: t("create"),
+    description: t("createDescription"),
+  }
 }
 
 export default function CreatePage() {

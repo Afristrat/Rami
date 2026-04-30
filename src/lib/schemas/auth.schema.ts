@@ -1,44 +1,45 @@
 import { z } from "zod"
+import { V } from "@/lib/utils/validation-messages"
 
 export const loginSchema = z.object({
-  email: z.string().min(1, "L'email est requis").email("Email invalide"),
-  password: z.string().min(1, "Le mot de passe est requis"),
+  email: z.string().min(1, V.emailRequired).email(V.emailInvalid),
+  password: z.string().min(1, V.passwordRequired),
 })
 
 export const registerSchema = z
   .object({
-    email: z.string().min(1, "L'email est requis").email("Email invalide"),
+    email: z.string().min(1, V.emailRequired).email(V.emailInvalid),
     password: z
       .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une majuscule")
-      .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre"),
-    confirmPassword: z.string().min(1, "La confirmation est requise"),
+      .min(8, V.passwordMinLength)
+      .regex(/[A-Z]/, V.passwordUppercase)
+      .regex(/[0-9]/, V.passwordDigit),
+    confirmPassword: z.string().min(1, V.confirmRequired),
     fullName: z
       .string()
-      .min(2, "Le nom doit contenir au moins 2 caractères")
-      .max(100, "Le nom est trop long"),
+      .min(2, V.nameMinLength)
+      .max(100, V.nameTooLong),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
+    message: V.passwordsMismatch,
     path: ["confirmPassword"],
   })
 
 export const resetPasswordSchema = z.object({
-  email: z.string().min(1, "L'email est requis").email("Email invalide"),
+  email: z.string().min(1, V.emailRequired).email(V.emailInvalid),
 })
 
 export const updatePasswordSchema = z
   .object({
     password: z
       .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-      .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une majuscule")
-      .regex(/[0-9]/, "Le mot de passe doit contenir au moins un chiffre"),
-    confirmPassword: z.string().min(1, "La confirmation est requise"),
+      .min(8, V.passwordMinLength)
+      .regex(/[A-Z]/, V.passwordUppercase)
+      .regex(/[0-9]/, V.passwordDigit),
+    confirmPassword: z.string().min(1, V.confirmRequired),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Les mots de passe ne correspondent pas",
+    message: V.passwordsMismatch,
     path: ["confirmPassword"],
   })
 

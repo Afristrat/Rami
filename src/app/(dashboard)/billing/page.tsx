@@ -1,11 +1,15 @@
 import { redirect } from 'next/navigation'
+import { getTranslations } from 'next-intl/server'
 import { getBillingDataAction } from '@/lib/billing/actions'
 import { requireFeature } from '@/lib/billing/require-feature'
 import { BillingDashboard } from '@/components/billing/billing-dashboard'
 
-export const metadata = {
-  title: 'Facturation — RAMI',
-  description: 'Gérez votre abonnement et consultez vos factures.',
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return {
+    title: t("billing"),
+    description: t("billingDescription"),
+  }
 }
 
 export default async function BillingPage({
@@ -16,6 +20,7 @@ export default async function BillingPage({
   // Vérification feature flag côté serveur — Agency ou supérieur
   await requireFeature('billing_module')
 
+  const t = await getTranslations('billing')
   const params = await searchParams
   const data = await getBillingDataAction()
 
@@ -26,22 +31,19 @@ export default async function BillingPage({
   const { tenant, invoices } = data
 
   return (
-    <div className="p-6 lg:p-8">
-      <div className="mx-auto max-w-3xl">
-        {/* En-tête */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white">Facturation</h1>
-          <p className="mt-1 text-sm text-white/50">
-            Gérez votre abonnement, consultez vos factures et modifiez votre plan.
-          </p>
-        </div>
-
-        <BillingDashboard
-          tenant={tenant}
-          invoices={invoices}
-          successPlan={params.success === '1' ? (params.plan ?? null) : null}
-        />
+    <div className="w-full px-4 sm:px-6 py-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t('subtitle')}
+        </p>
       </div>
+
+      <BillingDashboard
+        tenant={tenant}
+        invoices={invoices}
+        successPlan={params.success === '1' ? (params.plan ?? null) : null}
+      />
     </div>
   )
 }

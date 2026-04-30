@@ -132,3 +132,108 @@ export const auditLog = pgTable('audit_log', {
   user_agent: text('user_agent'),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
+
+// ============================================================
+// TRANSCRIPTIONS
+// ============================================================
+
+export const transcriptionStatusEnum = pgEnum('transcription_status', ['uploading', 'processing', 'completed', 'failed'])
+
+export const transcriptions = pgTable('transcriptions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }).notNull(),
+  original_filename: varchar('original_filename', { length: 500 }).notNull(),
+  storage_path: text('storage_path').notNull(),
+  mime_type: varchar('mime_type', { length: 100 }).notNull(),
+  file_size_bytes: integer('file_size_bytes').notNull(),
+  duration_seconds: integer('duration_seconds'),
+  language: varchar('language', { length: 10 }).notNull().default('fr'),
+  status: transcriptionStatusEnum('status').notNull().default('uploading'),
+  transcript_text: text('transcript_text'),
+  speakers: jsonb('speakers'), // [{ speaker: "Intervenant 1", segments: [{ start: 0, end: 30, text: "..." }] }]
+  verbatims: jsonb('verbatims'), // [{ quote: "...", speaker: "...", timestamp: "04:32", importance: "high" }]
+  ai_summary: text('ai_summary'),
+  ai_actions: jsonb('ai_actions'), // [{ action: "...", assignee: "...", deadline: "..." }]
+  error_message: text('error_message'),
+  created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================
+// CRM — ENUMS
+// ============================================================
+
+export const leadStageEnum = pgEnum('lead_stage', ['lead', 'contacted', 'proposal', 'signed'])
+export const leadActivityTypeEnum = pgEnum('lead_activity_type', ['call', 'email', 'meeting', 'note'])
+
+// ============================================================
+// CRM — LEADS
+// ============================================================
+
+export const leads = pgTable('leads', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  company_name: varchar('company_name', { length: 255 }).notNull(),
+  contact_name: varchar('contact_name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }),
+  phone: varchar('phone', { length: 50 }),
+  linkedin_url: text('linkedin_url'),
+  sector: varchar('sector', { length: 100 }),
+  company_size: varchar('company_size', { length: 50 }),
+  location: varchar('location', { length: 255 }),
+  stage: leadStageEnum('stage').notNull().default('lead'),
+  deal_value: integer('deal_value').default(0),
+  currency: varchar('currency', { length: 3 }).notNull().default('MAD'),
+  score: integer('score').default(0),
+  brand_dna_match: jsonb('brand_dna_match'),
+  apollo_data: jsonb('apollo_data'),
+  next_followup_at: timestamp('next_followup_at', { withTimezone: true }),
+  assigned_to: uuid('assigned_to').references(() => users.id, { onDelete: 'set null' }),
+  created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================
+// CRM — LEAD ACTIVITIES
+// ============================================================
+
+export const leadActivities = pgTable('lead_activities', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lead_id: uuid('lead_id').notNull().references(() => leads.id, { onDelete: 'cascade' }),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  type: leadActivityTypeEnum('type').notNull(),
+  content: text('content').notNull(),
+  created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================
+// ENUMS — DOCUMENTS
+// ============================================================
+
+export const documentTypeEnum = pgEnum('document_type', ['offre_commerciale', 'rapport_client', 'presentation'])
+export const documentStatusEnum = pgEnum('document_status', ['draft', 'in_progress', 'completed'])
+
+// ============================================================
+// DOCUMENTS
+// ============================================================
+
+export const documents = pgTable('documents', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 500 }).notNull(),
+  type: documentTypeEnum('type').notNull(),
+  client_name: varchar('client_name', { length: 255 }),
+  status: documentStatusEnum('status').notNull().default('draft'),
+  storage_path: text('storage_path'),
+  public_url: text('public_url'),
+  content_json: jsonb('content_json'),
+  brand_dna_snapshot: jsonb('brand_dna_snapshot'),
+  file_size_bytes: integer('file_size_bytes'),
+  created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})

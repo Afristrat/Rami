@@ -4,7 +4,8 @@
 
 import { ImageProvider, GenerationRequest, GenerationResult } from './types'
 
-const FAL_MODEL = 'fal-ai/flux/dev'
+// FLUX1.1 Pro Ultra (mars 2026) — meilleure qualité, 4MP natif
+const FAL_MODEL = 'fal-ai/flux-pro/v1.1-ultra'
 const FAL_BASE_URL = 'https://fal.run'
 const TIMEOUT_MS = 30_000
 

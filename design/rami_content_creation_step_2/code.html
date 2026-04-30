@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "secondary": "#2563eb",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-pattern {
+            background-image: radial-gradient(circle, rgba(124, 62, 237, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .active-glow {
+            box-shadow: 0 0 20px rgba(124, 59, 237, 0.2);
+            border-color: #7c3bed;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen grid-pattern">
+<div class="relative flex min-h-screen flex-col overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between border-b border-white/10 px-6 py-4 lg:px-20 bg-background-dark/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="size-8 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">dataset</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">RAMI <span class="text-primary/80 font-medium text-sm ml-1 uppercase tracking-widest">AI Agency OS</span></h2>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-400">notifications</span>
+</button>
+<div class="h-8 w-px bg-white/10 mx-2"></div>
+<div class="flex items-center gap-3 pl-2">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-semibold">Alex Rivera</p>
+<p class="text-[10px] text-slate-400">Admin</p>
+</div>
+<div class="size-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary">person</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full px-4 py-8 lg:px-8">
+<!-- Stepper -->
+<div class="mb-10">
+<div class="flex items-center justify-between mb-4 px-2">
+<span class="text-sm font-medium text-primary">Étape 2 sur 7</span>
+<span class="text-sm font-bold text-slate-400">28% complété</span>
+</div>
+<div class="flex items-center gap-2 mb-8">
+<!-- Step 1 Complete -->
+<div class="flex-1 h-1.5 rounded-full bg-green-500"></div>
+<!-- Step 2 Active -->
+<div class="flex-1 h-1.5 rounded-full bg-slate-800 relative overflow-hidden">
+<div class="absolute inset-y-0 left-0 w-[28%] bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+</div>
+<!-- Future Steps -->
+<div class="flex-1 h-1.5 rounded-full bg-slate-800"></div>
+<div class="flex-1 h-1.5 rounded-full bg-slate-800"></div>
+<div class="flex-1 h-1.5 rounded-full bg-slate-800"></div>
+<div class="flex-1 h-1.5 rounded-full bg-slate-800"></div>
+<div class="flex-1 h-1.5 rounded-full bg-slate-800"></div>
+</div>
+<div class="flex justify-between max-w-4xl mx-auto px-1">
+<div class="flex flex-col items-center gap-2">
+<div class="size-8 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center text-green-500">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-8 rounded-full bg-primary flex items-center justify-center text-white ring-4 ring-primary/20">
+<span class="text-xs font-bold">2</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+<span class="text-xs font-bold">3</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+<span class="text-xs font-bold">4</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+<span class="text-xs font-bold">5</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+<span class="text-xs font-bold">6</span>
+</div>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="size-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-500">
+<span class="text-xs font-bold">7</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-8">
+<h1 class="text-4xl font-black tracking-tight mb-2">Choisissez vos plateformes</h1>
+<p class="text-slate-400 text-lg">Le contenu sera adapté au format et aux contraintes de chaque réseau.</p>
+</div>
+<!-- Main Layout Split -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left: Platform Grid -->
+<div class="lg:col-span-2 space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+<!-- LinkedIn (Selected) -->
+<div class="glass-card active-glow rounded-xl p-5 relative cursor-pointer group transition-all">
+<div class="absolute top-4 right-4 size-6 rounded bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xs">check</span>
+</div>
+<div class="size-12 bg-[#0077B5] rounded-lg mb-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">group</span>
+</div>
+<h3 class="font-bold text-lg mb-1">LinkedIn</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">description</span>
+<span>Limite: 3000 car.</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>Mar-Jeu 8h-10h</span>
+</div>
+</div>
+</div>
+<!-- Instagram (Selected) -->
+<div class="glass-card active-glow rounded-xl p-5 relative cursor-pointer group transition-all">
+<div class="absolute top-4 right-4 size-6 rounded bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xs">check</span>
+</div>
+<div class="size-12 bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] rounded-lg mb-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">photo_camera</span>
+</div>
+<h3 class="font-bold text-lg mb-1">Instagram</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">description</span>
+<span>Limite: 2200 car.</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>Lun-Ven 18h-20h</span>
+</div>
+</div>
+</div>
+<!-- X (Twitter) -->
+<div class="glass-card rounded-xl p-5 relative cursor-pointer hover:border-white/20 transition-all">
+<div class="absolute top-4 right-4 size-6 rounded border border-white/20 flex items-center justify-center"></div>
+<div class="size-12 bg-slate-100 rounded-lg mb-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-black text-2xl">close</span>
+</div>
+<h3 class="font-bold text-lg mb-1">X (Twitter)</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">description</span>
+<span>Limite: 280 car.</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>Mar-Mer 9h-11h</span>
+</div>
+</div>
+</div>
+<!-- Facebook -->
+<div class="glass-card rounded-xl p-5 relative cursor-pointer hover:border-white/20 transition-all">
+<div class="absolute top-4 right-4 size-6 rounded border border-white/20 flex items-center justify-center"></div>
+<div class="size-12 bg-[#1877F2] rounded-lg mb-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">social_leaderboard</span>
+</div>
+<h3 class="font-bold text-lg mb-1">Facebook</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">description</span>
+<span>Limite: 63k car.</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>Ven-Dim 13h-16h</span>
+</div>
+</div>
+</div>
+<!-- Pinterest -->
+<div class="glass-card rounded-xl p-5 relative cursor-pointer hover:border-white/20 transition-all">
+<div class="absolute top-4 right-4 size-6 rounded border border-white/20 flex items-center justify-center"></div>
+<div class="size-12 bg-[#E60023] rounded-lg mb-4 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">push_pin</span>
+</div>
+<h3 class="font-bold text-lg mb-1">Pinterest</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">description</span>
+<span>Limite: 500 car.</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>Sam-Dim 20h-23h</span>
+</div>
+</div>
+</div>
+<!-- TikTok -->
+<div class="glass-card rounded-xl p-5 relative cursor-pointer hover:border-white/20 transition-all">
+<div class="absolute top-4 right-4 size-6 rounded border border-white/20 flex items-center justify-center"></div>
+<div class="size-12 bg-[#000000] rounded-lg mb-4 flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-white text-2xl">music_note</span>
+</div>
+<h3 class="font-bold text-lg mb-1 text-white">TikTok</h3>
+<div class="space-y-1">
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">description</span>
+<span>Limite: 2200 car.</span>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-xs">schedule</span>
+<span>Mar-Jeu 19h-21h</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Format Options -->
+<div class="glass-card rounded-xl p-6">
+<h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">tune</span>
+                            Options de format
+                        </h3>
+<div class="space-y-6">
+<div>
+<p class="text-sm font-semibold text-slate-300 mb-3">LinkedIn</p>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/40 text-sm font-medium">Post texte</button>
+<button class="px-4 py-2 rounded-full bg-white/5 text-slate-400 border border-white/10 text-sm font-medium hover:bg-white/10">Carrousel</button>
+<button class="px-4 py-2 rounded-full bg-white/5 text-slate-400 border border-white/10 text-sm font-medium hover:bg-white/10">Article</button>
+</div>
+</div>
+<div>
+<p class="text-sm font-semibold text-slate-300 mb-3">Instagram</p>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-full bg-white/5 text-slate-400 border border-white/10 text-sm font-medium hover:bg-white/10">Post Image</button>
+<button class="px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/40 text-sm font-medium">Carrousel</button>
+<button class="px-4 py-2 rounded-full bg-white/5 text-slate-400 border border-white/10 text-sm font-medium hover:bg-white/10">Story</button>
+<button class="px-4 py-2 rounded-full bg-white/5 text-slate-400 border border-white/10 text-sm font-medium hover:bg-white/10">Reel</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right: Preview Section -->
+<div class="space-y-6">
+<!-- Phone Preview -->
+<div class="glass-card rounded-xl p-6 flex flex-col items-center">
+<p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-6 w-full text-center">Aperçu visuel</p>
+<!-- Small Phone Mockup -->
+<div class="relative w-48 h-96 bg-slate-900 rounded-[2.5rem] border-[6px] border-slate-800 p-2 shadow-2xl overflow-hidden">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-slate-800 rounded-b-xl z-10"></div>
+<!-- Internal Content Mockup -->
+<div class="h-full w-full bg-[#111] rounded-[1.8rem] overflow-hidden flex flex-col p-4">
+<div class="flex items-center gap-2 mb-4">
+<div class="size-6 rounded-full bg-slate-800"></div>
+<div class="w-16 h-2 bg-slate-800 rounded"></div>
+</div>
+<div class="w-full aspect-square bg-gradient-to-br from-primary/30 to-secondary/30 rounded-lg mb-4 flex items-center justify-center border border-white/5">
+<span class="material-symbols-outlined text-white/20 text-4xl">view_carousel</span>
+</div>
+<div class="space-y-2">
+<div class="w-full h-2 bg-slate-800 rounded"></div>
+<div class="w-[90%] h-2 bg-slate-800 rounded"></div>
+<div class="w-[40%] h-2 bg-slate-800 rounded"></div>
+</div>
+</div>
+</div>
+<p class="mt-4 text-xs text-slate-500">Instagram Carrousel (1080x1350)</p>
+</div>
+<!-- Adaptation Table -->
+<div class="glass-card rounded-xl p-6">
+<h4 class="text-sm font-bold mb-4">Adaptation des caractères</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+<div class="flex items-center gap-3">
+<div class="size-2 rounded-full bg-green-500"></div>
+<span class="text-sm font-medium">LinkedIn</span>
+</div>
+<span class="text-xs font-mono text-slate-400">1,420 / 3,000</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+<div class="flex items-center gap-3">
+<div class="size-2 rounded-full bg-green-500"></div>
+<span class="text-sm font-medium">Instagram</span>
+</div>
+<span class="text-xs font-mono text-slate-400">1,420 / 2,200</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+<div class="flex items-center gap-3">
+<div class="size-2 rounded-full bg-amber-500"></div>
+<span class="text-sm font-medium">X (Twitter)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono text-amber-500 font-bold">1,420 / 280</span>
+<span class="material-symbols-outlined text-amber-500 text-sm">warning</span>
+</div>
+</div>
+</div>
+<p class="text-[10px] text-slate-500 mt-4 leading-relaxed">
+                            L'IA tronquera ou résumera automatiquement le contenu pour les plateformes dépassant leur limite.
+                        </p>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="mt-12 pt-8 border-t border-white/10 flex items-center justify-between">
+<button class="flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+<span class="material-symbols-outlined">arrow_back</span>
+                    Retour
+                </button>
+<button class="flex items-center gap-2 px-10 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all">
+                    Suivant
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</main>
+<footer class="py-10 text-center">
+<p class="text-slate-600 text-sm">© 2024 RAMI. Tous droits réservés.</p>
+</footer>
+</div>
+</body></html>

@@ -1,11 +1,14 @@
-import { Metadata } from 'next'
 import { CreatePageClient } from '@/components/visual/CreatePageClient'
 import { getTenantBrandDNAAction } from '@/lib/actions/visual.actions'
 import { getCurrentTenantPlan } from '@/lib/billing/require-feature'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-  title: 'Créer des visuels — RAMI',
-  description: 'Génération de contenu visuel neuropsychologique calibré sur votre Brand DNA',
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return {
+    title: t("create"),
+    description: t("createDescription"),
+  }
 }
 
 export default async function CreatePage() {
@@ -20,6 +23,7 @@ export default async function CreatePage() {
       brandName={dnaInfo.brandName}
       defaultPlatform={dnaInfo.platform ?? 'instagram'}
       currentPlan={planData?.plan ?? 'free'}
+      brandDNASummary={dnaInfo.summary}
     />
   )
 }

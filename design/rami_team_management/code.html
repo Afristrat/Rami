@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-pattern {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .bg-blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.15;
+        }
+    </style>
+</head>
+<body class="bg-background-dark text-slate-100 font-sans antialiased overflow-x-hidden">
+<!-- Background Elements -->
+<div class="grid-pattern fixed inset-0 z-[-2]"></div>
+<div class="bg-blob bg-[#7c3bed] top-[-10%] left-[-10%]"></div>
+<div class="bg-blob bg-[#2563EB] bottom-[-10%] right-[-10%]"></div>
+<div class="bg-blob bg-[#7c3bed] top-[40%] right-[20%] w-[300px] h-[300px]"></div>
+<div class="flex min-h-screen">
+<!-- Sidebar Navigation -->
+<aside class="w-72 border-r border-white/10 glass-card h-screen sticky top-0 flex flex-col p-6 gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="size-10 rounded-xl bg-gradient-to-br from-primary to-[#2563EB] flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<div>
+<h1 class="font-display font-bold text-lg tracking-tight">RAMI</h1>
+<p class="text-xs text-slate-400 font-medium">Agency OS</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1 flex-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">grid_view</span>
+<span class="font-medium text-sm">Tableau de bord</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">work</span>
+<span class="font-medium text-sm">Projets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">group</span>
+<span class="font-medium text-sm">Clients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white shadow-lg shadow-primary/25 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<span class="font-medium text-sm">Paramètres</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">chat_bubble</span>
+<span class="font-medium text-sm">Aide</span>
+</a>
+</nav>
+<div class="p-4 glass-card rounded-2xl flex items-center gap-3">
+<img alt="User Profile" class="size-10 rounded-full bg-slate-800" data-alt="Profile avatar for current user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTrYDLqNp_9ZhE0An-9D3TiwzbUMl5ofOHvQBrKMkwgHVr41l8Zl5UwlihcNQFr4_kND4dHlpR66_dpo-Yf0ips-yGN2E7LItRHdjY4kLe84XnrefolMQoR0CcwMfD7bYie9AmQOgZ6WY3Z5_sqteH5AUns3S4LWPOwJYJmLpVrov_jqXYmoFM2sgnLHI3Dd8RxmIhk1HpA8FsIxxLN8VkCSXa1zo2LViLZ5GQAdCtfM-HLDi788UbMeiCt25yxb9PnGDOnDUWmsfY"/>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold truncate">Alex Rivera</p>
+<p class="text-xs text-slate-500 truncate">Pro Plan</p>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm">unfold_more</span>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 p-10 max-w-[1200px] mx-auto">
+<!-- Header section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-4xl font-display font-extrabold tracking-tight mb-6">Gestion de l'équipe</h1>
+<!-- Sub-navigation -->
+<div class="flex gap-8 border-b border-white/10">
+<a class="pb-4 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors" href="#">Général</a>
+<a class="pb-4 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors" href="#">Connexions</a>
+<a class="pb-4 text-sm font-bold text-white border-b-2 border-primary relative" href="#">
+                            Équipe
+                            <span class="absolute bottom-[-1px] left-0 right-0 h-[2px] bg-primary blur-[2px]"></span>
+</a>
+<a class="pb-4 text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors" href="#">Facturation</a>
+</div>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-[#2563EB] text-white font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+                    Inviter un membre
+                </button>
+</div>
+<!-- Role Cards Section -->
+<div class="grid grid-cols-4 gap-4 mb-10">
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-primary text-5xl">shield_person</span>
+</div>
+<div class="size-10 rounded-lg bg-primary/20 flex items-center justify-center mb-4 text-primary">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<h3 class="font-bold text-lg mb-1">Owner</h3>
+<p class="text-xs text-slate-400 leading-relaxed">Accès total et gestion de la facturation.</p>
+</div>
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[#2563EB] text-5xl">manage_accounts</span>
+</div>
+<div class="size-10 rounded-lg bg-[#2563EB]/20 flex items-center justify-center mb-4 text-[#2563EB]">
+<span class="material-symbols-outlined">settings_suggest</span>
+</div>
+<h3 class="font-bold text-lg mb-1">Admin</h3>
+<p class="text-xs text-slate-400 leading-relaxed">Gère les membres et les projets globaux.</p>
+</div>
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-emerald-500 text-5xl">edit_square</span>
+</div>
+<div class="size-10 rounded-lg bg-emerald-500/20 flex items-center justify-center mb-4 text-emerald-500">
+<span class="material-symbols-outlined">edit</span>
+</div>
+<h3 class="font-bold text-lg mb-1">Éditeur</h3>
+<p class="text-xs text-slate-400 leading-relaxed">Modifie le contenu des projets assignés.</p>
+</div>
+<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-slate-500 text-5xl">visibility</span>
+</div>
+<div class="size-10 rounded-lg bg-slate-500/20 flex items-center justify-center mb-4 text-slate-500">
+<span class="material-symbols-outlined">remove_red_eye</span>
+</div>
+<h3 class="font-bold text-lg mb-1 text-slate-300">Viewer</h3>
+<p class="text-xs text-slate-400 leading-relaxed">Lecture seule des ressources et documents.</p>
+</div>
+</div>
+<!-- Team Members Table -->
+<div class="mb-12">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-xl font-bold font-display">Membres de l'équipe <span class="text-slate-500 text-sm font-normal ml-2">4 membres</span></h2>
+</div>
+<div class="glass-card rounded-2xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/5 bg-white/5">
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Membre</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Email</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Rôle</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400">Activité</th>
+<th class="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="group hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="size-9 rounded-full bg-slate-800" data-alt="Member avatar for Alex Rivera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6d_-Wn4ow1MDAVu4w-1GkHo8ej8S_GsYDVJxIAxOKySEczzzuGO1Pnonl1fPnhxEvlYKmdorq2HRf4h_fS73FPhfT6YnnGKGg7UTKujStjhCJPCWu89DVmAQg1bi8azKUZ9Bw0uLtpGVwX7PHyB4cqK40_IUnm0kMQMWZ5tgmMbOy6TZpSgrUWxCHDk9qxC1vCMWmVEW_yK3SHqn7N990_ZvFiE6lEapVqu3GcXwHv6Yaw0FeIKV3xNeymKLAXaKTke0MmuosgcTH"/>
+<span class="text-sm font-semibold">Alex Rivera</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">alex@rami.so</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-primary font-medium text-xs bg-primary/10 px-3 py-1 rounded-full w-fit">
+                                        Owner
+                                    </div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">En ligne</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-slate-500 hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="size-9 rounded-full bg-slate-800" data-alt="Member avatar for Sarah Chen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiy66I5wRqxrrT5uYu0tpEW82oDD-lzoTP2raEq_UMO58nVXjVNQWouBlhz8Kevi4N-1R3RRnGl4OSrRbAwK63Tc5MCZ4uhLuQMFtEFplp6PdkaWaiWkMxO2nZq4E4nvBDqK4p7rPMxdQsXLiu4LN3WhrKPbumF0ZGtMj6wMsuiWVOQbEfWBckomIEIv8K0EmqcMB1y38Q-cIc-sa5e4nw6pc1lAvxxdnCvId8xzthCYibWv4jkfnTZ_k0_AIaasI7hgAF2s8mM035"/>
+<span class="text-sm font-semibold">Sarah Chen</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">sarah.c@rami.so</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-[#2563EB] font-medium text-xs bg-[#2563EB]/10 px-3 py-1 rounded-full w-fit">
+                                        Admin
+                                    </div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">Il y a 2h</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-slate-500 hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<tr class="group hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img class="size-9 rounded-full bg-slate-800" data-alt="Member avatar for Marcus Bloom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvmobVQZqYe5Pb1V1i4OIYRHrV7deW8Js4HSuRxc0JEakvBecHR21wDPp8CaNc-GCldZCSYjLeB0FqUY8icUi9TTy7AAp1Zb_WI6RyjIUXSWMkqgvH-S-7h1T02Sovj57MxUfl255jM7KzIxilJqIqrfmaiH7T0G8GxBnnE599xN-GYJtEATgGVsiHRfJ6_KFmOQpL0Eof02JkltiuQI7uc5pZ3PWpby42VvX1t7NwrfcK05_LQ8C1mtTwcU7notK1CTYEw08odgTL"/>
+<span class="text-sm font-semibold">Marcus Bloom</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">mbloom@rami.so</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2 text-emerald-500 font-medium text-xs bg-emerald-500/10 px-3 py-1 rounded-full w-fit">
+                                        Éditeur
+                                    </div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400">Hier</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-slate-500 hover:text-slate-200 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Pending Invitations Section -->
+<div>
+<h2 class="text-xl font-bold font-display mb-4">Invitations en attente</h2>
+<div class="glass-card rounded-2xl overflow-hidden">
+<div class="divide-y divide-white/5">
+<div class="flex items-center justify-between p-6">
+<div class="flex items-center gap-6">
+<div>
+<p class="text-sm font-semibold">jordan.v@design.com</p>
+<p class="text-xs text-slate-500">Envoyé il y a 3 jours</p>
+</div>
+<div class="px-3 py-1 bg-slate-800 rounded-lg text-xs font-medium text-slate-400 border border-white/5">
+                                    Éditeur
+                                </div>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 rounded-lg text-sm font-medium hover:bg-white/5 transition-colors">Renvoyer</button>
+<button class="px-4 py-2 rounded-lg text-sm font-medium text-rose-400 hover:bg-rose-400/10 transition-colors">Annuler</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Invite Modal Overlay -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+<div class="glass-card w-full max-w-lg rounded-[2rem] p-8 shadow-2xl relative border-primary/20">
+<button class="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+<div class="size-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary mb-6">
+<span class="material-symbols-outlined text-3xl">person_add</span>
+</div>
+<h2 class="text-2xl font-display font-extrabold mb-2">Inviter un nouveau membre</h2>
+<p class="text-slate-400 text-sm mb-8">Collaborez plus rapidement en ajoutant vos collègues à votre espace de travail.</p>
+<form class="space-y-6">
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Adresse Email</label>
+<input class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" placeholder="nom@agence.com" type="email"/>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Rôle assigné</label>
+<div class="relative">
+<select class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none transition-all">
+<option>Éditeur</option>
+<option>Admin</option>
+<option>Viewer</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Projet</label>
+<div class="relative">
+<select class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 appearance-none transition-all">
+<option>Tous les projets</option>
+<option>Marketing Campaign</option>
+<option>Product Design</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+</div>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Message personnel (Optionnel)</label>
+<textarea class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" placeholder="Hé ! Rejoins notre équipe sur RAMI pour commencer le projet..." rows="3"></textarea>
+</div>
+<div class="flex gap-3 pt-2">
+<button class="flex-1 py-3 px-6 rounded-xl border border-white/10 font-bold text-sm hover:bg-white/5 transition-all" type="button">
+                        Annuler
+                    </button>
+<button class="flex-1 py-3 px-6 rounded-xl bg-gradient-to-r from-primary to-[#2563EB] text-white font-bold text-sm shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all" type="submit">
+                        Envoyer l'invitation
+                    </button>
+</div>
+</form>
+</div>
+</div>
+</body></html>

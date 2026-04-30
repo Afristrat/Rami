@@ -1,11 +1,12 @@
 import { z } from "zod"
+import { V } from "@/lib/utils/validation-messages"
 import type { Platform } from "@/lib/scheduler/platform-config"
 
 // ── Étape 1 — Brief & contexte ───────────────────────────────────────────────
 
 export const step1Schema = z.object({
-  titre: z.string().min(2, "Titre requis (min 2 caractères)").max(200).trim(),
-  description: z.string().min(10, "Description requise (min 10 caractères)").max(2000).trim(),
+  titre: z.string().min(2, V.titleRequired).max(200).trim(),
+  description: z.string().min(10, V.descriptionRequired).max(2000).trim(),
   objectif: z.enum(["confiance", "urgence", "aspiration", "expertise", "communauté", "joie", "sérénité"]),
   cible: z.string().max(300).trim().optional(),
 })
@@ -20,7 +21,7 @@ export type ContentFormat = typeof CONTENT_FORMATS[number]
 export const step2Schema = z.object({
   platforms: z
     .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
-    .min(1, "Sélectionnez au moins une plateforme"),
+    .min(1, V.platformRequired),
   format: z.enum(CONTENT_FORMATS),
 })
 

@@ -5,6 +5,7 @@ import { uploadAsset, deleteFromStorage, createSignedUrl, computeQuotaStatus, SI
 import { getTenantStorageUsage } from "@/lib/services/storage/client"
 import { UploadFileSchema, DeleteFileSchema, GetSignedUrlSchema } from "@/lib/schemas/storage.schema"
 import type { Plan } from "@/lib/services/storage"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -12,10 +13,13 @@ async function getCurrentTenant(supabase: Awaited<ReturnType<typeof createClient
   const { data: { user }, error } = await supabase.auth.getUser()
   if (error || !user) return { tenant: null, error: "Non authentifié." }
 
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { tenant: null, error: "Tenant introuvable." }
+
   const { data: tenant, error: tenantError } = await supabase
     .from("tenants")
     .select("id, plan")
-    .eq("owner_id", user.id)
+    .eq("id", tenantId)
     .single()
 
   if (tenantError || !tenant) {

@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { cn } from "@/lib/utils"
 import { CAUSSE_COLORS, VOICE_TONES, type BrandDnaFormData } from "@/lib/schemas/brand-dna.schema"
 import { computeDnaScore, getDnaScoreLevel } from "@/lib/utils/dna-score"
@@ -12,6 +14,8 @@ interface DnaScoreBadgeProps {
 }
 
 export function DnaScoreBadge({ data, className }: DnaScoreBadgeProps) {
+  const t = useTranslations("brandDna.form")
+  const tScore = useTranslations("brandDna.scoreLevel")
   const score = computeDnaScore(data)
   const percentage = Math.round(score * 100)
   const level = getDnaScoreLevel(score)
@@ -77,11 +81,11 @@ export function DnaScoreBadge({ data, className }: DnaScoreBadgeProps) {
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
           <p className={cn("text-sm font-semibold", level.color)}>
-            Score Brand DNA — {level.label}
+            {t("scoreBrandDnaWithLevel", { level: tScore(`${level.labelKey}.label`) })}
           </p>
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
-          {level.description}
+          {tScore(`${level.descriptionKey}.description`)}
         </p>
 
         {/* Éléments manquants */}
@@ -89,27 +93,27 @@ export function DnaScoreBadge({ data, className }: DnaScoreBadgeProps) {
           <div className="mt-1.5 flex flex-wrap gap-1">
             {!data.logoDataUrl && (
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                + Logo (+15%)
+                {t("missingLogo")}
               </span>
             )}
             {!data.colorPrimary && (
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                + Palette (+25%)
+                {t("missingPalette")}
               </span>
             )}
             {!data.voiceTone && (
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                + Ton de voix (+15%)
+                {t("missingVoiceTone")}
               </span>
             )}
             {!data.objectifsCognitifs?.length && !data.objectifCognitif && (
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                + Objectif cognitif (+3%)
+                {t("missingCognitiveObj")}
               </span>
             )}
             {(!data.audienceDescription || data.audienceDescription.length < 20) && (
               <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-                + Audience (+10%)
+                {t("missingAudience")}
               </span>
             )}
           </div>
@@ -123,6 +127,8 @@ export function DnaScoreBadge({ data, className }: DnaScoreBadgeProps) {
  * Version compacte pour l'affichage dans le récapitulatif.
  */
 export function DnaScoreCompact({ score }: { score: number }) {
+  const t = useTranslations("brandDna.form")
+  const tScore = useTranslations("brandDna.scoreLevel")
   const percentage = Math.round(score * 100)
   const level = getDnaScoreLevel(score)
 
@@ -137,7 +143,7 @@ export function DnaScoreCompact({ score }: { score: number }) {
         })}
       />
       <span className={cn("text-[11px] font-semibold", level.color)}>
-        Score DNA : {percentage}%
+        {t("scoreDna", { pct: percentage })}
       </span>
     </div>
   )
@@ -155,29 +161,32 @@ export function ColorPaletteSummary({
   secondaryId: string
   accentId: string
 }) {
+  const tPicker = useTranslations("brandDna.colorPicker")
+  const tColors = useTranslations("brandDna.colors")
   const colors = [primaryId, secondaryId, accentId]
     .map((id) => CAUSSE_COLORS.find((c) => c.id === id))
     .filter(Boolean)
 
   if (colors.length === 0) return null
 
+  const roles = [tPicker("rolePrimary"), tPicker("roleSecondary"), tPicker("roleAccent")]
+
   return (
     <div className="flex gap-2">
       {colors.map((color, i) => {
         if (!color) return null
-        const roles = ["Principale", "Secondaire", "Accent"]
         return (
           <div key={i} className="flex-1 space-y-1">
             <div
               className="h-8 rounded-lg shadow-sm ring-1 ring-black/5"
               style={{ backgroundColor: color.hex }}
-              title={`${color.name} — ${color.emotion}`}
+              title={`${tColors(`${color.id}.name`)} — ${tColors(`${color.id}.emotion`)}`}
             />
             <p className="truncate text-center text-[9px] font-medium text-muted-foreground">
               {roles[i]}
             </p>
             <p className="truncate text-center text-[9px] text-muted-foreground/70">
-              {color.name}
+              {tColors(`${color.id}.name`)}
             </p>
           </div>
         )
@@ -190,13 +199,14 @@ export function ColorPaletteSummary({
  * Badge ton de voix avec emoji et label.
  */
 export function VoiceToneBadge({ toneId }: { toneId: string }) {
+  const tTones = useTranslations("brandDna.voiceTones")
   const tone = VOICE_TONES.find((t) => t.id === toneId)
   if (!tone) return null
 
   return (
     <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1">
       <span className="text-sm">{tone.icon}</span>
-      <span className="text-xs font-medium text-foreground">{tone.label}</span>
+      <span className="text-xs font-medium text-foreground">{tTones(`${tone.id}.label`)}</span>
     </div>
   )
 }

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Invoice Management Dashboard</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Note: Cal Sans is typically a custom font, using Inter-Bold as a weight-fallback or font-family simulation if not available via CDN -->
+<link href="https://fonts.cdnfonts.com/css/cal-sans" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'rami-bg': '#0A0A0F',
+            'rami-card-kpi': '#111118',
+            'rami-card-table': '#0E0E17',
+            'rami-text': '#F8FAFC',
+            'rami-secondary': 'rgba(255,255,255,0.6)',
+            'rami-accent-start': '#7C3AED',
+            'rami-accent-end': '#2563EB',
+            'rami-positive': '#10B981',
+            'rami-negative': '#EF4444',
+            'rami-warning': '#F59E0B',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Cal Sans', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          borderRadius: {
+            'rami': '16px',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-layout">
+    body {
+      background-color: #0A0A0F;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      color: #F8FAFC;
+    }
+
+    .glass {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .cta-gradient {
+      background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%);
+      transition: opacity 0.2s ease;
+    }
+
+    .cta-gradient:hover {
+      opacity: 0.9;
+    }
+
+    .status-pill-active {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="min-h-screen font-sans">
+<!-- BEGIN: MainContainer -->
+<div class="max-w-[1400px] mx-auto px-6 py-8">
+<!-- BEGIN: TopNavigationBar -->
+<header class="mb-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between" data-purpose="top-navigation">
+<div class="flex flex-wrap items-center gap-4 flex-1">
+<!-- Search Bar -->
+<div class="relative w-full max-w-sm">
+<span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-rami-card-kpi border border-white/10 rounded-rami focus:ring-2 focus:ring-rami-accent-start focus:border-transparent text-sm placeholder:text-gray-500" placeholder="Rechercher une facture..." type="text"/>
+</div>
+<!-- Filter Pills -->
+<nav class="flex items-center gap-2 overflow-x-auto no-scrollbar" data-purpose="status-filters">
+<button class="px-4 py-2 text-xs font-medium rounded-full bg-white/10 text-white border border-white/20">Tous</button>
+<button class="px-4 py-2 text-xs font-medium rounded-full text-rami-secondary hover:bg-white/5">Brouillon</button>
+<button class="px-4 py-2 text-xs font-medium rounded-full text-rami-secondary hover:bg-white/5">Envoyée</button>
+<button class="px-4 py-2 text-xs font-medium rounded-full text-rami-secondary hover:bg-white/5">Payée</button>
+<button class="px-4 py-2 text-xs font-medium rounded-full text-rami-secondary hover:bg-white/5">En retard</button>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<!-- Date Picker Placeholder -->
+<button class="flex items-center gap-2 px-4 py-2.5 bg-rami-card-kpi border border-white/10 rounded-rami text-sm font-medium hover:bg-white/5 transition-colors">
+<svg class="w-4 h-4 text-rami-secondary" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>Oct 2023 - Nov 2023</span>
+</button>
+<!-- Primary CTA -->
+<button class="cta-gradient px-6 py-2.5 rounded-rami text-white text-sm font-bold flex items-center gap-2 shadow-lg shadow-rami-accent-start/20">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Nouvelle facture
+        </button>
+</div>
+</header>
+<!-- END: TopNavigationBar -->
+<!-- BEGIN: KPIRow -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10" data-purpose="kpi-summary">
+<!-- Total Facturé -->
+<div class="bg-rami-card-kpi p-6 rounded-rami border border-white/5 flex flex-col justify-between h-40">
+<span class="text-rami-secondary text-sm font-medium">Total facturé ce mois</span>
+<div class="mt-4 flex flex-col">
+<span class="font-heading text-4xl text-rami-text leading-tight">$124,500</span>
+<div class="flex items-center gap-1.5 mt-2">
+<span class="text-rami-positive text-xs font-bold flex items-center">
+<svg class="w-3 h-3 mr-0.5" fill="currentColor" viewbox="0 0 20 20"><path clip-rule="evenodd" d="M5.293 7.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L6.707 7.707a1 1 0 01-1.414 0z" fill-rule="evenodd"></path></svg>
+              +12.5%
+            </span>
+<span class="text-rami-secondary text-[10px] uppercase tracking-wider">vs mois dernier</span>
+</div>
+</div>
+</div>
+<!-- En attente -->
+<div class="bg-rami-card-kpi p-6 rounded-rami border border-white/5 flex flex-col justify-between h-40">
+<span class="text-rami-secondary text-sm font-medium">En attente de paiement</span>
+<div class="mt-4 flex flex-col">
+<span class="font-heading text-4xl text-rami-text leading-tight">$42,100</span>
+<span class="text-rami-secondary text-[10px] uppercase tracking-wider mt-3">8 factures impayées</span>
+</div>
+</div>
+<!-- Payé -->
+<div class="bg-rami-card-kpi p-6 rounded-rami border border-white/5 flex flex-col justify-between h-40">
+<span class="text-rami-secondary text-sm font-medium">Payé</span>
+<div class="mt-4 flex flex-col">
+<span class="font-heading text-4xl text-rami-text leading-tight">$82,400</span>
+<span class="text-rami-secondary text-[10px] uppercase tracking-wider mt-3">24 factures réglées</span>
+</div>
+</div>
+</section>
+<!-- END: KPIRow -->
+<!-- BEGIN: MainTable -->
+<main class="bg-rami-card-table rounded-rami border border-white/5 overflow-hidden" data-purpose="invoice-table-container">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/10 text-rami-secondary text-xs uppercase tracking-widest">
+<th class="px-6 py-5 font-medium">N° Facture</th>
+<th class="px-6 py-5 font-medium">Client</th>
+<th class="px-6 py-5 font-medium">Montant</th>
+<th class="px-6 py-5 font-medium">Date</th>
+<th class="px-6 py-5 font-medium text-center">Statut</th>
+<th class="px-6 py-5 font-medium text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/[0.05] text-sm">
+<!-- Row 1: Paid -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-rami-secondary">#INV-2023-001</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-white/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOLVkWcpslExkBFlGoRuSgysmfd-PCYBv59hWHmWPNtmm1-q0DgLF3hi7sJSi0k8j88ML9nG1qgfcbZS0TvDd7bQpvsRsA95XDdtOVq9Y2QZUa80qqaOvyu5FSxrA_BlRorQC0W42iYiWgDIk4bubzDynpyW8gDJ4_Hs4fixKCO263AQ_g84zzjvrh0CjyE1BXb9UQ8VnjSIzU6oOnifbv7KkSzCR8ff2llrpbLNzb1unf-fB9SKNfiYV3S0RgWqR0wkGFMFsL1cpP"/>
+<span class="font-medium text-rami-text">Acme Corp</span>
+</div>
+</td>
+<td class="px-6 py-4 font-semibold text-rami-text">$12,450.00</td>
+<td class="px-6 py-4 text-rami-secondary text-xs">24 Oct 2023</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rami-positive/10 text-rami-positive border border-rami-positive/20">PAYÉE</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-rami-secondary hover:text-white transition-colors">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+</button>
+</td>
+</tr>
+<!-- Row 2: Warning (Sent) -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-rami-secondary">#INV-2023-002</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-white/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfuCfmIyOEkKgwamoPJl_cNd8MAzTslXhidCqPG768NylE9ky8qsg1EQ_bn-WfzZ4uCeeytxK4XdSFnkFHqn_We816L55cKOsy8Sdau_LoJOxQ6usA5ztfukEweyspKI8owiKZClL-S63wcG0NQorcnr2fo5N_xmP8ldRtlRTe0kaTMX0YwpjA5Q6vPztowKEiVXvHIPEkFxMXJCozdVCun3RcQ0vaolr_CH5GepPefWlkdnmZk9OtgsOGdBIw7hUCj8uACq_lbOWp"/>
+<span class="font-medium text-rami-text">Global Tech</span>
+</div>
+</td>
+<td class="px-6 py-4 font-semibold text-rami-text">$8,200.00</td>
+<td class="px-6 py-4 text-rami-secondary text-xs">28 Oct 2023</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rami-warning/10 text-rami-warning border border-rami-warning/20">ENVOYÉE</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-rami-secondary hover:text-white transition-colors">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+</button>
+</td>
+</tr>
+<!-- Row 3: Negative (Overdue) -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-rami-secondary">#INV-2023-003</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-white/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgRsVkcTKJ7MdME_4yllQZJ8HdkzoYJdvedJtCBGTfK2lhq8Y6q7Hf1xXpS7MmRfuBlAaT4QuwrLvOWNrVn4orKehDHUsR9of-fJPtgMEAHdwSlWqUzY4cCxuoB-Wwjlh0LdFTf7YmH0EwEGQ1YFiYQLW8AmseQloIj8Zr1kzozeFjIhJkbzRxdsv3HqbYMOvkeQ-zdeEQ5V8MXOS9ct_3Yrlpwq2f9eV6MFQhU9lSXlPC8tUHXHNnFGPiME1l2O84QH1Xmc9bb2IQ"/>
+<span class="font-medium text-rami-text">Stellar Design</span>
+</div>
+</td>
+<td class="px-6 py-4 font-semibold text-rami-text">$4,300.50</td>
+<td class="px-6 py-4 text-rami-secondary text-xs">15 Oct 2023</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rami-negative/10 text-rami-negative border border-rami-negative/20">EN RETARD</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-rami-secondary hover:text-white transition-colors">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+</button>
+</td>
+</tr>
+<!-- Row 4: Draft -->
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-4 font-mono text-xs text-rami-secondary">#INV-2023-004</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-white/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB3nQx80C8rYVOYDEVQMwxwVwfdrCiPQ1wit5KsUo4vAgrbjH9E3Zs1IVkcswVyCU-GkgfGg9H-CO6vTAmpNIFipONBGub48sI9kuvwo16TxspaRmHkR_zhd5Qkl9UObf_fTnT-Y05yT1uaCsJRq1q8g88Bd5X1kVWUvO7J8l0y9w6Lnf9ck70bpAZSrY52K0JBF51ktESuhqAI8E_BrLpd2UEhz0J5FJ6cCHVJ3PC-ccfLoXc1p_XEAaVysImOM3VMy_Tbgm_5faH"/>
+<span class="font-medium text-rami-text">Lunar Agency</span>
+</div>
+</td>
+<td class="px-6 py-4 font-semibold text-rami-text">$15,700.00</td>
+<td class="px-6 py-4 text-rami-secondary text-xs">02 Nov 2023</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-rami-secondary border border-white/10">BROUILLON</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 text-rami-secondary hover:text-white transition-colors">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination Placeholder -->
+<div class="px-6 py-4 border-t border-white/5 flex items-center justify-between text-xs text-rami-secondary">
+<span>Affichage de 1-4 sur 84 factures</span>
+<div class="flex gap-2">
+<button class="px-3 py-1 bg-white/5 rounded border border-white/10 hover:bg-white/10 transition-colors">Précédent</button>
+<button class="px-3 py-1 bg-white/5 rounded border border-white/10 hover:bg-white/10 transition-colors">Suivant</button>
+</div>
+</div>
+</main>
+<!-- END: MainTable -->
+</div>
+<!-- END: MainContainer -->
+</body></html>

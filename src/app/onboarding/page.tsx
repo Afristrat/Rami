@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard"
+import { Sparkles } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Bienvenue sur RAMI — Configurez votre espace",
@@ -15,8 +16,11 @@ export default async function OnboardingPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Non authentifié → login
+  // Non authentifié -> login
   if (!user) redirect("/login")
+
+  // Super admin -> jamais d'onboarding, accès direct au dashboard
+  if (user.app_metadata?.role === "super_admin") redirect("/dashboard")
 
   // Déjà onboardé via user_metadata
   if (user.user_metadata?.onboarding_completed === true) redirect("/dashboard")
@@ -33,40 +37,42 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            {/* Logo RAMI */}
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">R</span>
+    <main className="relative min-h-screen bg-background overflow-hidden">
+      {/* Decorative background — Stitch style */}
+      <div className="fixed inset-0 rami-grid-pattern pointer-events-none" />
+      <div className="rami-blob top-[-100px] left-[-100px] w-[500px] h-[500px] bg-rami-violet" />
+      <div className="rami-blob bottom-[-50px] right-[-50px] w-[400px] h-[400px] bg-rami-blue" />
+      <div className="rami-blob top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-rami-violet/60" />
+
+      {/* Stitch-style header */}
+      <header className="relative z-10 w-full max-w-5xl mx-auto px-6 py-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/20 rounded-lg border border-primary/30">
+              <Sparkles className="size-5 text-primary" />
             </div>
-            <span className="text-lg font-bold text-foreground">RAMI</span>
-            <span className="text-xs text-muted-foreground">by AI-MPower</span>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-foreground">RAMI</h1>
+              <span className="text-xs text-muted-foreground">by AI-MPower</span>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">
-            Connecté en tant que{" "}
             <span className="font-medium text-foreground">{user.email}</span>
           </p>
         </div>
       </header>
 
-      {/* Contenu principal */}
-      <div className="mx-auto max-w-7xl px-6 py-12">
-        {/* Titre de bienvenue */}
-        <div className="mb-12 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Bienvenue sur RAMI 👋
-          </h1>
-          <p className="mt-3 text-base text-muted-foreground max-w-lg mx-auto">
-            Configurez votre espace de travail en 3 minutes pour commencer à créer
-            du contenu social media qui touche juste.
-          </p>
-        </div>
-
+      {/* Content */}
+      <div className="relative z-10 mx-auto max-w-5xl px-6 pb-20">
         <OnboardingWizard />
       </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 text-center py-6">
+        <p className="text-xs text-muted-foreground/50">
+          &copy; {new Date().getFullYear()} RAMI by AI-MPower Consulting. Tous droits réservés.
+        </p>
+      </footer>
     </main>
   )
 }

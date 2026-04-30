@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import { VOICE_TONES } from "@/lib/schemas/brand-dna.schema"
 
@@ -10,12 +11,15 @@ interface VoiceTonePickerProps {
 }
 
 export function VoiceTonePicker({ value, onChange, error }: VoiceTonePickerProps) {
+  const t = useTranslations("brandDna.voiceTones")
+
   return (
     <div className="space-y-2">
       {error && <p className="text-xs text-destructive">{error}</p>}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {VOICE_TONES.map((tone) => {
           const isSelected = value === tone.id
+          const keywords = t(`${tone.id}.keywords`).split(", ").filter(Boolean)
           return (
             <button
               key={tone.id}
@@ -37,14 +41,14 @@ export function VoiceTonePicker({ value, onChange, error }: VoiceTonePickerProps
                     isSelected ? "text-primary" : "text-foreground"
                   )}
                 >
-                  {tone.label}
+                  {t(`${tone.id}.label`)}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground leading-snug">
-                  {tone.description}
+                  {t(`${tone.id}.description`)}
                 </p>
                 {isSelected && (
                   <div className="mt-2 flex flex-wrap gap-1">
-                    {tone.keywords.map((kw) => (
+                    {keywords.map((kw) => (
                       <span
                         key={kw}
                         className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary"

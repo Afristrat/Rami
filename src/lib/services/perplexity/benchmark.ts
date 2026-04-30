@@ -5,6 +5,8 @@
  */
 
 import { createServiceClient } from "@/lib/supabase/service"
+import { getPromptConfig } from "@/lib/services/ai/prompt-config"
+import { log } from "@/lib/utils/logger"
 
 export type PerplexityBenchmarkData = {
   tendancesVisuelles: string
@@ -68,21 +70,16 @@ export async function runPerplexityBenchmark(
     return { data: existingBenchmark }
   }
 
-  // Vérifier la clé API
-  const perplexityKey = process.env.PERPLEXITY_API_KEY
+  const benchmarkConfig = await getPromptConfig("perplexity_sector_benchmark")
+
+  // Résolution de la clé API : BYOK depuis DB > variable d'environnement
+  const perplexityKey = benchmarkConfig.apiKey
   if (!perplexityKey) {
     return { error: "PERPLEXITY_API_KEY non configurée dans les variables d'environnement" }
   }
 
   const culture = primaryCulture ?? "international"
   const cultureLabel = CULTURE_LABELS[culture] ?? "internationale"
-
-  const systemPrompt = [
-    "Tu es un expert senior en marketing digital, stratégie de contenu et tendances sectorielles.",
-    "Tu analyses les données les plus récentes disponibles (2025-2026).",
-    "Réponds UNIQUEMENT en JSON valide, sans markdown, sans bloc de code, sans commentaires.",
-    "Sois concis, factuel, orienté résultats opérationnels pour une agence marketing.",
-  ].join(" ")
 
   const userPrompt = [
     `Analyse les tendances actuelles du secteur "${sector}" pour une audience ${cultureLabel} sur les réseaux sociaux (2025-2026).`,
@@ -107,9 +104,9 @@ export async function runPerplexityBenchmark(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "sonar",
+        model: benchmarkConfig.model,
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: "system", content: benchmarkConfig.systemPrompt },
           { role: "user", content: userPrompt },
         ],
         max_tokens: 1200,
@@ -164,7 +161,7 @@ export async function runPerplexityBenchmark(
 
   if (updateError) {
     // Retourner les données même si le stockage échoue
-    console.error("[perplexity-benchmark] Erreur stockage DB:", updateError.message)
+    log({ level: "error", module: "perplexity-benchmark", action: "db_storage_failed", tenant_id: tenantId, metadata: { error: updateError.message } })
   }
 
   return { data: result }

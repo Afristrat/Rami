@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { hasFeatureAccess, isGenerationQuotaExceeded } from './plans'
 import type { Feature, Plan } from './plans'
+import { resolveUserTenant } from '@/lib/services/tenant/resolve'
 
 interface TenantPlanData {
   plan: Plan
@@ -23,10 +24,13 @@ export async function getCurrentTenantPlan(): Promise<TenantPlanData | null> {
 
   if (!user) return null
 
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return null
+
   const { data: tenant } = await supabase
     .from('tenants')
     .select('plan, generation_count')
-    .eq('owner_id', user.id)
+    .eq('id', tenantId)
     .single<{ plan: string; generation_count: number }>()
 
   if (!tenant) return null

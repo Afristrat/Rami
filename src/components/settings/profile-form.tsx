@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useRef } from "react"
 import { User, Upload, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,6 +15,10 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ profile }: ProfileFormProps) {
+  const t = useTranslations("settings.profileSection")
+  const _tCommon = useTranslations("common")
+  const tSettings = useTranslations("settings")
+
   const [fullName, setFullName] = useState(profile.fullName)
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? "")
   const [previewUrl, setPreviewUrl] = useState(profile.avatarUrl ?? "")
@@ -35,11 +40,11 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     if (!file) return
 
     if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-      setMessage({ type: "error", text: "Format invalide. Utilisez JPG, PNG ou WebP." })
+      setMessage({ type: "error", text: t("invalidFormat") })
       return
     }
     if (file.size > 2 * 1024 * 1024) {
-      setMessage({ type: "error", text: "Image trop lourde. Maximum 2 Mo." })
+      setMessage({ type: "error", text: t("fileTooLarge") })
       return
     }
 
@@ -74,9 +79,9 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       {/* Avatar */}
       <Card>
         <CardHeader>
-          <CardTitle>Photo de profil</CardTitle>
+          <CardTitle>{t("avatar")}</CardTitle>
           <CardDescription>
-            JPG, PNG ou WebP — maximum 2 Mo
+            {t("avatarFormats")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -111,7 +116,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Upload className="size-3.5" />
-                Changer la photo
+                {t("changeAvatar")}
               </Button>
               {previewUrl && (
                 <Button
@@ -124,7 +129,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
                   }}
                   className="text-muted-foreground"
                 >
-                  Supprimer
+                  {t("remove")}
                 </Button>
               )}
               <input
@@ -142,23 +147,23 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       {/* Informations personnelles */}
       <Card>
         <CardHeader>
-          <CardTitle>Informations personnelles</CardTitle>
+          <CardTitle>{t("personalInfo")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="fullName">Nom complet</Label>
+            <Label htmlFor="fullName">{t("fullName")}</Label>
             <Input
               id="fullName"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="Votre nom"
+              placeholder={t("fullNamePlaceholder")}
               maxLength={100}
               required
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
@@ -167,7 +172,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
               className="bg-muted/50 text-muted-foreground"
             />
             <p className="text-xs text-muted-foreground">
-              L&apos;email ne peut pas être modifié ici.
+              {t("emailReadonly")}
             </p>
           </div>
         </CardContent>
@@ -195,7 +200,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       <div className="flex justify-end">
         <Button type="submit" disabled={isPending}>
           {isPending && <Loader2 className="size-4 animate-spin" />}
-          {isPending ? "Enregistrement…" : "Enregistrer"}
+          {isPending ? tSettings("savingButton") : tSettings("saveButton")}
         </Button>
       </div>
     </form>

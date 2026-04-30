@@ -27,6 +27,8 @@ export default defineConfig({
       name: 'mobile-chrome',
       use: { ...devices['Pixel 7'] },
     },
+    { name: 'tablet', use: { ...devices['iPad Pro 11'] } },
+    { name: 'mobile-safari', use: { ...devices['iPhone 14'] } },
   ],
   webServer: {
     command: 'npm run dev',

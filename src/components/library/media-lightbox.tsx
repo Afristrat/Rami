@@ -1,5 +1,8 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+import { useIntlLocale } from "@/lib/utils/format-locale"
+
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import Image from "next/image"
 import { X, Trash2, Send, Download, FileText, Play, Calendar, HardDrive } from "lucide-react"
@@ -20,8 +23,8 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} Mo`
 }
 
-function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
+function formatDate(iso: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -82,6 +85,9 @@ function LightboxPreview({ asset }: { asset: MediaAsset }) {
 }
 
 export function MediaLightbox({ asset, open, onClose, onDelete, onUseInPost }: MediaLightboxProps) {
+  const t = useTranslations("library")
+  const tCommon = useTranslations("common")
+  const intlLocale = useIntlLocale()
   if (!asset) return null
 
   return (
@@ -103,7 +109,7 @@ export function MediaLightbox({ asset, open, onClose, onDelete, onUseInPost }: M
           {/* Fermeture */}
           <DialogPrimitive.Close className="absolute right-3 top-3 z-10 flex size-8 items-center justify-center rounded-lg bg-black/40 text-white hover:bg-black/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <X className="size-4" />
-            <span className="sr-only">Fermer</span>
+            <span className="sr-only">{tCommon("close")}</span>
           </DialogPrimitive.Close>
 
           {/* Aperçu principal */}
@@ -127,7 +133,7 @@ export function MediaLightbox({ asset, open, onClose, onDelete, onUseInPost }: M
               asset.fileType === "video" && "bg-violet-500/15 text-violet-500",
               asset.fileType === "document" && "bg-blue-500/15 text-blue-500",
             )}>
-              {asset.fileType === "image" ? "Image" : asset.fileType === "video" ? "Vidéo" : "Document"}
+              {asset.fileType === "image" ? t("image") : asset.fileType === "video" ? t("video") : t("document")}
             </span>
 
             {/* Métadonnées */}
@@ -135,7 +141,7 @@ export function MediaLightbox({ asset, open, onClose, onDelete, onUseInPost }: M
               <div className="flex items-start gap-2.5 text-muted-foreground">
                 <HardDrive className="mt-0.5 size-4 shrink-0" />
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground/60">Taille</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground/60">{t("fileSize")}</p>
                   <p className="font-medium text-foreground">{formatBytes(asset.fileSizeBytes)}</p>
                 </div>
               </div>
@@ -143,15 +149,15 @@ export function MediaLightbox({ asset, open, onClose, onDelete, onUseInPost }: M
               <div className="flex items-start gap-2.5 text-muted-foreground">
                 <Calendar className="mt-0.5 size-4 shrink-0" />
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground/60">Ajouté le</p>
-                  <p className="font-medium text-foreground">{formatDate(asset.createdAt)}</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground/60">{t("addedOn")}</p>
+                  <p className="font-medium text-foreground">{formatDate(asset.createdAt, intlLocale)}</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-2.5 text-muted-foreground">
                 <FileText className="mt-0.5 size-4 shrink-0" />
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground/60">Type MIME</p>
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground/60">{t("mimeType")}</p>
                   <p className="break-all font-medium text-foreground">{asset.mimeType}</p>
                 </div>
               </div>

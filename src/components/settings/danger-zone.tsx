@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -20,6 +21,9 @@ import { deleteTenantAction } from "@/lib/actions/settings.actions"
 const CONFIRMATION_PHRASE = "SUPPRIMER MON ESPACE"
 
 export function DangerZone() {
+  const t = useTranslations("settings.dangerSection")
+  const tCommon = useTranslations("common")
+
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState("")
@@ -53,20 +57,20 @@ export function DangerZone() {
       <div className="border-b border-destructive/20 px-5 py-4">
         <div className="flex items-center gap-2">
           <AlertTriangle className="size-5 text-destructive" />
-          <h3 className="text-base font-semibold text-destructive">Zone de danger</h3>
+          <h3 className="text-base font-semibold text-destructive">{t("title")}</h3>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Les actions dans cette section sont irréversibles et affectent l&apos;ensemble de votre espace de travail.
+          {t("subtitleWorkspace")}
         </p>
       </div>
 
       {/* Action de suppression */}
       <div className="flex items-center justify-between gap-4 px-5 py-4">
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">Supprimer l&apos;espace de travail</p>
+          <p className="text-sm font-medium">{t("deleteWorkspace")}</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Supprime définitivement votre espace RAMI, vos données Brand DNA, vos posts, vos assets et votre abonnement.
-            Cette action est <span className="font-semibold">irréversible</span>.
+            {t("deleteWorkspaceDescription")}{" "}
+            <span className="font-semibold">{t("deleteIrreversible")}</span>.
           </p>
         </div>
         <Button
@@ -77,7 +81,7 @@ export function DangerZone() {
           className="shrink-0"
         >
           <Trash2 className="size-3.5" />
-          Supprimer
+          {tCommon("delete")}
         </Button>
       </div>
 
@@ -88,42 +92,38 @@ export function DangerZone() {
             <div className="flex size-11 items-center justify-center rounded-full bg-destructive/10 mb-2">
               <AlertTriangle className="size-5 text-destructive" />
             </div>
-            <DialogTitle>Supprimer l&apos;espace de travail</DialogTitle>
+            <DialogTitle>{t("deleteWorkspace")}</DialogTitle>
             <DialogDescription className="text-left">
-              Cette action est <strong>définitive et irréversible</strong>. Tout sera supprimé :
+              {t("deleteDefinitiveColon")}
             </DialogDescription>
           </DialogHeader>
 
           <ul className="mx-0 space-y-1 text-sm text-muted-foreground px-1">
             <li className="flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
-              Brand DNA et configurations
+              {t("deleteBrandDna")}
             </li>
             <li className="flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
-              Posts planifiés et historique de publication
+              {t("deletePosts")}
             </li>
             <li className="flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
-              Visuels générés et assets
+              {t("deleteVisuals")}
             </li>
             <li className="flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
-              Membres d&apos;équipe et invitations
+              {t("deleteTeam")}
             </li>
             <li className="flex items-center gap-2">
               <span className="size-1.5 rounded-full bg-destructive/60 shrink-0" />
-              Abonnement et données de facturation
+              {t("deleteBilling")}
             </li>
           </ul>
 
           <div className="space-y-2 pt-2">
             <Label htmlFor="confirmInput" className="text-sm">
-              Tapez{" "}
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono font-semibold text-foreground">
-                {CONFIRMATION_PHRASE}
-              </code>{" "}
-              pour confirmer
+              {t("deleteConfirm", { phrase: CONFIRMATION_PHRASE })}
             </Label>
             <Input
               id="confirmInput"
@@ -144,7 +144,7 @@ export function DangerZone() {
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline" disabled={isPending}>
-                Annuler
+                {tCommon("cancel")}
               </Button>
             </DialogClose>
             <Button
@@ -153,7 +153,7 @@ export function DangerZone() {
               disabled={!isConfirmed || isPending}
             >
               {isPending && <Loader2 className="size-4 animate-spin" />}
-              {isPending ? "Suppression…" : "Supprimer définitivement"}
+              {isPending ? t("deleting") : t("deleteForever")}
             </Button>
           </DialogFooter>
         </DialogContent>

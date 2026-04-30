@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -12,7 +12,9 @@
     "test:e2e": "playwright test",
     "deploy": "vercel deploy --prod",
     "smoke-test": "tsx scripts/smoke-test.ts",
-    "create-super-admin": "tsx scripts/create-super-admin.ts"
+    "create-super-admin": "tsx scripts/create-super-admin.ts",
+    "seed": "tsx scripts/seed-users.ts",
+    "fix-auth": "tsx scripts/fix-auth-metadata.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -36,6 +38,7 @@
     "lucide-react": "^0.577.0",
     "minio": "^8.0.7",
     "next": "16.1.6",
+    "next-intl": "^4.8.3",
     "next-themes": "^0.4.6",
     "pg": "^8.20.0",
     "pg-boss": "^12.14.0",

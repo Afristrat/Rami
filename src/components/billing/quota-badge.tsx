@@ -6,6 +6,7 @@
 
 import Link from 'next/link'
 import { Zap } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import { getCurrentTenantPlan } from '@/lib/billing/require-feature'
 import { PLAN_GENERATION_QUOTAS, getPlanConfig } from '@/lib/billing/plans'
 import { cn } from '@/lib/utils'
@@ -39,6 +40,7 @@ export async function QuotaBadge() {
 
   if (!data) return null
 
+  const t = await getTranslations('quota')
   const isCritical = data.percent >= 95
   const isWarning  = data.percent >= 80
 
@@ -46,7 +48,7 @@ export async function QuotaBadge() {
     <Link
       href="/dashboard/billing"
       className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-1.5 text-xs transition-colors hover:border-border/80 hover:bg-accent"
-      title={`${data.count}/${data.quota} générations ce mois — Plan ${data.planName}`}
+      title={`${data.count}/${data.quota} ${t('generations')} — Plan ${data.planName}`}
     >
       <Zap className={cn(
         'h-3 w-3 shrink-0',
@@ -77,7 +79,7 @@ export async function QuotaBadge() {
 
       {isCritical && (
         <span className="rounded-full bg-red-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-red-400">
-          Quota !
+          {t('limitReached')}
         </span>
       )}
     </Link>

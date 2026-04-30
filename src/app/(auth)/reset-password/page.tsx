@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, ArrowLeft, Mail } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import {
   resetPasswordSchema,
@@ -22,6 +23,7 @@ import {
 } from "@/components/auth/auth-card"
 
 export default function ResetPasswordPage() {
+  const t = useTranslations("auth.resetPassword")
   const [serverError, setServerError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
@@ -50,34 +52,34 @@ export default function ResetPasswordPage() {
         <RamiLogo />
         <div className="text-center space-y-5">
           <div className="flex justify-center">
-            <div className="rounded-full bg-violet-500/10 p-4 border border-violet-500/20">
-              <Mail className="h-10 w-10 text-violet-400" />
+            <div className="rounded-full bg-violet-100 dark:bg-violet-500/10 p-4 border border-violet-200 dark:border-violet-500/20">
+              <Mail className="h-10 w-10 text-violet-500 dark:text-violet-400" />
             </div>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">Vérifiez votre email</h2>
-            <p className="text-sm text-white/40 mt-2 leading-relaxed">{success}</p>
+            <h2 className="text-xl font-semibold text-foreground">{t("checkEmail")}</h2>
+            <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{success}</p>
           </div>
-          <div className="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3 text-left space-y-1.5">
+          <div className="rounded-lg border border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.03] p-3 text-left space-y-1.5">
             {[
-              "Ouvrez l'email de réinitialisation",
-              "Cliquez sur le lien sécurisé",
-              "Définissez votre nouveau mot de passe",
+              t("step1"),
+              t("step2"),
+              t("step3"),
             ].map((step, i) => (
               <div key={step} className="flex items-start gap-2.5">
-                <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-[10px] text-violet-400 font-bold">
+                <span className="mt-0.5 flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-500/20 text-[10px] text-violet-600 dark:text-violet-400 font-bold">
                   {i + 1}
                 </span>
-                <span className="text-xs text-white/40">{step}</span>
+                <span className="text-xs text-muted-foreground">{step}</span>
               </div>
             ))}
           </div>
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 text-sm text-violet-400 hover:text-violet-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-violet-600 dark:text-violet-400 hover:text-violet-500 dark:hover:text-violet-300 transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Retour à la connexion
+            {t("backToLogin")}
           </Link>
         </div>
       </AuthCard>
@@ -89,11 +91,11 @@ export default function ResetPasswordPage() {
       <RamiLogo />
 
       <div className="mb-6 text-center">
-        <h1 className="text-xl font-semibold text-white">
-          Réinitialiser le mot de passe
+        <h1 className="text-xl font-semibold text-foreground">
+          {t("title")}
         </h1>
-        <p className="text-sm text-white/40 mt-1 leading-relaxed">
-          Entrez votre email et nous vous enverrons un lien de réinitialisation.
+        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+          {t("subtitle")}
         </p>
       </div>
 
@@ -101,15 +103,15 @@ export default function ResetPasswordPage() {
         {serverError && <FormAlert type="error" message={serverError} />}
 
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-white/70">
-            Adresse email
+          <Label htmlFor="email" className="text-foreground/70">
+            {t("emailLabel")}
           </Label>
           <Input
             id="email"
             type="email"
-            placeholder="vous@exemple.com"
+            placeholder={t("emailPlaceholder")}
             autoComplete="email"
-            className="bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/25 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50"
+            className="bg-gray-50 dark:bg-white/[0.06] border-gray-200 dark:border-white/[0.08] text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50"
             aria-invalid={!!errors.email}
             {...register("email")}
           />
@@ -119,14 +121,14 @@ export default function ResetPasswordPage() {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-10 mt-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium hover:from-violet-500 hover:to-blue-500 transition-all shadow-lg shadow-violet-500/20 border-0"
+          className="w-full h-10 mt-2 rami-btn-gradient font-medium shadow-lg shadow-violet-500/20 border-0"
         >
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
               <Mail className="h-4 w-4 mr-1.5" />
-              Envoyer le lien
+              {t("submit")}
             </>
           )}
         </Button>
@@ -135,10 +137,10 @@ export default function ResetPasswordPage() {
       <div className="mt-6 text-center">
         <Link
           href="/login"
-          className="inline-flex items-center gap-1.5 text-sm text-white/30 hover:text-white/50 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Retour à la connexion
+          {t("backToLogin")}
         </Link>
       </div>
     </AuthCard>

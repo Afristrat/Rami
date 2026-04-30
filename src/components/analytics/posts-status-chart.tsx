@@ -24,13 +24,13 @@ const CustomTooltip = ({
   const item = payload[0]
   if (!item) return null
   return (
-    <div className="rounded-lg border border-white/[0.12] bg-zinc-900/95 p-3 shadow-xl backdrop-blur-sm">
+    <div className="rounded-lg border border-gray-200 dark:border-white/[0.12] bg-white dark:bg-zinc-900/95 p-3 shadow-xl backdrop-blur-sm">
       <div className="flex items-center gap-2 text-xs">
         <span
           className="inline-block size-2 rounded-full"
           style={{ backgroundColor: item.payload.color }}
         />
-        <span className="font-semibold">{item.payload.label}</span>
+        <span className="font-semibold text-foreground">{item.payload.label}</span>
         <span className="text-muted-foreground">: {item.value}</span>
       </div>
     </div>
@@ -79,8 +79,9 @@ export function PostsStatusChart({ data }: PostsStatusChartProps) {
   const total = data.reduce((sum, d) => sum + d.count, 0)
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="h-52 w-full">
+    <div className="flex flex-1 flex-col gap-4">
+      {/* Donut with center label */}
+      <div className="relative flex-1 min-h-[200px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -101,24 +102,29 @@ export function PostsStatusChart({ data }: PostsStatusChartProps) {
             <Tooltip content={<CustomTooltip />} />
           </PieChart>
         </ResponsiveContainer>
+        {/* Center text */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-foreground">
+              {total >= 1000 ? `${(total / 1000).toFixed(1)}K` : total}
+            </p>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">
+              Total
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Légende personnalisée */}
-      <div className="grid grid-cols-2 gap-1.5 px-1">
+      {/* Legend */}
+      <div className="grid grid-cols-2 gap-2 px-1">
         {data.map((entry) => (
-          <div key={entry.status} className="flex items-center justify-between gap-2 rounded-md px-2 py-1 hover:bg-white/[0.03]">
-            <div className="flex items-center gap-1.5">
-              <span
-                className="inline-block size-2 shrink-0 rounded-full"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-xs text-muted-foreground">{entry.label}</span>
-            </div>
-            <span className="text-xs font-semibold">
-              {entry.count}
-              <span className="ml-1 text-[10px] text-muted-foreground/60">
-                ({total > 0 ? Math.round((entry.count / total) * 100) : 0}%)
-              </span>
+          <div key={entry.status} className="flex items-center gap-2">
+            <span
+              className="inline-block size-2 shrink-0 rounded-full"
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-xs text-muted-foreground">
+              {entry.label} ({total > 0 ? Math.round((entry.count / total) * 100) : 0}%)
             </span>
           </div>
         ))}

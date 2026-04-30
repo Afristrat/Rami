@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90(rgba(255, 255, 255, 0.02) 1px, transparent 1px));
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-200 dark:border-slate-800 flex flex-col bg-background-light dark:bg-background-dark z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined">bolt</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight">RAMI</h2>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined opacity-70">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">auto_fix_high</span>
+<span class="text-sm font-medium">Workflows</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined opacity-70">fingerprint</span>
+<span class="text-sm font-medium">Brand DNA</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined opacity-70">history</span>
+<span class="text-sm font-medium">History</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors" href="#">
+<span class="material-symbols-outlined opacity-70">settings</span>
+<span class="text-sm font-medium">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 p-2 rounded-xl bg-slate-100 dark:bg-slate-800/40">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCadkG2lb9DFeQWp8xXA-8X1rWSwDGRXEuQoxWntrVZz8P6cIu5M6VE0VlNF9f7aSdRfIKT1eEQ0pAtgCf93Ccd-GC2aq_EuAfgDSGdZS21l1e2fqkYZ05CEk6vFlIfbLgCxJp3hVBHZfrhRqjsWXVuveMvsZfTu1e2c3LGdXrpaNQ-TvcIuNfPGGtdJHp6JVSNvjstn4bvHeD93LG_AGbnhWgAazHfAtH17wV42J3ksmvhlBfgGEVsFLcJAEtq9PNix-_kE9fRW4ZU"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-bold truncate">Alex Martin</p>
+<p class="text-[10px] opacity-60 uppercase tracking-wider">Pro Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col h-full relative overflow-hidden">
+<!-- Top Bar -->
+<header class="h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10">
+<div class="flex items-center gap-4">
+<div class="relative w-64 group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-sm opacity-40">search</span>
+<input class="w-full bg-slate-100 dark:bg-slate-800/50 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary" placeholder="Search projects..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined opacity-70">notifications</span>
+</button>
+<button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+<span class="material-symbols-outlined opacity-70">help</span>
+</button>
+</div>
+</header>
+<!-- Main Scrollable Area -->
+<main class="flex-1 overflow-y-auto p-8">
+<!-- Progress Stepper -->
+<div class="max-w-4xl mx-auto mb-10">
+<div class="flex items-center justify-between mb-2">
+<span class="text-xs font-semibold text-primary uppercase tracking-widest">Étape 1 sur 7</span>
+<span class="text-xs font-medium opacity-60">14% terminé</span>
+</div>
+<div class="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-blue-500 w-[14%] rounded-full"></div>
+</div>
+<div class="flex justify-between mt-4">
+<div class="flex flex-col items-center gap-1 opacity-100">
+<div class="size-2 rounded-full bg-primary ring-4 ring-primary/20"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="size-2 rounded-full bg-slate-400"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="size-2 rounded-full bg-slate-400"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="size-2 rounded-full bg-slate-400"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="size-2 rounded-full bg-slate-400"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="size-2 rounded-full bg-slate-400"></div>
+</div>
+<div class="flex flex-col items-center gap-1 opacity-30">
+<div class="size-2 rounded-full bg-slate-400"></div>
+</div>
+</div>
+</div>
+<!-- Page Header -->
+<div class="max-w-6xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h1 class="text-3xl font-bold text-slate-900 dark:text-[#F8FAFC]">Décrivez votre contenu</h1>
+<p class="text-slate-500 dark:text-slate-400 mt-1">Définissez l'essence de votre prochain post avec l'aide de l'IA.</p>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-full">
+<span class="material-symbols-outlined text-primary text-sm">shield</span>
+<span class="text-xs font-medium text-primary uppercase tracking-tight">[Marque X] — Confiance — Bleu/Or</span>
+</div>
+</div>
+<div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Workflow Area -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Main Card -->
+<div class="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl p-8 shadow-xl backdrop-blur-sm">
+<!-- Section A: Brief -->
+<div class="mb-10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-primary">Section A: Brief du contenu</h3>
+<span class="text-[10px] font-mono opacity-50">BRIEF_ENGINE_V2</span>
+</div>
+<div class="relative">
+<textarea class="w-full bg-slate-100 dark:bg-white/[0.06] border-none rounded-xl p-4 text-base focus:ring-2 focus:ring-primary/40 placeholder:opacity-40 resize-none" placeholder="Décrivez le sujet de votre post. L'IA enrichira votre brief avec le Brand DNA..." rows="6"></textarea>
+<div class="absolute bottom-4 right-4 text-xs opacity-40">0/2000</div>
+</div>
+<div class="mt-4 flex justify-end">
+<button class="flex items-center gap-2 px-4 py-2 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg text-sm font-semibold transition-all">
+<span class="material-symbols-outlined text-base">auto_awesome</span>
+                                        ✨ Enrichir avec l'IA
+                                    </button>
+</div>
+</div>
+<!-- Section B: Objectif cognitif -->
+<div class="mb-10">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-primary mb-4">Section B: Objectif cognitif</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+<!-- Option Active -->
+<label class="relative flex flex-col items-center justify-center p-4 rounded-xl border-2 border-primary bg-primary/5 cursor-pointer shadow-[0_0_15px_rgba(124,58,237,0.15)] group">
+<input checked="" class="hidden" name="objective" type="radio"/>
+<span class="material-symbols-outlined text-primary mb-2 text-2xl">verified_user</span>
+<span class="text-sm font-bold">Confiance</span>
+</label>
+<!-- Options -->
+<label class="relative flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent hover:border-primary/50 cursor-pointer transition-all group">
+<input class="hidden" name="objective" type="radio"/>
+<span class="material-symbols-outlined opacity-60 group-hover:opacity-100 mb-2 text-2xl">error</span>
+<span class="text-sm font-medium opacity-80">Urgence</span>
+</label>
+<label class="relative flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent hover:border-primary/50 cursor-pointer transition-all group">
+<input class="hidden" name="objective" type="radio"/>
+<span class="material-symbols-outlined opacity-60 group-hover:opacity-100 mb-2 text-2xl">auto_graph</span>
+<span class="text-sm font-medium opacity-80">Aspiration</span>
+</label>
+<label class="relative flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent hover:border-primary/50 cursor-pointer transition-all group">
+<input class="hidden" name="objective" type="radio"/>
+<span class="material-symbols-outlined opacity-60 group-hover:opacity-100 mb-2 text-2xl">psychology</span>
+<span class="text-sm font-medium opacity-80">Expertise</span>
+</label>
+<label class="relative flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent hover:border-primary/50 cursor-pointer transition-all group">
+<input class="hidden" name="objective" type="radio"/>
+<span class="material-symbols-outlined opacity-60 group-hover:opacity-100 mb-2 text-2xl">groups</span>
+<span class="text-sm font-medium opacity-80">Communauté</span>
+</label>
+<label class="relative flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-transparent hover:border-primary/50 cursor-pointer transition-all group">
+<input class="hidden" name="objective" type="radio"/>
+<span class="material-symbols-outlined opacity-60 group-hover:opacity-100 mb-2 text-2xl">sentiment_very_satisfied</span>
+<span class="text-sm font-medium opacity-80">Joie</span>
+</label>
+</div>
+</div>
+<!-- Section C: Angle éditorial -->
+<div>
+<h3 class="text-sm font-semibold uppercase tracking-wider text-primary mb-4">Section C: Angle éditorial</h3>
+<div class="flex flex-wrap gap-3">
+<button class="px-4 py-2 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm font-medium hover:bg-primary hover:text-white transition-all">Étude de cas client</button>
+<button class="px-4 py-2 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm font-medium hover:bg-primary hover:text-white transition-all">Chiffre clé du secteur</button>
+<button class="px-4 py-2 rounded-full border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 text-sm font-medium hover:bg-primary hover:text-white transition-all">Behind the scenes</button>
+<button class="px-3 py-2 rounded-full border border-dashed border-slate-300 dark:border-white/20 text-sm opacity-50 flex items-center gap-1">
+<span class="material-symbols-outlined text-base">add</span>
+                                        Perso
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/10">
+<div class="flex items-center gap-2 text-xs font-medium opacity-50">
+<span class="material-symbols-outlined text-sm">cloud_done</span>
+                                Brouillon sauvegardé
+                            </div>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-sm font-semibold hover:bg-slate-100 dark:hover:bg-white/5 transition-all">Précédent</button>
+<button class="px-8 py-2.5 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2">
+                                    Suivant
+                                    <span class="material-symbols-outlined text-base">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Side Panels -->
+<div class="lg:col-span-4 space-y-6">
+<!-- Brand DNA Active -->
+<div class="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl p-6 backdrop-blur-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<h3 class="text-sm font-bold">Brand DNA actif</h3>
+</div>
+<div class="space-y-6">
+<div>
+<p class="text-[10px] uppercase tracking-widest opacity-50 mb-3 font-bold">Palette Couleurs</p>
+<div class="flex gap-2">
+<div class="size-8 rounded-lg bg-[#001D4A]" title="Deep Navy"></div>
+<div class="size-8 rounded-lg bg-[#D4AF37]" title="Classic Gold"></div>
+<div class="size-8 rounded-lg bg-[#F8FAFC]" title="Pure White"></div>
+<div class="size-8 rounded-lg border border-slate-200 dark:border-white/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-xs opacity-40">palette</span>
+</div>
+</div>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest opacity-50 mb-3 font-bold">Plateformes &amp; Ton</p>
+<div class="flex items-center gap-4 mb-3">
+<div class="flex gap-1">
+<div class="size-6 bg-slate-100 dark:bg-white/5 rounded flex items-center justify-center">
+<img class="w-4 h-4 opacity-70" data-alt="LinkedIn platform icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzuz46o0XX0GThZRP6f4dwg_Jgt8QdCg6P6qld7R06j5sSRoaOPidRgt_KS_F6VPjlB3zprgkYj-kJilo0sy6dPwrdBAiNLKwXo6nBBFbNDDSR2KeEP54XzyNx3QahJu2Gi3jPxR04p32SK6Kng8Rt7ikig4XV-dazSmhVx3EAFaqXEkYaRPCWWb09ygj4T1jQL8iX-mChVBRW00R-_0pvj5iLO8fBK5g_Wu-3Ah4hxC-LvBjB4du1ix_TCzg0fqP9fig-oRPqnrLD"/>
+</div>
+<div class="size-6 bg-slate-100 dark:bg-white/5 rounded flex items-center justify-center">
+<img class="w-4 h-4 opacity-70" data-alt="Twitter platform icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFdiH2sRog07hfh4OsmWw9X_fmzvfzEg8twy2tiApEp5mlCoXCpUr1ln92uVCApsjqrV7_NmNJJTWXJwygl1_Nocj2uPTa5if_QrCqGLh3ptjO-8xUDwlEppxpnCnmcOawDHYf7pm3vm8dSPTnqshczZeXPWKXcfDI72YdlPRilgaVi48bxeDFbFy0wpIG-i09MoHYxVD6VVBSGaMpDUXOS1ibsJmubW682ZoDUKGtMMbx7nVlBcLhxJ2tyysmJe9sEbWUpz8lds_L"/>
+</div>
+</div>
+<div class="h-4 w-px bg-slate-200 dark:bg-white/10"></div>
+<p class="text-sm font-medium">Expert confiant</p>
+</div>
+</div>
+<div class="pt-4 border-t border-slate-100 dark:border-white/5">
+<div class="flex items-center justify-between mb-2">
+<p class="text-xs font-medium">Score d'alignement</p>
+<p class="text-sm font-bold text-primary">0.87</p>
+</div>
+<div class="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[87%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Historique -->
+<div class="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/5 rounded-2xl p-6 backdrop-blur-sm">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-sm opacity-60">history</span>
+<h3 class="text-sm font-bold">Historique</h3>
+</div>
+<div class="space-y-4">
+<div class="p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group border border-transparent hover:border-slate-200 dark:hover:border-white/10">
+<p class="text-xs font-semibold truncate">Annonce levée de fonds Serie A</p>
+<div class="flex items-center justify-between mt-1">
+<span class="text-[10px] opacity-40 uppercase">LinkedIn</span>
+<span class="text-[10px] opacity-40">Il y a 2h</span>
+</div>
+</div>
+<div class="p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group border border-transparent hover:border-slate-200 dark:hover:border-white/10">
+<p class="text-xs font-semibold truncate">Guide: 5 conseils SEO 2024</p>
+<div class="flex items-center justify-between mt-1">
+<span class="text-[10px] opacity-40 uppercase">Blog post</span>
+<span class="text-[10px] opacity-40">Hier</span>
+</div>
+</div>
+<div class="p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer group border border-transparent hover:border-slate-200 dark:hover:border-white/10">
+<p class="text-xs font-semibold truncate">Recap événement Networking</p>
+<div class="flex items-center justify-between mt-1">
+<span class="text-[10px] opacity-40 uppercase">Twitter Thread</span>
+<span class="text-[10px] opacity-40">24 Oct</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2 text-xs font-medium text-primary hover:underline">Voir tout l'historique</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI CRM - Kanban Board</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              background: '#0a0a0f',
+              card: '#111118',
+              border: '#1e1e2e',
+              indigo: '#6366f1',
+            }
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="layout-styles">
+    body {
+      background-color: #0a0a0f;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1e1e2e;
+      border-radius: 10px;
+    }
+    /* Background blobs for neuropsychological signals */
+    .blob {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      filter: blur(120px);
+      z-index: -1;
+      opacity: 0.15;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body class="antialiased font-sans">
+<!-- BEGIN: Background Blobs -->
+<div class="blob bg-indigo-600 top-[-10%] left-[-10%]"></div>
+<div class="blob bg-purple-600 bottom-[-10%] right-[-10%]"></div>
+<div class="blob bg-blue-600 top-[30%] left-[40%]"></div>
+<!-- END: Background Blobs -->
+<!-- BEGIN: MainHeader -->
+<header class="w-full border-b border-brand-border bg-brand-background/80 backdrop-blur-md sticky top-0 z-50">
+<div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
+<!-- Left: Navigation & Search -->
+<div class="flex items-center flex-1 gap-8">
+<div class="text-xl font-bold tracking-tight">RAMI CRM</div>
+<div class="relative w-full max-w-md">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</span>
+<input class="block w-full pl-10 pr-3 py-2 bg-white/5 border-none text-white rounded-xl focus:ring-2 focus:ring-brand-indigo sm:text-sm placeholder-gray-500" placeholder="Rechercher des leads..." type="text"/>
+</div>
+</div>
+<!-- Center: Filter Pills -->
+<nav class="hidden lg:flex items-center gap-2">
+<button class="px-4 py-1.5 rounded-full bg-white/10 text-xs font-medium hover:bg-white/20 transition">Tout</button>
+<button class="px-4 py-1.5 rounded-full bg-transparent border border-white/10 text-xs font-medium text-gray-400 hover:text-white transition">Mes Leads</button>
+<button class="px-4 py-1.5 rounded-full bg-transparent border border-white/10 text-xs font-medium text-gray-400 hover:text-white transition">Prioritaires</button>
+</nav>
+<!-- Right: Action Button -->
+<button class="flex items-center px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#7C3AED] to-[#2563EB] text-sm font-semibold text-white shadow-lg hover:opacity-90 transition transform active:scale-95">
+<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+        Importer des leads
+      </button>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: KanbanBoard -->
+<main class="p-6 h-[calc(100vh-80px)] overflow-hidden">
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 h-full max-w-[1600px] mx-auto">
+<!-- Column 1: Lead -->
+<section class="flex flex-col h-full bg-black/20 rounded-2xl border border-white/5" data-purpose="kanban-column">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Lead</h3>
+<span class="px-2 py-0.5 bg-white/10 rounded-full text-[10px] font-bold">12</span>
+</div>
+<p class="text-brand-indigo font-bold text-sm tracking-wide">48 000 MAD</p>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar px-3 space-y-3 pb-4">
+<!-- Card Template -->
+<div class="bg-brand-card border border-brand-border p-4 rounded-xl hover:border-brand-indigo/50 transition cursor-grab active:cursor-grabbing shadow-xl" data-purpose="lead-card">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white">TM</div>
+<div>
+<h4 class="text-[14px] font-semibold text-white">TechMoove SAS</h4>
+<p class="text-[13px] text-gray-400">Thomas Müller</p>
+</div>
+</div>
+<div class="flex gap-1.5 opacity-60">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 bg-green-500/10 text-green-500 text-[11px] font-bold rounded-full border border-green-500/20">82%</span>
+<span class="text-[11px] text-gray-500">Relance: Aujourd'hui</span>
+</div>
+</div>
+<!-- Card Template -->
+<div class="bg-brand-card border border-brand-border p-4 rounded-xl hover:border-brand-indigo/50 transition cursor-grab shadow-xl" data-purpose="lead-card">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white">LG</div>
+<div>
+<h4 class="text-[14px] font-semibold text-white">LogiStream</h4>
+<p class="text-[13px] text-gray-400">Leila Gueroui</p>
+</div>
+</div>
+<div class="flex gap-1.5 opacity-60">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 bg-amber-500/10 text-amber-500 text-[11px] font-bold rounded-full border border-amber-500/20">55%</span>
+<span class="text-[11px] text-gray-500">Relance: Demain</span>
+</div>
+</div>
+</div>
+<button class="m-3 flex items-center justify-center py-3 border border-dashed border-white/10 rounded-xl text-xs text-gray-500 hover:text-white hover:bg-white/5 transition group">
+<svg class="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Ajouter un lead
+        </button>
+</section>
+<!-- Column 2: Contacté -->
+<section class="flex flex-col h-full bg-black/20 rounded-2xl border border-white/5" data-purpose="kanban-column">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Contacté</h3>
+<span class="px-2 py-0.5 bg-white/10 rounded-full text-[10px] font-bold">8</span>
+</div>
+<p class="text-brand-indigo font-bold text-sm tracking-wide">96 000 MAD</p>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar px-3 space-y-3 pb-4">
+<div class="bg-brand-card border border-brand-border p-4 rounded-xl hover:border-brand-indigo/50 transition cursor-grab shadow-xl" data-purpose="lead-card">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white">AS</div>
+<div>
+<h4 class="text-[14px] font-semibold text-white">Alim-Services</h4>
+<p class="text-[13px] text-gray-400">Anas Salhi</p>
+</div>
+</div>
+<div class="flex gap-1.5 opacity-60">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 bg-red-500/10 text-red-500 text-[11px] font-bold rounded-full border border-red-500/20">32%</span>
+<span class="text-[11px] text-gray-500">Relance: 2h</span>
+</div>
+</div>
+</div>
+<button class="m-3 flex items-center justify-center py-3 border border-dashed border-white/10 rounded-xl text-xs text-gray-500 hover:text-white hover:bg-white/5 transition group">
+<svg class="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Ajouter un lead
+        </button>
+</section>
+<!-- Column 3: Proposition -->
+<section class="flex flex-col h-full bg-black/20 rounded-2xl border border-white/5" data-purpose="kanban-column">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Proposition</h3>
+<span class="px-2 py-0.5 bg-white/10 rounded-full text-[10px] font-bold">5</span>
+</div>
+<p class="text-brand-indigo font-bold text-sm tracking-wide">142 000 MAD</p>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar px-3 space-y-3 pb-4">
+<div class="bg-brand-card border border-brand-border p-4 rounded-xl hover:border-brand-indigo/50 transition cursor-grab shadow-xl" data-purpose="lead-card">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white">NM</div>
+<div>
+<h4 class="text-[14px] font-semibold text-white">Next Media</h4>
+<p class="text-[13px] text-gray-400">Nadia Mansouri</p>
+</div>
+</div>
+<div class="flex gap-1.5 opacity-60">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 bg-green-500/10 text-green-500 text-[11px] font-bold rounded-full border border-green-500/20">95%</span>
+<span class="text-[11px] text-gray-500">En attente signature</span>
+</div>
+</div>
+</div>
+<button class="m-3 flex items-center justify-center py-3 border border-dashed border-white/10 rounded-xl text-xs text-gray-500 hover:text-white hover:bg-white/5 transition group">
+<svg class="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Ajouter un lead
+        </button>
+</section>
+<!-- Column 4: Signé -->
+<section class="flex flex-col h-full bg-black/20 rounded-2xl border border-white/5" data-purpose="kanban-column">
+<div class="p-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-400">Signé</h3>
+<span class="px-2 py-0.5 bg-white/10 rounded-full text-[10px] font-bold">14</span>
+</div>
+<p class="text-brand-indigo font-bold text-sm tracking-wide">210 000 MAD</p>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar px-3 space-y-3 pb-4">
+<div class="bg-brand-card border border-brand-border p-4 rounded-xl hover:border-brand-indigo/50 transition cursor-grab shadow-xl opacity-60 grayscale hover:grayscale-0 hover:opacity-100" data-purpose="lead-card">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center font-bold text-white">KB</div>
+<div>
+<h4 class="text-[14px] font-semibold text-white">Kasbah Hotel</h4>
+<p class="text-[13px] text-gray-400">Karim Benali</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<span class="px-2.5 py-1 bg-brand-indigo/10 text-brand-indigo text-[11px] font-bold rounded-full border border-brand-indigo/20">Converti</span>
+<span class="text-[11px] text-gray-500">Hier, 16:45</span>
+</div>
+</div>
+</div>
+<button class="m-3 flex items-center justify-center py-3 border border-dashed border-white/10 rounded-xl text-xs text-gray-500 hover:text-white hover:bg-white/5 transition group">
+<svg class="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Ajouter un lead
+        </button>
+</section>
+</div>
+</main>
+<!-- END: KanbanBoard -->
+</body></html>

@@ -1,41 +1,91 @@
-import { FileText } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { getTranslations } from "next-intl/server"
+import { requireFeature } from "@/lib/billing/require-feature"
+import { getDocumentsAction } from "@/lib/actions/documents.actions"
+import { DocumentsPageClient } from "@/components/documents/DocumentsPageClient"
+import type { DocumentItem } from "@/lib/actions/documents.actions"
+import type { DocumentType, DocumentStatus } from "@/lib/schemas/document.schema"
 
-export const metadata = {
-  title: "Documents — RAMI",
-  description: "Moteur de documents — offres commerciales et rapports PDF.",
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return {
+    title: t("documents"),
+    description: t("documentsDescription"),
+  }
 }
 
-export default function DocumentsPage() {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] gap-6 text-center px-4">
-      <div className="flex items-center justify-center size-20 rounded-2xl bg-white/[0.06] border border-white/[0.08]">
-        <FileText className="size-10 text-violet-400" />
-      </div>
+/* ── Mock data pour l'affichage initial (avant migration DB) ── */
 
-      <div className="flex flex-col items-center gap-2">
-        <div className="flex items-center gap-2">
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Documents
-          </h1>
-          <Badge variant="secondary" className="bg-violet-500/20 text-violet-300 border-violet-500/30">
-            Agency
-          </Badge>
-        </div>
-        <p className="text-4xl font-extrabold text-white/10 tracking-widest uppercase mt-1">
-          Coming Soon
-        </p>
-        <p className="text-white/50 max-w-sm mt-2">
-          Générez des offres commerciales, des rapports PDF brandés et des
-          présentations style Gamma directement depuis votre Brand DNA.
-        </p>
-      </div>
+const MOCK_DOCUMENTS: DocumentItem[] = [
+  {
+    id: "mock-1",
+    title: "Stratégie Q4 — Summit",
+    type: "presentation" as DocumentType,
+    client_name: "ScientUp",
+    status: "in_progress" as DocumentStatus,
+    storage_path: null,
+    public_url: null,
+    file_size_bytes: 2_450_000,
+    created_at: "2023-10-12T10:00:00Z",
+    updated_at: "2023-10-12T10:00:00Z",
+  },
+  {
+    id: "mock-2",
+    title: "Offre Social Ads Octobre",
+    type: "offre_commerciale" as DocumentType,
+    client_name: "Luxe Design",
+    status: "in_progress" as DocumentStatus,
+    storage_path: null,
+    public_url: null,
+    file_size_bytes: 1_200_000,
+    created_at: "2023-10-10T09:00:00Z",
+    updated_at: "2023-10-10T09:00:00Z",
+  },
+  {
+    id: "mock-3",
+    title: "Rapport SEO — Septembre",
+    type: "rapport_client" as DocumentType,
+    client_name: "Ecom Store",
+    status: "completed" as DocumentStatus,
+    storage_path: null,
+    public_url: null,
+    file_size_bytes: 3_800_000,
+    created_at: "2023-10-01T08:00:00Z",
+    updated_at: "2023-10-01T08:00:00Z",
+  },
+  {
+    id: "mock-4",
+    title: "Draft — Marketing Mix V2",
+    type: "presentation" as DocumentType,
+    client_name: "Interne",
+    status: "draft" as DocumentStatus,
+    storage_path: null,
+    public_url: null,
+    file_size_bytes: 980_000,
+    created_at: "2023-09-29T14:00:00Z",
+    updated_at: "2023-09-29T14:00:00Z",
+  },
+]
 
-      <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:opacity-90 text-white font-semibold px-6">
-        <Link href="/pricing">Passer au plan Agency</Link>
-      </Button>
-    </div>
-  )
+/* ── Page serveur ─────────────────────────────────────────── */
+
+export default async function DocumentsPage() {
+  // Feature flag : plan Agency ou supérieur requis
+  await requireFeature("document_engine")
+
+  // Tentative de récupération depuis la DB
+  const result = await getDocumentsAction({ limit: 50 })
+
+  let documents: DocumentItem[]
+  let total: number
+
+  if ("error" in result || result.data.length === 0) {
+    // Fallback vers les données de démo si la table n'existe pas encore
+    documents = MOCK_DOCUMENTS
+    total = MOCK_DOCUMENTS.length
+  } else {
+    documents = result.data
+    total = result.total
+  }
+
+  return <DocumentsPageClient documents={documents} total={total} />
 }

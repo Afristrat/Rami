@@ -11,8 +11,8 @@ const VALID_PLATFORMS: OAuthPlatform[] = [
   "pinterest",
 ]
 
-const REDIRECT_SUCCESS = "/dashboard/settings/connections?disconnected=true"
-const REDIRECT_ERROR = "/dashboard/settings/connections?error="
+const REDIRECT_SUCCESS = "/settings/connections?disconnected=true"
+const REDIRECT_ERROR = "/settings/connections?error="
 
 /**
  * Révocation du token côté plateforme + désactivation en DB.

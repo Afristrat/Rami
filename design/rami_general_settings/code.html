@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Paramètres Généraux</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .bg-grid-pattern {
+            background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gradient-blur {
+            position: fixed;
+            z-index: -1;
+            filter: blur(120px);
+            opacity: 0.15;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-slate-100 min-h-screen relative overflow-x-hidden">
+<!-- Gradient Blobs -->
+<div class="gradient-blur bg-[#7C3AED] w-[400px] h-[400px] top-[-10%] left-[-5%]"></div>
+<div class="gradient-blur bg-[#2563EB] w-[400px] h-[400px] bottom-[-10%] right-[-5%]"></div>
+<div class="gradient-blur bg-[#7C3AED] w-[300px] h-[300px] top-[40%] right-[10%]"></div>
+<div class="fixed inset-0 bg-grid-pattern pointer-events-none opacity-40"></div>
+<div class="flex min-h-screen">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-white/5 bg-background-dark/50 backdrop-blur-md hidden lg:flex flex-col sticky top-0 h-screen">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/20">
+                    R
+                </div>
+<div>
+<h1 class="text-white text-base font-bold leading-tight">RAMI</h1>
+<p class="text-slate-400 text-[10px] uppercase tracking-widest font-semibold">Agency OS</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">grid_view</span>
+<span class="text-sm font-medium">Tableau de bord</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+<span class="text-sm font-medium">Campagnes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+<span class="text-sm font-medium">Analyses</span>
+</a>
+<div class="pt-4 pb-2">
+<p class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Administration</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span class="text-sm font-bold">Paramètres</span>
+</a>
+</nav>
+<div class="p-4 border-t border-white/5">
+<div class="flex items-center gap-3 p-2 rounded-xl bg-white/5">
+<img alt="Avatar utilisateur" class="size-8 rounded-full border border-white/10" data-alt="Portrait photo of a young professional man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjQD9iecjJsFiYcpVge9gyNGPG6vKWSJO3j24uWVftYLMpQ-8yZudYiePN4NuOJysNxBByzolKiNi5pJzwvQF8iC_vtXed7LXln3rx9Hu76Mc9MaQnNkYOioUkg-b8JK5wMCJqSnteKugKMqwTOdO4yzlnlUKa_tlntc-82Y_AJJ5rxPoJUc-Sr6kQ1nsrSefVeetG_33CRnqbIQ1paqrX5d5Bqm8wUWI_S6MZ5wAm3FOkSFg05ySqnpgizqA-hq2nFUJl71cAzESm"/>
+<div class="flex-1 overflow-hidden">
+<p class="text-xs font-bold truncate">Alexandre Rossi</p>
+<p class="text-[10px] text-slate-400 truncate">Pro Plan Member</p>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm">unfold_more</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Top Bar -->
+<header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-background-dark/30 backdrop-blur-sm sticky top-0 z-10">
+<div class="flex items-center gap-2">
+<h2 class="text-lg font-bold text-white">Paramètres</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="bg-white/5 border-none rounded-full pl-10 pr-4 py-1.5 text-sm text-white placeholder:text-slate-500 focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Rechercher..." type="text"/>
+</div>
+<button class="size-9 rounded-full bg-white/5 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+</div>
+</header>
+<!-- Sub Navigation -->
+<div class="px-8 border-b border-white/5 bg-background-dark/20">
+<div class="flex gap-8">
+<a class="py-4 text-sm font-bold border-b-2 border-primary text-white" href="#">Général</a>
+<a class="py-4 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200" href="#">Connexions</a>
+<a class="py-4 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200" href="#">Équipe</a>
+<a class="py-4 text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200" href="#">Facturation</a>
+</div>
+</div>
+<div class="p-8 max-w-5xl mx-auto w-full space-y-6">
+<!-- Section 1: Profil -->
+<div class="glass-card rounded-2xl p-6">
+<div class="flex items-start justify-between mb-8">
+<div class="flex items-center gap-6">
+<div class="relative group cursor-pointer">
+<div class="size-20 rounded-full border-2 border-primary/30 p-1">
+<img alt="Avatar" class="size-full rounded-full object-cover" data-alt="Close up photo of a male professional user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlAT8x8BJ-Ow30PC8-zwmpPuoPo_w1czGsGwBg-D-KM6Gymlyt7o-AKTh1sr51BvNPOemvr6C3zAF0oWGeAs1beALyVD0iDA5WnO-HbkmgPUrAzPQuNBD5fmLd2HpKRpOrqI1D3yiaYbhyBYCbetyGPWItODcSME3JPKh2RGhQ77-lAj9eZ7098DaMS9Kkud02I50pKaWwIbbABkUoAM0O0wSOj64wmEYyWQcgql9Q3F_nzu0YwdnDXh_zXDDvu5hEXDRuQQH8ygK_"/>
+</div>
+<div class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="text-[10px] font-bold text-white uppercase">Modifier</span>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-bold text-white">Profil</h3>
+<p class="text-sm text-slate-400">Gérez vos informations personnelles et préférences</p>
+</div>
+</div>
+<button class="bg-gradient-to-r from-primary to-blue-600 hover:opacity-90 text-white px-5 py-2 rounded-xl text-sm font-bold transition-all shadow-lg shadow-primary/20">
+                            Enregistrer
+                        </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom complet</label>
+<input class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-primary focus:border-primary" type="text" value="Alexandre Rossi"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Email</label>
+<div class="relative">
+<input class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-primary focus:border-primary" type="email" value="alex@rami.ai"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-green-500/20 text-green-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-green-500/30">
+<span class="material-symbols-outlined text-[12px]">verified</span> Vérifié
+                                </span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Fuseau horaire</label>
+<select class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-primary focus:border-primary appearance-none">
+<option class="bg-slate-900">Europe/Paris (GMT+01:00)</option>
+<option class="bg-slate-900">America/New_York (GMT-05:00)</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Langue</label>
+<select class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-primary focus:border-primary appearance-none">
+<option class="bg-slate-900" selected="">Français</option>
+<option class="bg-slate-900">English</option>
+<option class="bg-slate-900">Español</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Section 2: Workspace -->
+<div class="glass-card rounded-2xl p-6">
+<div class="flex items-center justify-between mb-8">
+<div>
+<div class="flex items-center gap-3">
+<h3 class="text-lg font-bold text-white">Espace de travail</h3>
+<span class="bg-primary text-white text-[10px] font-black px-2 py-1 rounded-md tracking-widest">PRO — $149/MOIS</span>
+</div>
+<p class="text-sm text-slate-400">Paramètres et quotas de l'organisation</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom de l'espace</label>
+<input class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-primary focus:border-primary" type="text" value="Rossi Digital"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Slug</label>
+<div class="flex">
+<input class="flex-1 bg-white/5 border border-white/10 rounded-l-xl px-4 py-3 text-sm text-white focus:ring-primary focus:border-primary" type="text" value="rossi-digital"/>
+<span class="bg-white/10 border-y border-r border-white/10 rounded-r-xl px-4 py-3 text-sm text-slate-400 flex items-center">.rami.ai-mpower.com</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-white/5">
+<div class="space-y-3">
+<div class="flex justify-between text-xs">
+<span class="font-bold text-slate-300">Générations AI</span>
+<span class="text-slate-400">320 / 500</span>
+</div>
+<div class="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 64%"></div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-xs">
+<span class="font-bold text-slate-300">Stockage</span>
+<span class="text-slate-400">12.4GB / 50GB</span>
+</div>
+<div class="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 rounded-full" style="width: 25%"></div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-xs">
+<span class="font-bold text-slate-300">Tenants (Sites)</span>
+<span class="text-slate-400">7 / 10</span>
+</div>
+<div class="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+<div class="h-full bg-indigo-400 rounded-full" style="width: 70%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Notifications -->
+<div class="glass-card rounded-2xl p-6">
+<h3 class="text-lg font-bold text-white mb-1">Notifications</h3>
+<p class="text-sm text-slate-400 mb-6">Contrôlez comment et quand vous recevez des alertes</p>
+<div class="space-y-4 mb-8">
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+<div>
+<p class="text-sm font-semibold">Publication réussie</p>
+<p class="text-xs text-slate-500">Recevoir une alerte quand un post est publié</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+<div>
+<p class="text-sm font-semibold">Publication échouée</p>
+<p class="text-xs text-slate-500">Alerte immédiate en cas d'erreur de publication</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+<div>
+<p class="text-sm font-semibold">Token OAuth expirant</p>
+<p class="text-xs text-slate-500">Notifications pour renouveler vos connexions</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+<div>
+<p class="text-sm font-semibold">Rapport hebdomadaire</p>
+<p class="text-xs text-slate-500">Résumé des performances de la semaine</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all">
+<div>
+<p class="text-sm font-semibold text-slate-500">Nouvelles fonctionnalités</p>
+<p class="text-xs text-slate-600">Être informé des mises à jour produit</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="pt-6 border-t border-white/5">
+<p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Canal de réception</p>
+<div class="flex gap-8">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="hidden peer" name="channel" type="radio"/>
+<div class="size-4 rounded-full border border-white/20 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all">
+<div class="size-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+</div>
+<span class="text-sm text-slate-400 group-hover:text-white transition-colors">Email</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="hidden peer" name="channel" type="radio"/>
+<div class="size-4 rounded-full border border-white/20 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all">
+<div class="size-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+</div>
+<span class="text-sm text-slate-400 group-hover:text-white transition-colors">Push</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group">
+<input checked="" class="hidden peer" name="channel" type="radio"/>
+<div class="size-4 rounded-full border border-white/20 peer-checked:border-primary peer-checked:bg-primary flex items-center justify-center transition-all">
+<div class="size-1.5 bg-white rounded-full opacity-0 peer-checked:opacity-100"></div>
+</div>
+<span class="text-sm text-white font-semibold">Les deux</span>
+</label>
+</div>
+</div>
+</div>
+<!-- Section 4: Danger Zone -->
+<div class="glass-card rounded-2xl p-6 border-red-500/20 bg-red-500/5">
+<h3 class="text-lg font-bold text-red-400 mb-1">Zone de danger</h3>
+<p class="text-sm text-red-500/60 mb-8">Actions irréversibles concernant votre compte et vos données</p>
+<div class="flex flex-col sm:flex-row gap-4">
+<button class="flex items-center justify-center gap-2 border border-white/10 bg-white/5 hover:bg-white/10 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+                            Exporter toutes mes données
+                        </button>
+<button class="flex items-center justify-center gap-2 border border-red-500/40 hover:bg-red-500/10 text-red-500 text-sm font-bold px-5 py-2.5 rounded-xl transition-all">
+<span class="material-symbols-outlined text-[20px]">delete_forever</span>
+                            Supprimer mon compte
+                        </button>
+</div>
+</div>
+<div class="h-10"></div>
+</div>
+</main>
+</div>
+</body></html>

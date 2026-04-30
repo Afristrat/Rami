@@ -3,10 +3,21 @@
 import { useState, useTransition } from "react"
 import { saveWorkflowPostAction } from "@/lib/actions/workflow.actions"
 import type { Step1Data, Step2Data, Step5Data, Step7Data } from "@/lib/schemas/workflow.schema"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, CalendarCheck, Zap, Save, CheckCircle2, ExternalLink } from "lucide-react"
+import { ArrowLeft, CalendarCheck, Zap, Save, CheckCircle2, ExternalLink, Sparkles, Globe, Calendar } from "lucide-react"
+import {
+  TwitterXIcon, LinkedInIcon, InstagramIcon, FacebookIcon,
+  PinterestIcon, YouTubeIcon, MastodonIcon, TikTokIcon,
+} from "@/components/connections/platform-icons"
+import { useTranslations } from "next-intl"
+import { useIntlLocale } from "@/lib/utils/format-locale"
+
+const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: string }>> = {
+  twitter: TwitterXIcon, linkedin: LinkedInIcon, instagram: InstagramIcon,
+  facebook: FacebookIcon, pinterest: PinterestIcon, youtube: YouTubeIcon,
+  mastodon: MastodonIcon, tiktok: TikTokIcon,
+}
 import { useRouter } from "next/navigation"
 
 interface Step7ScheduleProps {
@@ -18,6 +29,9 @@ interface Step7ScheduleProps {
 }
 
 export function Step7Schedule({ step1, step2, step5, defaultValues, onBack }: Step7ScheduleProps) {
+  const t = useTranslations("workflow.schedule")
+  const tc = useTranslations("common")
+  const intlLocale = useIntlLocale()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [publishMode, setPublishMode] = useState<"now" | "scheduled" | "draft">(
@@ -26,7 +40,8 @@ export function Step7Schedule({ step1, step2, step5, defaultValues, onBack }: St
   const [scheduledAt, setScheduledAt] = useState<string>(defaultValues?.scheduledAt ?? "")
   const [error, setError] = useState<string | null>(null)
   const [savedPostId, setSavedPostId] = useState<string | null>(null)
-  // Date minimum calculée une fois au montage du composant
+  const [syncAllPlatforms, setSyncAllPlatforms] = useState(true)
+  // Date minimum calculee une fois au montage du composant
   const [minDate] = useState(() =>
     new Date(Date.now() + 5 * 60 * 1000).toISOString().slice(0, 16)
   )
@@ -35,7 +50,7 @@ export function Step7Schedule({ step1, step2, step5, defaultValues, onBack }: St
     setError(null)
 
     if (publishMode === "scheduled" && !scheduledAt) {
-      setError("Veuillez sélectionner une date et heure de publication.")
+      setError(t("selectDateError"))
       return
     }
 
@@ -58,158 +73,199 @@ export function Step7Schedule({ step1, step2, step5, defaultValues, onBack }: St
     })
   }
 
-  // État succès
+  // Etat succes
   if (savedPostId) {
     return (
-      <div className="flex flex-col items-center gap-6 py-8 text-center">
-        <div className="flex size-16 items-center justify-center rounded-full bg-green-500/10">
-          <CheckCircle2 className="size-8 text-green-500" />
+      <div className="flex flex-col items-center gap-6 py-12 text-center">
+        <div className="flex size-20 items-center justify-center rounded-full bg-green-500/10 border-2 border-green-500/20">
+          <CheckCircle2 className="size-10 text-green-500" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-foreground">Contenu planifié !</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t("contentScheduled")}</h3>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
             {publishMode === "scheduled"
-              ? "Votre post a été planifié dans le calendrier."
+              ? t("postScheduled")
               : publishMode === "draft"
-              ? "Votre post a été sauvegardé en brouillon."
-              : "Votre post est approuvé et prêt à publier."}
+              ? t("postSavedDraft")
+              : t("postApproved")}
           </p>
         </div>
 
-        <div className="flex flex-col gap-2 w-full max-w-xs">
-          <Button
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <button
+            type="button"
             onClick={() => router.push("/dashboard/calendar")}
-            className="gap-2 w-full"
+            className={cn(
+              "w-full px-6 py-3 rounded-xl",
+              "bg-gradient-to-r from-violet-600 to-blue-600",
+              "text-white text-sm font-bold",
+              "shadow-lg shadow-violet-500/20",
+              "hover:scale-[1.02] active:scale-[0.98] transition-all",
+              "flex items-center justify-center gap-2"
+            )}
           >
             <CalendarCheck className="size-4" />
-            Voir le calendrier
-          </Button>
-          <Button
-            variant="outline"
+            {t("viewCalendar")}
+          </button>
+          <button
+            type="button"
             onClick={() => router.push(`/dashboard/calendar?postId=${savedPostId}`)}
-            className="gap-2 w-full"
+            className={cn(
+              "w-full px-6 py-2.5 rounded-xl border border-slate-200 dark:border-white/10",
+              "text-sm font-semibold text-slate-700 dark:text-slate-300",
+              "hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all",
+              "flex items-center justify-center gap-2"
+            )}
           >
             <ExternalLink className="size-4" />
-            Voir ce post
-          </Button>
-          <Button
-            variant="ghost"
+            {t("viewPost")}
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setSavedPostId(null)
               router.push("/dashboard/create")
             }}
-            className="gap-2 w-full text-sm"
+            className="text-sm text-slate-500 dark:text-slate-400 hover:text-violet-500 transition-colors py-2"
           >
-            Créer un nouveau contenu
-          </Button>
+            {t("createNewContent")}
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">Planification du post</h3>
-        <p className="text-xs text-muted-foreground">Choisissez quand et comment publier votre contenu</p>
-      </div>
-
-      {/* Résumé final */}
-      <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Résumé</p>
-        <div className="space-y-1.5">
-          <div className="flex items-start justify-between gap-4">
-            <span className="text-xs text-muted-foreground shrink-0">Titre</span>
-            <span className="text-xs font-medium text-foreground text-right">{step1.titre}</span>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-xs text-muted-foreground shrink-0">Plateformes</span>
-            <span className="text-xs font-medium text-foreground">{step2.platforms.length} plateforme{step2.platforms.length > 1 ? "s" : ""}</span>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-xs text-muted-foreground shrink-0">Visuel</span>
-            <span className="text-xs font-medium text-foreground">{step5.finalVisualUrl ? "Oui" : "Non"}</span>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-xs text-muted-foreground shrink-0">Hashtags</span>
-            <span className="text-xs font-medium text-foreground">{step5.finalHashtags.length} hashtags</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Mode publication */}
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">Mode de publication</Label>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          {[
-            {
-              value: "now",
-              label: "Prêt à publier",
-              desc: "Approuvé, publication manuelle",
-              icon: Zap,
-              color: "text-green-500",
-              bg: "border-green-500/30 bg-green-500/10",
-            },
-            {
-              value: "scheduled",
-              label: "Planifier",
-              desc: "Définir une date et heure",
-              icon: CalendarCheck,
-              color: "text-violet-500",
-              bg: "border-violet-500/30 bg-violet-500/10",
-            },
-            {
-              value: "draft",
-              label: "Brouillon",
-              desc: "Sauvegarder pour plus tard",
-              icon: Save,
-              color: "text-muted-foreground",
-              bg: "border-border bg-muted/30",
-            },
-          ].map((mode) => {
-            const Icon = mode.icon
-            const isActive = publishMode === mode.value
-            return (
-              <button
-                key={mode.value}
-                type="button"
-                onClick={() => setPublishMode(mode.value as typeof publishMode)}
-                className={cn(
-                  "flex flex-col gap-1.5 rounded-xl border-2 p-4 text-left transition-all",
-                  isActive ? mode.bg + " ring-2 ring-offset-1" : "border-border bg-card hover:bg-accent"
-                )}
-                style={isActive && mode.value !== "draft" ? { outlineColor: "currentColor" } : undefined}
-              >
-                <Icon className={cn("size-5", isActive ? mode.color : "text-muted-foreground")} />
-                <span className={cn("text-xs font-semibold", isActive ? mode.color : "text-foreground")}>
+    <div className="space-y-8">
+      {/* Publication mode cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {[
+          {
+            value: "now" as const,
+            label: t("publishNow"),
+            desc: t("publishNowDesc"),
+            icon: Zap,
+            activeGradient: "from-green-500 to-emerald-600",
+          },
+          {
+            value: "scheduled" as const,
+            label: t("schedule"),
+            desc: t("scheduleDesc"),
+            icon: CalendarCheck,
+            activeGradient: "from-violet-600 to-blue-600",
+          },
+          {
+            value: "draft" as const,
+            label: t("saveDraft"),
+            desc: t("saveDraftDesc"),
+            icon: Save,
+            activeGradient: "from-slate-500 to-slate-600",
+          },
+        ].map((mode) => {
+          const Icon = mode.icon
+          const isActive = publishMode === mode.value
+          return (
+            <button
+              key={mode.value}
+              type="button"
+              onClick={() => setPublishMode(mode.value)}
+              className={cn(
+                "flex flex-col gap-3 rounded-2xl p-5 text-left transition-all",
+                isActive
+                  ? "border-2 border-violet-500 bg-violet-500/5 shadow-[0_0_20px_rgba(124,58,237,0.1)]"
+                  : "border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] hover:border-violet-500/50"
+              )}
+            >
+              <div className={cn(
+                "size-10 rounded-xl flex items-center justify-center",
+                isActive
+                  ? `bg-gradient-to-br ${mode.activeGradient}`
+                  : "bg-slate-100 dark:bg-white/[0.06]"
+              )}>
+                <Icon className={cn(
+                  "size-5",
+                  isActive ? "text-white" : "text-slate-400 dark:text-slate-500"
+                )} />
+              </div>
+              <div>
+                <p className={cn(
+                  "text-sm font-bold",
+                  isActive ? "text-slate-900 dark:text-slate-100" : "text-slate-700 dark:text-slate-300"
+                )}>
                   {mode.label}
-                </span>
-                <span className="text-[10px] text-muted-foreground">{mode.desc}</span>
-              </button>
-            )
-          })}
-        </div>
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 leading-relaxed">{mode.desc}</p>
+              </div>
+            </button>
+          )
+        })}
       </div>
 
-      {/* Sélecteur datetime si scheduled */}
+      {/* Scheduled date picker */}
       {publishMode === "scheduled" && (
-        <div className="space-y-2">
-          <Label htmlFor="scheduled-at" className="text-sm font-medium">
-            Date et heure de publication <span className="text-destructive">*</span>
-          </Label>
-          <input
-            id="scheduled-at"
-            type="datetime-local"
-            value={scheduledAt}
-            min={minDate}
-            onChange={(e) => setScheduledAt(e.target.value)}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
+        <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/[0.05] rounded-2xl p-5 backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Calendar className="size-4 text-violet-500" />
+            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{t("timeConfig")}</h4>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">{t("date")}</label>
+              <input
+                type="date"
+                value={scheduledAt?.split("T")[0] ?? ""}
+                min={minDate.split("T")[0]}
+                onChange={(e) => {
+                  const time = scheduledAt?.split("T")[1] ?? "09:15"
+                  setScheduledAt(`${e.target.value}T${time}`)
+                }}
+                className={cn(
+                  "w-full bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10",
+                  "rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100",
+                  "focus:ring-2 focus:ring-violet-500/40 outline-none transition-all"
+                )}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">{t("timeUtc")}</label>
+              <input
+                type="time"
+                value={scheduledAt?.split("T")[1] ?? "09:15"}
+                onChange={(e) => {
+                  const date = scheduledAt?.split("T")[0] ?? new Date().toISOString().split("T")[0]
+                  setScheduledAt(`${date}T${e.target.value}`)
+                }}
+                className={cn(
+                  "w-full bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/10",
+                  "rounded-xl px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100",
+                  "focus:ring-2 focus:ring-violet-500/40 outline-none transition-all"
+                )}
+              />
+            </div>
+          </div>
+
+          {/* AI suggestion */}
+          <div className="mt-4 p-3 rounded-xl bg-violet-500/5 border border-violet-500/10">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="size-3.5 text-violet-500" />
+              <span className="text-xs font-bold text-violet-600 dark:text-violet-400">{t("bestTimeAI")}</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              {t("linkedinBestTime")}
+            </p>
+            <button
+              type="button"
+              className="mt-2 px-3 py-1 rounded-lg bg-violet-500/10 text-violet-500 text-[10px] font-bold hover:bg-violet-500/20 transition-colors"
+            >
+              {t("useSuggestion")}
+            </button>
+          </div>
+
           {scheduledAt && (
-            <p className="text-xs text-muted-foreground">
-              Publication prévue le{" "}
-              <strong>
-                {new Date(scheduledAt).toLocaleString("fr-FR", {
+            <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+              {t("scheduledFor")}{" "}
+              <strong className="text-slate-700 dark:text-slate-200">
+                {new Date(scheduledAt).toLocaleString(intlLocale, {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
@@ -223,36 +279,125 @@ export function Step7Schedule({ step1, step2, step5, defaultValues, onBack }: St
         </div>
       )}
 
-      {/* Erreur */}
+      {/* Publication recap */}
+      <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/[0.05] rounded-2xl p-5 backdrop-blur-sm">
+        <h4 className="text-xs font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400 mb-4">
+          {t("publicationRecap")}
+        </h4>
+        <div className="space-y-2">
+          <div className="grid grid-cols-4 gap-2 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider pb-2 border-b border-slate-100 dark:border-white/[0.05]">
+            <span>{t("platform")}</span>
+            <span>{t("dateTime")}</span>
+            <span className="col-span-2 text-right">{tc("status")}</span>
+          </div>
+          {step2.platforms.map((platform) => {
+            const cfg = PLATFORM_CONFIG[platform]
+            return (
+              <div key={platform} className="grid grid-cols-4 gap-2 items-center py-2">
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const I = PLATFORM_ICON_MAP[platform]
+                    return (
+                      <span className="flex size-5 items-center justify-center rounded" style={{ backgroundColor: `${cfg.color}20`, color: cfg.color }}>
+                        <I className="size-3.5" />
+                      </span>
+                    )
+                  })()}
+                  <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{cfg.label}</span>
+                </div>
+                <span className="text-xs text-slate-500 dark:text-slate-400">
+                  {scheduledAt
+                    ? new Date(scheduledAt).toLocaleDateString(intlLocale, { day: "numeric", month: "short", year: "numeric" })
+                    : t("now")
+                  }
+                </span>
+                <div className="col-span-2 flex justify-end">
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase",
+                    publishMode === "draft"
+                      ? "bg-slate-100 dark:bg-white/[0.05] text-slate-500"
+                      : "bg-green-500/10 text-green-600 dark:text-green-400"
+                  )}>
+                    {publishMode === "draft" ? tc("draft") : tc("ready")}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Sync toggle */}
+      <div className="flex items-center justify-between bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/[0.05] rounded-2xl p-4 backdrop-blur-sm">
+        <div className="flex items-center gap-3">
+          <Globe className="size-4 text-violet-500" />
+          <div>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t("syncBroadcast")}</p>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500">{t("syncBroadcastDesc")}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setSyncAllPlatforms(!syncAllPlatforms)}
+          className={cn(
+            "relative w-11 h-6 rounded-full transition-colors",
+            syncAllPlatforms ? "bg-violet-600" : "bg-slate-300 dark:bg-slate-600"
+          )}
+        >
+          <div className={cn(
+            "absolute top-0.5 size-5 rounded-full bg-white shadow transition-transform",
+            syncAllPlatforms ? "translate-x-[22px]" : "translate-x-0.5"
+          )} />
+        </button>
+      </div>
+
+      {/* Error */}
       {error && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-500">
           {error}
         </div>
       )}
 
-      <div className="flex justify-between pt-2">
-        <Button type="button" variant="outline" onClick={onBack} className="gap-2" disabled={isPending}>
-          <ChevronLeft className="size-4" />
-          Retour
-        </Button>
-        <Button
+      {/* Bottom Actions */}
+      <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/10">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isPending}
+          className={cn(
+            "flex items-center gap-2 text-xs font-medium",
+            "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+          )}
+        >
+          <ArrowLeft className="size-4" />
+          {t("backToPrevious")}
+        </button>
+        <button
           type="button"
           onClick={handleSave}
           disabled={isPending}
-          className="gap-2"
+          className={cn(
+            "px-8 py-3 rounded-xl",
+            "bg-gradient-to-r from-violet-600 to-blue-600",
+            "text-white text-sm font-bold",
+            "shadow-lg shadow-violet-500/20",
+            "hover:scale-[1.02] active:scale-[0.98] transition-all",
+            "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
+            "flex items-center gap-2"
+          )}
         >
           {isPending ? (
             <>
-              <div className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              Sauvegarde…
+              <div className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              {t("saving")}
             </>
           ) : (
             <>
-              {publishMode === "draft" ? <Save className="size-4" /> : <CalendarCheck className="size-4" />}
-              {publishMode === "draft" ? "Sauvegarder" : publishMode === "scheduled" ? "Planifier" : "Finaliser"}
+              <CalendarCheck className="size-4" />
+              {t("confirmPublication")}
             </>
           )}
-        </Button>
+        </button>
       </div>
     </div>
   )

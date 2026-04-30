@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-// /dashboard/settings redirige vers la sous-page par défaut
+// /settings redirige vers l'onglet Général (profil)
 export default function SettingsPage() {
-  redirect("/dashboard/settings/connections")
+  redirect("/settings/profile")
 }

@@ -5,6 +5,8 @@ import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff, Loader2, ShieldCheck, CheckCircle2 } from "lucide-react"
 
+import { useTranslations } from "next-intl"
+
 import {
   updatePasswordSchema,
   type UpdatePasswordFormData,
@@ -21,10 +23,11 @@ import {
 } from "@/components/auth/auth-card"
 
 function PasswordStrengthIndicator({ password }: { password: string }) {
+  const t = useTranslations("auth.updatePassword")
   const checks = [
-    { label: "8 caractères minimum", ok: password.length >= 8 },
-    { label: "Une majuscule", ok: /[A-Z]/.test(password) },
-    { label: "Un chiffre", ok: /[0-9]/.test(password) },
+    { label: t("minLength"), ok: password.length >= 8 },
+    { label: t("uppercase"), ok: /[A-Z]/.test(password) },
+    { label: t("digit"), ok: /[0-9]/.test(password) },
   ]
 
   if (!password) return null
@@ -35,12 +38,12 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
         <div key={check.label} className="flex items-center gap-1.5">
           <CheckCircle2
             className={`h-3 w-3 flex-shrink-0 transition-colors ${
-              check.ok ? "text-emerald-400" : "text-white/20"
+              check.ok ? "text-emerald-500 dark:text-emerald-400" : "text-gray-300 dark:text-white/20"
             }`}
           />
           <span
             className={`text-[11px] transition-colors ${
-              check.ok ? "text-emerald-400" : "text-white/30"
+              check.ok ? "text-emerald-500 dark:text-emerald-400" : "text-gray-400 dark:text-white/30"
             }`}
           >
             {check.label}
@@ -52,6 +55,8 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
 }
 
 export default function UpdatePasswordPage() {
+  const t = useTranslations("auth.updatePassword")
+  const tc = useTranslations("common")
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -81,15 +86,15 @@ export default function UpdatePasswordPage() {
 
       <div className="mb-6 text-center">
         <div className="flex justify-center mb-3">
-          <div className="rounded-full bg-violet-500/10 p-3 border border-violet-500/20">
-            <ShieldCheck className="h-6 w-6 text-violet-400" />
+          <div className="rounded-full bg-violet-100 dark:bg-violet-500/10 p-3 border border-violet-200 dark:border-violet-500/20">
+            <ShieldCheck className="h-6 w-6 text-violet-500 dark:text-violet-400" />
           </div>
         </div>
-        <h1 className="text-xl font-semibold text-white">
-          Nouveau mot de passe
+        <h1 className="text-xl font-semibold text-foreground">
+          {t("title")}
         </h1>
-        <p className="text-sm text-white/40 mt-1">
-          Choisissez un mot de passe sécurisé pour votre compte RAMI.
+        <p className="text-sm text-muted-foreground mt-1">
+          {t("subtitle")}
         </p>
       </div>
 
@@ -97,8 +102,8 @@ export default function UpdatePasswordPage() {
         {serverError && <FormAlert type="error" message={serverError} />}
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-white/70">
-            Nouveau mot de passe
+          <Label htmlFor="password" className="text-foreground/70">
+            {t("newPassword")}
           </Label>
           <div className="relative">
             <Input
@@ -106,16 +111,16 @@ export default function UpdatePasswordPage() {
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               autoComplete="new-password"
-              className="bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/25 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 pr-10"
+              className="bg-gray-50 dark:bg-white/[0.06] border-gray-200 dark:border-white/[0.08] text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 pr-10"
               aria-invalid={!!errors.password}
               {...register("password")}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
               tabIndex={-1}
-              aria-label={showPassword ? "Masquer" : "Afficher"}
+              aria-label={showPassword ? tc("hide") : tc("show")}
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />
@@ -129,8 +134,8 @@ export default function UpdatePasswordPage() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-white/70">
-            Confirmer le mot de passe
+          <Label htmlFor="confirmPassword" className="text-foreground/70">
+            {t("confirmPassword")}
           </Label>
           <div className="relative">
             <Input
@@ -138,16 +143,16 @@ export default function UpdatePasswordPage() {
               type={showConfirm ? "text" : "password"}
               placeholder="••••••••"
               autoComplete="new-password"
-              className="bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/25 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 pr-10"
+              className="bg-gray-50 dark:bg-white/[0.06] border-gray-200 dark:border-white/[0.08] text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 pr-10"
               aria-invalid={!!errors.confirmPassword}
               {...register("confirmPassword")}
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
               tabIndex={-1}
-              aria-label={showConfirm ? "Masquer" : "Afficher"}
+              aria-label={showConfirm ? tc("hide") : tc("show")}
             >
               {showConfirm ? (
                 <EyeOff className="h-4 w-4" />
@@ -162,14 +167,14 @@ export default function UpdatePasswordPage() {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-10 mt-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium hover:from-violet-500 hover:to-blue-500 transition-all shadow-lg shadow-violet-500/20 border-0"
+          className="w-full h-10 mt-2 rami-btn-gradient font-medium shadow-lg shadow-violet-500/20 border-0"
         >
           {isSubmitting ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
               <ShieldCheck className="h-4 w-4 mr-1.5" />
-              Mettre à jour le mot de passe
+              {t("submit")}
             </>
           )}
         </Button>

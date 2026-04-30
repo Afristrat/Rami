@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Analyse Concurrentielle</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+        .backdrop-blur-custom {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .nav-item-active {
+            background-color: rgba(124, 59, 237, 0.15);
+            color: #7c3bed;
+            border-right: 3px solid #7c3bed;
+        }
+    </style>
+</head>
+<body class="font-display text-slate-100 min-h-screen flex">
+<!-- Sidebar -->
+<aside class="w-[260px] border-r border-white/10 bg-background-dark/80 backdrop-blur-xl flex flex-col h-screen sticky top-0 overflow-y-auto shrink-0">
+<div class="p-6 flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xl">rocket_launch</span>
+</div>
+<h1 class="text-xl font-black tracking-tighter text-slate-100">RAMI</h1>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">add_box</span>
+<span class="text-sm font-medium">Créer</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">calendar_today</span>
+<span class="text-sm font-medium">Calendrier</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">book_5</span>
+<span class="text-sm font-medium">Bibliothèque</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg nav-item-active" href="#">
+<span class="material-symbols-outlined text-[22px]">leaderboard</span>
+<span class="text-sm font-medium">Analyse concurrentielle</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">hub</span>
+<span class="text-sm font-medium">Connexions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">fingerprint</span>
+<span class="text-sm font-medium">Brand DNA</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">description</span>
+<span class="text-sm font-medium">Documents</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">record_voice_over</span>
+<span class="text-sm font-medium">Transcriptions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">person_add</span>
+<span class="text-sm font-medium">Leads</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">payments</span>
+<span class="text-sm font-medium">Facturation</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-white/5 transition-all mt-8" href="#">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<span class="text-sm font-medium">Paramètres</span>
+</a>
+</nav>
+<div class="p-6 mt-auto border-t border-white/5 flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Photo de profil utilisateur" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBC01ejBi3SNFT2XopavSPiIcfzEC71qvb9i4V0U-xmHSdak5HjNVtsAFs31eB1CI6Kb7pHIzsnyfRT5HfYV6AopEoSH7fbqn8CJQAcUOZ5-BDCjuKQhBjmoqvtzABkyEaKFr57c7hdQ9RmYV-3ax9RqHbJ6U67vnhxWXGGgvDYHwmrQDF75gCakHRruJTA61Rdfm3QfVDKx-1mL_soPhsmRvPyKoFmsOOAD1fHITqMIwjVxh3yvH2vPDUJJKtT78PrwaYG01iUV3SO"/>
+</div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold">Marc Durand</p>
+<p class="text-xs text-slate-500">Admin</p>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Top Bar -->
+<header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-background-dark/40 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-2 text-sm">
+<span class="text-slate-500">Analytics</span>
+<span class="material-symbols-outlined text-xs text-slate-500">chevron_right</span>
+<span class="text-slate-100 font-medium">Analyse concurrentielle</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-500 text-xl">search</span>
+<input class="bg-white/5 border-none rounded-xl pl-10 pr-4 py-1.5 text-sm w-64 focus:ring-1 focus:ring-primary" placeholder="Rechercher un concurrent..." type="text"/>
+</div>
+<button class="relative text-slate-400 hover:text-slate-100">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 size-2 bg-primary rounded-full border-2 border-background-dark"></span>
+</button>
+</div>
+</header>
+<div class="p-8 space-y-8">
+<!-- Title Row -->
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-3xl font-black text-slate-100 tracking-tight">Analyse concurrentielle</h2>
+<p class="text-slate-400 mt-1">Surveillez et surpassez vos concurrents directs avec l'IA.</p>
+</div>
+<button class="px-6 py-2.5 bg-gradient-to-r from-primary to-blue-600 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">add</span>
+                    Ajouter un concurrent
+                </button>
+</div>
+<!-- Competitor Cards Row -->
+<div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+<!-- Card 1 -->
+<div class="min-w-[280px] p-5 rounded-xl backdrop-blur-custom relative group hover:bg-white/[0.06] transition-all">
+<button class="absolute top-4 right-4 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full overflow-hidden border-2 border-primary/40 p-0.5">
+<img class="w-full h-full rounded-full object-cover" data-alt="Logo Competitor Alpha" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAge17FlVTLjniS_ttr47yo7796hrrq5a8Y5Rp27lPlXRzCpdz0NUhLrzDB3110VEPST_oYy14IsUa0hYSsuyD2uHoT_tDm42ZDn2Yk-kt-bvZ563mmv1T9Ujb2eIUFK7TUJ84e3h7hPV4Am47FA8vExVbpsFYTBQ0n07AMA0cPjCTNhvMU5muXourn0bgv7jVOKWSjlbzgUcsQLEW47p30Y0vElg1OMGOc_t2JcRDumZDaudikX6knS-LByZ1tKk91TzVFmJKXbaRK"/>
+</div>
+<div>
+<p class="font-bold text-slate-100">@CompetitorAlpha</p>
+<div class="flex items-center gap-1.5 text-slate-500 text-xs">
+<span class="material-symbols-outlined text-[14px]">share</span>
+                                LinkedIn
+                            </div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mt-6">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Followers</p>
+<p class="text-lg font-black text-slate-100">12.4K</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Post/Sem</p>
+<p class="text-lg font-black text-slate-100">4.2</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Eng.</p>
+<p class="text-lg font-black text-slate-100 text-emerald-400">3.1%</p>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="min-w-[280px] p-5 rounded-xl backdrop-blur-custom relative group hover:bg-white/[0.06] transition-all">
+<button class="absolute top-4 right-4 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full overflow-hidden border-2 border-slate-700 p-0.5">
+<img class="w-full h-full rounded-full object-cover" data-alt="Logo Competitor Beta" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASSXhkMXPzDf1RBFgrpSKo3GIWb4cNs4gW2k8IiaIxtjGxPRyTl82mTY1R_bok8av5Y0dR1eIsh6pQOmRFMhpxxyZTjefmY9jCDYDRA6T_nTyOAKHByMWir9IQdVP5YKWA99Xj_eAj0795lVsCCiGV3D22DIdbzow734chQngqfzEQYif2f-ixJqVYhakq1SuF3UnnuZEM_2VQltfDNUoAocnd8sZCLfp9fvzNkjckgZriwMXJigzJkgvCsASnyIYkW71yi8Tn98NC"/>
+</div>
+<div>
+<p class="font-bold text-slate-100">@CompetitorBeta</p>
+<div class="flex items-center gap-1.5 text-slate-500 text-xs">
+<span class="material-symbols-outlined text-[14px]">photo_camera</span>
+                                Instagram
+                            </div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mt-6">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Followers</p>
+<p class="text-lg font-black text-slate-100">8.1K</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Post/Sem</p>
+<p class="text-lg font-black text-slate-100">2.5</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Eng.</p>
+<p class="text-lg font-black text-slate-100 text-emerald-400">2.8%</p>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="min-w-[280px] p-5 rounded-xl backdrop-blur-custom relative group hover:bg-white/[0.06] transition-all">
+<button class="absolute top-4 right-4 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+<div class="flex items-center gap-4">
+<div class="size-12 rounded-full overflow-hidden border-2 border-slate-700 p-0.5">
+<img class="w-full h-full rounded-full object-cover" data-alt="Logo Competitor Gamma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1lVZB3K-kau-00RU9Mo9QA5USLpXcV3QtBmZO7HHLBb77NK2DTHpHM7pKJAg9LiRt67AHleQJZRd1_SKpNnN6a2HWDRq3njEd0GmcNoML3ItlTXG9s8LvPY8a4S8lrDbF2dNCAQLRoT1e40EI_JxWjABI81V8AtsLrf-ppJt52meNKi6vQevsPT7WJQuYbHMI5QUH4kcnRPW9Wwz7i76MfUt_f1qFqSqN99s6jY2nPvM8ZU_ddSZYbX25DXDQAt0SCz0dAA5Cydfb"/>
+</div>
+<div>
+<p class="font-bold text-slate-100">@CompetitorGamma</p>
+<div class="flex items-center gap-1.5 text-slate-500 text-xs">
+<span class="material-symbols-outlined text-[14px]">alternate_email</span>
+                                X
+                            </div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-4 mt-6">
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Followers</p>
+<p class="text-lg font-black text-slate-100">15.2K</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Post/Sem</p>
+<p class="text-lg font-black text-slate-100">5.0</p>
+</div>
+<div>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Eng.</p>
+<p class="text-lg font-black text-slate-100 text-emerald-400">4.1%</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Charts Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Publication Frequency Chart -->
+<div class="p-6 rounded-xl backdrop-blur-custom">
+<h3 class="text-lg font-bold mb-6">Fréquence de publication</h3>
+<div class="space-y-6 h-[240px] flex flex-col justify-end">
+<div class="flex items-end gap-10 px-4 h-full">
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full flex gap-1 items-end h-[85%]">
+<div class="bg-gradient-to-t from-primary to-blue-500 w-1/3 h-full rounded-t-md" title="Vous"></div>
+<div class="bg-slate-700 w-1/3 h-3/4 rounded-t-md" title="Comp A"></div>
+<div class="bg-slate-800 w-1/3 h-1/2 rounded-t-md" title="Comp B"></div>
+</div>
+<span class="text-xs text-slate-400">LinkedIn</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full flex gap-1 items-end h-[60%]">
+<div class="bg-gradient-to-t from-primary to-blue-500 w-1/3 h-full rounded-t-md"></div>
+<div class="bg-slate-700 w-1/3 h-2/3 rounded-t-md"></div>
+<div class="bg-slate-800 w-1/3 h-1/3 rounded-t-md"></div>
+</div>
+<span class="text-xs text-slate-400">Instagram</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-2 h-full justify-end">
+<div class="w-full flex gap-1 items-end h-[40%]">
+<div class="bg-gradient-to-t from-primary to-blue-500 w-1/3 h-full rounded-t-md"></div>
+<div class="bg-slate-700 w-1/3 h-[90%] rounded-t-md"></div>
+<div class="bg-slate-800 w-1/3 h-[70%] rounded-t-md"></div>
+</div>
+<span class="text-xs text-slate-400">X</span>
+</div>
+</div>
+</div>
+<div class="flex justify-center gap-4 mt-6">
+<div class="flex items-center gap-2"><div class="size-2 rounded-full bg-primary"></div><span class="text-xs text-slate-400">Vous</span></div>
+<div class="flex items-center gap-2"><div class="size-2 rounded-full bg-slate-700"></div><span class="text-xs text-slate-400">Comp. A</span></div>
+<div class="flex items-center gap-2"><div class="size-2 rounded-full bg-slate-800"></div><span class="text-xs text-slate-400">Comp. B</span></div>
+</div>
+</div>
+<!-- Engagement Trend Chart -->
+<div class="p-6 rounded-xl backdrop-blur-custom">
+<h3 class="text-lg font-bold mb-6">Tendance du taux d'engagement</h3>
+<div class="relative h-[240px] w-full">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 400 200">
+<!-- Comp B (Gray) -->
+<path d="M0 160 Q 50 170, 100 150 T 200 160 T 300 140 T 400 150" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"></path>
+<!-- Comp A (Gray) -->
+<path d="M0 140 Q 50 120, 100 130 T 200 110 T 300 120 T 400 100" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"></path>
+<!-- You (Primary) -->
+<path d="M0 180 Q 50 140, 100 150 T 200 100 T 300 80 T 400 60" fill="none" stroke="#7c3bed" stroke-linecap="round" stroke-width="4"></path>
+<defs>
+<lineargradient id="gradient-line" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#7c3bed" stop-opacity="0.2"></stop>
+<stop offset="100%" stop-color="#7c3bed" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<path d="M0 180 Q 50 140, 100 150 T 200 100 T 300 80 T 400 60 V 200 H 0 Z" fill="url(#gradient-line)"></path>
+</svg>
+</div>
+<div class="flex justify-between mt-4 text-[10px] text-slate-500 uppercase tracking-widest font-bold px-2">
+<span>J-30</span>
+<span>J-20</span>
+<span>J-10</span>
+<span>Aujourd'hui</span>
+</div>
+</div>
+</div>
+<!-- Content Analysis Card -->
+<div class="p-6 rounded-xl backdrop-blur-custom">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-xl font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+                        Top Contenu Concurrent
+                    </h3>
+<button class="px-4 py-2 border border-primary text-primary rounded-lg text-sm font-bold hover:bg-primary/10 transition-colors">
+                        Inspirer mon prochain post
+                    </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Post Card 1 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-video rounded-lg overflow-hidden relative border border-white/10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Miniature d'un post LinkedIn performant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbYICyxxuCoefEsE5gQvxsJmEVLO0HvAtBwgfBL73QlNCSCiE0ZJsUJhteARjspszfXzizq_mgnFONB342QZ6BuGWKOia5SEyqmEbCQFU7jOQRilTVUAX-B5lfb6GWNYpbSsjZWxo9pKJtGgUglLl-9TrAz20-UJega-3AlAZMitcIbxTxSeK_RnshfoKEMIrE7RmbUCivv93OHtptwqUDyW0sNd7JbKDIRu0fKOX3oOPxA7Fzz4QAFh6KKkmhXSn2ubR4gRclfAiO"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-3xl">open_in_new</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-sm">favorite</span> 1.2K
+                            <span class="material-symbols-outlined text-sm ml-2">comment</span> 84
+                        </div>
+<div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+<p class="text-[10px] uppercase font-black text-primary tracking-widest mb-1">Insight IA : Visual Fluency</p>
+<p class="text-xs text-slate-300 leading-relaxed">Utilise un fort contraste de couleurs pour attirer l'œil immédiatement sur le CTA (Principe de Gestalt).</p>
+</div>
+</div>
+<!-- Post Card 2 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-video rounded-lg overflow-hidden relative border border-white/10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Miniature d'un post Instagram performant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2wRyA4qPYJWPZBnWMYbkqcm0Svg4YXcQnwme7C08RbJB3RVySyP9Qzdi-Lvk0UMP6YjmN7J1S8hDh2bZixRNyQEV_bSlSIDDMtusJxiW5FwNemOpLei6a1vqmK9dGUJNTpn-Zf2x5wIesoZk9-tOaYOUdAPOMNHHtBk1WK6DirUaFOe0DydLyXsR9nyAG0B542sHhq2zkWETl6qHsuebz8EJyn-SMwZxjWSe7gjo_WUBFbo72DU6TrZqD6PO5mRD9qUXktUmsT680"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-3xl">open_in_new</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-sm">favorite</span> 890
+                            <span class="material-symbols-outlined text-sm ml-2">comment</span> 120
+                        </div>
+<div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+<p class="text-[10px] uppercase font-black text-primary tracking-widest mb-1">Insight IA : Anchoring</p>
+<p class="text-xs text-slate-300 leading-relaxed">L'accroche chiffrée crée un point d'ancrage fort qui maintient l'attention sur les bénéfices listés.</p>
+</div>
+</div>
+<!-- Post Card 3 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-video rounded-lg overflow-hidden relative border border-white/10">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform" data-alt="Miniature d'un post X performant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAtlYMwBr5sSo5PrdXPKyqhpxCOoT2hky6AcNt5eX1JbXoObcVfnzaxHDQJ165S9y-xbXt7gUSfoozU_e4VrMb27uKj-I611F6z7-2cu8i8hX5kpHO98MxKlglmbNO8f4AvAC1bS-i30vOdZ0noyxvWzVu9hxxFZLSO2m0zby-iR0_oKXzD60x6CIbKGfOn8Lzdjw253vzZWY_rsrHxWALhLxwl5rVBLK-Rm17Ad3DqKMiYQRuqJEAPAnoItd49-G3upgZfx6CAMKn"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-3xl">open_in_new</span>
+</div>
+</div>
+<div class="flex items-center gap-2 text-xs text-slate-400">
+<span class="material-symbols-outlined text-sm">favorite</span> 2.1K
+                            <span class="material-symbols-outlined text-sm ml-2">comment</span> 45
+                        </div>
+<div class="bg-primary/10 border border-primary/20 rounded-lg p-3">
+<p class="text-[10px] uppercase font-black text-primary tracking-widest mb-1">Insight IA : Curiosity Gap</p>
+<p class="text-xs text-slate-300 leading-relaxed">La structure du thread génère une tension narrative (Causse) résolue par le lien final.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Gap Analysis Card -->
+<div class="p-6 rounded-xl backdrop-blur-custom overflow-hidden">
+<h3 class="text-xl font-bold mb-6">Gap Analysis &amp; Stratégie</h3>
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead>
+<tr class="border-b border-white/10 text-slate-500 text-sm">
+<th class="text-left pb-4 font-medium px-4">Fonctionnalité / Atout</th>
+<th class="pb-4 font-medium px-4 text-center">Vous</th>
+<th class="pb-4 font-medium px-4 text-center">Alpha</th>
+<th class="pb-4 font-medium px-4 text-center">Beta</th>
+</tr>
+</thead>
+<tbody class="text-slate-300">
+<tr class="border-b border-white/5">
+<td class="py-4 px-4 font-medium">Analyse IA Temps Réel</td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-emerald-400">check_circle</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-red-500">cancel</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-red-500">cancel</span></td>
+</tr>
+<tr class="border-b border-white/5">
+<td class="py-4 px-4 font-medium">Automatisation Publication</td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-emerald-400">check_circle</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-emerald-400">check_circle</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-emerald-400">check_circle</span></td>
+</tr>
+<tr class="border-b border-white/5">
+<td class="py-4 px-4 font-medium">Marque Blanche (White Label)</td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-red-500">cancel</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-emerald-400">check_circle</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-red-500">cancel</span></td>
+</tr>
+<tr class="border-b border-white/5">
+<td class="py-4 px-4 font-medium">Transcriptions Multilingues</td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-emerald-400">check_circle</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-red-500">cancel</span></td>
+<td class="py-4 px-4 text-center"><span class="material-symbols-outlined text-emerald-400">check_circle</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="material-symbols-outlined">lightbulb</span>
+                            Opportunité Identifiée
+                        </div>
+<p class="text-sm text-slate-300 leading-relaxed">Les concurrents A et B ont un fort engagement sur les posts "Process" mais manquent de profondeur technique. Votre feature d'analyse IA peut combler ce vide.</p>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-emerald-400 font-bold">
+<span class="material-symbols-outlined">trending_up</span>
+                            Action Recommandée
+                        </div>
+<p class="text-sm text-slate-300 leading-relaxed">Augmentez votre fréquence de publication sur LinkedIn (passage à 5/sem) en vous focalisant sur des démonstrations techniques de votre OS pour distancer Alpha.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

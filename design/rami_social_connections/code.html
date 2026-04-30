@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI - Connexions aux réseaux sociaux</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0F;
+            background-image: radial-gradient(#ffffff05 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .gradient-blob {
+            position: fixed;
+            z-index: -1;
+            filter: blur(80px);
+            opacity: 0.15;
+            border-radius: full;
+        }
+    </style>
+</head>
+<body class="font-display text-slate-100 min-h-screen relative overflow-x-hidden">
+<!-- Background Blobs -->
+<div class="gradient-blob bg-primary w-[400px] h-[400px] -top-20 -left-20"></div>
+<div class="gradient-blob bg-blue-600 w-[500px] h-[500px] top-1/2 -right-20"></div>
+<div class="gradient-blob bg-primary w-[300px] h-[300px] bottom-0 left-1/3"></div>
+<div class="flex h-screen overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-slate-800 bg-background-dark/80 backdrop-blur-xl flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white">share_reviews</span>
+</div>
+<h1 class="text-xl font-bold tracking-tight">RAMI</h1>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<div class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg transition-colors cursor-pointer">
+<span class="material-symbols-outlined">hub</span>
+<span class="text-sm font-medium">Connexions</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
+<span class="material-symbols-outlined">article</span>
+<span class="text-sm font-medium">Contenu</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-sm font-medium">Analyses</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Paramètres</span>
+</div>
+</nav>
+<div class="p-4 border-t border-slate-800">
+<div class="flex items-center gap-3 p-2">
+<img alt="User Profile" class="size-10 rounded-full" data-alt="Profile picture of a professional user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-SPPjg5SZx_NcRTjPMMv51aFc2pXPcWIYGzqjDG0_ww6TvPlnCcIdBT-Fuy5v6kfSshSJtUEDBcfhB76FsRGcI6wTRsffppT6DsjmqQ7sdcYlIaUqYIua7HkvRh6irbncQCgwlA47LD7Pmo1MediAtaAmoru2vTF5l1TJDPKjobGvFEiuHoSa5kh2SwLKUo6iXYUzPbDdv56Hjes3RDpNrc1g9z2ql03mv5nh8yKYkHmzmVSkR-MKVXSZFMZsZSWQXQ2_A3cYlyDw"/>
+<div class="overflow-hidden">
+<p class="text-sm font-semibold truncate">Alex Martin</p>
+<p class="text-xs text-slate-500 truncate">Social Manager</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+<!-- Header -->
+<header class="h-16 border-b border-slate-800 bg-background-dark/50 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-lg">search</span>
+<input class="w-full bg-white/5 border-none rounded-xl pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-primary text-slate-100 placeholder:text-slate-500" placeholder="Rechercher..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-400 hover:text-white transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-primary rounded-full border-2 border-background-dark"></span>
+</button>
+<button class="p-2 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-8 max-w-6xl mx-auto w-full">
+<!-- Tabs -->
+<div class="flex border-b border-slate-800 mb-8 gap-8">
+<a class="pb-4 border-b-2 border-primary text-primary font-semibold text-sm" href="#">Connexions</a>
+<a class="pb-4 border-b-2 border-transparent text-slate-500 hover:text-slate-300 transition-colors font-medium text-sm" href="#">Général</a>
+<a class="pb-4 border-b-2 border-transparent text-slate-500 hover:text-slate-300 transition-colors font-medium text-sm" href="#">Équipe</a>
+<a class="pb-4 border-b-2 border-transparent text-slate-500 hover:text-slate-300 transition-colors font-medium text-sm" href="#">Facturation</a>
+</div>
+<!-- Page Intro -->
+<div class="mb-10">
+<h2 class="text-3xl font-black text-white tracking-tight mb-2">Connexions aux réseaux sociaux</h2>
+<p class="text-slate-400">Connectez vos comptes pour publier directement depuis RAMI.</p>
+</div>
+<!-- Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- LinkedIn Card -->
+<div class="bg-white/[0.04] border border-white/5 rounded-2xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-[#0077B5]/10 p-4 rounded-xl">
+<svg class="size-8 text-[#0077B5]" fill="currentColor" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 text-xs font-bold">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                CONNECTÉ
+                            </div>
+</div>
+<div class="flex items-center gap-3 mb-6">
+<img alt="LinkedIn Account" class="size-10 rounded-full border-2 border-white/10" data-alt="LinkedIn profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ2G1-b5Hfdq8kHL_ZMeGIHE03k9FyU1eNH76XLrpCeUVOXyYbyrcp-XPMMBrEwfLfkZF-y-tnjZMDdoqiv6irHn5oP10XX0hI7kasL4Jni5k7cRpV4MyDkAIdyFthsjP_tpCqcmK_XRW-PJmblFfa-WBHDn2HzLtvkDikM7-gbKUnO9ife_ZssOsxORmsr6yfc3S1jAYrrk39l1A-ZpkU43lcPuzhX1olMmABvHv16Kz5z8HTTI5JMg_Y6VXRsXtSmm_gFEpX86EE"/>
+<div>
+<h3 class="font-bold text-white">LinkedIn Corporate</h3>
+<p class="text-xs text-slate-500">@rami_pro</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">POST</span>
+<span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">ANALYTICS</span>
+</div>
+<div class="mt-auto flex gap-4">
+<button class="text-xs font-bold text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest">Déconnecter</button>
+<button class="text-xs font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest">Rafraîchir le token</button>
+</div>
+</div>
+<!-- Instagram Card -->
+<div class="bg-white/[0.04] border border-white/5 rounded-2xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-4 rounded-xl">
+<svg class="size-8 text-white" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-500 border border-green-500/20 text-xs font-bold">
+<span class="size-1.5 rounded-full bg-green-500"></span>
+                                CONNECTÉ
+                            </div>
+</div>
+<div class="flex items-center gap-3 mb-6">
+<img alt="Instagram Account" class="size-10 rounded-full border-2 border-white/10" data-alt="Instagram user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCspRRifvzlIm6tL6-eCPNvmrszJJhxEH05WN_QY7Hs0STuLWK5Zg6OHRjjhc4ODr5PXb51NKVs82rAc3aYDyA0DpXs1siXuNCYOc_oaOiQixlKPxlG2csqo0siaw8TGsfkcx_jlE4U3dx5UvWdulXxed1ogwadjp7LjltGrDtpjIDmH-44sgoZI1Y2X_Uv4c6X7w65HIbAbucn2lXKne43Ze3meUUFeppAw5JQcIIHFyPuz6UouVO6CvDy_lgf8Q4qOMSkB1vCTY88"/>
+<div>
+<h3 class="font-bold text-white">Instagram Creative</h3>
+<p class="text-xs text-slate-500">@rami_social</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mb-8">
+<span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">PROFILE</span>
+<span class="px-2 py-0.5 rounded bg-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">MEDIA</span>
+</div>
+<div class="mt-auto flex gap-4">
+<button class="text-xs font-bold text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest">Déconnecter</button>
+<button class="text-xs font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest">Rafraîchir le token</button>
+</div>
+</div>
+<!-- Facebook Card with Expiry Warning -->
+<div class="bg-white/[0.04] border border-amber-500/40 rounded-2xl p-6 flex flex-col relative overflow-hidden">
+<div class="absolute inset-0 bg-amber-500/[0.02] pointer-events-none"></div>
+<div class="flex justify-between items-start mb-6">
+<div class="bg-[#1877F2]/10 p-4 rounded-xl">
+<svg class="size-8 text-[#1877F2]" fill="currentColor" viewbox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path></svg>
+</div>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 text-xs font-bold">
+<span class="material-symbols-outlined text-sm">warning</span>
+                                TOKEN EXPIRE BIENTÔT
+                            </div>
+</div>
+<div class="flex items-center gap-3 mb-6">
+<img alt="Facebook Account" class="size-10 rounded-full border-2 border-white/10" data-alt="Facebook account holder avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVSKQvqI4szsrffCAnfkKumH6ZObGYolNMOqPf-h3Ye-gawNjHlfP7w6JYvVoBreDUA06EL9jdi6ndf1DKiEAMgBHw9V70ktAA3feP9AeFrSfxcEKKe7aac4_6uzEldslHMF4kG8mjhsrjssEdgZgR1h4GVVrOSv4UMHIhl1hp5XFmpZ7cbf66-dE50OMGFn_quwxV51_uvpoU7tZm1LyKY4vbTCcs4Isrx8lnBai6iu1nc0xVE179qBc9VsipXYitBjRzU7x-H_Nx"/>
+<div>
+<h3 class="font-bold text-white">Facebook Brand</h3>
+<p class="text-xs text-slate-500">@rami_global</p>
+</div>
+</div>
+<div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-6">
+<p class="text-xs text-amber-200 font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-base">hourglass_bottom</span>
+                                Token expire dans 2 jours — <a class="underline font-bold" href="#">Rafraîchir maintenant</a>
+</p>
+</div>
+<div class="mt-auto flex gap-4">
+<button class="text-xs font-bold text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest">Déconnecter</button>
+<button class="text-xs font-bold text-primary hover:text-primary/80 transition-colors uppercase tracking-widest">Rafraîchir le token</button>
+</div>
+</div>
+<!-- X / Twitter Card - Disconnected -->
+<div class="bg-white/[0.04] border border-white/5 rounded-2xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-slate-800 p-4 rounded-xl grayscale opacity-40">
+<svg class="size-8 text-white" fill="currentColor" viewbox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+</div>
+<div class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Non connecté</div>
+</div>
+<h3 class="font-bold text-white/40 mb-1">X / Twitter</h3>
+<p class="text-sm text-slate-600 mb-8">Partagez vos mises à jour en temps réel.</p>
+<button class="w-full py-3 rounded-xl border-2 border-primary/40 text-primary font-bold text-sm hover:bg-primary/10 transition-all uppercase tracking-widest">
+                            Connecter le compte
+                        </button>
+</div>
+<!-- YouTube Card - Disconnected -->
+<div class="bg-white/[0.04] border border-white/5 rounded-2xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-slate-800 p-4 rounded-xl grayscale opacity-40">
+<svg class="size-8 text-white" fill="currentColor" viewbox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg>
+</div>
+<div class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Non connecté</div>
+</div>
+<h3 class="font-bold text-white/40 mb-1">YouTube</h3>
+<p class="text-sm text-slate-600 mb-8">Planifiez vos prochaines vidéos.</p>
+<button class="w-full py-3 rounded-xl border-2 border-primary/40 text-primary font-bold text-sm hover:bg-primary/10 transition-all uppercase tracking-widest">
+                            Connecter le compte
+                        </button>
+</div>
+<!-- Pinterest Card - Disconnected -->
+<div class="bg-white/[0.04] border border-white/5 rounded-2xl p-6 flex flex-col">
+<div class="flex justify-between items-start mb-6">
+<div class="bg-slate-800 p-4 rounded-xl grayscale opacity-40">
+<svg class="size-8 text-white" fill="currentColor" viewbox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.965 1.406-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345c-.097.404-.314 1.277-.356 1.448a.292.292 0 0 1-.161.161c-1.127-.525-1.832-2.171-1.832-3.495 0-3.83 2.784-7.352 8.03-7.352 4.215 0 7.491 3.003 7.491 7.017 0 4.188-2.639 7.56-6.304 7.56-1.231 0-2.389-.64-2.783-1.396 0 0-.608 2.316-.756 2.887-.275 1.056-1.018 2.378-1.517 3.192 1.127.348 2.321.537 3.562.537 6.621 0 11.987-5.367 11.987-11.987C24.004 5.367 18.638 0 12.017 0z"></path></svg>
+</div>
+<div class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Non connecté</div>
+</div>
+<h3 class="font-bold text-white/40 mb-1">Pinterest</h3>
+<p class="text-sm text-slate-600 mb-8">Inspirez votre audience visuelle.</p>
+<button class="w-full py-3 rounded-xl border-2 border-primary/40 text-primary font-bold text-sm hover:bg-primary/10 transition-all uppercase tracking-widest">
+                            Connecter le compte
+                        </button>
+</div>
+</div>
+<!-- Bottom Security Info Card -->
+<div class="mt-12 bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex gap-4">
+<div class="size-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">lock</span>
+</div>
+<div>
+<h4 class="font-bold text-white flex items-center gap-2">
+                                    Sécurité des données
+                                    <span class="text-[10px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20">CNDP &amp; RGPD</span>
+</h4>
+<p class="text-sm text-slate-500 mt-1">Vos identifiants et tokens d'accès sont chiffrés via AES-256 de bout en bout.</p>
+</div>
+</div>
+<div class="flex items-center gap-4 text-slate-500">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-2xl">verified_user</span>
+<span class="text-[8px] mt-1 font-bold uppercase">Protéger</span>
+</div>
+<div class="h-8 w-px bg-white/10"></div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-2xl">privacy_tip</span>
+<span class="text-[8px] mt-1 font-bold uppercase">Confiance</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-auto p-8 border-t border-slate-800 bg-background-dark/30">
+<div class="flex justify-between items-center text-slate-600 text-xs font-medium">
+<p>© 2024 RAMI Platform. Tous droits réservés.</p>
+<div class="flex gap-6">
+<a class="hover:text-slate-300 transition-colors" href="#">Support</a>
+<a class="hover:text-slate-300 transition-colors" href="#">Documentation</a>
+<a class="hover:text-slate-300 transition-colors" href="#">API Status</a>
+</div>
+</div>
+</footer>
+</main>
+</div>
+</body></html>

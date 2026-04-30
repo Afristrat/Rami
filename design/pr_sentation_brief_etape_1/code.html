@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6366f1",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .glass-card {
+            background: rgba(30, 30, 45, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<!-- Header -->
+<header class="flex items-center justify-between border-b border-primary/10 px-6 py-4 lg:px-20">
+<div class="flex items-center gap-3">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 text-primary">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">RAMI</h2>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-200 dark:bg-primary/10 text-slate-700 dark:text-primary transition-colors hover:bg-primary/20">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<button class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-200 dark:bg-primary/10 text-slate-700 dark:text-primary transition-colors hover:bg-primary/20">
+<span class="material-symbols-outlined">person</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center justify-center px-4 py-12">
+<div class="w-full max-w-2xl">
+<!-- Stepper -->
+<div class="mb-10">
+<div class="flex items-center justify-between mb-4">
+<div class="flex flex-col items-center gap-2 group">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white ring-4 ring-primary/20">
+<span class="material-symbols-outlined text-sm">edit</span>
+</div>
+<span class="text-xs font-semibold text-primary">Brief</span>
+</div>
+<div class="h-0.5 flex-1 bg-slate-200 dark:bg-primary/10 mx-4 -mt-6"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 dark:bg-primary/5 text-slate-400">
+<span class="material-symbols-outlined text-sm">schema</span>
+</div>
+<span class="text-xs font-medium text-slate-500">Structure</span>
+</div>
+<div class="h-0.5 flex-1 bg-slate-200 dark:bg-primary/10 mx-4 -mt-6"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 dark:bg-primary/5 text-slate-400">
+<span class="material-symbols-outlined text-sm">palette</span>
+</div>
+<span class="text-xs font-medium text-slate-500">Design</span>
+</div>
+<div class="h-0.5 flex-1 bg-slate-200 dark:bg-primary/10 mx-4 -mt-6"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 dark:bg-primary/5 text-slate-400">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+<span class="text-xs font-medium text-slate-500">Génération</span>
+</div>
+</div>
+</div>
+<!-- Form Card -->
+<div class="glass-card rounded-xl p-8 shadow-2xl">
+<div class="mb-8 text-center">
+<h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">Initialisation du Brief</h1>
+<p class="text-slate-500 dark:text-primary/60">Étape 1 sur 4 : Définissez le contexte de votre présentation neuro-IA.</p>
+</div>
+<form class="space-y-6">
+<!-- Subject Input -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">topic</span>
+                                Sujet de la présentation (Requis)
+                            </label>
+<input class="w-full rounded-lg border border-slate-300 dark:border-primary/20 bg-white/5 dark:bg-background-dark/50 p-4 text-slate-900 dark:text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Ex: L'impact de l'IA sur la neuropsychologie cognitive" type="text"/>
+</div>
+<!-- Audience Input -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">groups</span>
+                                Audience cible
+                            </label>
+<input class="w-full rounded-lg border border-slate-300 dark:border-primary/20 bg-white/5 dark:bg-background-dark/50 p-4 text-slate-900 dark:text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Ex: Professionnels de santé, Étudiants..." type="text"/>
+</div>
+<!-- Language and Slides Count Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+<!-- Slides Slider -->
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">layers</span>
+                                        Diapositives
+                                    </label>
+<span class="bg-primary/20 text-primary text-xs font-bold px-2 py-1 rounded">12 diapositives</span>
+</div>
+<input class="w-full h-2 bg-slate-200 dark:bg-primary/10 rounded-lg appearance-none cursor-pointer accent-primary" max="20" min="5" type="range" value="12"/>
+<div class="flex justify-between text-[10px] text-slate-500">
+<span>5 slides</span>
+<span>20 slides</span>
+</div>
+</div>
+<!-- Language Select -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg">translate</span>
+                                    Langue
+                                </label>
+<div class="relative">
+<select class="w-full rounded-lg border border-slate-300 dark:border-primary/20 bg-white/5 dark:bg-background-dark/50 p-4 appearance-none text-slate-900 dark:text-white focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
+<option selected="" value="fr">Français (FR)</option>
+<option value="ar">العربية (AR)</option>
+<option value="en">English (EN)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">expand_more</span>
+</div>
+</div>
+</div>
+</form>
+<!-- Footer Action -->
+<div class="mt-12 flex justify-end">
+<button class="flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-primary to-indigo-600 text-white font-bold hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] transition-all transform hover:-translate-y-0.5">
+                            Continuer
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Abstract Decorative Element -->
+<div class="mt-8 flex justify-center opacity-30">
+<div class="flex gap-1">
+<div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
+<div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
+<div class="h-1.5 w-1.5 rounded-full bg-primary"></div>
+</div>
+</div>
+</div>
+</main>
+<!-- Sidebar / Overlay Decorations -->
+<div class="fixed top-0 right-0 -z-10 h-[500px] w-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
+<div class="fixed bottom-0 left-0 -z-10 h-[500px] w-[500px] bg-indigo-900/10 blur-[120px] rounded-full pointer-events-none"></div>
+</div>
+</body></html>

@@ -3,6 +3,7 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronsUpDown, Plus } from "lucide-react"
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 
 interface Tenant {
@@ -27,6 +28,7 @@ const PLAN_COLORS: Record<Tenant["plan"], string> = {
 
 export function TenantSwitcher() {
   const [current, setCurrent] = useState(MOCK_TENANTS[0])
+  const t = useTranslations("tenants")
 
   return (
     <DropdownMenu.Root>
@@ -47,7 +49,7 @@ export function TenantSwitcher() {
           align="start"
         >
           <div className="px-2 py-1 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-            Tenants
+            {t("label")}
           </div>
           {MOCK_TENANTS.map((tenant) => (
             <DropdownMenu.Item
@@ -72,7 +74,7 @@ export function TenantSwitcher() {
 
           <DropdownMenu.Item className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-sm text-muted-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
             <Plus className="size-4" />
-            <span>Ajouter un tenant</span>
+            <span>{t("addTenant")}</span>
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

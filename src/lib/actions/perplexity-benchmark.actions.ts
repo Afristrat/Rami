@@ -3,8 +3,8 @@
 import { createClient } from "@/lib/supabase/server"
 import type { PerplexityBenchmarkData } from "@/lib/services/perplexity/benchmark"
 import { isBenchmarkFresh } from "@/lib/services/perplexity/benchmark"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
-export type { PerplexityBenchmarkData }
 
 export type GetBenchmarkResult =
   | { data: PerplexityBenchmarkData | null; stale: boolean }
@@ -26,20 +26,16 @@ export async function getBenchmarkAction(): Promise<GetBenchmarkResult> {
     return { error: "Non authentifié" }
   }
 
-  const { data: userData } = await supabase
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single()
+  const tenantId = await resolveUserTenant(supabase, user.id)
 
-  if (!userData?.tenant_id) {
+  if (!tenantId) {
     return { data: null, stale: false }
   }
 
   const { data: tenant } = await supabase
     .from("tenants")
     .select("brand_dna")
-    .eq("id", userData.tenant_id)
+    .eq("id", tenantId)
     .single()
 
   const brandDna = tenant?.brand_dna as Record<string, unknown> | null

@@ -1,0 +1,217 @@
+"use server"
+
+import { createClient } from "@/lib/supabase/server"
+import { revalidatePath } from "next/cache"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import {
+  CreateDocumentSchema,
+  type CreateDocumentInput,
+  type DocumentType,
+  type DocumentStatus,
+} from "@/lib/schemas/document.schema"
+
+// ── Types publics ──────────────────────────────────────────
+
+export interface DocumentItem {
+  id: string
+  title: string
+  type: DocumentType
+  client_name: string | null
+  status: DocumentStatus
+  storage_path: string | null
+  public_url: string | null
+  file_size_bytes: number | null
+  created_at: string
+  updated_at: string
+}
+
+export type GetDocumentsResult =
+  | { data: DocumentItem[]; total: number }
+  | { error: string }
+
+export type GetDocumentDetailResult =
+  | { data: DocumentItem & { content_json: unknown; brand_dna_snapshot: unknown } }
+  | { error: string }
+
+export type CreateDocumentResult =
+  | { data: DocumentItem }
+  | { error: string }
+
+export type DeleteDocumentResult =
+  | { success: true }
+  | { error: string }
+
+// ── Actions ────────────────────────────────────────────────
+
+/**
+ * Liste les documents du tenant courant.
+ */
+export async function getDocumentsAction(options?: {
+  search?: string
+  type?: DocumentType
+  limit?: number
+  offset?: number
+}): Promise<GetDocumentsResult> {
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { error: "Tenant introuvable." }
+
+  const limit = options?.limit ?? 50
+  const offset = options?.offset ?? 0
+
+  let query = supabase
+    .from("documents")
+    .select("*", { count: "exact" })
+    .eq("tenant_id", tenantId)
+    .order("created_at", { ascending: false })
+    .range(offset, offset + limit - 1)
+
+  if (options?.type) {
+    query = query.eq("type", options.type)
+  }
+
+  if (options?.search?.trim()) {
+    query = query.ilike("title", `%${options.search.trim()}%`)
+  }
+
+  const { data, error, count } = await query
+
+  if (error) {
+    if (error.code === "42P01") return { data: [], total: 0 }
+    return { error: "Erreur lors du chargement des documents." }
+  }
+
+  const items: DocumentItem[] = (data ?? []).map((row) => ({
+    id: row.id,
+    title: row.title,
+    type: row.type as DocumentType,
+    client_name: row.client_name,
+    status: row.status as DocumentStatus,
+    storage_path: row.storage_path,
+    public_url: row.public_url,
+    file_size_bytes: row.file_size_bytes,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  }))
+
+  return { data: items, total: count ?? 0 }
+}
+
+/**
+ * Récupère le détail d'un document.
+ */
+export async function getDocumentDetailAction(
+  id: string
+): Promise<GetDocumentDetailResult> {
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const { data: doc, error } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (error || !doc) return { error: "Document introuvable." }
+
+  return {
+    data: {
+      id: doc.id,
+      title: doc.title,
+      type: doc.type as DocumentType,
+      client_name: doc.client_name,
+      status: doc.status as DocumentStatus,
+      storage_path: doc.storage_path,
+      public_url: doc.public_url,
+      file_size_bytes: doc.file_size_bytes,
+      content_json: doc.content_json,
+      brand_dna_snapshot: doc.brand_dna_snapshot,
+      created_at: doc.created_at,
+      updated_at: doc.updated_at,
+    },
+  }
+}
+
+/**
+ * Crée un nouveau document.
+ */
+export async function createDocumentAction(
+  input: CreateDocumentInput
+): Promise<CreateDocumentResult> {
+  const parsed = CreateDocumentSchema.safeParse(input)
+  if (!parsed.success) {
+    return { error: parsed.error.issues.map((i) => i.message).join(", ") }
+  }
+
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { error: "Tenant introuvable." }
+
+  const { data: doc, error } = await supabase
+    .from("documents")
+    .insert({
+      tenant_id: tenantId,
+      title: parsed.data.title,
+      type: parsed.data.type,
+      client_name: parsed.data.client_name ?? null,
+      status: "draft",
+      created_by: user.id,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    if (error.code === "42P01") return { error: "La table documents n'existe pas encore. Appliquez la migration." }
+    return { error: "Erreur lors de la création du document." }
+  }
+
+  revalidatePath("/dashboard/documents")
+
+  return {
+    data: {
+      id: doc.id,
+      title: doc.title,
+      type: doc.type as DocumentType,
+      client_name: doc.client_name,
+      status: doc.status as DocumentStatus,
+      storage_path: doc.storage_path,
+      public_url: doc.public_url,
+      file_size_bytes: doc.file_size_bytes,
+      created_at: doc.created_at,
+      updated_at: doc.updated_at,
+    },
+  }
+}
+
+/**
+ * Supprime un document.
+ */
+export async function deleteDocumentAction(
+  id: string
+): Promise<DeleteDocumentResult> {
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const { error } = await supabase
+    .from("documents")
+    .delete()
+    .eq("id", id)
+
+  if (error) return { error: "Erreur lors de la suppression du document." }
+
+  revalidatePath("/dashboard/documents")
+
+  return { success: true }
+}

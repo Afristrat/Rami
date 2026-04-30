@@ -2,25 +2,27 @@
 
 import { useEffect } from "react"
 import { useSearchParams } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 export function WelcomeToast({ tenantName }: { tenantName?: string }) {
   const searchParams = useSearchParams()
   const isWelcome = searchParams.get("welcome") === "1"
+  const t = useTranslations("dashboard")
 
   useEffect(() => {
     if (isWelcome) {
       toast.success(
         tenantName
-          ? `Espace "${tenantName}" créé avec succès !`
-          : "Votre espace a été créé avec succès !",
+          ? t("welcomeTenantCreated", { name: tenantName })
+          : t("welcomeSpaceCreated"),
         {
-          description: "Brand DNA, visuels, publications — tout est prêt à démarrer.",
+          description: t("welcomeDescription"),
           duration: 6000,
         }
       )
     }
-  }, [isWelcome, tenantName])
+  }, [isWelcome, tenantName, t])
 
   return null
 }

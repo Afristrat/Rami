@@ -3,13 +3,15 @@
 /**
  * AiAssistButton — Feature 5
  *
- * Bouton IA mutuellement exclusif sur les champs Tagline et Positionnement.
- * - Valeur < 50 chars → "Générer avec IA" (génération directe)
- * - Valeur ≥ 50 chars → "Améliorer avec IA" (proposition + Annuler 10s)
+ * Petit bouton carré inline à droite du champ.
+ * - Valeur vide ou < 30 chars → icône Sparkles (générer)
+ * - Valeur ≥ 30 chars → icône Wand2 (améliorer)
+ * Mutuellement exclusif : un seul bouton visible à la fois.
  */
 
 import React, { useState, useEffect, useRef } from "react"
-import { Sparkles, Loader2, Check, X } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { Sparkles, Wand2, Loader2, Check, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
@@ -22,13 +24,9 @@ export interface AiAssistContext {
 }
 
 interface AiAssistButtonProps {
-  /** Valeur actuelle du champ — détermine generate vs improve */
   value: string
-  /** Champ cible */
-  field: "positioning" | "tagline"
-  /** Contexte Brand DNA pour construire le prompt */
+  field: "positioning" | "tagline" | "audienceDescription" | "audiencePainPoints"
   context: AiAssistContext
-  /** Appelé avec le texte à insérer dans le champ */
   onApply: (text: string) => void
   className?: string
 }
@@ -36,6 +34,7 @@ interface AiAssistButtonProps {
 type ButtonState = "idle" | "loading" | "suggested" | "error"
 
 const ANNULER_DURATION_S = 10
+const IMPROVE_THRESHOLD = 30
 
 /* ─── Composant ──────────────────────────────────────────────────────────── */
 
@@ -46,6 +45,7 @@ export function AiAssistButton({
   onApply,
   className,
 }: AiAssistButtonProps) {
+  const t = useTranslations("brandDna.aiAssist")
   const [state, setState] = useState<ButtonState>("idle")
   const [suggestion, setSuggestion] = useState("")
   const [errorMsg, setErrorMsg] = useState("")
@@ -55,7 +55,6 @@ export function AiAssistButton({
   const autoApplyRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const suggestionRef = useRef(suggestion)
 
-  // Garde la ref à jour pour éviter les stale closures dans les timers
   useEffect(() => {
     suggestionRef.current = suggestion
   }, [suggestion])
@@ -65,10 +64,9 @@ export function AiAssistButton({
     if (autoApplyRef.current) clearTimeout(autoApplyRef.current)
   }
 
-  // Cleanup à l'unmount
   useEffect(() => () => clearTimers(), [])
 
-  const isGenerate = value.length < 50
+  const isGenerate = value.length < IMPROVE_THRESHOLD
 
   const handleClick = async () => {
     if (state !== "idle") return
@@ -90,18 +88,16 @@ export function AiAssistButton({
       const data = (await res.json()) as { result?: string; error?: string }
 
       if (!res.ok || !data.result) {
-        setErrorMsg(data.error ?? "Erreur IA. Réessayez.")
+        setErrorMsg(data.error ?? t("aiError"))
         setState("error")
         setTimeout(() => setState("idle"), 4000)
         return
       }
 
       if (isGenerate) {
-        // Génération directe → application immédiate
         onApply(data.result)
         setState("idle")
       } else {
-        // Amélioration → panneau de suggestion + countdown
         setSuggestion(data.result)
         setCountdown(ANNULER_DURATION_S)
         setState("suggested")
@@ -123,7 +119,7 @@ export function AiAssistButton({
         }, ANNULER_DURATION_S * 1000)
       }
     } catch {
-      setErrorMsg("Impossible de contacter l'IA. Vérifiez votre connexion.")
+      setErrorMsg(t("connectionError"))
       setState("error")
       setTimeout(() => setState("idle"), 4000)
     }
@@ -147,46 +143,35 @@ export function AiAssistButton({
     return (
       <div
         className={cn(
-          "mt-2 rounded-xl border border-violet-200/60 bg-violet-50/50 p-3",
+          "mt-2 rounded-lg border border-violet-200/60 bg-violet-50/50 p-2.5",
           "dark:border-violet-800/40 dark:bg-violet-950/20",
           className
         )}
         role="status"
         aria-live="polite"
       >
-        <div className="mb-2 flex items-center gap-1.5">
-          <Sparkles className="size-3.5 shrink-0 text-violet-500" aria-hidden="true" />
-          <span className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+        <div className="mb-1.5 flex items-center gap-1.5">
+          <Sparkles className="size-3 shrink-0 text-violet-500" aria-hidden="true" />
+          <span className="text-[11px] font-semibold text-violet-700 dark:text-violet-300">
             Suggestion IA
           </span>
           <span className="ml-auto text-[10px] tabular-nums text-muted-foreground">
-            Application dans {countdown}s…
+            {countdown}s
           </span>
         </div>
 
-        <p className="mb-3 text-sm italic leading-relaxed text-foreground/90">
+        <p className="mb-2 text-xs italic leading-relaxed text-foreground/90">
           &ldquo;{suggestion}&rdquo;
         </p>
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            onClick={handleApply}
-            className="h-7 gap-1 bg-violet-600 px-2.5 text-xs hover:bg-violet-700"
-          >
-            <Check className="size-3" />
+        <div className="flex items-center gap-1.5">
+          <Button type="button" size="sm" onClick={handleApply} className="h-6 gap-1 bg-violet-600 px-2 text-[10px] hover:bg-violet-700">
+            <Check className="size-2.5" />
             Appliquer
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={handleCancel}
-            className="h-7 gap-1 px-2.5 text-xs"
-          >
-            <X className="size-3" />
-            Annuler ({countdown}s)
+          <Button type="button" size="sm" variant="outline" onClick={handleCancel} className="h-6 gap-1 px-2 text-[10px]">
+            <X className="size-2.5" />
+            Annuler
           </Button>
         </div>
       </div>
@@ -196,41 +181,38 @@ export function AiAssistButton({
   /* ── Erreur ──── */
   if (state === "error") {
     return (
-      <p
-        className={cn(
-          "mt-1 flex items-center gap-1.5 text-xs text-destructive",
-          className
-        )}
-        role="alert"
-      >
+      <p className={cn("mt-1 flex items-center gap-1 text-[10px] text-destructive", className)} role="alert">
         <X className="size-3 shrink-0" />
         {errorMsg}
       </p>
     )
   }
 
-  /* ── Bouton idle / loading ──── */
+  /* ── Bouton carré idle / loading ──── */
   return (
-    <Button
+    <button
       type="button"
-      size="sm"
-      variant="ghost"
       onClick={handleClick}
       disabled={state === "loading"}
-      aria-label={state === "loading" ? "Génération en cours…" : isGenerate ? "Générer avec IA" : "Améliorer avec IA"}
+      title={isGenerate ? t("generateWithAi") : t("improveWithAi")}
       className={cn(
-        "h-7 gap-1.5 px-2.5 text-xs",
-        "text-violet-600 hover:bg-violet-50 hover:text-violet-700",
-        "dark:text-violet-400 dark:hover:bg-violet-950/40 dark:hover:text-violet-300",
+        "flex size-8 shrink-0 items-center justify-center rounded-lg border transition-all",
+        state === "loading"
+          ? "border-violet-300 bg-violet-50 dark:border-violet-800 dark:bg-violet-950/30"
+          : isGenerate
+            ? "border-violet-200 bg-violet-50 text-violet-600 hover:bg-violet-100 hover:border-violet-300 dark:border-violet-800 dark:bg-violet-950/20 dark:text-violet-400 dark:hover:bg-violet-950/40"
+            : "border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 hover:border-amber-300 dark:border-amber-800 dark:bg-amber-950/20 dark:text-amber-400 dark:hover:bg-amber-950/40",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
         className
       )}
     >
       {state === "loading" ? (
-        <Loader2 className="size-3 animate-spin" aria-hidden="true" />
+        <Loader2 className="size-3.5 animate-spin text-violet-500" />
+      ) : isGenerate ? (
+        <Sparkles className="size-3.5" />
       ) : (
-        <Sparkles className="size-3" aria-hidden="true" />
+        <Wand2 className="size-3.5" />
       )}
-      {state === "loading" ? "Génération…" : isGenerate ? "Générer avec IA" : "Améliorer avec IA"}
-    </Button>
+    </button>
   )
 }

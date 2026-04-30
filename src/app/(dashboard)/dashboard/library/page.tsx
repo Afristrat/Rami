@@ -1,9 +1,13 @@
+import { getTranslations } from "next-intl/server"
 import { getMediaAssetsAction } from "@/lib/actions/library.actions"
 import { MediaLibraryClient } from "@/components/library/media-library-client"
 
-export const metadata = {
-  title: "Médiathèque — RAMI",
-  description: "Gérez vos images, vidéos et documents.",
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return {
+    title: t("library"),
+    description: t("libraryDescription"),
+  }
 }
 
 export default async function LibraryPage() {

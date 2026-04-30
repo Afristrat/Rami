@@ -2,10 +2,20 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { CheckCircle2, AlertCircle, ExternalLink, RefreshCw, Unplug, Clock, Zap } from "lucide-react"
+import { useTranslations } from "next-intl"
+import {
+  RefreshCw,
+  AlertTriangle,
+  Lock,
+  ShieldCheck,
+  Zap,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import type { OAuthConnection } from "@/lib/actions/connections.actions"
+import type { OAuthConnection, ConnectionStatus } from "@/lib/actions/connections.actions"
+import { testConnectionAction } from "@/lib/actions/connections.actions"
+import type { ConnectionTestResult } from "@/lib/services/publishing/connection-tester"
 import {
   TwitterXIcon,
   LinkedInIcon,
@@ -16,108 +26,106 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ConnectionStatus = "connected" | "disconnected" | "error"
-
 interface Platform {
   id: string
-  label: string
-  description: string
+  labelKey: string
+  descriptionKey: string
   Icon: React.FC<{ className?: string }>
-  color: string
-  bgColor: string
-  borderColor: string
+  iconBg: string
   phase: "MVP" | "Phase 2"
 }
 
-// ─── Plateformes disponibles ──────────────────────────────────────────────────
+// ─── Plateformes ──────────────────────────────────────────────────────────────
 
 const PLATFORMS: Platform[] = [
   {
-    id: "twitter",
-    label: "X (Twitter)",
-    description: "Tweets, threads et médias — 280 caractères par post.",
-    Icon: TwitterXIcon,
-    color: "text-foreground",
-    bgColor: "bg-foreground/8 dark:bg-foreground/10",
-    borderColor: "border-foreground/10",
-    phase: "MVP",
-  },
-  {
     id: "linkedin",
-    label: "LinkedIn",
-    description: "Contenu professionnel sur votre profil et pages entreprise — 3 000 caractères.",
+    labelKey: "platformLinkedinLabel",
+    descriptionKey: "platformLinkedinDesc",
     Icon: LinkedInIcon,
-    color: "text-[#0A66C2]",
-    bgColor: "bg-[#0A66C2]/10",
-    borderColor: "border-[#0A66C2]/20",
+    iconBg: "bg-[#0077B5]/10",
     phase: "MVP",
   },
   {
     id: "instagram",
-    label: "Instagram",
-    description: "Photos, reels et stories sur vos comptes professionnels — 2 200 caractères.",
+    labelKey: "platformInstagramLabel",
+    descriptionKey: "platformInstagramDesc",
     Icon: InstagramIcon,
-    color: "text-[#E1306C]",
-    bgColor: "bg-[#E1306C]/10",
-    borderColor: "border-[#E1306C]/20",
+    iconBg: "bg-gradient-to-tr from-yellow-400/20 via-pink-500/20 to-purple-600/20",
     phase: "MVP",
   },
   {
     id: "facebook",
-    label: "Facebook",
-    description: "Pages Facebook avec ciblage d'audience et publication planifiée.",
+    labelKey: "platformFacebookLabel",
+    descriptionKey: "platformFacebookDesc",
     Icon: FacebookIcon,
-    color: "text-[#1877F2]",
-    bgColor: "bg-[#1877F2]/10",
-    borderColor: "border-[#1877F2]/20",
+    iconBg: "bg-[#1877F2]/10",
+    phase: "MVP",
+  },
+  {
+    id: "twitter",
+    labelKey: "platformTwitterLabel",
+    descriptionKey: "platformTwitterDesc",
+    Icon: TwitterXIcon,
+    iconBg: "bg-gray-200/50 dark:bg-slate-800",
+    phase: "MVP",
+  },
+  {
+    id: "youtube",
+    labelKey: "platformYoutubeLabel",
+    descriptionKey: "platformYoutubeDesc",
+    Icon: YoutubeIcon,
+    iconBg: "bg-red-500/10",
     phase: "MVP",
   },
   {
     id: "pinterest",
-    label: "Pinterest",
-    description: "Épingles visuelles sur vos tableaux — contenu evergreen haute durée de vie.",
+    labelKey: "platformPinterestLabel",
+    descriptionKey: "platformPinterestDesc",
     Icon: PinterestIcon,
-    color: "text-[#E60023]",
-    bgColor: "bg-[#E60023]/10",
-    borderColor: "border-[#E60023]/20",
+    iconBg: "bg-[#E60023]/10",
     phase: "MVP",
   },
 ]
 
-const COMING_SOON: Array<{ id: string; label: string; icon: string; eta: string }> = [
-  { id: "tiktok", label: "TikTok", icon: "🎵", eta: "Phase 2" },
-  { id: "youtube", label: "YouTube", icon: "▶", eta: "Phase 2" },
-  { id: "mastodon", label: "Mastodon", icon: "🐘", eta: "Phase 2" },
-]
+// ─── YouTube Icon (not in platform-icons) ─────────────────────────────────────
 
-// ─── StatusBadge ─────────────────────────────────────────────────────────────
+function YoutubeIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+    </svg>
+  )
+}
+
+// ─── Status Badge ─────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: ConnectionStatus }) {
+  const t = useTranslations("settings.connectionsSection")
   if (status === "connected") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-        <CheckCircle2 className="size-3.5" />
-        Connecté
-      </span>
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-500 border border-green-500/20 text-xs font-bold">
+        <span className="size-1.5 rounded-full bg-green-500" />
+        {t("connected").toUpperCase()}
+      </div>
     )
   }
   if (status === "error") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
-        <AlertCircle className="size-3.5" />
-        Token expiré
-      </span>
+      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-500/20 text-xs font-bold">
+        <AlertTriangle className="size-3" />
+        {t("tokenExpiringSoon").toUpperCase()}
+      </div>
     )
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-      <span className="size-2 rounded-full border-2 border-current opacity-50" />
-      Non connecté
-    </span>
+    <div className="text-[10px] font-bold text-gray-400 dark:text-white/40 uppercase tracking-widest">
+      {t("disconnected")}
+    </div>
   )
 }
 
-// ─── PlatformCard ────────────────────────────────────────────────────────────
+// ─── Platform Card ────────────────────────────────────────────────────────────
 
 function PlatformCard({
   platform,
@@ -126,20 +134,41 @@ function PlatformCard({
   platform: Platform
   connection?: OAuthConnection
 }) {
+  const t = useTranslations("settings.connectionsSection")
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
-  // État optimiste : masque la carte comme "déconnecté" avant le rechargement
   const [optimisticDisconnected, setOptimisticDisconnected] = React.useState(false)
+  const [testLoading, setTestLoading] = React.useState(false)
+  const [testResult, setTestResult] = React.useState<ConnectionTestResult | null>(null)
 
   const rawStatus: ConnectionStatus = connection?.status ?? "disconnected"
   const status: ConnectionStatus = optimisticDisconnected ? "disconnected" : rawStatus
   const isConnected = status === "connected"
   const isError = status === "error"
+  const isDisconnected = status === "disconnected"
 
   const oauthPath = `/api/oauth/${platform.id}/authorize`
 
   function handleConnect() {
     window.location.href = oauthPath
+  }
+
+  async function handleTestConnection() {
+    if (!connection) return
+    setTestLoading(true)
+    setTestResult(null)
+    try {
+      const result = await testConnectionAction(connection.id)
+      if (result.success) {
+        setTestResult(result.data)
+      } else {
+        setTestResult({ platform: platform.id, status: "error", message: result.error })
+      }
+    } catch {
+      setTestResult({ platform: platform.id, status: "error", message: t("networkError") })
+    } finally {
+      setTestLoading(false)
+    }
   }
 
   async function handleDisconnect() {
@@ -159,111 +188,176 @@ function PlatformCard({
   return (
     <div
       className={cn(
-        "group relative flex items-start gap-4 rounded-2xl border bg-card p-5 transition-all duration-200",
-        isConnected
-          ? "border-emerald-500/20 shadow-[0_0_0_1px] shadow-emerald-500/10 hover:shadow-emerald-500/20"
-          : isError
-          ? "border-amber-500/20 hover:border-amber-500/30"
-          : "border-border hover:border-primary/20 hover:shadow-sm"
+        "flex flex-col rounded-2xl p-6 transition-all",
+        // Light
+        "bg-white border border-gray-200/60 shadow-sm",
+        // Dark
+        "dark:bg-white/[0.04] dark:border-white/5",
+        // Error border
+        isError && "dark:border-amber-500/40 border-amber-300",
+        // Disconnected dimming
+        isDisconnected && ""
       )}
     >
-      {/* Point d'état connecté */}
-      {isConnected && (
-        <div className="absolute right-4 top-4 size-2 rounded-full bg-emerald-500 shadow-[0_0_6px_2px] shadow-emerald-500/40" />
-      )}
-
-      {/* Icône plateforme */}
-      <div
-        className={cn(
-          "flex size-12 shrink-0 items-center justify-center rounded-xl border",
-          platform.bgColor,
-          platform.borderColor,
-          isConnected && "shadow-sm"
-        )}
-      >
-        <platform.Icon className={cn("size-5", platform.color)} />
+      {/* Header: icon + status */}
+      <div className="flex justify-between items-start mb-6">
+        <div className={cn("p-4 rounded-xl", platform.iconBg, isDisconnected && "grayscale opacity-40")}>
+          <platform.Icon
+            className={cn(
+              "size-8",
+              platform.id === "linkedin" && "text-[#0077B5]",
+              platform.id === "instagram" && "text-[#E1306C]",
+              platform.id === "facebook" && "text-[#1877F2]",
+              platform.id === "twitter" && "text-foreground dark:text-white",
+              platform.id === "youtube" && "text-[#FF0000]",
+              platform.id === "pinterest" && "text-[#E60023]",
+              isDisconnected && "text-gray-400 dark:text-white"
+            )}
+          />
+        </div>
+        <StatusBadge status={status} />
       </div>
 
-      {/* Infos */}
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2 mb-0.5">
-          <span className="font-semibold text-foreground">{platform.label}</span>
-          <StatusBadge status={status} />
-        </div>
-
-        {isConnected && connection?.accountName ? (
-          <div className="flex items-center gap-2 mt-1">
+      {/* Connected: show account info */}
+      {isConnected && connection ? (
+        <>
+          <div className="flex items-center gap-3 mb-6">
             {connection.accountAvatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={connection.accountAvatar}
                 alt={connection.accountName}
-                className="size-5 rounded-full object-cover ring-1 ring-border"
+                className="size-10 rounded-full border-2 border-gray-200 dark:border-white/10"
               />
             ) : (
-              <div className={cn("flex size-5 items-center justify-center rounded-full text-[9px] font-bold text-white", platform.bgColor)}>
-                {connection.accountName.charAt(0).toUpperCase()}
+              <div className="flex size-10 items-center justify-center rounded-full bg-violet-500/10 text-sm font-bold text-violet-500">
+                {connection.accountName?.charAt(0)?.toUpperCase() ?? "?"}
               </div>
             )}
-            <p className="text-sm">
-              <span className="font-medium text-foreground">{connection.accountName}</span>
-              {connection.connectedAt && (
-                <span className="ml-2 text-xs text-muted-foreground">
-                  · depuis le{" "}
-                  {new Date(connection.connectedAt).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </span>
-              )}
+            <div>
+              <h3 className="font-bold text-foreground dark:text-white">{connection.accountName}</h3>
+              <p className="text-xs text-muted-foreground dark:text-slate-500">
+                @{connection.accountName?.toLowerCase().replace(/\s/g, "_") ?? "unknown"}
+              </p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-6">
+            <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+              POST
+            </span>
+            <span className="px-2 py-0.5 rounded bg-gray-100 dark:bg-white/5 text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+              ANALYTICS
+            </span>
+          </div>
+        </>
+      ) : isError && connection ? (
+        <>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex size-10 items-center justify-center rounded-full bg-violet-500/10 text-sm font-bold text-violet-500">
+              {connection.accountName?.charAt(0)?.toUpperCase() ?? "?"}
+            </div>
+            <div>
+              <h3 className="font-bold text-foreground dark:text-white">{connection.accountName}</h3>
+              <p className="text-xs text-muted-foreground dark:text-slate-500">
+                @{connection.accountName?.toLowerCase().replace(/\s/g, "_") ?? "unknown"}
+              </p>
+            </div>
+          </div>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-6">
+            <p className="text-xs text-amber-700 dark:text-amber-200 font-medium flex items-center gap-2">
+              <AlertTriangle className="size-4 shrink-0" />
+              {t("tokenExpiringSoon")} —{" "}
+              <button
+                type="button"
+                onClick={handleConnect}
+                className="underline font-bold hover:text-amber-600 dark:hover:text-amber-100"
+              >
+                {t("refreshNow")}
+              </button>
             </p>
           </div>
-        ) : isError ? (
-          <p className="text-sm text-amber-600 dark:text-amber-400">
-            Token expiré — reconnectez votre compte pour continuer à publier.
-          </p>
-        ) : (
-          <p className="text-sm text-muted-foreground">{platform.description}</p>
-        )}
-      </div>
+        </>
+      ) : (
+        <>
+          <h3 className="font-bold text-gray-400 dark:text-white/40 mb-1">{t(platform.labelKey)}</h3>
+          <p className="text-sm text-gray-400 dark:text-slate-600 mb-8">{t(platform.descriptionKey)}</p>
+        </>
+      )}
 
       {/* Actions */}
-      <div className="flex shrink-0 items-center gap-2">
-        {status === "disconnected" && (
-          <Button variant="outline" size="sm" onClick={handleConnect} className="gap-1.5">
-            <ExternalLink className="size-3.5" />
-            Connecter
-          </Button>
-        )}
-
-        {isError && (
-          <Button
-            variant="outline"
-            size="sm"
+      <div className="mt-auto">
+        {isDisconnected && (
+          <button
             onClick={handleConnect}
-            className="gap-1.5 border-amber-500/30 text-amber-600 hover:bg-amber-50 hover:border-amber-500/50 dark:text-amber-400 dark:hover:bg-amber-900/20"
+            className={cn(
+              "w-full py-3 rounded-xl font-bold text-sm uppercase tracking-widest transition-all",
+              "border-2 border-violet-300 text-violet-600 hover:bg-violet-50",
+              "dark:border-violet-500/40 dark:text-violet-400 dark:hover:bg-violet-500/10"
+            )}
           >
-            <RefreshCw className="size-3.5" />
-            Reconnecter
-          </Button>
+            {t("connectAccount")}
+          </button>
         )}
 
-        {isConnected && (
-          <Button
-            variant="ghost"
-            size="sm"
-            disabled={loading}
-            onClick={handleDisconnect}
-            className="gap-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-          >
-            {loading ? (
-              <RefreshCw className="size-3.5 animate-spin" />
-            ) : (
-              <Unplug className="size-3.5" />
+        {(isConnected || isError) && (
+          <div className="space-y-3">
+            <div className="flex gap-4">
+              <button
+                onClick={handleDisconnect}
+                disabled={loading}
+                className="text-xs font-bold text-red-500 hover:text-red-400 transition-colors uppercase tracking-widest"
+              >
+                {loading ? (
+                  <RefreshCw className="size-3 animate-spin inline mr-1" />
+                ) : null}
+                {t("disconnect")}
+              </button>
+              <button
+                type="button"
+                onClick={handleConnect}
+                className="text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-foreground dark:hover:text-white transition-colors uppercase tracking-widest"
+              >
+                {t("refreshToken")}
+              </button>
+              <button
+                type="button"
+                onClick={handleTestConnection}
+                disabled={testLoading}
+                className="text-xs font-bold text-violet-500 hover:text-violet-400 transition-colors uppercase tracking-widest flex items-center gap-1"
+              >
+                {testLoading ? (
+                  <RefreshCw className="size-3 animate-spin" />
+                ) : (
+                  <Zap className="size-3" />
+                )}
+                {t("test")}
+              </button>
+            </div>
+            {testResult && (
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium",
+                  testResult.status === "ok"
+                    ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                    : testResult.status === "error"
+                    ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
+                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                )}
+              >
+                {testResult.status === "ok" ? (
+                  <CheckCircle2 className="size-3.5 shrink-0" />
+                ) : (
+                  <XCircle className="size-3.5 shrink-0" />
+                )}
+                <span>{testResult.message}</span>
+                {testResult.latency_ms !== undefined && (
+                  <span className="ml-auto text-[10px] opacity-70">
+                    {testResult.latency_ms}ms
+                  </span>
+                )}
+              </div>
             )}
-            {loading ? "…" : "Déconnecter"}
-          </Button>
+          </div>
         )}
       </div>
     </div>
@@ -277,6 +371,7 @@ interface Props {
 }
 
 export function ConnectionsClient({ initialConnections }: Props) {
+  const t = useTranslations("settings.connectionsSection")
   const connectionMap = React.useMemo(() => {
     const map = new Map<string, OAuthConnection>()
     for (const conn of initialConnections) {
@@ -285,41 +380,20 @@ export function ConnectionsClient({ initialConnections }: Props) {
     return map
   }, [initialConnections])
 
-  const hasError = initialConnections.some((c) => c.status === "error")
-
   return (
-    <div className="space-y-6 max-w-3xl">
-      {/* Alerte tokens expirés */}
-      {hasError && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 px-4 py-3">
-          <AlertCircle className="size-4 text-amber-500 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-              Des tokens OAuth ont expiré
-            </p>
-            <p className="text-xs text-amber-600/80 dark:text-amber-500/80 mt-0.5">
-              Reconnectez les comptes concernés pour rétablir la publication automatique.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Vide : aucun compte */}
-      {initialConnections.length === 0 && (
-        <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center space-y-2">
-          <Zap className="size-8 text-muted-foreground/50 mx-auto" />
-          <p className="text-sm font-medium text-foreground">Aucun compte connecté</p>
-          <p className="text-xs text-muted-foreground">
-            Connectez vos comptes sociaux pour publier depuis le workflow RAMI en 1 clic.
-          </p>
-        </div>
-      )}
-
-      {/* Plateformes MVP */}
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Plateformes disponibles
+    <div className="space-y-8">
+      {/* Page header */}
+      <div>
+        <h2 className="text-3xl font-black text-foreground dark:text-white tracking-tight mb-2">
+          {t("title")}
+        </h2>
+        <p className="text-muted-foreground dark:text-slate-400">
+          {t("subtitle")}
         </p>
+      </div>
+
+      {/* Platform grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {PLATFORMS.map((platform) => (
           <PlatformCard
             key={platform.id}
@@ -329,35 +403,43 @@ export function ConnectionsClient({ initialConnections }: Props) {
         ))}
       </div>
 
-      {/* Plateformes à venir */}
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-2">
-          <Clock className="size-3" />
-          Bientôt disponibles
-        </p>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-          {COMING_SOON.map((p) => (
-            <div
-              key={p.id}
-              className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-muted/20 p-3 opacity-60"
-            >
-              <span className="text-xl">{p.icon}</span>
-              <div>
-                <p className="text-xs font-semibold text-foreground">{p.label}</p>
-                <p className="text-[10px] text-muted-foreground">{p.eta}</p>
-              </div>
+      {/* Security info card */}
+      <div
+        className={cn(
+          "rounded-2xl p-6",
+          "bg-gray-50 border border-gray-200/60",
+          "dark:bg-white/[0.02] dark:border-white/5"
+        )}
+      >
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex gap-4">
+            <div className="size-12 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500 shrink-0">
+              <Lock className="size-6" />
             </div>
-          ))}
+            <div>
+              <h4 className="font-bold text-foreground dark:text-white flex items-center gap-2">
+                {t("securityTitle")}
+                <span className="text-[10px] bg-green-500/10 text-green-600 dark:text-green-500 px-2 py-0.5 rounded border border-green-500/20">
+                  CNDP &amp; RGPD
+                </span>
+              </h4>
+              <p className="text-sm text-muted-foreground dark:text-slate-500 mt-1">
+                {t("securityNote")}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-muted-foreground dark:text-slate-500">
+            <div className="flex flex-col items-center">
+              <ShieldCheck className="size-6" />
+              <span className="text-[8px] mt-1 font-bold uppercase">{t("securityProtect")}</span>
+            </div>
+            <div className="h-8 w-px bg-gray-200 dark:bg-white/10" />
+            <div className="flex flex-col items-center">
+              <Lock className="size-6" />
+              <span className="text-[8px] mt-1 font-bold uppercase">{t("securityTrust")}</span>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Note sécurité */}
-      <div className="flex items-start gap-2.5 rounded-xl border border-border bg-muted/30 px-4 py-3">
-        <span className="text-base">🔒</span>
-        <p className="text-xs text-muted-foreground">
-          Vos tokens OAuth sont chiffrés AES-256-GCM avant stockage et ne sont jamais partagés avec des tiers.
-          La déconnexion révoque l&apos;accès immédiatement côté plateforme.
-        </p>
       </div>
     </div>
   )

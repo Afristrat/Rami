@@ -3,19 +3,32 @@
 import { useState } from "react"
 import { step2Schema, type Step2Data, CONTENT_FORMATS } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowLeft, ArrowRight, Save, Check } from "lucide-react"
+import {
+  TwitterXIcon,
+  LinkedInIcon,
+  InstagramIcon,
+  FacebookIcon,
+  PinterestIcon,
+  YouTubeIcon,
+  MastodonIcon,
+  TikTokIcon,
+} from "@/components/connections/platform-icons"
+import { useTranslations } from "next-intl"
 
 const PLATFORMS = Object.entries(PLATFORM_CONFIG) as [Platform, typeof PLATFORM_CONFIG[Platform]][]
 
-const FORMAT_LABELS: Record<string, { label: string; desc: string; emoji: string }> = {
-  post: { label: "Post", desc: "Publication standard", emoji: "📄" },
-  carousel: { label: "Carrousel", desc: "Diaporama multi-images", emoji: "🎠" },
-  story: { label: "Story", desc: "Format éphémère 24h", emoji: "⚡" },
-  reel: { label: "Reel / Short", desc: "Vidéo courte verticale", emoji: "🎬" },
-  article: { label: "Article", desc: "Contenu long format", emoji: "📰" },
+/** Map platform key to its SVG icon component */
+const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: string }>> = {
+  twitter: TwitterXIcon,
+  linkedin: LinkedInIcon,
+  instagram: InstagramIcon,
+  facebook: FacebookIcon,
+  pinterest: PinterestIcon,
+  youtube: YouTubeIcon,
+  mastodon: MastodonIcon,
+  tiktok: TikTokIcon,
 }
 
 interface Step2PlatformsProps {
@@ -25,6 +38,17 @@ interface Step2PlatformsProps {
 }
 
 export function Step2Platforms({ defaultValues, onBack, onNext }: Step2PlatformsProps) {
+  const t = useTranslations("workflow")
+  const tc = useTranslations("common")
+
+  const FORMAT_LABELS: Record<string, { label: string; desc: string }> = {
+    post: { label: t("platforms.postImage"), desc: t("platforms.postImageDesc") },
+    carousel: { label: t("platforms.carousel"), desc: t("platforms.carouselDesc") },
+    story: { label: t("platforms.story"), desc: t("platforms.storyDesc") },
+    reel: { label: t("platforms.reel"), desc: t("platforms.reelDesc") },
+    article: { label: t("platforms.article"), desc: t("platforms.articleDesc") },
+  }
+
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(defaultValues?.platforms ?? [])
   const [selectedFormat, setSelectedFormat] = useState<Step2Data["format"] | undefined>(defaultValues?.format)
   const [errors, setErrors] = useState<{ platforms?: string; format?: string }>({})
@@ -51,16 +75,13 @@ export function Step2Platforms({ defaultValues, onBack, onNext }: Step2Platforms
   }
 
   return (
-    <div className="space-y-6">
-      {/* Sélection plateformes */}
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">
-          Plateformes cibles <span className="text-destructive">*</span>
-        </Label>
+    <div className="space-y-8">
+      {/* Platform selection grid */}
+      <div className="space-y-4">
         {errors.platforms && (
-          <p className="text-xs text-destructive">{errors.platforms}</p>
+          <p className="text-xs text-red-500">{errors.platforms}</p>
         )}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {PLATFORMS.map(([platform, config]) => {
             const isSelected = selectedPlatforms.includes(platform)
             return (
@@ -69,86 +90,183 @@ export function Step2Platforms({ defaultValues, onBack, onNext }: Step2Platforms
                 type="button"
                 onClick={() => togglePlatform(platform)}
                 className={cn(
-                  "flex items-center gap-2.5 rounded-lg border p-3 text-left transition-all",
+                  "relative flex items-start gap-3 p-4 rounded-2xl transition-all text-left",
                   isSelected
-                    ? "border-transparent ring-2 ring-offset-1"
-                    : "border-border bg-card hover:bg-accent"
+                    ? "border-2 border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]"
+                    : "border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] hover:border-violet-500/50"
                 )}
-                style={
-                  isSelected
-                    ? {
-                        backgroundColor: `${config.color}18`,
-                        borderColor: `${config.color}40`,
-                        outlineColor: config.color,
-                      }
-                    : undefined
-                }
               >
-                <span
-                  className="flex size-7 items-center justify-center rounded-md text-xs font-bold"
-                  style={isSelected ? { backgroundColor: config.color, color: "#fff" } : { backgroundColor: `${config.color}20`, color: config.color }}
-                >
-                  {config.icon}
-                </span>
+                {/* Checkbox indicator */}
+                {isSelected && (
+                  <div className="absolute top-3 right-3 size-5 rounded-full bg-violet-500 flex items-center justify-center">
+                    <Check className="size-3 text-white" />
+                  </div>
+                )}
+
+                {(() => {
+                  const PlatformSvg = PLATFORM_ICON_MAP[platform]
+                  return (
+                    <span
+                      className="flex size-10 shrink-0 items-center justify-center rounded-xl"
+                      style={
+                        isSelected
+                          ? { backgroundColor: config.color, color: "#fff" }
+                          : { backgroundColor: `${config.color}20`, color: config.color }
+                      }
+                    >
+                      <PlatformSvg className="size-5" />
+                    </span>
+                  )
+                })()}
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold truncate">{config.label}</p>
-                  <p className="text-[10px] text-muted-foreground">{config.charLimit.toLocaleString()} car.</p>
+                  <p className={cn(
+                    "text-sm font-bold",
+                    isSelected ? "text-slate-900 dark:text-slate-100" : "text-slate-700 dark:text-slate-300"
+                  )}>
+                    {config.label}
+                  </p>
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                    {config.charLimit.toLocaleString()} car.
+                  </p>
                 </div>
               </button>
             )
           })}
         </div>
         {selectedPlatforms.length > 0 && (
-          <p className="text-xs text-muted-foreground">
-            {selectedPlatforms.length} plateforme{selectedPlatforms.length > 1 ? "s" : ""} sélectionnée{selectedPlatforms.length > 1 ? "s" : ""}
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t("platforms.selected", { count: selectedPlatforms.length })}
           </p>
         )}
       </div>
 
       {/* Format de contenu */}
-      <div className="space-y-3">
-        <Label className="text-sm font-medium">
-          Format de contenu <span className="text-destructive">*</span>
-        </Label>
+      <div className="space-y-4">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
+          {t("platforms.formatOptions")}
+        </h3>
         {errors.format && (
-          <p className="text-xs text-destructive">{errors.format}</p>
+          <p className="text-xs text-red-500">{errors.format}</p>
         )}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          {CONTENT_FORMATS.map((format) => {
-            const meta = FORMAT_LABELS[format]
-            const isSelected = selectedFormat === format
-            return (
-              <button
-                key={format}
-                type="button"
-                onClick={() => setSelectedFormat(format)}
-                className={cn(
-                  "flex flex-col items-center gap-1.5 rounded-lg border p-4 text-center transition-all",
-                  isSelected
-                    ? "border-violet-500 bg-violet-500/10 ring-2 ring-violet-500/30"
-                    : "border-border bg-card hover:bg-accent"
-                )}
-              >
-                <span className="text-2xl">{meta.emoji}</span>
-                <span className={cn("text-xs font-semibold", isSelected && "text-violet-600 dark:text-violet-400")}>
-                  {meta.label}
-                </span>
-                <span className="text-[10px] text-muted-foreground leading-tight">{meta.desc}</span>
-              </button>
-            )
-          })}
-        </div>
+
+        {/* Format chips per platform */}
+        {selectedPlatforms.length > 0 && (
+          <div className="space-y-3">
+            {selectedPlatforms.map((platform) => {
+              const cfg = PLATFORM_CONFIG[platform]
+              return (
+                <div key={platform} className="space-y-2">
+                  <p className="text-xs font-medium text-slate-700 dark:text-slate-300">{cfg.label}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {CONTENT_FORMATS.map((format) => {
+                      const meta = FORMAT_LABELS[format]
+                      const isSelected = selectedFormat === format
+                      return (
+                        <button
+                          key={format}
+                          type="button"
+                          onClick={() => setSelectedFormat(format)}
+                          className={cn(
+                            "px-4 py-2 rounded-full text-xs font-medium transition-all",
+                            isSelected
+                              ? "bg-violet-600 text-white border border-violet-600"
+                              : "border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.05] text-slate-600 dark:text-slate-300 hover:border-violet-500/50"
+                          )}
+                        >
+                          {meta.label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
 
-      <div className="flex justify-between pt-2">
-        <Button type="button" variant="outline" onClick={onBack} className="gap-2">
-          <ChevronLeft className="size-4" />
-          Retour
-        </Button>
-        <Button type="button" onClick={handleNext} className="gap-2">
-          Générer les textes
-          <ChevronRight className="size-4" />
-        </Button>
+      {/* Character adaptation section */}
+      {selectedPlatforms.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
+            {t("platforms.charAdaptation")}
+          </h3>
+          <div className="space-y-2">
+            {selectedPlatforms.map((platform) => {
+              const cfg = PLATFORM_CONFIG[platform]
+              return (
+                <div
+                  key={platform}
+                  className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-50 dark:bg-white/[0.03]"
+                >
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const PlatformSvg = PLATFORM_ICON_MAP[platform]
+                      return (
+                        <span
+                          className="flex size-6 items-center justify-center rounded"
+                          style={{ backgroundColor: `${cfg.color}20`, color: cfg.color }}
+                        >
+                          <PlatformSvg className="size-3.5" />
+                        </span>
+                      )
+                    })()}
+                    <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{cfg.label}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                      {cfg.charLimit.toLocaleString()}
+                    </span>
+                    <div className="h-1.5 w-16 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-violet-500"
+                        style={{ width: `${Math.min(100, (cfg.charLimit / 4000) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Bottom Actions */}
+      <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/10">
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500">
+          <Save className="size-3.5" />
+          {t("brief.draftSaved")}
+        </div>
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={onBack}
+            className={cn(
+              "px-6 py-2.5 rounded-xl border border-slate-200 dark:border-white/10",
+              "text-sm font-semibold text-slate-700 dark:text-slate-300",
+              "hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all",
+              "flex items-center gap-2"
+            )}
+          >
+            <ArrowLeft className="size-4" />
+            {tc("back")}
+          </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            className={cn(
+              "px-8 py-2.5 rounded-xl",
+              "bg-gradient-to-r from-violet-600 to-blue-600",
+              "text-white text-sm font-bold",
+              "shadow-lg shadow-violet-500/20",
+              "hover:scale-[1.02] active:scale-[0.98] transition-all",
+              "flex items-center gap-2"
+            )}
+          >
+            {tc("next")}
+            <ArrowRight className="size-4" />
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation"
 
 /**
- * Redirection silencieuse : /admin → /admin/prompts
+ * Redirection silencieuse : /admin → /admin/dashboard
  */
 export default function AdminIndexPage() {
-  redirect("/admin/prompts")
+  redirect("/admin/dashboard")
 }

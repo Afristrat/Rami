@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
+import { captureServerEvent } from "@/lib/utils/posthog-server"
 
 export async function loginAction(formData: {
   email: string
@@ -54,6 +55,13 @@ export async function registerAction(formData: {
     }
     return { error: "Impossible de créer le compte. Veuillez réessayer." }
   }
+
+  // PostHog — tenant_signup
+  captureServerEvent({
+    distinctId: formData.email,
+    event: "tenant_signup",
+    properties: { full_name: formData.fullName },
+  })
 
   return {
     success:

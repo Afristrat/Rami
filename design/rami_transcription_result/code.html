@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Transcription Result</title>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'dark-bg': '#0A0A0F',
+            'panel-left': '#0E0E17',
+            'panel-right': '#111118',
+            'brand-indigo': '#818CF8',
+            'brand-violet': '#A78BFA',
+            'brand-blue': '#2563EB',
+            'accent-amber': '#F59E0B',
+            'accent-green': '#10B981',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+<style data-purpose="background-effects">
+    body {
+      background-color: #0A0A0F;
+      color: #E2E8F0;
+      overflow: hidden;
+    }
+    /* 40px Subtle Grid */
+    .grid-overlay {
+      background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Blurred Gradient Blobs */
+    .blob {
+      position: absolute;
+      filter: blur(80px);
+      opacity: 0.15;
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .blob-1 { width: 400px; height: 400px; background: #7C3AED; top: -100px; left: -100px; }
+    .blob-2 { width: 500px; height: 500px; background: #2563EB; bottom: -150px; right: 10%; }
+    .blob-3 { width: 300px; height: 300px; background: #7C3AED; top: 20%; right: -50px; }
+
+    /* Custom Transitions */
+    .transition-smooth { transition: all 200ms ease; }
+
+    /* Amber Wavy Underline */
+    .wavy-underline {
+      text-decoration: underline;
+      text-decoration-style: wavy;
+      text-decoration-color: #F59E0B;
+      text-underline-offset: 4px;
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body class="h-screen flex flex-col font-sans">
+<!-- BEGIN: Background Elements -->
+<div class="grid-overlay"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<!-- END: Background Elements -->
+<!-- BEGIN: Main Content Wrapper -->
+<main class="flex-1 flex overflow-hidden relative z-10">
+<!-- BEGIN: Left Panel (Transcription) -->
+<section class="w-[60%] bg-panel-left border-r border-white/5 flex flex-col">
+<!-- Sticky Header -->
+<header class="p-6 border-b border-white/5 sticky top-0 bg-panel-left/80 backdrop-blur-md z-20">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-brand-indigo/10 rounded-lg">
+<svg class="w-5 h-5 text-brand-indigo" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h1 class="font-display font-semibold text-white">Réunion Stratégie Q3.mp3</h1>
+<p class="text-xs text-slate-400">Durée : 45:12</p>
+</div>
+</div>
+<span class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[11px] font-medium text-slate-300">
+            Français (FR)
+          </span>
+</div>
+<!-- Search Bar -->
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-500">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</span>
+<input class="w-full bg-black/20 border-white/10 rounded-xl pl-10 text-sm focus:ring-brand-indigo focus:border-brand-indigo text-slate-200 placeholder-slate-500" placeholder="Rechercher..." type="text"/>
+</div>
+</header>
+<!-- Transcription Area -->
+<div class="flex-1 overflow-y-auto p-8 text-[15px] leading-[1.8] text-slate-300">
+<div class="max-w-3xl mx-auto space-y-8">
+<!-- Segment 1 -->
+<div>
+<p class="mb-2"><span class="text-brand-indigo font-bold">Intervenant 1 :</span> <span class="text-slate-500 text-xs ml-2">00:00</span></p>
+<p>
+              Bonjour à tous. Aujourd'hui, nous allons valider les axes de notre nouvelle stratégie <mark class="bg-yellow-500/30 text-yellow-200 px-1 rounded">marketing</mark> pour le troisième trimestre. L'objectif est de doubler notre engagement organique sur les plateformes sociales.
+            </p>
+</div>
+<!-- Segment 2 -->
+<div>
+<p class="mb-2"><span class="text-brand-violet font-bold">Intervenant 2 :</span> <span class="text-slate-500 text-xs ml-2">02:14</span></p>
+<p>
+              C'est ambitieux. Concernant le budget alloué au <mark class="bg-yellow-500/30 text-yellow-200 px-1 rounded">marketing</mark> d'influence, nous devons rester prudents sur les <span class="wavy-underline">indicateurs de performance</span> actuels. La conversion n'est pas encore au niveau attendu sur la dernière campagne.
+            </p>
+</div>
+<!-- Segment 3 -->
+<div>
+<p class="mb-2"><span class="text-brand-indigo font-bold">Intervenant 1 :</span> <span class="text-slate-500 text-xs ml-2">05:45</span></p>
+<p>
+              Justement, j'ai analysé les retours de l'<span class="wavy-underline">algorithme</span> prédictif. Il semblerait que notre cible principale réagisse mieux aux contenus de type "Behind the scenes". Nous devrions pivoter notre <mark class="bg-yellow-500/30 text-yellow-200 px-1 rounded">marketing</mark> vers plus d'authenticité et moins de production léchée.
+            </p>
+</div>
+<!-- Segment 4 -->
+<div>
+<p class="mb-2"><span class="text-brand-violet font-bold">Intervenant 2 :</span> <span class="text-slate-500 text-xs ml-2">12:30</span></p>
+<p>
+              Je suis d'accord. Je vais demander à l'équipe de préparer un <span class="wavy-underline">prototype</span> de planning éditorial pour la semaine prochaine. Est-ce qu'on garde le même prestataire pour le montage vidéo ?
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- END: Left Panel -->
+<!-- BEGIN: Right Panel (Insights) -->
+<aside class="w-[40%] bg-panel-right flex flex-col p-6 space-y-6 overflow-y-auto">
+<!-- Section 1: Résumé IA -->
+<details class="group bg-white/5 rounded-2xl border border-white/5 transition-smooth overflow-hidden" open="">
+<summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-smooth list-none">
+<span class="flex items-center gap-2 font-display font-semibold text-sm">
+<span>✨</span> Résumé IA
+          </span>
+<svg class="w-4 h-4 text-slate-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</summary>
+<div class="px-4 pb-4">
+<ul class="space-y-3 text-sm text-slate-400">
+<li class="pl-3 border-l-2 border-accent-green">Discussion sur la validation des axes stratégiques du Q3.</li>
+<li class="pl-3 border-l-2 border-accent-green">Objectif de croissance organique via les réseaux sociaux.</li>
+<li class="pl-3 border-l-2 border-accent-green">Analyse de la sous-performance des campagnes d'influence actuelles.</li>
+<li class="pl-3 border-l-2 border-accent-green">Pivot stratégique vers des contenus plus authentiques ("BTS").</li>
+</ul>
+</div>
+</details>
+<!-- Section 2: Verbatims clés -->
+<details class="group bg-white/5 rounded-2xl border border-white/5 transition-smooth overflow-hidden" open="">
+<summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-smooth list-none">
+<span class="font-display font-semibold text-sm">Verbatims clés</span>
+<svg class="w-4 h-4 text-slate-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</summary>
+<div class="px-4 pb-4 space-y-3">
+<blockquote class="bg-[#1A1A2E] p-3 rounded-xl border-l-[3px] border-brand-indigo italic text-sm text-slate-300">
+            "L'objectif est de doubler notre engagement organique sur les plateformes sociales."
+          </blockquote>
+<blockquote class="bg-[#1A1A2E] p-3 rounded-xl border-l-[3px] border-brand-indigo italic text-sm text-slate-300">
+            "Nous devrions pivoter notre marketing vers plus d'authenticité."
+          </blockquote>
+<blockquote class="bg-[#1A1A2E] p-3 rounded-xl border-l-[3px] border-brand-indigo italic text-sm text-slate-300">
+            "La conversion n'est pas encore au niveau attendu."
+          </blockquote>
+</div>
+</details>
+<!-- Section 3: Actions identifiées -->
+<details class="group bg-white/5 rounded-2xl border border-white/5 transition-smooth overflow-hidden" open="">
+<summary class="flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-smooth list-none">
+<span class="font-display font-semibold text-sm">Actions identifiées</span>
+<svg class="w-4 h-4 text-slate-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</summary>
+<div class="px-4 pb-4 space-y-3">
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="rounded border-white/10 bg-black/40 text-brand-indigo focus:ring-brand-indigo focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm text-slate-400 group-hover/item:text-slate-200 transition-colors">Préparer un prototype de planning éditorial</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="rounded border-white/10 bg-black/40 text-brand-indigo focus:ring-brand-indigo focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm text-slate-400 group-hover/item:text-slate-200 transition-colors">Évaluer les indicateurs de performance influence</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer group/item">
+<input class="rounded border-white/10 bg-black/40 text-brand-indigo focus:ring-brand-indigo focus:ring-offset-0" type="checkbox"/>
+<span class="text-sm text-slate-400 group-hover/item:text-slate-200 transition-colors">Décider du maintien du prestataire vidéo</span>
+</label>
+</div>
+</details>
+</aside>
+<!-- END: Right Panel -->
+</main>
+<!-- END: Main Content Wrapper -->
+<!-- BEGIN: Bottom Toolbar -->
+<footer class="h-14 bg-dark-bg border-t border-white/10 px-6 flex items-center justify-between relative z-20">
+<div class="flex items-center gap-3">
+<button class="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-smooth">
+        Copier le texte
+      </button>
+<button class="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-smooth">
+        Exporter PDF
+      </button>
+<button class="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-smooth">
+        Exporter TXT
+      </button>
+<div class="h-6 w-px bg-white/10 mx-2"></div>
+<button class="px-6 py-1.5 bg-brand-indigo text-white rounded-lg text-sm font-semibold hover:bg-brand-indigo/90 transition-smooth shadow-lg shadow-brand-indigo/20">
+        Partager
+      </button>
+</div>
+<div class="flex items-center gap-4 text-xs text-slate-500">
+<span>AI Agency OS v1.4</span>
+<span class="flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-accent-green"></span> 
+        Système opérationnel
+      </span>
+</div>
+</footer>
+<!-- END: Bottom Toolbar -->
+</body></html>

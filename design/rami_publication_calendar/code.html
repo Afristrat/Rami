@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                        "linkedin": "#0A66C2",
+                        "instagram-start": "#f09433",
+                        "instagram-end": "#bc1888",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-pattern {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .blur-blob {
+            filter: blur(120px);
+            opacity: 0.15;
+        }
+        .instagram-gradient {
+            background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-slate-100 min-h-screen overflow-hidden relative">
+<!-- Gradient Blobs -->
+<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary blur-blob rounded-full z-0 pointer-events-none"></div>
+<div class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600 blur-blob rounded-full z-0 pointer-events-none"></div>
+<div class="fixed top-[20%] right-[10%] w-[30%] h-[30%] bg-primary blur-blob rounded-full z-0 pointer-events-none"></div>
+<!-- Grid Pattern -->
+<div class="fixed inset-0 grid-pattern z-0 pointer-events-none"></div>
+<div class="relative z-10 flex h-screen">
+<!-- Sidebar (260px) -->
+<aside class="w-[260px] flex flex-col border-r border-white/10 bg-background-dark/50 backdrop-blur-md">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white">bolt</span>
+</div>
+<div>
+<h1 class="font-bold text-lg leading-none">RAMI</h1>
+<p class="text-xs text-slate-400">AI-powered Agency OS</p>
+</div>
+</div>
+<nav class="flex-1 mt-4">
+<div class="flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">add_box</span>
+<span class="text-sm font-medium">Créer</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/6 text-white border-l-[3px] border-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[22px] text-primary">calendar_month</span>
+<span class="text-sm font-medium">Calendrier</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">auto_stories</span>
+<span class="text-sm font-medium">Bibliothèque</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">bar_chart</span>
+<span class="text-sm font-medium">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">link</span>
+<span class="text-sm font-medium">Connexions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined text-[22px]">fingerprint</span>
+<span class="text-sm font-medium">Brand DNA</span>
+</a>
+</div>
+</nav>
+<div class="p-6 border-t border-white/5">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-800 overflow-hidden ring-2 ring-primary/20">
+<img alt="User avatar" data-alt="Profile photo of a professional creative director" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8YpKYG9h3_ARCRVFQhUWSyl3SsGvvF4M6OuD4hN54tnfpGt4EHQu8JuR6PVBR4bggw6riigg5jRBq1nnSijQF-2ePI1duprT9Z69hX3laKe8uEOp_3QGW1bV_bsAof62902OUbAFUkSBbguzHYYrVUwJrMwDqDWx7s9hHgNbyo9m9Mq8WY6FV_IDcadYJuXTeLnl7PVzPUeaHz8Vn3oNnmcbYOtZIetcduB3FBpB75r-QldeQ7ZwB0BaOoIrQoHysUDZ-wVIMo4Gg"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-sm font-semibold truncate">Alex Studio</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-wider">Pro Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- Top bar (64px) -->
+<header class="h-16 border-b border-white/5 flex items-center justify-between px-8 bg-background-dark/30 backdrop-blur-sm">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-white font-semibold">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-full"><span class="material-symbols-outlined">chevron_left</span></button>
+<span class="text-lg">Mars 2026</span>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white/5 rounded-full"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<div class="h-4 w-[1px] bg-white/10"></div>
+<div class="flex bg-white/5 p-1 rounded-full">
+<button class="px-5 py-1.5 rounded-full bg-primary text-sm font-semibold text-white">Mois</button>
+<button class="px-5 py-1.5 rounded-full text-slate-400 text-sm font-medium hover:text-white">Semaine</button>
+<button class="px-5 py-1.5 rounded-full text-slate-400 text-sm font-medium hover:text-white">Jour</button>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center bg-white/5 rounded-xl px-4 py-2 border border-white/5">
+<span class="material-symbols-outlined text-slate-400 text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 text-slate-200 placeholder:text-slate-500" placeholder="Rechercher..." type="text"/>
+</div>
+<button class="flex items-center gap-2 bg-gradient-to-r from-primary to-blue-600 px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
+<span>Nouveau post</span>
+<span class="material-symbols-outlined">add</span>
+</button>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-1 flex overflow-hidden">
+<div class="flex-1 flex flex-col p-6 overflow-y-auto">
+<!-- Month Summary Strip -->
+<div class="flex gap-8 mb-6 text-sm font-medium px-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-slate-400">47 <span class="text-slate-500 font-normal">publiés</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="text-slate-400">12 <span class="text-slate-500 font-normal">planifiés</span></span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-slate-500"></span>
+<span class="text-slate-400">3 <span class="text-slate-500 font-normal">brouillons</span></span>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div class="flex-1 grid grid-cols-7 border-t border-l border-white/5 min-h-[700px]">
+<!-- Day Headers -->
+<div class="h-10 flex items-center justify-center text-[11px] font-bold text-slate-500 uppercase tracking-widest border-r border-b border-white/5">Lun</div>
+<div class="h-10 flex items-center justify-center text-[11px] font-bold text-slate-500 uppercase tracking-widest border-r border-b border-white/5">Mar</div>
+<div class="h-10 flex items-center justify-center text-[11px] font-bold text-slate-500 uppercase tracking-widest border-r border-b border-white/5">Mer</div>
+<div class="h-10 flex items-center justify-center text-[11px] font-bold text-slate-500 uppercase tracking-widest border-r border-b border-white/5">Jeu</div>
+<div class="h-10 flex items-center justify-center text-[11px] font-bold text-slate-500 uppercase tracking-widest border-r border-b border-white/5">Ven</div>
+<div class="h-10 flex items-center justify-center text-[11px] font-bold text-slate-500 uppercase tracking-widest border-r border-b border-white/5">Sam</div>
+<div class="h-10 flex items-center justify-center text-[11px] font-bold text-slate-500 uppercase tracking-widest border-r border-b border-white/5">Dim</div>
+<!-- Rows (Simulated 5 weeks) -->
+<!-- Week 1 snippet -->
+<div class="min-h-[140px] border-r border-b border-white/5 p-2 bg-white/[0.01]">
+<span class="text-xs text-slate-600 block mb-2">23</span>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2 bg-white/[0.01]">
+<span class="text-xs text-slate-600 block mb-2">24</span>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2 bg-white/[0.01]">
+<span class="text-xs text-slate-600 block mb-2">25</span>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2 bg-white/[0.01]">
+<span class="text-xs text-slate-600 block mb-2">26</span>
+</div>
+<!-- Month Starts -->
+<div class="min-h-[140px] border-r border-b border-white/5 p-2">
+<span class="text-xs text-slate-400 block mb-2">1</span>
+<div class="space-y-1">
+<div class="px-2 py-1 rounded bg-white/5 border-l-2 border-emerald-500 flex items-center gap-1.5 cursor-pointer hover:bg-white/10">
+<div class="w-3 h-3 bg-linkedin rounded-full"></div>
+<span class="text-[10px] text-slate-300 truncate">L'avenir de...</span>
+</div>
+</div>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2">
+<span class="text-xs text-slate-400 block mb-2">2</span>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2">
+<span class="text-xs text-slate-400 block mb-2">3</span>
+</div>
+<!-- Row 2 -->
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">4</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">5</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2">
+<span class="text-xs text-slate-400 block mb-2">6</span>
+<div class="space-y-1">
+<div class="px-2 py-1 rounded bg-white/5 border-l-2 border-red-500 flex items-center gap-1.5 cursor-pointer hover:bg-white/10">
+<div class="w-3 h-3 instagram-gradient rounded-full"></div>
+<span class="text-[10px] text-slate-300 truncate">Failed Reel</span>
+</div>
+</div>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">7</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">8</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">9</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">10</span></div>
+<!-- Row 3 - Current Week -->
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">11</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2 relative bg-primary/5">
+<div class="flex justify-center mb-2">
+<span class="w-6 h-6 flex items-center justify-center text-xs text-white bg-primary rounded-full font-bold">12</span>
+</div>
+<div class="space-y-1">
+<div class="px-2 py-1 rounded bg-white/5 border-l-2 border-blue-500 flex items-center gap-1.5">
+<div class="w-3 h-3 bg-linkedin rounded-full"></div>
+<span class="text-[10px] text-slate-300 truncate">Workspace L...</span>
+</div>
+<div class="px-2 py-1 rounded bg-white/5 border-l-2 border-white/20 flex items-center gap-1.5">
+<div class="w-3 h-3 instagram-gradient rounded-full"></div>
+<span class="text-[10px] text-slate-300 truncate">Nouvelle èr...</span>
+</div>
+<div class="px-2 py-1 rounded bg-white/5 border-l-2 border-blue-500 flex items-center gap-1.5">
+<div class="w-3 h-3 bg-black border border-white/10 rounded-full flex items-center justify-center text-[6px] font-bold">X</div>
+<span class="text-[10px] text-slate-300 truncate">Update Post</span>
+</div>
+<div class="mt-1 px-1 flex justify-center">
+<span class="text-[9px] font-bold text-primary">+1 autre</span>
+</div>
+</div>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">13</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">14</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2">
+<span class="text-xs text-slate-400 block mb-2">15</span>
+<div class="space-y-1">
+<div class="px-2 py-1 rounded bg-white/5 border-l-2 border-blue-500 flex items-center gap-1.5">
+<div class="w-3 h-3 bg-linkedin rounded-full"></div>
+<span class="text-[10px] text-slate-300 truncate">Weekly Wrap</span>
+</div>
+</div>
+</div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">16</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">17</span></div>
+<!-- Rows 4 & 5... simplified -->
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">18</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">19</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">20</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">21</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">22</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">23</span></div>
+<div class="min-h-[140px] border-r border-b border-white/5 p-2"><span class="text-xs text-slate-400 block mb-2">24</span></div>
+</div>
+<!-- Upcoming Strip / Footer -->
+<div class="mt-8">
+<h3 class="text-sm font-semibold mb-4 text-slate-300">Prochaines publications</h3>
+<div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar">
+<!-- Strip Item 1 -->
+<div class="flex-shrink-0 w-64 p-3 rounded-2xl bg-white/4 border border-white/8 flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-slate-800 flex-shrink-0 overflow-hidden">
+<img alt="Post thumbnail" class="w-full h-full object-cover" data-alt="Cyberpunk workspace with AI icons" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZrU5dRmtbINMylScofYonFcEAfeyAnTictypsWFInvJPWpP-UWuic0xH_epEHAgvHrbiHzZa8j4_iMcb-jwMkKZVg78lyHRZBR4zx0GY3zBTJFiGwW7ip6zvCkncaqyS-_5Vc9Feq0Mof-dfZV2A_ahjUa39u3mF3i6pRfjgKPU-MWknM07nIRN8rA-_AtG-yF8ut2UveVcvo_858iSWJ22vHwP7wAWflGn0RCHw6UBO1Db8IekyKXbabeVKr5f6ZrqJexDNpd9o8"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<div class="flex items-center gap-1.5 mb-1">
+<div class="w-3 h-3 bg-linkedin rounded-full flex-shrink-0"></div>
+<p class="text-[10px] text-slate-500 font-bold uppercase tracking-tight">LinkedIn</p>
+</div>
+<p class="text-xs font-semibold text-slate-100 truncate">L'IA qui vise juste...</p>
+<p class="text-[10px] text-slate-500 mt-0.5">12 Mars, 09:15</p>
+</div>
+</div>
+<!-- Strip Item 2 -->
+<div class="flex-shrink-0 w-64 p-3 rounded-2xl bg-white/4 border border-white/8 flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-slate-800 flex-shrink-0 overflow-hidden">
+<img alt="Post thumbnail" class="w-full h-full object-cover" data-alt="Close-up of a high-tech studio logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDY0ETgjUKUnDK-z_3iS9StkvPqH7NdRSOKzHXs1xCO-rRRzI_G9JeSiN-bHUvK5dBEziufK_FIbExjJNl7uEnOACU-cOxfVBBVZTsLIHiZ6XF-9BGjeHBDSD3jR6nwAVR_xtNK7_T10UQcXOoJncc3uRsAJlWwf-i8S-8Lj3bOpzJMcKjAq9mgWodq6vS3EK_98MT-kPUPXTN8bftxxntFah4KZ0Tfq3UX85ac-VocDVHlcjnzLQGj-9TuxBsZn0cbdQWx7KMFeNTt"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<div class="flex items-center gap-1.5 mb-1">
+<div class="w-3 h-3 instagram-gradient rounded-full flex-shrink-0"></div>
+<p class="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Instagram</p>
+</div>
+<p class="text-xs font-semibold text-slate-100 truncate">Nouvelle ère de production</p>
+<p class="text-[10px] text-slate-500 mt-0.5">12 Mars, 14:30</p>
+</div>
+</div>
+<!-- Strip Item 3 -->
+<div class="flex-shrink-0 w-64 p-3 rounded-2xl bg-white/4 border border-white/8 flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-slate-800 flex-shrink-0 overflow-hidden">
+<img alt="Post thumbnail" class="w-full h-full object-cover" data-alt="Abstract violet and blue light trails" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5vvI5S6ho7K6UB7mgWR5BFrE4CeXFZpYpDzeKVnoxuGNQVosZWE-meWrTE8YAp6OGCyaWPnTbXSIgGMo58YSGGCq85FQ2teVZ3bQixJ6XZa7SxXERcGPimM8iiVE6gea1XIlmXAssr4j6SJaVLaD8uRuzC1X5FH8tLcYs1fH3XL4uhGGbTbB9aBUNEShbbrrPI8-2gN-GSAjocTzsoCkwCyt76x6ftIzOYiJUo_DYO7t4fbAbSqXPfLmI-ZbPAHbFxuGHKPbnSrj9"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<div class="flex items-center gap-1.5 mb-1">
+<div class="w-3 h-3 bg-black border border-white/10 rounded-full flex items-center justify-center text-[6px] font-bold flex-shrink-0">X</div>
+<p class="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Twitter / X</p>
+</div>
+<p class="text-xs font-semibold text-slate-100 truncate">Update : Workspace v2</p>
+<p class="text-[10px] text-slate-500 mt-0.5">13 Mars, 10:00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Day Detail Sidebar (360px) -->
+<aside class="w-[360px] border-l border-white/5 flex flex-col bg-background-dark/40 backdrop-blur-xl">
+<div class="p-6">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-xl font-bold text-white">Mardi 12 mars 2026</h2>
+<p class="text-sm text-slate-500">4 posts prévus aujourd'hui</p>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-slate-400"><span class="material-symbols-outlined">more_horiz</span></button>
+</div>
+<!-- Post List -->
+<div class="space-y-4">
+<!-- Card 1 -->
+<div class="p-4 rounded-2xl bg-white/4 border border-white/8 space-y-4">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-linkedin rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg">link</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-300">RAMI Workspace</p>
+<p class="text-[10px] text-slate-500">LinkedIn • 09:15</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-blue-500/10 text-blue-500 text-[10px] font-bold rounded uppercase tracking-wide">Planifié</span>
+</div>
+<div class="flex gap-4">
+<img alt="Thumbnail" class="w-16 h-16 rounded-xl object-cover bg-slate-800" data-alt="Futuristic office workstation with AI screen" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqsNhhE2J4ai49HtR2NtQ9MdyCWbDonCb1AQ4WHJ4m7ytyAHC0FpJHKZcCdk6OP-a_OfrxPBGnxOoJ2oRZbtRfm9uMLp3ro4-v6xBlVhBm2IoAXF51s4NA0XZw50Ulut_thoRuCvHXegjijxOnkBHFdzPVegUT9m4dEK37D0Tj0CV2FsZBVKY0bj5WqEF1y-a8SxMLKnfLwiaXp3hkMETTy8uNPAxIwtBIHb0AcBjptHnLCeH7Z2vAAZXWtUZBF6s1sZ2rj1nqEeaj"/>
+<p class="text-sm text-slate-400 line-clamp-3">L'IA qui vise juste : comment nous avons repensé l'architecture de données pour nos clients...</p>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-white/5">
+<div class="flex gap-3">
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+<button class="text-slate-500 hover:text-red-400"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+<button class="text-[11px] font-bold text-primary flex items-center gap-1">Détails <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="p-4 rounded-2xl bg-white/4 border border-white/8 space-y-4">
+<div class="flex justify-between items-start">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 instagram-gradient rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-lg">photo_camera</span>
+</div>
+<div>
+<p class="text-xs font-bold text-slate-300">rami_studio</p>
+<p class="text-[10px] text-slate-500">Instagram • 14:30</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-white/10 text-slate-400 text-[10px] font-bold rounded uppercase tracking-wide">Brouillon</span>
+</div>
+<div class="flex gap-4">
+<img alt="Thumbnail" class="w-16 h-16 rounded-xl object-cover bg-slate-800" data-alt="High-end motion design equipment setup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0Vy4G9ULftQMNPMqjksggI2J-KJ2wORktrYUMXXc3k6MW5sYlyYf5ST7YiIB9PsDj0ltKq_NQ7Xf7HeIg_HO37Qk4hXLWUHnyZefinf2g4m11FLhYm6tn8h1TqvAS2yEVZfrQkQpT_QoB66XNuZbabXT-D3uC4OXvW1cWr6iXw1s0vtWFmDW_JF5heXdA9u5L9NSAeJtNNNdLzJ-KHt-os6ZSQwIr3zHKfd06-jEz0B8br3e4gD0OA6Zrbrtws3eIqRCUa_d22jj6"/>
+<p class="text-sm text-slate-400 line-clamp-3">Nouvelle ère... Le trailer officiel du prochain lancement de RAMI OS.</p>
+</div>
+<div class="flex items-center justify-between pt-2 border-t border-white/5">
+<div class="flex gap-3">
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined text-sm">edit</span></button>
+<button class="text-slate-500 hover:text-white"><span class="material-symbols-outlined text-sm">content_copy</span></button>
+<button class="text-slate-500 hover:text-red-400"><span class="material-symbols-outlined text-sm">delete</span></button>
+</div>
+<button class="text-[11px] font-bold text-primary flex items-center gap-1">Détails <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto p-6 bg-gradient-to-t from-background-dark to-transparent">
+<button class="w-full py-4 rounded-2xl border-2 border-dashed border-white/10 text-slate-400 font-semibold flex items-center justify-center gap-2 hover:bg-white/5 hover:border-primary/50 hover:text-white transition-all">
+<span class="material-symbols-outlined">add_circle</span>
+<span>Ajouter un post</span>
+</button>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</body></html>

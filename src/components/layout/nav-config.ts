@@ -6,36 +6,42 @@ import {
   CalendarDays,
   Images,
   BarChart3,
+  CheckSquare,
   FileText,
   Mic,
   Users,
   CreditCard,
   Settings,
+  Video,
+  Palette,
 } from "lucide-react"
 
 export interface NavItem {
   href: string
-  label: string
+  labelKey: string
   icon: LucideIcon
-  badge?: string
+  badgeKey?: string
 }
 
 export const navMain: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/brand-dna", label: "Brand DNA", icon: Sparkles },
-  { href: "/dashboard/create", label: "Créer", icon: Wand2 },
-  { href: "/dashboard/calendar", label: "Calendrier", icon: CalendarDays },
-  { href: "/dashboard/library", label: "Bibliothèque", icon: Images },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/brand-dna", labelKey: "brandDna", icon: Sparkles },
+  { href: "/dashboard/create", labelKey: "createPost", icon: Wand2 },
+  { href: "/create", labelKey: "visualsAi", icon: Palette },
+  { href: "/create/video", labelKey: "videoAi", icon: Video, badgeKey: "new" },
+  { href: "/dashboard/calendar", labelKey: "calendar", icon: CalendarDays },
+  { href: "/dashboard/library", labelKey: "library", icon: Images },
+  { href: "/dashboard/analytics", labelKey: "analytics", icon: BarChart3 },
+  { href: "/dashboard/approvals", labelKey: "approvals", icon: CheckSquare },
 ]
 
 export const navAdvanced: NavItem[] = [
-  { href: "/dashboard/documents", label: "Documents", icon: FileText, badge: "Agency" },
-  { href: "/dashboard/transcriptions", label: "Transcriptions", icon: Mic, badge: "Pro" },
-  { href: "/dashboard/leads", label: "Leads", icon: Users, badge: "Agency" },
-  { href: "/billing", label: "Facturation", icon: CreditCard, badge: "Agency" },
+  { href: "/dashboard/documents", labelKey: "documents", icon: FileText, badgeKey: "agency" },
+  { href: "/dashboard/transcriptions", labelKey: "transcriptions", icon: Mic, badgeKey: "pro" },
+  { href: "/dashboard/leads", labelKey: "leads", icon: Users, badgeKey: "agency" },
+  { href: "/billing", labelKey: "billing", icon: CreditCard, badgeKey: "agency" },
 ]
 
 export const navBottom: NavItem[] = [
-  { href: "/settings", label: "Paramètres", icon: Settings },
+  { href: "/settings", labelKey: "settings", icon: Settings },
 ]

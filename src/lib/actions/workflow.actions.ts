@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm"
 import Anthropic from "@anthropic-ai/sdk"
 import { sanitizePromptInput } from "@/lib/utils/sanitize"
 import { log } from "@/lib/utils/logger"
+import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual } from "@/lib/schemas/workflow.schema"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import type { NewPostData } from "@/app/actions/scheduler"
@@ -87,14 +88,7 @@ Brand DNA :
   const platformsText = step2.platforms.join(", ")
   const format = step2.format
 
-  const systemPrompt = `Tu es un expert en content marketing et neuropsychologie des médias sociaux.
-Tu génères des captions optimisées pour chaque plateforme en respectant :
-- Les limites de caractères de chaque plateforme
-- L'objectif cognitif défini (${step1.objectif})
-- Le ton et le Brand DNA du client
-- Les meilleures pratiques de chaque réseau social
-
-Réponds UNIQUEMENT en JSON valide, sans markdown ni explication.`
+  const captionConfig = await getPromptConfig("workflow_caption_generation")
 
   const userPrompt = `Génère des captions pour ce contenu :
 
@@ -128,14 +122,14 @@ Règles :
 
   try {
     const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY!,
+      apiKey: captionConfig.apiKey,
     })
 
     const response = await anthropic.messages.create({
-      model: "claude-haiku-4-5-20251001",
+      model: captionConfig.model,
       max_tokens: 2000,
       messages: [{ role: "user", content: userPrompt }],
-      system: systemPrompt,
+      system: captionConfig.systemPrompt,
     })
 
     const rawText = response.content[0].type === "text" ? response.content[0].text : ""
@@ -205,7 +199,7 @@ export type GenerateVisualResult =
 
 export async function generateVisualContentAction(
   step1: Step1Data,
-  _step2: Step2Data  // eslint-disable-line @typescript-eslint/no-unused-vars
+  _step2: Step2Data
 ): Promise<GenerateVisualResult> {
   const ctx = await getAuthContext()
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }

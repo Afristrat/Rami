@@ -1,13 +1,15 @@
 "use client"
 
-import { useMemo } from "react"
+import { useTranslations } from "next-intl"
+
+import { useMemo, useState, useCallback } from "react"
 import { Plus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PostChip } from "./PostChip"
 import type { ScheduledPost } from "@/lib/scheduler/types"
 import type { CalendarDay } from "@/lib/scheduler/types"
 
-const DAYS_OF_WEEK = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+const DAY_KEYS = ["dayMon", "dayTue", "dayWed", "dayThu", "dayFri", "daySat", "daySun"] as const
 
 interface CalendarGridProps {
   year: number
@@ -16,6 +18,7 @@ interface CalendarGridProps {
   selectedDate?: Date | null
   onPostClick?: (post: ScheduledPost) => void
   onDayClick?: (date: Date) => void
+  onPostDrop?: (postId: string, newDate: Date) => void
 }
 
 export function CalendarGrid({
@@ -25,41 +28,68 @@ export function CalendarGrid({
   selectedDate,
   onPostClick,
   onDayClick,
+  onPostDrop,
 }: CalendarGridProps) {
+  const t = useTranslations("calendar")
   const days = useMemo(() => buildCalendarDays(year, month, posts), [year, month, posts])
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null)
+
+  const handleDragOver = useCallback((e: React.DragEvent, date: Date) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+    setDragOverDate(date.toDateString())
+  }, [])
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverDate(null)
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent, date: Date) => {
+    e.preventDefault()
+    setDragOverDate(null)
+    const postId = e.dataTransfer.getData("text/post-id")
+    if (postId && onPostDrop) {
+      onPostDrop(postId, date)
+    }
+  }, [onPostDrop])
 
   return (
     <div
-      className="overflow-hidden rounded-xl border border-border bg-card"
+      className="overflow-hidden rounded-xl border border-gray-200/60 dark:border-white/5 bg-white/60 dark:bg-transparent"
       role="grid"
-      aria-label="Calendrier de publication"
+      aria-label={t("calendarLabel")}
     >
-      {/* En-tête jours de la semaine */}
-      <div className="grid grid-cols-7 border-b border-border">
-        {DAYS_OF_WEEK.map((day) => (
+      {/* Day headers */}
+      <div className="grid grid-cols-7 border-b border-gray-200/60 dark:border-white/5">
+        {DAY_KEYS.map((dayKey) => (
           <div
-            key={day}
-            className="px-2 py-2.5 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground"
+            key={dayKey}
+            className="h-10 flex items-center justify-center text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 border-r border-gray-200/60 dark:border-white/5 last:border-r-0"
           >
-            {day}
+            {t(dayKey)}
           </div>
         ))}
       </div>
 
-      {/* Grille des jours */}
+      {/* Day cells grid */}
       <div className="grid grid-cols-7">
         {days.map((day, idx) => {
           const isSelected = selectedDate
             ? day.date.toDateString() === selectedDate.toDateString()
             : false
+          const isDragOver = dragOverDate === day.date.toDateString()
           return (
             <CalendarCell
               key={idx}
               day={day}
               isLast={idx >= days.length - 7}
               isSelected={isSelected}
+              isDragOver={isDragOver}
               onPostClick={onPostClick}
               onDayClick={onDayClick}
+              onDragOver={(e) => handleDragOver(e, day.date)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, day.date)}
             />
           )
         })}
@@ -68,17 +98,21 @@ export function CalendarGrid({
   )
 }
 
-// ── Cellule d'un jour ────────────────────────────────────────────────────────
+// ── Cell ────────────────────────────────────────────────────────
 
 interface CalendarCellProps {
   day: CalendarDay
   isLast: boolean
   isSelected?: boolean
+  isDragOver?: boolean
   onPostClick?: (post: ScheduledPost) => void
   onDayClick?: (date: Date) => void
+  onDragOver?: (e: React.DragEvent) => void
+  onDragLeave?: () => void
+  onDrop?: (e: React.DragEvent) => void
 }
 
-function CalendarCell({ day, isLast, isSelected, onPostClick, onDayClick }: CalendarCellProps) {
+function CalendarCell({ day, isLast, isSelected, isDragOver, onPostClick, onDayClick, onDragOver, onDragLeave, onDrop }: CalendarCellProps) {
   const isFuture = day.date >= new Date(new Date().setHours(0, 0, 0, 0))
   const MAX_VISIBLE = 3
   const overflow = day.posts.length - MAX_VISIBLE
@@ -86,43 +120,45 @@ function CalendarCell({ day, isLast, isSelected, onPostClick, onDayClick }: Cale
   return (
     <div
       className={cn(
-        "group relative min-h-[100px] border-b border-r border-border p-1.5 transition-colors",
-        // Dernière ligne : pas de border-b
+        "group relative min-h-[120px] lg:min-h-[140px] border-b border-r border-gray-200/60 dark:border-white/5 p-2 transition-colors",
         isLast && "border-b-0",
-        // Pas de border-r sur la dernière colonne de chaque ligne (7e)
         "last:border-r-0 [&:nth-child(7n)]:border-r-0",
-        // Mois non courant : fond atténué
-        !day.isCurrentMonth && "bg-muted/30",
-        // Jour sélectionné
-        isSelected && "ring-2 ring-inset ring-primary/40 bg-primary/5",
+        // Non-current month
+        !day.isCurrentMonth && "bg-gray-50/50 dark:bg-white/[0.01]",
+        // Selected day
+        isSelected && "bg-primary/5 dark:bg-primary/5",
+        // Drag over feedback
+        isDragOver && "bg-primary/10 dark:bg-primary/10 ring-2 ring-primary/40 ring-inset",
         // Hover
-        "hover:bg-accent/30 cursor-pointer"
+        "hover:bg-gray-50 dark:hover:bg-white/[0.02] cursor-pointer"
       )}
       onClick={() => onDayClick?.(day.date)}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
     >
-      {/* Numéro du jour */}
-      <div className="mb-1 flex items-center justify-between">
-        <span
-          className={cn(
-            "flex size-6 items-center justify-center rounded-full text-xs font-medium",
-            day.isToday
-              ? "bg-primary text-primary-foreground"
-              : day.isCurrentMonth
-              ? "text-foreground"
-              : "text-muted-foreground/50"
-          )}
-        >
-          {day.date.getDate()}
-        </span>
-        {day.posts.length > 0 && (
-          <span className="text-[10px] font-medium text-muted-foreground">
-            {day.posts.length}
+      {/* Day number */}
+      <div className="mb-1.5 flex items-center justify-center">
+        {day.isToday ? (
+          <span className="flex size-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+            {day.date.getDate()}
+          </span>
+        ) : (
+          <span
+            className={cn(
+              "text-xs font-medium",
+              day.isCurrentMonth
+                ? "text-foreground dark:text-slate-400"
+                : "text-muted-foreground/40 dark:text-slate-600"
+            )}
+          >
+            {day.date.getDate()}
           </span>
         )}
       </div>
 
-      {/* Posts (max MAX_VISIBLE chips) */}
-      <div className="space-y-0.5">
+      {/* Post chips */}
+      <div className="space-y-1">
         {day.posts.slice(0, MAX_VISIBLE).map((post) => (
           <PostChip
             key={post.id}
@@ -134,14 +170,14 @@ function CalendarCell({ day, isLast, isSelected, onPostClick, onDayClick }: Cale
           />
         ))}
         {overflow > 0 && (
-          <p className="pl-1 text-[10px] text-muted-foreground">
-            +{overflow} de plus
+          <p className="text-center text-[9px] font-bold text-primary">
+            +{overflow} autre{overflow > 1 ? "s" : ""}
           </p>
         )}
-        {/* Hint "+" sur les jours vides à venir au survol */}
+        {/* Hover hint on empty future days */}
         {day.posts.length === 0 && day.isCurrentMonth && isFuture && (
-          <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity mt-2">
-            <Plus className="size-3.5 text-muted-foreground/50" />
+          <div className="flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity mt-3">
+            <Plus className="size-3.5 text-muted-foreground/40" />
           </div>
         )}
       </div>
@@ -149,7 +185,7 @@ function CalendarCell({ day, isLast, isSelected, onPostClick, onDayClick }: Cale
   )
 }
 
-// ── Utilitaire : construction des jours du calendrier ───────────────────────
+// ── Build calendar days ────────────────────────────────────────
 
 function buildCalendarDays(
   year: number,
@@ -160,7 +196,6 @@ function buildCalendarDays(
   today.setHours(0, 0, 0, 0)
 
   const firstDay = new Date(year, month, 1)
-  // getDay() : 0=dimanche, 1=lundi… On veut lundi=0
   const startDow = (firstDay.getDay() + 6) % 7
   const lastDay = new Date(year, month + 1, 0)
   const totalCells = Math.ceil((startDow + lastDay.getDate()) / 7) * 7
@@ -173,7 +208,6 @@ function buildCalendarDays(
     const isCurrentMonth = date.getMonth() === month && date.getFullYear() === year
     const isToday = date.getTime() === today.getTime()
 
-    // Posts de ce jour
     const dayPosts = posts.filter((p) => {
       if (!p.scheduled_at) return false
       const pd = new Date(p.scheduled_at)

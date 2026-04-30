@@ -2,10 +2,20 @@
 
 import { useState } from "react"
 import type { Step1Data, Step2Data, Step5Data, Step6Data } from "@/lib/schemas/workflow.schema"
-import { PLATFORM_CONFIG } from "@/lib/scheduler/platform-config"
-import { Button } from "@/components/ui/button"
+import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
 import { cn } from "@/lib/utils"
-import { ChevronLeft, CheckCircle2, XCircle, Eye, Hash } from "lucide-react"
+import { ArrowLeft, XCircle, Send, Users, Clock, Shield } from "lucide-react"
+import {
+  TwitterXIcon, LinkedInIcon, InstagramIcon, FacebookIcon,
+  PinterestIcon, YouTubeIcon, MastodonIcon, TikTokIcon,
+} from "@/components/connections/platform-icons"
+import { useTranslations } from "next-intl"
+
+const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: string }>> = {
+  twitter: TwitterXIcon, linkedin: LinkedInIcon, instagram: InstagramIcon,
+  facebook: FacebookIcon, pinterest: PinterestIcon, youtube: YouTubeIcon,
+  mastodon: MastodonIcon, tiktok: TikTokIcon,
+}
 
 interface Step6ApprovalProps {
   step1: Step1Data
@@ -15,7 +25,9 @@ interface Step6ApprovalProps {
   onNext: (data: Step6Data) => void
 }
 
-export function Step6Approval({ step1, step2, step5, onBack, onNext }: Omit<Step6ApprovalProps, "defaultValues">) {
+export function Step6Approval({ step1: _step1, step2, step5, onBack, onNext }: Omit<Step6ApprovalProps, "defaultValues">) {
+  const t = useTranslations("workflow")
+  const tc = useTranslations("common")
   const [decision, setDecision] = useState<boolean | null>(null)
 
   function handleApprove() {
@@ -25,150 +37,194 @@ export function Step6Approval({ step1, step2, step5, onBack, onNext }: Omit<Step
 
   function handleReject() {
     setDecision(false)
-    // Retour à la review
     onBack()
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">Approbation du contenu</h3>
-        <p className="text-xs text-muted-foreground">Validez le contenu avant de le planifier</p>
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        {/* Left: Content previews */}
+        <div className="lg:col-span-3 space-y-6">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
+            {t("approval.contentPreview")}
+          </h4>
 
-      {/* Preview complète */}
-      <div className="rounded-xl border border-border overflow-hidden">
-        {/* Header preview */}
-        <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-2.5">
-          <Eye className="size-4 text-muted-foreground" />
-          <span className="text-xs font-medium text-muted-foreground">APERÇU DU CONTENU</span>
-        </div>
-
-        <div className="p-4 space-y-4">
-          {/* Titre */}
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-1">TITRE</p>
-            <p className="text-sm font-semibold text-foreground">{step1.titre}</p>
-          </div>
-
-          {/* Plateformes */}
-          <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2">PLATEFORMES</p>
-            <div className="flex flex-wrap gap-1.5">
-              {step2.platforms.map((p) => {
-                const cfg = PLATFORM_CONFIG[p]
-                return (
-                  <span
-                    key={p}
-                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-white"
-                    style={{ backgroundColor: cfg.color }}
-                  >
-                    <span>{cfg.icon}</span>
-                    {cfg.label}
+          {/* Post previews per platform */}
+          {step2.platforms.map((platform) => {
+            const cfg = PLATFORM_CONFIG[platform]
+            return (
+              <div
+                key={platform}
+                className="rounded-2xl border border-slate-200 dark:border-white/[0.05] bg-white dark:bg-slate-900/50 overflow-hidden"
+              >
+                {/* Platform header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-white/[0.05]">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="flex size-6 items-center justify-center rounded text-white"
+                      style={{ backgroundColor: cfg.color }}
+                    >
+                      {(() => { const I = PLATFORM_ICON_MAP[platform]; return <I className="size-3.5" /> })()}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      Post {cfg.label}
+                    </span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase">
+                    {t("approval.ready")}
                   </span>
-                )
-              })}
-            </div>
-          </div>
+                </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {/* Caption */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">CAPTION</p>
-              <div className="rounded-lg bg-muted/50 p-3 max-h-48 overflow-y-auto">
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{step5.finalCaption}</p>
+                {/* Content */}
+                <div className="p-4 space-y-3">
+                  {/* Visual */}
+                  {step5.finalVisualUrl && (
+                    <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/[0.05]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={step5.finalVisualUrl}
+                        alt={`Visuel ${cfg.label}`}
+                        className="w-full object-cover max-h-64"
+                      />
+                    </div>
+                  )}
+
+                  {/* Caption */}
+                  <div className="rounded-xl bg-slate-50 dark:bg-white/[0.03] p-3">
+                    <p className="text-sm whitespace-pre-wrap leading-relaxed text-slate-800 dark:text-slate-200 line-clamp-6">
+                      {step5.finalCaption}
+                    </p>
+                  </div>
+
+                  {/* Hashtags */}
+                  {step5.finalHashtags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {step5.finalHashtags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 text-[10px] font-medium text-violet-600 dark:text-violet-400"
+                        >
+                          #{tag.replace(/^#/, "")}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
+            )
+          })}
+        </div>
 
-              {/* Hashtags */}
-              {step5.finalHashtags.length > 0 && (
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Hash className="size-3" />
-                    {step5.finalHashtags.length} hashtags
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {step5.finalHashtags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 text-[10px] text-blue-700 dark:text-blue-300"
-                      >
-                        #{tag.replace(/^#/, "")}
-                      </span>
-                    ))}
-                  </div>
+        {/* Right: Approval panel */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/[0.05] rounded-2xl p-5 backdrop-blur-sm sticky top-4">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400 mb-4">
+              {t("approval.approvalParams")}
+            </h4>
+
+            {/* Approver */}
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05]">
+                <div className="size-8 rounded-full bg-violet-500/20 flex items-center justify-center">
+                  <Users className="size-4 text-violet-500" />
                 </div>
-              )}
+                <div>
+                  <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">{t("approval.approverTeam")}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500">{t("approval.designatedApprover")}</p>
+                </div>
+              </div>
             </div>
 
-            {/* Visuel */}
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground">VISUEL</p>
-              {step5.finalVisualUrl ? (
-                <div className="overflow-hidden rounded-xl border border-border">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={step5.finalVisualUrl}
-                    alt="Visuel du post"
-                    className="w-full object-cover max-h-48"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/30 h-32 text-xs text-muted-foreground">
-                  Aucun visuel
-                </div>
+            {/* Comment */}
+            <div className="mb-6">
+              <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">
+                {t("approval.externalApprovalLink")}
+              </p>
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05]">
+                <input
+                  type="text"
+                  readOnly
+                  value="rami.ai-mpower.com/approve/..."
+                  className="flex-1 bg-transparent text-[11px] text-slate-400 dark:text-slate-500 outline-none"
+                />
+                <button
+                  type="button"
+                  className="px-2 py-1 rounded bg-violet-500/10 text-violet-500 text-[10px] font-bold"
+                >
+                  {t("approval.copy")}
+                </button>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <button
+              type="button"
+              onClick={handleApprove}
+              disabled={decision !== null}
+              className={cn(
+                "w-full px-6 py-3 rounded-xl mb-3",
+                "bg-gradient-to-r from-violet-600 to-blue-600",
+                "text-white text-sm font-bold",
+                "shadow-lg shadow-violet-500/20",
+                "hover:scale-[1.02] active:scale-[0.98] transition-all",
+                "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100",
+                "flex items-center justify-center gap-2",
+                decision === true && "bg-green-600 from-green-600 to-green-600"
               )}
+            >
+              <Send className="size-4" />
+              {decision === true ? t("approval.approved") : t("approval.sendForApproval")}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleReject}
+              disabled={decision !== null}
+              className={cn(
+                "w-full px-6 py-2.5 rounded-xl",
+                "border border-red-200 dark:border-red-800/30",
+                "text-red-600 dark:text-red-400 text-sm font-semibold",
+                "hover:bg-red-50 dark:hover:bg-red-900/20 transition-all",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                "flex items-center justify-center gap-2"
+              )}
+            >
+              <XCircle className="size-4" />
+              {t("approval.reviseContent")}
+            </button>
+
+            {/* Status info */}
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/[0.05] space-y-2">
+              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                <Clock className="size-3" />
+                <span>{t("approval.noSubmission")}</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+                <Shield className="size-3" />
+                <span>{t("approval.securedLink")}</span>
+              </div>
             </div>
           </div>
-
-          {/* Notes */}
-          {step5.notes && (
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground">NOTES INTERNES</p>
-              <p className="text-xs text-muted-foreground italic">{step5.notes}</p>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Décision */}
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Button
+      {/* Bottom nav */}
+      <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/10">
+        <button
           type="button"
-          variant="outline"
-          onClick={handleReject}
-          disabled={decision !== null}
-          className="flex-1 gap-2 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-800/50 dark:text-red-400 dark:hover:bg-red-900/20"
-        >
-          <XCircle className="size-4" />
-          Réviser le contenu
-        </Button>
-        <Button
-          type="button"
-          onClick={handleApprove}
-          disabled={decision !== null}
+          onClick={onBack}
           className={cn(
-            "flex-1 gap-2 transition-all",
-            decision === true && "bg-green-600 hover:bg-green-600"
+            "flex items-center gap-2 text-xs font-medium",
+            "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
           )}
         >
-          <CheckCircle2 className="size-4" />
-          {decision === true ? "Approuvé ✓" : "Approuver & planifier"}
-        </Button>
+          <ArrowLeft className="size-4" />
+          {tc("back")}
+        </button>
+        <div className="text-xs text-slate-400 dark:text-slate-500">
+          {t("approval.approvalNote")}
+        </div>
       </div>
-
-      <div className="flex justify-start">
-        <Button type="button" variant="ghost" onClick={onBack} size="sm" className="gap-2 text-xs">
-          <ChevronLeft className="size-3" />
-          Retour à la review
-        </Button>
-      </div>
-
-      {/* Info */}
-      <p className="text-center text-xs text-muted-foreground">
-        En approuvant, le contenu passera à l&apos;étape de planification.
-        <br />
-        &quot;Réviser&quot; vous ramène à l&apos;étape précédente pour modifications.
-      </p>
     </div>
   )
 }

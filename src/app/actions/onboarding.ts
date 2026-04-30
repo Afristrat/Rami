@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { createServiceClient } from "@/lib/supabase/service"
 import { z } from "zod"
 import { redirect } from "next/navigation"
+import { log } from "@/lib/utils/logger"
 
 const OnboardingSchema = z.object({
   name: z
@@ -81,7 +82,7 @@ export async function createTenantOnboarding(
       .single()
 
     if (tenantError || !newTenant) {
-      console.error("[onboarding] Erreur création tenant:", tenantError)
+      log({ level: "error", module: "onboarding", action: "tenant_creation_failed", metadata: { error: tenantError?.message } })
       return { success: false, error: "Impossible de créer le tenant : " + tenantError?.message }
     }
 
@@ -100,7 +101,7 @@ export async function createTenantOnboarding(
       })
 
     if (userError) {
-      console.error("[onboarding] Erreur upsert user:", userError)
+      log({ level: "error", module: "onboarding", action: "user_upsert_failed", metadata: { error: userError.message } })
       return { success: false, error: "Impossible de lier l'utilisateur : " + userError.message }
     }
 
@@ -108,7 +109,7 @@ export async function createTenantOnboarding(
     await supabase.auth.updateUser({ data: { onboarding_completed: true } })
 
   } catch (error) {
-    console.error("[onboarding] Erreur inattendue:", error)
+    log({ level: "error", module: "onboarding", action: "unexpected_error", metadata: { error: error instanceof Error ? error.message : String(error) } })
     return { success: false, error: "Une erreur est survenue. Veuillez réessayer." }
   }
 

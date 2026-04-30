@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Utility scripts (CommonJS, not production code)
+    "scripts/**/*.js",
   ]),
   // Regles globales — variables/parametres prefixes par _ = intentionnellement non utilises
   {

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI | Video Pipeline - Automated Assembly</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .neuro-gradient {
+            background: radial-gradient(circle at top left, rgba(124, 59, 237, 0.15), transparent),
+                        radial-gradient(circle at bottom right, rgba(124, 59, 237, 0.05), transparent);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen neuro-gradient">
+<!-- Top Navigation -->
+<header class="sticky top-0 z-50 border-b border-primary/20 bg-background-dark/80 backdrop-blur-md px-6 lg:px-20 py-4">
+<div class="max-w-[1440px] mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-white">neurology</span>
+</div>
+<h2 class="text-xl font-black tracking-tighter text-white uppercase">RAMI</h2>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-primary font-semibold text-sm" href="#">Dashboard</a>
+<a class="text-slate-400 hover:text-white transition-colors text-sm" href="#">Library</a>
+<a class="text-slate-400 hover:text-white transition-colors text-sm" href="#">Models</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="size-10 rounded-full border-2 border-primary/30 p-0.5">
+<img alt="User Profile Avatar" class="rounded-full" data-alt="Abstract minimalist user profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgelTPWzO1f-IYeb9iViOgePOZwnbaRm2u3YXXxW0vm8iKpN6VOPAV8BfoJBEs2U4P79sYHZVg1XdB38KGMTjcpFA43ff-VqfcQXPUyvgSuBCIvlyO7pRE8kHuxGB2XDKro3NPQdtCHW1nTJO3QxmNycCUsfPbaw6huUILUdWDCtK124aijxe1Bmn_1WoqP2utX8nqWzY_nqQrvK2Mk-8dUOOedxuGJZG26EmHOuFbi5M4b9jZ4pfgiu2egmriGRsz8QdANXd3flnd"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1440px] mx-auto px-6 lg:px-20 py-8">
+<!-- Header Section -->
+<div class="mb-10">
+<h1 class="text-4xl font-black tracking-tight text-white mb-2">Video Pipeline - <span class="text-primary">Automated Assembly</span></h1>
+<p class="text-slate-400 max-w-2xl">Neuro-optimized content creation engine. Claude, ElevenLabs, and Runway integration for seamless high-performance video generation.</p>
+</div>
+<!-- Workflow Visualization -->
+<div class="grid grid-cols-7 gap-4 mb-12 overflow-x-auto pb-4">
+<!-- Step 1 -->
+<div class="flex flex-col items-center gap-3 min-w-[120px]">
+<div class="size-14 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-white">description</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Brief</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Input</p>
+</div>
+</div>
+<!-- Arrow -->
+<div class="hidden md:flex items-center justify-center col-span-1 absolute -z-10 w-full h-14"></div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center gap-3 min-w-[120px]">
+<div class="size-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">psychology</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Script</p>
+<p class="text-[10px] text-primary uppercase font-bold">Claude 3.5</p>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center gap-3 min-w-[120px]">
+<div class="size-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">record_voice_over</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Voice</p>
+<p class="text-[10px] text-primary uppercase font-bold">ElevenLabs</p>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center gap-3 min-w-[120px]">
+<div class="size-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">grid_view</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Storyboard</p>
+<p class="text-[10px] text-primary uppercase font-bold">Logic</p>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="flex flex-col items-center gap-3 min-w-[120px]">
+<div class="size-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">palette</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Image Gen</p>
+<p class="text-[10px] text-primary uppercase font-bold">Fal.ai</p>
+</div>
+</div>
+<!-- Step 6 -->
+<div class="flex flex-col items-center gap-3 min-w-[120px]">
+<div class="size-14 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">movie</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Animation</p>
+<p class="text-[10px] text-primary uppercase font-bold">Runway Gen-3</p>
+</div>
+</div>
+<!-- Step 7 -->
+<div class="flex flex-col items-center gap-3 min-w-[120px]">
+<div class="size-14 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-green-500">ios_share</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold text-white">Export</p>
+<p class="text-[10px] text-green-500 uppercase font-bold">Rendered</p>
+</div>
+</div>
+</div>
+<!-- Main Workspace Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+<!-- Script Editor Card -->
+<div class="xl:col-span-3 bg-slate-900/40 border border-primary/10 rounded-xl overflow-hidden backdrop-blur-sm">
+<div class="p-4 border-b border-primary/10 bg-primary/5 flex items-center justify-between">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">terminal</span>
+                        Script Structure
+                    </h3>
+<span class="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">CLAUDE AI</span>
+</div>
+<div class="p-4 space-y-4">
+<div class="space-y-3">
+<div class="p-3 bg-primary/10 rounded-lg border border-primary/20">
+<span class="text-[10px] font-bold text-primary block mb-1">1. HOOK</span>
+<p class="text-xs text-slate-300 leading-relaxed italic">"Are you tired of spending hours on video editing?"</p>
+</div>
+<div class="p-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+<span class="text-[10px] font-bold text-slate-500 block mb-1 uppercase">2. Problem</span>
+<p class="text-xs text-slate-400">Traditional workflows are slow and expensive...</p>
+</div>
+<div class="p-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+<span class="text-[10px] font-bold text-slate-500 block mb-1 uppercase">3. Agitation</span>
+<p class="text-xs text-slate-400">Missing trends because you're stuck in render...</p>
+</div>
+<div class="p-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+<span class="text-[10px] font-bold text-slate-500 block mb-1 uppercase">4. Solution</span>
+<p class="text-xs text-slate-400">Enter RAMI: The world's first neuro-optimized...</p>
+</div>
+<div class="p-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+<span class="text-[10px] font-bold text-slate-500 block mb-1 uppercase">5. Proof</span>
+<p class="text-xs text-slate-400">Generated 10,000 videos last month alone.</p>
+</div>
+<div class="p-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+<span class="text-[10px] font-bold text-slate-500 block mb-1 uppercase">6. Transition</span>
+<p class="text-xs text-slate-400">Ready to transform your production?</p>
+</div>
+<div class="p-3 bg-slate-800/40 rounded-lg border border-slate-700/50">
+<span class="text-[10px] font-bold text-slate-500 block mb-1 uppercase">7. CTA</span>
+<p class="text-xs text-slate-400">Join the waitlist today at rami.ai</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Voice & Audio Card -->
+<div class="xl:col-span-4 bg-slate-900/40 border border-primary/10 rounded-xl overflow-hidden backdrop-blur-sm">
+<div class="p-4 border-b border-primary/10 bg-primary/5 flex items-center justify-between">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">settings_voice</span>
+                        Voice &amp; Audio
+                    </h3>
+<span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">ELEVENLABS</span>
+</div>
+<div class="p-6">
+<div class="mb-8">
+<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-4">Voice Clone Selection</label>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex items-center gap-3 p-3 bg-primary border border-primary rounded-xl text-white">
+<span class="material-symbols-outlined">person</span>
+<div class="text-left">
+<p class="text-xs font-bold">Adam (Pro)</p>
+<p class="text-[10px] opacity-70">Deep, Engaging</p>
+</div>
+</button>
+<button class="flex items-center gap-3 p-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-400">
+<span class="material-symbols-outlined">person</span>
+<div class="text-left">
+<p class="text-xs font-bold">Bella</p>
+<p class="text-[10px] opacity-70">Soft, Corporate</p>
+</div>
+</button>
+</div>
+</div>
+<div class="mb-8">
+<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-4">Neuro-Waveform Generation</label>
+<div class="h-24 flex items-end justify-between gap-1 px-2">
+<div class="w-1 bg-primary/20 rounded-full h-[20%]"></div>
+<div class="w-1 bg-primary/40 rounded-full h-[40%]"></div>
+<div class="w-1 bg-primary/60 rounded-full h-[60%]"></div>
+<div class="w-1 bg-primary/80 rounded-full h-[90%]"></div>
+<div class="w-1 bg-primary rounded-full h-[70%]"></div>
+<div class="w-1 bg-primary/80 rounded-full h-[50%]"></div>
+<div class="w-1 bg-primary/60 rounded-full h-[80%]"></div>
+<div class="w-1 bg-primary rounded-full h-[100%]"></div>
+<div class="w-1 bg-primary/70 rounded-full h-[60%]"></div>
+<div class="w-1 bg-primary/40 rounded-full h-[40%]"></div>
+<div class="w-1 bg-primary/20 rounded-full h-[20%]"></div>
+<div class="w-1 bg-primary/60 rounded-full h-[70%]"></div>
+<div class="w-1 bg-primary/80 rounded-full h-[90%]"></div>
+<div class="w-1 bg-primary rounded-full h-[80%]"></div>
+<div class="w-1 bg-primary/80 rounded-full h-[40%]"></div>
+<div class="w-1 bg-primary/50 rounded-full h-[30%]"></div>
+<div class="w-1 bg-primary/30 rounded-full h-[50%]"></div>
+<div class="w-1 bg-primary/60 rounded-full h-[70%]"></div>
+<div class="w-1 bg-primary/90 rounded-full h-[100%]"></div>
+<div class="w-1 bg-primary/40 rounded-full h-[50%]"></div>
+<div class="w-1 bg-primary/20 rounded-full h-[30%]"></div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[10px] text-slate-500">0:00</span>
+<span class="text-[10px] text-primary font-bold">ADAPTIVE GAIN</span>
+<span class="text-[10px] text-slate-500">0:45</span>
+</div>
+</div>
+<div class="p-4 bg-slate-800/50 rounded-xl border border-slate-700">
+<div class="flex items-center justify-between mb-3">
+<span class="text-xs font-bold text-slate-300">Background Ambience</span>
+<span class="text-[10px] text-primary">Cyberpunk Low-Fi</span>
+</div>
+<div class="h-1.5 bg-slate-700 rounded-full w-full overflow-hidden">
+<div class="h-full bg-primary w-1/3"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Storyboard Grid -->
+<div class="xl:col-span-5 bg-slate-900/40 border border-primary/10 rounded-xl overflow-hidden backdrop-blur-sm">
+<div class="p-4 border-b border-primary/10 bg-primary/5 flex items-center justify-between">
+<h3 class="font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">grid_view</span>
+                        Visual Storyboard (20 Frames)
+                    </h3>
+<div class="flex gap-2">
+<span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold uppercase">Fal.ai</span>
+<span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold uppercase">Runway</span>
+</div>
+</div>
+<div class="p-4 grid grid-cols-4 sm:grid-cols-5 gap-3 max-h-[520px] overflow-y-auto">
+<!-- Thumbnail Loop -->
+<div class="group relative aspect-square bg-slate-800 rounded-lg overflow-hidden border border-slate-700 hover:border-primary transition-all">
+<img class="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" data-alt="Abstract purple neural network pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-icoDD3DrecZF3cLlm5q8mpGvjc8iIVp7hzINzHX-kK4EeBljdnr9cvKBmProeoiqmwZdGIvl1aZS2pLm-e5dH35ZzxOjTxwXu-xry63Gaw3U5is3yGpSomoFatO6err7HvLryv2Gh7C54aCjnKeWbne6z51_-4xRcJQP5JWykXisWxJmM1sZgJpeoRR3BGubZ-z70CRWOP0LkA_dDzz5nTL56hLL8j8Ri77BpsBlL2GiD2_F-pPdF0gPhVEPBQEEu0YKPSekzyIf"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+<p class="text-[8px] text-white leading-tight">Neural nodes firing in deep space</p>
+</div>
+</div>
+<!-- Repeat elements for mockup feel -->
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+<img class="w-full h-full object-cover opacity-60" data-alt="Cyberpunk city silhouette at dusk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDE33nHa0apx3bPJsTYiqT5YrQs6QgF3_6JvC5-XB5gvmbt-p78mhfswBsiJdOj1bzTdsdFrWGNbT7Tv7KNJTTracRumcq7ew1B7PN2e5d8Y-JEwEXCL8NbC9MFexEdje3_AbI7A-7Fe2W95Kb6AU30QmFuG1TwaCQqw0WURS8oMkcw3Po7xjfUYibIsDW9AaM_RDlIvarboz08eI-UpZbv-Gz3PrMW6tWOlA7TZnSSL3AlpXU2tjpttWAmQlTlh9UhdJlsSKFXHNq7"/>
+</div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+<img class="w-full h-full object-cover opacity-60" data-alt="Futuristic glass interface mockup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2w4OshYHTVfYEsuGKsW6zyzBnmHFjdYWpLo3BZ9LV7kxR14XCZp06AlmzwlAK6TcnyZiRHGrW6O5X3l8SAsgxfU5pM3erIMr10lD4ZeLCVRZEDrUxCkOOBkz-30zBJEgrHs-Ct7IX_MCpJ4rwnmNvwNuPl-YAndQ34eIqLJ4Wkijoy37sGm9I4_ss-LU92H302nDoHtoLQ3nF8TzZnzJrF6BtbxqtKc4TyCq8UOiO80-t0d_51Wduwe4mTqHLXozj80UZLuRMZWfQ"/>
+</div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-primary/50 overflow-hidden ring-2 ring-primary/30">
+<img class="w-full h-full object-cover" data-alt="High tech hardware macro shot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJRHEs4oCq5I7t41z69rsNE4LpyegzO1gATFctZ2uuh7YBvile5OT4R9-I003zQBZrdc1UIey10yNirJYhDa7PNXZVcRGUWUHg8sG3YUbdSHa3IO_OaS7XlrHF-t2hSxSsHKTn42Hw_b26VxOJIp7gReYhtQG71MqF3hLxyNWQZcZfpKbt5CE3kzhsgw9w377oYmzhUnG7UUMZfGB404Ws3-MF0xuUHyHJ-OCiDZVe1orIEO0HtOdjPh8EF_L0G6caERBx3596JcQr"/>
+</div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden">
+<img class="w-full h-full object-cover opacity-60" data-alt="Minimalist abstract organic flow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuUbht3qAF1JJUUex8cYitLTDgyTaGjLP8F5K6AeyzKJ0wCM9iIM54GBs8B5rxU2L6FVYMtxCESnFO9dZOWO5zN-Fxzlrog7x75dYUjjlQD4WcnEt4j00QHch4SsqmJ3frqsl3PGmUTEEaOYQ1QmmFrEsVKwhgL7zxqnJPh_3pc7ThQ5jP0myAeGd2Wiy3YwbNhjh-1p63oOcAWAY5cfD0FYK3CQC6PRSIwmc60yRy6hWUr4fUGmfnYj6xOu01RB7WpHFCN8hb1_OP"/>
+</div>
+<!-- Row 2 -->
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"><img class="w-full h-full object-cover opacity-60" data-alt="Retro technology neon aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA15WadZhdaxsqBTfiK8I-J_5LDH9pu5AG-72-Gg7r9p5VDHZxF3rP2EDCLx-EEAZZqJi2R9Ux3PnZ-F0kRmqSkKvNL3Ony0P6qvRcx1tJf2p95TB-xdeZBtdiTHSlixcUjwi_mhYc8uATn4kApVbv0z6iSaBIOt9lmAypckB4pmxSX5a6g44tXZm8sqh0h4hdo-BPYpz3nS9eUNMzamupQUDKYO5N1JZSCbzXAnlYxFCEsctCeI2yyIFj6VHK88_U-JgMOzb8dgl9l"/></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"><img class="w-full h-full object-cover opacity-60" data-alt="Minimal white paper texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3YV_xY-ibuG8EAfxtnCC2xwwopXkMG3Piicg_H12x20OrbkTnfLggbWXlGPrcpngWhLTGj6Oea2vLUlMSuTFBbHTsOXoj06vVWaf0vnaOL95lm6wn_4f8CAoSSkBf5V78rZcATSNLnoAXJz2N9Gmlf9g9sr1p3Vrden2cTZls_IfmZkUOxMoBfc8uS5eJFSdJORy-6OXUz_E4pfUptWhQ-pZ3MewvWfhBAVek0b_N55BDhoDUmkIpSmYzR2aIktAAE-ulsbVypk_b"/></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"><img class="w-full h-full object-cover opacity-60" data-alt="Abstract dark smoke effect" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-8hm0lt0W0cDHK4wirketmV8RRO-XzStMzEr3yHwB4XCvYIloLdOLZ_6GFYxItNQ8C2e1TvlEx-vNTzDV00dpBuZM2qC3P_ndPH3BmYu6ww-Dot_wFiNRy0cGWJg_h_VinFCRs-YLejZO1Xv7EY5IhER6m5hsKqcjNJ6QrVrfAzBF-aSn3HGWkA_yWYrpGnAZyX-vGaJ4ZuD93NpVxIrc41E8IgKYrB9AzgwjeyQFR9FIhdWwiEXcxvoS1EEiXkWPa_SFaiKxx6ZX"/></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"><img class="w-full h-full object-cover opacity-60" data-alt="Vibrant digital light leaks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwO7YApWT9raimiGS83Kb35dJAQrHtSQnilYczNXpvAJnPIm7VurVYAKYFhHMxLDQ3Y890pQZkSxmTehah6W7m1VSW_a353mxQkX_qzDFGehkyPuaHHU4-Y9C8KjJy6KTOdAZxOmq-_h2N0Hlu4HwcR5Z1I36CDZr94cpLYqkzGJ-e0U7Jf0lM5h9RBSlTJRILK3XQ8WNir_h0HmJ5v7nGaLaehGEVu2_Lkf25riIx0LYX9R64W0hkUBl4k5za9KCyTEzxQSuKuXKn"/></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"><img class="w-full h-full object-cover opacity-60" data-alt="Floating holographic display" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJFKH0OcEG5u8kloH58RJjjj5AUH6WhHSDQi5NC-uERrPlU5IJJxvjcfGrgxJaCQBZKzqtcHH87TyMdoNJDZX4xTm0z9hH6az7yUbjQxRmlCnBiOqU6_ZWUrobroP9Po5IPgOZrEh7F2Z_ErLr9fIEh2YZy51l0QKP8Xe_wTN5DlhmaMk_lSlDu_EeEO6BiQdtJeeCWCByxzgrBpQhHrOFte07k7YN7i7_itVxHneXsWs796OmeuO4cOdPOrxH0AbIplxM4qGgMJZL"/></div>
+<!-- Row 3-4 (repeated placeholders) -->
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+<div class="aspect-square bg-slate-800 rounded-lg border border-slate-700 overflow-hidden"></div>
+</div>
+<div class="p-4 bg-slate-900 border-t border-primary/10">
+<button class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-colors">
+                        Regenerate All Visuals
+                    </button>
+</div>
+</div>
+</div>
+<!-- Bottom Controls Area -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Export Settings -->
+<div class="bg-slate-900/40 border border-primary/10 rounded-xl p-6 backdrop-blur-sm">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-primary">output</span>
+<h3 class="font-bold">Export Pipeline Settings</h3>
+</div>
+<div class="flex flex-wrap gap-8">
+<div class="flex items-center gap-4">
+<div class="flex items-center">
+<input checked="" class="w-4 h-4 text-primary bg-slate-800 border-slate-700 rounded focus:ring-primary focus:ring-2" id="vertical" type="checkbox"/>
+<label class="ml-2 text-sm font-medium text-slate-300" for="vertical">9:16 (TikTok/Reels)</label>
+</div>
+<div class="flex items-center">
+<input class="w-4 h-4 text-primary bg-slate-800 border-slate-700 rounded focus:ring-primary focus:ring-2" id="horizontal" type="checkbox"/>
+<label class="ml-2 text-sm font-medium text-slate-300" for="horizontal">16:9 (YouTube/LinkedIn)</label>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center">
+<span class="text-xs font-bold text-slate-500 mr-2 uppercase">Resolution</span>
+<select class="bg-slate-800 border-slate-700 text-slate-300 text-xs rounded-lg focus:ring-primary focus:border-primary p-1">
+<option>1080p (Fast)</option>
+<option>4K Ultra (Slow)</option>
+</select>
+</div>
+<div class="flex items-center">
+<span class="text-xs font-bold text-slate-500 mr-2 uppercase">Frame Rate</span>
+<select class="bg-slate-800 border-slate-700 text-slate-300 text-xs rounded-lg focus:ring-primary focus:border-primary p-1">
+<option>24 fps</option>
+<option selected="">30 fps</option>
+<option>60 fps</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- Main CTA Area -->
+<div class="flex items-center justify-end">
+<div class="flex flex-col items-end gap-3">
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Estimated Assembly Time: 4m 32s</p>
+<button class="group relative px-10 py-5 bg-gradient-to-r from-primary to-blue-600 rounded-xl font-black text-white text-xl tracking-tight shadow-2xl shadow-primary/40 hover:scale-[1.02] transition-transform flex items-center gap-4 overflow-hidden">
+<div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<span class="material-symbols-outlined text-3xl">bolt</span>
+                        GENERATE VIDEO PIPELINE
+                    </button>
+<p class="text-[10px] text-primary font-bold">Credits remaining: 14,240</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Stats (Floating Subtle) -->
+<footer class="fixed bottom-0 left-0 right-0 bg-background-dark/60 backdrop-blur-sm border-t border-primary/5 py-2 px-6">
+<div class="max-w-[1440px] mx-auto flex items-center justify-between">
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5">
+<div class="size-1.5 rounded-full bg-green-500"></div>
+<span class="text-[10px] font-bold text-slate-400">Claude 3.5 Sonnet: CONNECTED</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="size-1.5 rounded-full bg-green-500"></div>
+<span class="text-[10px] font-bold text-slate-400">Runway API: ACTIVE</span>
+</div>
+</div>
+<div class="text-[10px] font-bold text-slate-500">
+                PIPELINE ID: RM-VOX-88291-ALPHA
+            </div>
+</div>
+</footer>
+</body></html>

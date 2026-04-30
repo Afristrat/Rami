@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { stripe } from './stripe'
 import { STRIPE_PRICE_IDS, type Plan } from './plans'
 import { headers } from 'next/headers'
+import { resolveUserTenant } from '@/lib/services/tenant/resolve'
 
 /**
  * Crée ou récupère le customer Stripe pour le tenant courant.
@@ -43,10 +44,13 @@ export async function createCheckoutSessionAction(
 
   if (!user) return { url: null, error: 'Non authentifié' }
 
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { url: null, error: 'Tenant introuvable' }
+
   const { data: tenant } = await supabase
     .from('tenants')
     .select('id, name, stripe_customer_id, plan')
-    .eq('owner_id', user.id)
+    .eq('id', tenantId)
     .single<{ id: string; name: string; stripe_customer_id: string | null; plan: string }>()
 
   if (!tenant) return { url: null, error: 'Tenant introuvable' }
@@ -93,10 +97,11 @@ export async function createBillingPortalAction(): Promise<{ url: string | null;
 
   if (!user) return { url: null, error: 'Non authentifié' }
 
-  const { data: tenant } = await supabase
+  const tenantId2 = await resolveUserTenant(supabase, user.id)
+  const { data: tenant } = !tenantId2 ? { data: null } : await supabase
     .from('tenants')
     .select('id, stripe_customer_id')
-    .eq('owner_id', user.id)
+    .eq('id', tenantId2)
     .single<{ id: string; stripe_customer_id: string | null }>()
 
   if (!tenant?.stripe_customer_id) {
@@ -123,10 +128,11 @@ export async function getBillingDataAction() {
 
   if (!user) return null
 
-  const { data: tenant } = await supabase
+  const tenantId3 = await resolveUserTenant(supabase, user.id)
+  const { data: tenant } = !tenantId3 ? { data: null } : await supabase
     .from('tenants')
     .select('id, name, plan, stripe_customer_id, stripe_subscription_id, subscription_status, generation_count, generation_reset_at')
-    .eq('owner_id', user.id)
+    .eq('id', tenantId3)
     .single<{
       id: string
       name: string

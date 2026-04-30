@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "secondary": "#2563eb",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .gradient-blob {
+            filter: blur(120px);
+            opacity: 0.15;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-sans text-slate-100 antialiased overflow-x-hidden">
+<!-- Background Blobs -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+<div class="gradient-blob absolute -top-20 -left-20 w-96 h-96 bg-primary rounded-full"></div>
+<div class="gradient-blob absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-secondary rounded-full"></div>
+<div class="gradient-blob absolute -bottom-20 -right-20 w-96 h-96 bg-primary rounded-full"></div>
+<div class="grid-pattern absolute inset-0 opacity-20"></div>
+</div>
+<div class="relative flex min-h-screen">
+<!-- Side Navigation -->
+<aside class="w-64 border-r border-white/10 bg-background-dark/50 backdrop-blur-md flex flex-col sticky top-0 h-screen z-10">
+<div class="p-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">bolt</span>
+</div>
+<div>
+<h1 class="font-display font-bold text-lg leading-none">RAMI</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Agency OS</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary text-white shadow-lg shadow-primary/20 transition-all" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-sm font-medium">Documents</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Clients</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="text-sm font-medium">Projets</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Paramètres</span>
+</a>
+</nav>
+<div class="p-4 border-t border-white/5">
+<div class="glass-card p-4 rounded-xl">
+<p class="text-xs text-slate-400 mb-2">Workspace Usage</p>
+<div class="w-full bg-white/10 h-1 rounded-full overflow-hidden mb-3">
+<div class="bg-primary w-3/4 h-full"></div>
+</div>
+<button class="w-full py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-colors">UPGRADE TO PRO</button>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col z-10">
+<!-- Top Bar -->
+<header class="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-background-dark/30 backdrop-blur-sm sticky top-0 z-20">
+<div class="flex items-center gap-4">
+<h2 class="font-display text-xl font-bold text-slate-50">Documents</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-primary transition-colors">search</span>
+<input class="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Rechercher un document..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Créer un document
+                    </button>
+<div class="flex items-center gap-3 border-l border-white/10 pl-6">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold leading-none">Alex Rivera</p>
+<p class="text-[10px] text-slate-400">Admin</p>
+</div>
+<div class="w-10 h-10 rounded-full border-2 border-primary/30 p-0.5">
+<img alt="User Profile" class="w-full h-full rounded-full object-cover bg-slate-800" data-alt="User avatar profile picture circular icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-_GzSCyKzlDXKjYdiLjHO32f_ESX7ePqcU5F3p3uNVsh5HB1Xjn7GbGoYVGRn9T04IRsLUd1H-t3lLrQais1iplVKbhQ1qhJE7rcZe3yJQ8W5z5SE5yclDHeBKBeBOdURAAZQg3fh9FCej1sNf5N0fHCg9V7bnw2CndSCgV1jYOQhn32MNBLzyaiCfoMIVSGuC8yFTn5av7TceWdjLkWsvVq6t-X5fRInioxi7vP38ZA0FWkWW8w8vF7pcOZimY6kuXUZsySRatfQ"/>
+</div>
+</div>
+</div>
+</header>
+<div class="p-8 max-w-7xl mx-auto w-full">
+<!-- Document Types Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<!-- Card 1 -->
+<div class="glass-card p-6 rounded-2xl group cursor-pointer hover:border-primary/50 transition-all hover:bg-white/[0.06]">
+<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">business_center</span>
+</div>
+<h3 class="font-display text-lg font-bold text-slate-50 mb-1">Offre commerciale</h3>
+<p class="text-sm text-slate-400 leading-relaxed">Générez une proposition personnalisée avec l'IA en quelques secondes.</p>
+<div class="mt-4 flex items-center gap-2 text-xs font-bold text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                            DÉMARRER <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-card p-6 rounded-2xl group cursor-pointer hover:border-secondary/50 transition-all hover:bg-white/[0.06]">
+<div class="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center text-secondary mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">monitoring</span>
+</div>
+<h3 class="font-display text-lg font-bold text-slate-50 mb-1">Rapport client</h3>
+<p class="text-sm text-slate-400 leading-relaxed">Rapport de performance PDF brandé avec analyse automatique des KPIs.</p>
+<div class="mt-4 flex items-center gap-2 text-xs font-bold text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                            GÉNÉRER <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-card p-6 rounded-2xl group cursor-pointer hover:border-white/30 transition-all hover:bg-white/[0.06]">
+<div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white mb-4 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">present_to_all</span>
+</div>
+<h3 class="font-display text-lg font-bold text-slate-50 mb-1">Présentation</h3>
+<p class="text-sm text-slate-400 leading-relaxed">Deck de présentation dynamique style Gamma pour impressionner vos prospects.</p>
+<div class="mt-4 flex items-center gap-2 text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                            CRÉER DECK <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Recent Documents Section -->
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-display text-xl font-bold text-slate-50">Documents récents</h3>
+<div class="flex items-center gap-2">
+<button class="p-2 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+</button>
+</div>
+</div>
+<div class="glass-card rounded-2xl overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/10 bg-white/[0.02]">
+<th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Document</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Type</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Client</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Date</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Statut</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="text-sm font-semibold text-slate-100">Stratégie Q4 - ScaleUp</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400 font-medium">Présentation</td>
+<td class="px-6 py-4 text-sm text-slate-400">ScaleUp Inc.</td>
+<td class="px-6 py-4 text-sm text-slate-400">12 Oct 2023</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20">Envoyé</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-500">
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">content_copy</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">download</span></button>
+<button class="p-1.5 hover:text-red-400 transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="text-sm font-semibold text-slate-100">Offre Social Ads Octobre</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400 font-medium">Offre commerciale</td>
+<td class="px-6 py-4 text-sm text-slate-400">Luxe Design</td>
+<td class="px-6 py-4 text-sm text-slate-400">10 Oct 2023</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-amber-500/10 text-amber-400 border border-amber-500/20">En cours</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-500">
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">content_copy</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">download</span></button>
+<button class="p-1.5 hover:text-red-400 transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="text-sm font-semibold text-slate-100">Rapport SEO - Septembre</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400 font-medium">Rapport client</td>
+<td class="px-6 py-4 text-sm text-slate-400">Ecom Store</td>
+<td class="px-6 py-4 text-sm text-slate-400">01 Oct 2023</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Finalisé</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-500">
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">content_copy</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">download</span></button>
+<button class="p-1.5 hover:text-red-400 transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">description</span>
+<span class="text-sm font-semibold text-slate-100">Draft - Marketing Mix V2</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-400 font-medium">Présentation</td>
+<td class="px-6 py-4 text-sm text-slate-400">Interne</td>
+<td class="px-6 py-4 text-sm text-slate-400">28 Sep 2023</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-slate-500/10 text-slate-400 border border-slate-500/20">Brouillon</span>
+</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-500">
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">open_in_new</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">content_copy</span></button>
+<button class="p-1.5 hover:text-white transition-colors"><span class="material-symbols-outlined text-lg">download</span></button>
+<button class="p-1.5 hover:text-red-400 transition-colors"><span class="material-symbols-outlined text-lg">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Strategic Flow CTA Footer -->
+<div class="mt-12 text-center max-w-2xl mx-auto py-12">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase mb-4">
+<span class="material-symbols-outlined text-sm">auto_awesome</span>
+                        Optimisé par RAMI AI
+                    </div>
+<h2 class="font-display text-2xl font-bold text-slate-50 mb-4">Prêt à accélérer vos ventes ?</h2>
+<p class="text-slate-400 mb-8 leading-relaxed">Utilisez l'intelligence collective de RAMI pour rédiger des documents qui convertissent sans effort manuel.</p>
+<div class="flex items-center justify-center gap-4">
+<button class="px-8 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-xl shadow-primary/30 hover:scale-105 transition-transform">
+                            Lancer une offre
+                        </button>
+<button class="px-8 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-white/10 transition-colors">
+                            Voir les templates
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

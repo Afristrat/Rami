@@ -3,13 +3,14 @@
 /**
  * PrefillSectionButton — Feature 6
  *
- * Bouton "Pré-remplir avec IA" en haut de chaque section Brand DNA.
+ * Bouton t("prefillWithAi") en haut de chaque section Brand DNA.
  * - Appelle /api/brand-dna/ai-assist?action=prefill-section
  * - Remplit les champs progressivement (400ms entre chaque champ)
  * - Affiche un bouton "Annuler (Xs)" pendant 15 secondes pour revenir en arrière
  */
 
 import React, { useState, useEffect, useRef } from "react"
+import { useTranslations } from "next-intl"
 import { Wand2, Loader2, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -59,6 +60,8 @@ export function PrefillSectionButton({
   getValues,
   className,
 }: PrefillSectionButtonProps) {
+  const t = useTranslations("brandDna.prefill")
+  const tCommon = useTranslations("common")
   const [state, setState] = useState<PrefillState>("idle")
   const [countdown, setCountdown] = useState(ANNULER_DURATION_S)
   const [errorMsg, setErrorMsg] = useState("")
@@ -125,7 +128,7 @@ export function PrefillSectionButton({
       }
 
       if (!res.ok || !data.fields) {
-        setErrorMsg(data.error ?? "Erreur IA. Réessayez.")
+        setErrorMsg(data.error ?? t("aiError"))
         setState("idle")
         return
       }
@@ -154,7 +157,7 @@ export function PrefillSectionButton({
         }
       }
     } catch {
-      setErrorMsg("Impossible de contacter l'IA. Vérifiez votre connexion.")
+      setErrorMsg(t("connectionError"))
       setState("idle")
     }
   }
@@ -217,7 +220,7 @@ export function PrefillSectionButton({
         ) : (
           <Wand2 className="size-3" aria-hidden="true" />
         )}
-        {state === "loading" ? "Génération en cours…" : "Pré-remplir avec IA"}
+        {state === "loading" ? t("generating") : "Pré-remplir avec IA"}
       </Button>
 
       {errorMsg && (

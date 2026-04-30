@@ -1,41 +1,34 @@
-import { Mic } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { getTranslations } from 'next-intl/server'
+import { requireFeature } from '@/lib/billing/require-feature'
+import { getTranscriptionsAction } from '@/lib/actions/transcriptions.actions'
+import TranscriptionUploadZone from '@/components/transcriptions/TranscriptionUploadZone'
+import TranscriptionList from '@/components/transcriptions/TranscriptionList'
+import { TranscriptionsPageHeader } from './header'
 
-export const metadata = {
-  title: "Transcriptions — RAMI",
-  description: "Transcription de réunions et extraction de verbatims.",
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return {
+    title: t("transcriptions"),
+    description: t("transcriptionsDescription"),
+  }
 }
 
-export default function TranscriptionsPage() {
+export default async function TranscriptionsPage() {
+  // Feature flag : transcription disponible \u00e0 partir du plan Pro
+  await requireFeature('transcription')
+
+  const { transcriptions } = await getTranscriptionsAction()
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] gap-6 text-center px-4">
-      <div className="flex items-center justify-center size-20 rounded-2xl bg-white/[0.06] border border-white/[0.08]">
-        <Mic className="size-10 text-blue-400" />
-      </div>
+    <div className="w-full px-4 sm:px-6 py-6 space-y-8">
+      {/* Header */}
+      <TranscriptionsPageHeader />
 
-      <div className="flex flex-col items-center gap-2">
-        <div className="flex items-center gap-2">
-          <h1 className="text-3xl font-bold tracking-tight text-white">
-            Transcriptions
-          </h1>
-          <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-500/30">
-            Pro
-          </Badge>
-        </div>
-        <p className="text-4xl font-extrabold text-white/10 tracking-widest uppercase mt-1">
-          Coming Soon
-        </p>
-        <p className="text-white/50 max-w-sm mt-2">
-          Uploadez vos réunions audio ou vidéo et obtenez des transcriptions
-          précises avec extraction automatique des verbatims clients via Whisper.
-        </p>
-      </div>
+      {/* Upload zone */}
+      <TranscriptionUploadZone />
 
-      <Button className="bg-gradient-to-r from-violet-600 to-blue-600 hover:opacity-90 text-white font-semibold px-6">
-        <Link href="/pricing">Passer au plan Pro</Link>
-      </Button>
+      {/* Transcription list */}
+      <TranscriptionList transcriptions={transcriptions} />
     </div>
   )
 }

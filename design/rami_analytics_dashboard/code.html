@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7c3bed",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#0A0A0F",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .grid-bg {
+            background-image: linear-gradient(rgba(124, 59, 237, 0.02) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(124, 59, 237, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .blob {
+            filter: blur(120px);
+            opacity: 0.15;
+            position: absolute;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-background-dark font-display text-slate-100 min-h-screen relative overflow-x-hidden">
+<!-- Background Blobs -->
+<div class="blob w-[500px] h-[500px] bg-primary top-[-100px] left-[-100px] rounded-full"></div>
+<div class="blob w-[400px] h-[400px] bg-blue-600 bottom-[-50px] right-[-50px] rounded-full"></div>
+<div class="blob w-[300px] h-[300px] bg-indigo-500 top-[20%] right-[10%] rounded-full"></div>
+<div class="flex min-h-screen grid-bg">
+<!-- Left Sidebar (260px) -->
+<aside class="w-[260px] border-r border-white/10 bg-background-dark/50 backdrop-blur-md sticky top-0 h-screen flex flex-col p-6">
+<div class="flex items-center gap-3 mb-10">
+<div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined font-bold">bolt</span>
+</div>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-slate-100">RAMI</h1>
+<p class="text-[10px] text-primary font-semibold uppercase tracking-widest">Agency OS</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">add_box</span>
+<span class="text-sm font-medium">Create</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="text-sm font-medium">Calendar</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">auto_stories</span>
+<span class="text-sm font-medium">Library</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/5 border-l-2 border-primary text-slate-100 transition-colors" href="#">
+<span class="material-symbols-outlined text-primary">bar_chart</span>
+<span class="text-sm font-medium">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">share</span>
+<span class="text-sm font-medium">Connections</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:text-white transition-colors" href="#">
+<span class="material-symbols-outlined">fingerprint</span>
+<span class="text-sm font-medium">Brand DNA</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-white/5">
+<div class="flex items-center gap-3 p-2 rounded-lg bg-white/5">
+<div class="size-8 rounded-full bg-slate-800 bg-cover bg-center" data-alt="User avatar profile picture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA6L18DpVGLTm8qeLCQF-S9ue_ELckiVcNfcIouo3P0OIpj1ZE3caM6tO7XnX1LYgnbsfk6d7Ew-mwCrwxv-aKYMBW25u3V93kDf14pGMH243O9r1asrtPWjBn6uZSloOo9bNuHcG5lAJ_RZHmdl4OnfZhE2jEZiznzVDTWykTOy74-4lwFwRjH0NMOb2wFv1R_z8PhCSubjScG9S3J35Ri55DdskXhZM0tDrCHQfuOXp0HnC05oXMfREcoPuM6x-LbXHhuXohURVAK')"></div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-semibold text-slate-100 truncate">Studio Creative</p>
+<p class="text-[10px] text-slate-500 truncate">Plan Enterprise</p>
+</div>
+<span class="material-symbols-outlined text-slate-500 text-sm">settings</span>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col min-w-0">
+<!-- Top Bar -->
+<header class="h-20 border-b border-white/5 flex items-center justify-between px-8 bg-background-dark/30 backdrop-blur-sm sticky top-0 z-10">
+<div class="flex items-center gap-2 text-sm">
+<span class="text-slate-500">Analytics</span>
+<span class="text-slate-600">/</span>
+<span class="text-slate-100 font-medium">Performance</span>
+</div>
+<div class="flex items-center gap-4">
+<!-- Filters -->
+<div class="flex items-center gap-2 bg-white/5 p-1 rounded-xl border border-white/10">
+<button class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-white">All</button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-colors">LinkedIn</button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-colors">Instagram</button>
+<button class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-colors">X</button>
+</div>
+<div class="h-8 w-px bg-white/10 mx-2"></div>
+<button class="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-sm">calendar_month</span>
+                        7 derniers jours
+                    </button>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-xl text-sm font-bold tracking-wide flex items-center gap-2 transition-all">
+<span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                        Export PDF
+                    </button>
+</div>
+</header>
+<div class="p-8 space-y-8 max-w-[1400px] mx-auto w-full">
+<!-- Row 1: KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all group">
+<p class="text-xs font-medium text-slate-400 mb-2">Impressions totales</p>
+<div class="flex items-end justify-between">
+<div>
+<h3 class="text-2xl font-bold text-slate-100">124,500</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs text-emerald-400">trending_up</span>
+<span class="text-xs text-emerald-400 font-semibold">+18%</span>
+</div>
+</div>
+<div class="w-16 h-8 bg-primary/20 rounded relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/30 to-transparent"></div>
+<svg class="absolute bottom-0 w-full" height="20" viewbox="0 0 100 20">
+<path d="M0 20 Q 25 5, 50 15 T 100 5" fill="none" stroke="#7c3bed" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+</div>
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all">
+<p class="text-xs font-medium text-slate-400 mb-2">Engagement total</p>
+<h3 class="text-2xl font-bold text-slate-100">3,240</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs text-emerald-400">trending_up</span>
+<span class="text-xs text-emerald-400 font-semibold">+7%</span>
+</div>
+</div>
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all">
+<p class="text-xs font-medium text-slate-400 mb-2">Taux d'engagement</p>
+<h3 class="text-2xl font-bold text-slate-100">2.6%</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-xs text-slate-500">Moyenne secteur: 1.8%</span>
+</div>
+</div>
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all">
+<p class="text-xs font-medium text-slate-400 mb-2">Clics liens</p>
+<h3 class="text-2xl font-bold text-slate-100">890</h3>
+<div class="flex items-center gap-1 mt-1">
+<span class="text-xs text-slate-500">Conversion: 0.71%</span>
+</div>
+</div>
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-slate-800 bg-cover bg-center shrink-0" data-alt="Top performing post thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBsEgzW56kL65f0UUtNIxDE_zctrPIAEkoeFRva45Zd57EvAXxFbJsKhcXunv3AE1CPc5fHrusy2k5M3GHFaBFEms5biU4QIK7OopBXt82yZtU4LDDNGsOI0XDX5GcuAuCbAoZow4x8o2rZQngvTUtqdrK9a7CioFd8i4IZo9k5kAE5DCyrLt75M2x6pqbXrWkaT0XOznGLr2j3iaNxKuqzR1swVIB6r-KRO6HXuniZsW4kEGs1mfuZCDoh2jmrVMsscm5_Fdrrpwcf')"></div>
+<div class="min-w-0">
+<p class="text-[10px] font-bold text-primary uppercase">Meilleur post</p>
+<div class="flex items-center gap-1 my-0.5">
+<svg class="size-3 text-blue-500" fill="currentColor" viewbox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>
+<span class="text-[10px] text-slate-400">LinkedIn</span>
+</div>
+<p class="text-xs font-bold text-slate-100">3.2K impr.</p>
+</div>
+</div>
+</div>
+<!-- Row 2: Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
+<div class="lg:col-span-6 bg-white/[0.04] border border-white/10 rounded-xl p-6 relative overflow-hidden">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h4 class="text-base font-bold text-slate-100">Impressions &amp; Engagement</h4>
+<p class="text-xs text-slate-500">Vue d'ensemble hebdomadaire</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<div class="size-2 rounded-full bg-primary"></div>
+<span class="text-[10px] text-slate-400">Impressions</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="size-2 rounded-full bg-blue-400"></div>
+<span class="text-[10px] text-slate-400">Engagement</span>
+</div>
+</div>
+</div>
+<div class="h-64 flex flex-col justify-end relative">
+<!-- Placeholder for chart visualization -->
+<div class="absolute inset-0 flex items-end justify-between px-4 pb-8">
+<div class="w-12 h-[40%] bg-gradient-to-t from-primary/20 to-primary/5 border-t border-primary/50 rounded-t flex flex-col items-center justify-start pt-2">
+<span class="text-[8px] font-bold">12K</span>
+</div>
+<div class="w-12 h-[60%] bg-gradient-to-t from-primary/20 to-primary/5 border-t border-primary/50 rounded-t flex flex-col items-center justify-start pt-2">
+<span class="text-[8px] font-bold">18K</span>
+</div>
+<div class="w-12 h-[55%] bg-gradient-to-t from-primary/20 to-primary/5 border-t border-primary/50 rounded-t flex flex-col items-center justify-start pt-2">
+<span class="text-[8px] font-bold">15K</span>
+</div>
+<div class="w-12 h-[85%] bg-gradient-to-t from-primary/20 to-primary/5 border-t border-primary/50 rounded-t flex flex-col items-center justify-start pt-2">
+<span class="text-[8px] font-bold">24K</span>
+</div>
+<div class="w-12 h-[70%] bg-gradient-to-t from-primary/20 to-primary/5 border-t border-primary/50 rounded-t flex flex-col items-center justify-start pt-2">
+<span class="text-[8px] font-bold">19K</span>
+</div>
+<div class="w-12 h-[90%] bg-gradient-to-t from-primary/20 to-primary/5 border-t border-primary/50 rounded-t flex flex-col items-center justify-start pt-2">
+<span class="text-[8px] font-bold">28K</span>
+</div>
+<div class="w-12 h-[45%] bg-gradient-to-t from-primary/20 to-primary/5 border-t border-primary/50 rounded-t flex flex-col items-center justify-start pt-2">
+<span class="text-[8px] font-bold">14K</span>
+</div>
+</div>
+<svg class="absolute inset-0 w-full h-full" viewbox="0 0 600 256">
+<polyline fill="none" points="20,180 100,120 180,140 260,60 340,90 420,40 500,160" stroke="#60a5fa" stroke-width="2"></polyline>
+<circle cx="260" cy="60" fill="#60a5fa" r="4"></circle>
+<text fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" x="260" y="50">M10</text>
+<circle cx="420" cy="40" fill="#60a5fa" r="4"></circle>
+<text fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" x="420" y="30">KB3</text>
+</svg>
+<div class="flex justify-between px-4 mt-2 text-[10px] text-slate-600 font-medium">
+<span>Lun</span><span>Mar</span><span>Mer</span><span>Jeu</span><span>Ven</span><span>Sam</span><span>Dim</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 bg-white/[0.04] border border-white/10 rounded-xl p-6 flex flex-col">
+<h4 class="text-base font-bold text-slate-100 mb-6">Répartition par plateforme</h4>
+<div class="flex-1 flex items-center justify-center relative">
+<!-- Donut Chart Placeholder -->
+<div class="relative size-48 rounded-full border-[16px] border-slate-800 flex items-center justify-center">
+<div class="absolute inset-0 rounded-full border-[16px] border-blue-600" style="clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%)"></div>
+<div class="absolute inset-0 rounded-full border-[16px] border-indigo-400" style="clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%)"></div>
+<div class="absolute inset-0 rounded-full border-[16px] border-pink-500" style="clip-path: polygon(50% 50%, 50% 100%, 0% 100%, 0% 50%)"></div>
+<div class="text-center">
+<p class="text-2xl font-bold text-slate-100">124.5K</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Total</p>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 mt-6">
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-blue-600"></div>
+<span class="text-xs text-slate-400">LinkedIn (45%)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-indigo-400"></div>
+<span class="text-xs text-slate-400">X (25%)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-pink-500"></div>
+<span class="text-xs text-slate-400">Instagram (20%)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-2 rounded-full bg-slate-700"></div>
+<span class="text-xs text-slate-400">Autres (10%)</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Row 3: Performance Table -->
+<div class="bg-white/[0.04] border border-white/10 rounded-xl overflow-hidden">
+<div class="p-6 border-b border-white/5 flex items-center justify-between">
+<h4 class="text-base font-bold text-slate-100">Performance des posts</h4>
+<div class="flex gap-2">
+<button class="size-8 rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/5"><span class="material-symbols-outlined text-sm">filter_list</span></button>
+<button class="size-8 rounded-lg border border-white/10 flex items-center justify-center hover:bg-white/5"><span class="material-symbols-outlined text-sm">search</span></button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-white/[0.02] text-slate-500 text-[10px] uppercase tracking-wider font-bold">
+<tr>
+<th class="px-6 py-4">Post</th>
+<th class="px-6 py-4 text-center">Platform</th>
+<th class="px-6 py-4">Date</th>
+<th class="px-6 py-4">Impressions</th>
+<th class="px-6 py-4">Engagement</th>
+<th class="px-6 py-4">Taux</th>
+<th class="px-6 py-4">DNA Score</th>
+<th class="px-6 py-4"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="hover:bg-white/[0.02] transition-colors cursor-pointer group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-slate-800 bg-cover bg-center shrink-0" data-alt="Post preview thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCszUiFei1Oj-YTDu0-QWSmSb9O8qAYUQ85nx-yiBbqiN7f7Ehin8O6N2QEJarbMCjLvYnv8JTMeR_bCqvU-fplEPDbjeyDg4Vwo4xaBVzi0wE8vFV7tLWRHwCbt_4oYxzPLkPCh5SiKCQTgIpOe4xioatAaMQRNtO6Bo2CekaSSS15YBwRhjoE04SMGO8shjzF459JPYVxLd9UAAsxPIlZH3mtQBixaB2Eg2qmDmDlbFiGb-MlKwvdNFlogNOVLL9Ei0kHZtuSDHUo')"></div>
+<p class="text-xs font-medium text-slate-200 line-clamp-1 max-w-[200px]">L'avenir de l'IA générative dans le marketing B2B...</p>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex size-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-500 text-xs">
+<svg class="size-3" fill="currentColor" viewbox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"></path></svg>
+</span>
+</td>
+<td class="px-6 py-4 text-xs text-slate-400">12 Mai, 2024</td>
+<td class="px-6 py-4 text-xs font-bold text-slate-200">12,450</td>
+<td class="px-6 py-4 text-xs font-bold text-slate-200">432</td>
+<td class="px-6 py-4 text-xs text-emerald-400 font-bold">3.47%</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-12 h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="w-[85%] h-full bg-primary"></div>
+</div>
+<span class="text-[10px] font-bold text-primary">85</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-slate-600 group-hover:text-slate-100 transition-colors">more_vert</span>
+</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors cursor-pointer group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded bg-slate-800 bg-cover bg-center shrink-0" data-alt="Post preview thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCHDyI2rakossx-RsLZ5G0pGiALSPqK12f7gkDQQoDgzjgfOmDYLCmr19pRUNjEAqbIaHSoB2DbFo76OEQEc6_2MB1WiKs5lMIm6VGlEro0riQEoXH-P2HTnkmiQxQjy0GDdaAb6wuOKmswZ47GY5mr-BbCtrAXw1A8U9Wtj2maoqoVWHtHdmxM-iANQ5xeAGgsH0q0UT8Ol7BoJJ1XkFCWIICe8ajAZigrjSaIyLfQVEkDf998Yb2-PDGgqyIU_pyuY8fMvR1du8Hy')"></div>
+<p class="text-xs font-medium text-slate-200 line-clamp-1 max-w-[200px]">3 outils indispensables pour votre workflow créatif</p>
+</div>
+</td>
+<td class="px-6 py-4 text-center">
+<span class="inline-flex size-6 items-center justify-center rounded-full bg-pink-500/20 text-pink-500 text-xs font-bold">IG</span>
+</td>
+<td class="px-6 py-4 text-xs text-slate-400">10 Mai, 2024</td>
+<td class="px-6 py-4 text-xs font-bold text-slate-200">8,920</td>
+<td class="px-6 py-4 text-xs font-bold text-slate-200">215</td>
+<td class="px-6 py-4 text-xs text-emerald-400 font-bold">2.41%</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-12 h-1 bg-slate-800 rounded-full overflow-hidden">
+<div class="w-[72%] h-full bg-primary"></div>
+</div>
+<span class="text-[10px] font-bold text-primary">72</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="material-symbols-outlined text-slate-600 group-hover:text-slate-100 transition-colors">more_vert</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Row 4: Recommandations IA -->
+<div class="space-y-4">
+<div class="flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary">auto_awesome</span>
+<h4 class="text-base font-bold text-slate-100">Recommandations IA</h4>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-6 relative group overflow-hidden">
+<div class="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-4xl">lightbulb</span>
+</div>
+<div class="flex items-start gap-4 mb-6">
+<div class="size-10 rounded-lg bg-primary/20 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div class="pr-8">
+<p class="text-sm font-semibold text-slate-100 leading-snug">Vos posts LinkedIn ont 40% plus d'engagement le mardi matin</p>
+</div>
+</div>
+<button class="w-full bg-primary text-white text-xs font-bold py-2.5 rounded-lg hover:bg-primary/90 transition-all">Planifier pour mardi</button>
+</div>
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-6 relative group overflow-hidden">
+<div class="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-blue-400 text-4xl">palette</span>
+</div>
+<div class="flex items-start gap-4 mb-6">
+<div class="size-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+<span class="material-symbols-outlined">colors</span>
+</div>
+<div class="pr-8">
+<p class="text-sm font-semibold text-slate-100 leading-snug">Les visuels avec palette bleue ont un score DNA 15% supérieur</p>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors" href="#">
+                                Voir la palette <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</a>
+</div>
+<div class="bg-white/[0.04] border border-white/10 rounded-xl p-6 relative group overflow-hidden">
+<div class="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-emerald-400 text-4xl">view_carousel</span>
+</div>
+<div class="flex items-start gap-4 mb-6">
+<div class="size-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+<span class="material-symbols-outlined">collections</span>
+</div>
+<div class="pr-8">
+<p class="text-sm font-semibold text-slate-100 leading-snug">Le format carrousel génère 2.3x plus de partages sur Instagram</p>
+</div>
+</div>
+<button class="w-full border border-emerald-500/50 text-emerald-400 text-xs font-bold py-2.5 rounded-lg hover:bg-emerald-500/10 transition-all">Créer un carrousel</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer-ish padding -->
+<div class="h-20"></div>
+</main>
+</div>
+</body></html>

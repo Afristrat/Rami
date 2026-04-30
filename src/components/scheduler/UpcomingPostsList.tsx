@@ -1,9 +1,12 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { Clock, Trash2, CalendarPlus } from "lucide-react"
 import { toast } from "sonner"
 import { useTransition } from "react"
 import { cn } from "@/lib/utils"
+import { useIntlLocale } from "@/lib/utils/format-locale"
 import { PlatformBadge, PlatformDot } from "./PlatformBadge"
 import { deletePost } from "@/app/actions/scheduler"
 import type { ScheduledPost } from "@/lib/scheduler/types"
@@ -15,6 +18,7 @@ interface UpcomingPostsListProps {
 }
 
 export function UpcomingPostsList({ posts, onDeleted }: UpcomingPostsListProps) {
+  const _t = useTranslations("calendar")
   if (posts.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">
@@ -54,18 +58,20 @@ function UpcomingPostItem({
   post: ScheduledPost
   onDeleted?: (postId: string) => void
 }) {
+  const t = useTranslations("calendar")
+  const intlLocale = useIntlLocale()
   const [isPending, startTransition] = useTransition()
 
   const scheduledDate = post.scheduled_at ? new Date(post.scheduled_at) : null
   const formattedDate = scheduledDate
-    ? scheduledDate.toLocaleDateString("fr-FR", {
+    ? scheduledDate.toLocaleDateString(intlLocale, {
         weekday: "short",
         day: "numeric",
         month: "short",
       })
     : null
   const formattedTime = scheduledDate
-    ? scheduledDate.toLocaleTimeString("fr-FR", {
+    ? scheduledDate.toLocaleTimeString(intlLocale, {
         hour: "2-digit",
         minute: "2-digit",
       })
@@ -75,7 +81,7 @@ function UpcomingPostItem({
     startTransition(async () => {
       const result = await deletePost(post.id)
       if (result.success) {
-        toast.success("Post supprimé")
+        toast.success(t("postDeleted"))
         onDeleted?.(post.id)
       } else {
         toast.error(result.error)
@@ -157,7 +163,7 @@ function UpcomingPostItem({
             "opacity-0 group-hover:opacity-100",
             "hover:bg-destructive/10 hover:text-destructive"
           )}
-          title="Supprimer"
+          title={t("postDeleted")}
         >
           <Trash2 className="size-3.5" />
         </button>

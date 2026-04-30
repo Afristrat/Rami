@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Zap, X, Check, Loader2 } from 'lucide-react'
 import { createCheckoutSessionAction } from '@/lib/billing/actions'
 import { PLANS, getPlanConfig, getNextPlan } from '@/lib/billing/plans'
@@ -22,6 +23,8 @@ export function UpgradeModal({
   onClose,
 }: UpgradeModalProps) {
   const router = useRouter()
+  const t = useTranslations('pricing')
+  const tb = useTranslations('billing')
   const [selectedPlan, setSelectedPlan] = useState<Plan>(
     getNextPlan(currentPlan) ?? 'pro'
   )
@@ -65,12 +68,12 @@ export function UpgradeModal({
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-2xl rounded-2xl border border-white/[0.10] bg-[#0A0A0F] p-6 shadow-2xl">
+      <div className="relative z-10 w-full max-w-2xl rounded-2xl border border-border bg-background p-6 shadow-2xl">
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-white/40 transition hover:bg-white/[0.06] hover:text-white"
-          aria-label="Fermer"
+          className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          aria-label={t('close')}
         >
           <X className="h-4 w-4" />
         </button>
@@ -81,13 +84,13 @@ export function UpgradeModal({
             <Zap className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h2 id="upgrade-modal-title" className="text-xl font-semibold text-white">
-              Passez à la vitesse supérieure
+            <h2 id="upgrade-modal-title" className="text-xl font-semibold text-foreground">
+              {t('upgradeTitle')}
             </h2>
-            <p className="mt-1 text-sm text-white/60">
-              {reason ?? `Votre plan ${currentConfig.name} a atteint ses limites.`}
+            <p className="mt-1 text-sm text-muted-foreground">
+              {reason ?? t('planLimitReached', { plan: currentConfig.name })}
               {blockedFeature && (
-                <> Débloquez <strong className="text-violet-400">{blockedFeature}</strong> avec un plan supérieur.</>
+                <> {t('unlockFeature', { feature: blockedFeature })}</>
               )}
             </p>
           </div>
@@ -103,24 +106,24 @@ export function UpgradeModal({
                 'relative rounded-xl border p-4 text-left transition-all',
                 selectedPlan === plan.id
                   ? 'border-violet-500 bg-violet-950/20'
-                  : 'border-white/[0.08] bg-white/[0.03] hover:border-white/[0.12]'
+                  : 'border-border bg-card hover:border-foreground/20'
               )}
             >
               {plan.popular && (
                 <span className="absolute right-3 top-3 rounded-full bg-violet-600/30 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-300">
-                  Populaire
+                  {t('popular')}
                 </span>
               )}
 
               <div className="flex items-baseline gap-1">
-                <span className="text-xl font-bold text-white">{plan.priceLabel}</span>
-                <span className="text-xs text-white/40">/mois</span>
+                <span className="text-xl font-bold text-foreground">{plan.priceLabel}</span>
+                <span className="text-xs text-muted-foreground">{t('perMonth')}</span>
               </div>
-              <p className="mt-0.5 font-medium text-white">{plan.name}</p>
+              <p className="mt-0.5 font-medium text-foreground">{plan.name}</p>
 
               <ul className="mt-3 space-y-1.5">
                 {plan.highlights.slice(0, 3).map(h => (
-                  <li key={h} className="flex items-center gap-2 text-xs text-white/70">
+                  <li key={h} className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Check className="h-3 w-3 shrink-0 text-violet-400" />
                     {h}
                   </li>
@@ -147,9 +150,9 @@ export function UpgradeModal({
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             onClick={onClose}
-            className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/[0.07]"
+            className="rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-medium text-muted-foreground transition hover:bg-muted"
           >
-            Plus tard
+            {t('later')}
           </button>
           <button
             onClick={handleUpgrade}
@@ -159,12 +162,12 @@ export function UpgradeModal({
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Redirection…
+                {t('redirecting')}
               </>
             ) : (
               <>
                 <Zap className="h-4 w-4" />
-                Passer au plan {getPlanConfig(selectedPlan).name}
+                {t('switchToPlan', { plan: getPlanConfig(selectedPlan).name })}
               </>
             )}
           </button>

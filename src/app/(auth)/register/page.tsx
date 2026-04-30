@@ -4,42 +4,83 @@ import { useState } from "react"
 import Link from "next/link"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Eye, EyeOff, Loader2, ArrowRight, CheckCircle2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, CheckCircle2, ArrowRight } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 import { registerSchema, type RegisterFormData } from "@/lib/schemas/auth.schema"
 import { registerAction } from "@/lib/actions/auth.actions"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   AuthCard,
+  AuthHeader,
   RamiLogo,
   FormAlert,
   FieldError,
 } from "@/components/auth/auth-card"
+import { cn } from "@/lib/utils"
 
-function PasswordStrengthIndicator({ password }: { password: string }) {
+/* ─── Password strength indicator ─── */
+
+function PasswordStrengthBar({ password }: { password: string }) {
+  const length = password.length
+  let widthClass = "w-0"
+  let colorClass = ""
+
+  if (length >= 10) {
+    widthClass = "w-full"
+    colorClass = "bg-emerald-500"
+  } else if (length >= 5) {
+    widthClass = "w-2/3"
+    colorClass = "bg-amber-500"
+  } else if (length > 0) {
+    widthClass = "w-1/3"
+    colorClass = "bg-red-500"
+  }
+
+  if (!password) return null
+
+  return (
+    <div className="h-1.5 w-full bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden mt-3">
+      <div
+        className={cn(
+          "h-full rounded-full transition-all duration-300 ease-in-out",
+          widthClass,
+          colorClass
+        )}
+      />
+    </div>
+  )
+}
+
+function PasswordChecklist({ password }: { password: string }) {
+  const t = useTranslations("auth.register")
   const checks = [
-    { label: "8 caractères minimum", ok: password.length >= 8 },
-    { label: "Une majuscule", ok: /[A-Z]/.test(password) },
-    { label: "Un chiffre", ok: /[0-9]/.test(password) },
+    { label: t("passwordMinLength"), ok: password.length >= 8 },
+    { label: t("passwordSpecialChar"), ok: /[^A-Za-z0-9]/.test(password) },
   ]
 
   if (!password) return null
 
   return (
-    <div className="mt-2 space-y-1">
+    <div className="space-y-2 pt-1">
       {checks.map((check) => (
-        <div key={check.label} className="flex items-center gap-1.5">
+        <div key={check.label} className="flex items-center gap-2">
           <CheckCircle2
-            className={`h-3 w-3 flex-shrink-0 transition-colors ${
-              check.ok ? "text-emerald-400" : "text-white/20"
-            }`}
+            className={cn(
+              "h-3.5 w-3.5 flex-shrink-0 transition-colors",
+              check.ok
+                ? "text-emerald-500 dark:text-emerald-400"
+                : "text-gray-300 dark:text-gray-500"
+            )}
           />
           <span
-            className={`text-[11px] transition-colors ${
-              check.ok ? "text-emerald-400" : "text-white/30"
-            }`}
+            className={cn(
+              "text-xs transition-colors",
+              check.ok
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-gray-400 dark:text-gray-500"
+            )}
           >
             {check.label}
           </span>
@@ -49,11 +90,15 @@ function PasswordStrengthIndicator({ password }: { password: string }) {
   )
 }
 
+/* ─── Register Page ─── */
+
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const t = useTranslations("auth.register")
+  const tLogin = useTranslations("auth.login")
 
   const {
     register,
@@ -81,6 +126,7 @@ export default function RegisterPage() {
     }
   }
 
+  /* ── Success state ── */
   if (success) {
     return (
       <AuthCard>
@@ -88,18 +134,20 @@ export default function RegisterPage() {
         <div className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="rounded-full bg-emerald-500/10 p-4 border border-emerald-500/20">
-              <CheckCircle2 className="h-10 w-10 text-emerald-400" />
+              <CheckCircle2 className="h-10 w-10 text-emerald-500 dark:text-emerald-400" />
             </div>
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">Email envoyé !</h2>
-            <p className="text-sm text-white/40 mt-2">{success}</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              {t("emailSent")}
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-white/40 mt-2">{success}</p>
           </div>
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 text-sm text-violet-400 hover:text-violet-300 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-[#7c3bed] hover:text-[#7c3bed]/80 transition-colors"
           >
-            Retour à la connexion
+            {t("backToLogin")}
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -107,151 +155,173 @@ export default function RegisterPage() {
     )
   }
 
+  /* ── Registration form ── */
   return (
     <AuthCard>
-      <RamiLogo />
+      <AuthHeader
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
 
-      <div className="mb-6 text-center">
-        <h1 className="text-xl font-semibold text-white">Créer un compte</h1>
-        <p className="text-sm text-white/40 mt-1">
-          Commencez votre essai gratuit RAMI
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         {serverError && <FormAlert type="error" message={serverError} />}
 
+        {/* Full name */}
         <div className="space-y-1.5">
-          <Label htmlFor="fullName" className="text-white/70">
-            Nom complet
+          <Label
+            htmlFor="fullName"
+            className="text-sm font-medium ml-1 text-gray-700 dark:text-gray-300"
+          >
+            {t("fullName")}
           </Label>
           <Input
             id="fullName"
             type="text"
-            placeholder="Sarah Benaissa"
+            placeholder={t("fullNamePlaceholder")}
             autoComplete="name"
-            className="bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/25 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50"
+            className="h-12 rounded-xl px-4 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus-visible:border-[#7c3bed]/50 focus-visible:ring-[#7c3bed]/20 dark:bg-white/[0.06] dark:border-white/[0.08] dark:text-white dark:placeholder:text-gray-500 dark:focus-visible:border-[#7c3bed]/50 dark:focus-visible:ring-[#7c3bed]/20"
             aria-invalid={!!errors.fullName}
             {...register("fullName")}
           />
           <FieldError message={errors.fullName?.message} />
         </div>
 
+        {/* Email */}
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-white/70">
-            Email professionnel
+          <Label
+            htmlFor="email"
+            className="text-sm font-medium ml-1 text-gray-700 dark:text-gray-300"
+          >
+            {t("professionalEmail")}
           </Label>
           <Input
             id="email"
             type="email"
-            placeholder="vous@agence.com"
+            placeholder={t("emailPlaceholder")}
             autoComplete="email"
-            className="bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/25 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50"
+            className="h-12 rounded-xl px-4 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus-visible:border-[#7c3bed]/50 focus-visible:ring-[#7c3bed]/20 dark:bg-white/[0.06] dark:border-white/[0.08] dark:text-white dark:placeholder:text-gray-500 dark:focus-visible:border-[#7c3bed]/50 dark:focus-visible:ring-[#7c3bed]/20"
             aria-invalid={!!errors.email}
             {...register("email")}
           />
           <FieldError message={errors.email?.message} />
         </div>
 
-        <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-white/70">
-            Mot de passe
+        {/* Password */}
+        <div className="space-y-2">
+          <Label
+            htmlFor="password"
+            className="text-sm font-medium ml-1 text-gray-700 dark:text-gray-300"
+          >
+            {t("password")}
           </Label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
+              placeholder={t("passwordPlaceholder")}
               autoComplete="new-password"
-              className="bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/25 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 pr-10"
+              className="h-12 rounded-xl px-4 pr-12 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus-visible:border-[#7c3bed]/50 focus-visible:ring-[#7c3bed]/20 dark:bg-white/[0.06] dark:border-white/[0.08] dark:text-white dark:placeholder:text-gray-500 dark:focus-visible:border-[#7c3bed]/50 dark:focus-visible:ring-[#7c3bed]/20"
               aria-invalid={!!errors.password}
               {...register("password")}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+              className="absolute right-4 text-gray-400 hover:text-gray-600 dark:text-white/40 dark:hover:text-white/70 transition-colors"
               tabIndex={-1}
-              aria-label={showPassword ? "Masquer" : "Afficher"}
+              aria-label={showPassword ? tLogin("hidePassword") : tLogin("showPassword")}
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4" />
+                <EyeOff className="h-5 w-5" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <Eye className="h-5 w-5" />
               )}
             </button>
           </div>
-          <PasswordStrengthIndicator password={passwordValue} />
+          <PasswordStrengthBar password={passwordValue} />
           <FieldError message={errors.password?.message} />
         </div>
 
+        {/* Confirm password */}
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-white/70">
-            Confirmer le mot de passe
+          <Label
+            htmlFor="confirmPassword"
+            className="text-sm font-medium ml-1 text-gray-700 dark:text-gray-300"
+          >
+            {t("confirmPassword")}
           </Label>
-          <div className="relative">
+          <div className="relative flex items-center">
             <Input
               id="confirmPassword"
               type={showConfirm ? "text" : "password"}
-              placeholder="••••••••"
+              placeholder={t("passwordPlaceholder")}
               autoComplete="new-password"
-              className="bg-white/[0.06] border-white/[0.08] text-white placeholder:text-white/25 focus-visible:ring-violet-500/50 focus-visible:border-violet-500/50 pr-10"
+              className="h-12 rounded-xl px-4 pr-12 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus-visible:border-[#7c3bed]/50 focus-visible:ring-[#7c3bed]/20 dark:bg-white/[0.06] dark:border-white/[0.08] dark:text-white dark:placeholder:text-gray-500 dark:focus-visible:border-[#7c3bed]/50 dark:focus-visible:ring-[#7c3bed]/20"
               aria-invalid={!!errors.confirmPassword}
               {...register("confirmPassword")}
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+              className="absolute right-4 text-gray-400 hover:text-gray-600 dark:text-white/40 dark:hover:text-white/70 transition-colors"
               tabIndex={-1}
-              aria-label={showConfirm ? "Masquer" : "Afficher"}
+              aria-label={showConfirm ? tLogin("hidePassword") : tLogin("showPassword")}
             >
               {showConfirm ? (
-                <EyeOff className="h-4 w-4" />
+                <EyeOff className="h-5 w-5" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <Eye className="h-5 w-5" />
               )}
             </button>
           </div>
           <FieldError message={errors.confirmPassword?.message} />
         </div>
 
-        <Button
+        {/* Password checklist */}
+        <PasswordChecklist password={passwordValue} />
+
+        {/* Submit */}
+        <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-10 mt-2 bg-gradient-to-r from-violet-600 to-blue-600 text-white font-medium hover:from-violet-500 hover:to-blue-500 transition-all shadow-lg shadow-violet-500/20 border-0"
+          className="rami-btn-gradient w-full rounded-xl py-3.5 text-base font-semibold text-white shadow-xl shadow-[#7c3bed]/20 mt-4 disabled:opacity-50 disabled:pointer-events-none"
         >
           {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin mx-auto" />
           ) : (
-            <>
-              Créer mon compte
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </>
+            t("submit")
           )}
-        </Button>
-
-        <p className="text-[11px] text-white/20 text-center leading-relaxed">
-          En créant un compte, vous acceptez nos{" "}
-          <Link href="/legal/cgu" className="underline hover:text-white/40 transition-colors">
-            CGU
-          </Link>{" "}
-          et notre{" "}
-          <Link href="/legal/confidentialite" className="underline hover:text-white/40 transition-colors">
-            politique de confidentialité
-          </Link>
-          .
-        </p>
+        </button>
       </form>
 
-      <div className="mt-4 text-center">
-        <p className="text-sm text-white/30">
-          Déjà un compte ?{" "}
+      {/* Terms */}
+      <p className="text-xs text-center text-gray-400 dark:text-gray-500 mt-6 leading-relaxed">
+        {t("terms")}{" "}
+        <Link
+          href="/legal/cgu"
+          className="text-[#7c3bed] hover:underline"
+        >
+          {t("termsOfService")}
+        </Link>{" "}
+        {t("and")}{" "}
+        <Link
+          href="/legal/confidentialite"
+          className="text-[#7c3bed] hover:underline"
+        >
+          {t("privacyPolicy")}
+        </Link>
+        .
+      </p>
+
+      {/* Login redirect */}
+      <div className="mt-8 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {t("alreadyHaveAccount")}{" "}
           <Link
             href="/login"
-            className="text-violet-400 hover:text-violet-300 font-medium transition-colors"
+            className="text-[#7c3bed] font-semibold hover:underline ml-1"
           >
-            Se connecter
+            {t("signIn")}
           </Link>
         </p>
       </div>

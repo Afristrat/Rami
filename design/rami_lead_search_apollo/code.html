@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RAMI Apollo Integration - Lead Search</title>
+<!-- Inter Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'rami-black': '#0a0a0f',
+            'rami-sidebar': '#111118',
+            'rami-card': '#0e0e17',
+            'rami-indigo': '#6366f1',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          borderRadius: {
+            '2xl': '16px',
+            'xl': '12px',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-backgrounds">
+    body {
+      background-color: #0a0a0f;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+    
+    /* Subtle Grid Pattern Overlay */
+    .grid-bg {
+      background-image: linear-gradient(to right, #1a1a2e 1px, transparent 1px),
+                        linear-gradient(to bottom, #1a1a2e 1px, transparent 1px);
+      background-size: 40px 40px;
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -2;
+      opacity: 0.3;
+    }
+
+    /* Organic Gradient Blobs */
+    .blob-1 {
+      position: fixed;
+      top: -10%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+      z-index: -1;
+      filter: blur(80px);
+    }
+
+    .blob-2 {
+      position: fixed;
+      bottom: -10%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+      z-index: -1;
+      filter: blur(80px);
+    }
+
+    /* Custom scrollbar for sidebar and main area */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0a0a0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 10px;
+    }
+  </style>
+<style data-purpose="table-styles">
+    /* Alternating row backgrounds */
+    .lead-table tr:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+    .lead-table tr:hover {
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+    .status-check {
+      color: #10b981; /* Green-500 */
+    }
+    .status-dash {
+      color: #6b7280; /* Gray-500 */
+    }
+  </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+<div class="grid-bg"></div>
+<div class="blob-1"></div>
+<div class="blob-2"></div>
+<!-- BEGIN: MainHeader -->
+<header class="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-rami-black/80 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 bg-rami-indigo rounded-lg flex items-center justify-center">
+<span class="font-bold text-white text-lg">R</span>
+</div>
+<h1 class="text-lg font-semibold tracking-tight">RAMI Apollo Search</h1>
+</div>
+<!-- Credits Badge -->
+<div class="bg-gray-900/50 border border-white/10 px-4 py-2 rounded-full flex items-center gap-2 text-sm" data-purpose="credits-badge">
+<svg class="w-4 h-4 text-yellow-400 fill-current" viewbox="0 0 24 24">
+<path d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+</svg>
+<span class="font-medium">874 Crédits restants</span>
+</div>
+</header>
+<!-- END: MainHeader -->
+<div class="flex flex-1 overflow-hidden">
+<!-- BEGIN: SidebarFilter -->
+<aside class="w-[240px] bg-rami-sidebar border-r border-white/5 p-5 flex flex-col gap-8 overflow-y-auto">
+<!-- Search Filter Group -->
+<section>
+<label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-4">Job Titles</label>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 bg-rami-indigo/20 text-rami-indigo border border-rami-indigo/30 rounded-xl text-xs flex items-center gap-1">
+            CEO <button class="hover:text-white">×</button>
+</span>
+<span class="px-3 py-1.5 bg-rami-indigo/20 text-rami-indigo border border-rami-indigo/30 rounded-xl text-xs flex items-center gap-1">
+            CTO <button class="hover:text-white">×</button>
+</span>
+<button class="px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl text-xs text-gray-400 hover:bg-white/10">
+            + Add
+          </button>
+</div>
+</section>
+<!-- Industry Filter Group -->
+<section>
+<label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-4">Industries</label>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1.5 bg-rami-indigo/20 text-rami-indigo border border-rami-indigo/30 rounded-xl text-xs flex items-center gap-1">
+            SaaS <button class="hover:text-white">×</button>
+</span>
+<span class="px-3 py-1.5 bg-rami-indigo/20 text-rami-indigo border border-rami-indigo/30 rounded-xl text-xs flex items-center gap-1">
+            AI <button class="hover:text-white">×</button>
+</span>
+</div>
+</section>
+<!-- Location Filter Group -->
+<section>
+<label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-4">Location</label>
+<div class="relative">
+<input class="w-full bg-white/5 border-white/10 rounded-xl text-xs focus:ring-rami-indigo focus:border-rami-indigo placeholder:text-gray-600" placeholder="Search country..." type="text"/>
+</div>
+</section>
+<!-- Seniority Filter -->
+<section>
+<label class="text-[10px] font-bold text-gray-500 uppercase tracking-widest block mb-4">Seniority</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2 cursor-pointer">
+<input checked="" class="w-4 h-4 rounded border-white/10 bg-white/5 text-rami-indigo focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-xs text-gray-300">Executive</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded border-white/10 bg-white/5 text-rami-indigo focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-xs text-gray-300">Director</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded border-white/10 bg-white/5 text-rami-indigo focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<span class="text-xs text-gray-300">Manager</span>
+</label>
+</div>
+</section>
+</aside>
+<!-- END: SidebarFilter -->
+<!-- BEGIN: MainResultsArea -->
+<main class="flex-1 p-6 overflow-y-auto">
+<div class="bg-rami-card border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+<table class="w-full text-left lead-table border-collapse">
+<thead>
+<tr class="bg-white/5 text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+<th class="p-4 w-12 text-center">
+<input class="w-4 h-4 rounded border-white/10 bg-white/10 text-rami-indigo focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</th>
+<th class="p-4">Name &amp; Title</th>
+<th class="p-4">Company</th>
+<th class="p-4">Email Status</th>
+<th class="p-4">Social</th>
+<th class="p-4">Score</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Table Row 1 -->
+<tr class="border-b border-white/5">
+<td class="p-4 text-center">
+<input checked="" class="w-4 h-4 rounded border-white/10 bg-white/10 text-rami-indigo focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="font-semibold text-gray-100">Jean-Luc Picard</span>
+<span class="text-xs text-gray-500">Chief Executive Officer</span>
+</div>
+</td>
+<td class="p-4 font-medium text-gray-400">Enterprise SaaS Corp</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 status-check" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+<span class="text-xs">Verified</span>
+</div>
+</td>
+<td class="p-4">
+<a class="text-gray-400 hover:text-rami-indigo" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+</a>
+</td>
+<td class="p-4">
+<span class="px-2.5 py-1 bg-green-500/10 text-green-500 text-[10px] font-bold rounded-full border border-green-500/20">98% Match</span>
+</td>
+</tr>
+<!-- Table Row 2 -->
+<tr class="border-b border-white/5">
+<td class="p-4 text-center">
+<input checked="" class="w-4 h-4 rounded border-white/10 bg-white/10 text-rami-indigo focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="font-semibold text-gray-100">Amélie Durand</span>
+<span class="text-xs text-gray-500">Director of Marketing</span>
+</div>
+</td>
+<td class="p-4 font-medium text-gray-400">Lumino AI</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 status-dash" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M18 12H6" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+<span class="text-xs">Unverified</span>
+</div>
+</td>
+<td class="p-4">
+<a class="text-gray-400 hover:text-rami-indigo" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+</a>
+</td>
+<td class="p-4">
+<span class="px-2.5 py-1 bg-blue-500/10 text-blue-500 text-[10px] font-bold rounded-full border border-blue-500/20">82% Match</span>
+</td>
+</tr>
+<!-- Table Row 3 -->
+<tr class="border-b border-white/5">
+<td class="p-4 text-center">
+<input class="w-4 h-4 rounded border-white/10 bg-white/10 text-rami-indigo focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+</td>
+<td class="p-4">
+<div class="flex flex-col">
+<span class="font-semibold text-gray-100">David Smith</span>
+<span class="text-xs text-gray-500">Tech Lead</span>
+</div>
+</td>
+<td class="p-4 font-medium text-gray-400">Nebula Cloud Services</td>
+<td class="p-4">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 status-check" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+<span class="text-xs">Verified</span>
+</div>
+</td>
+<td class="p-4">
+<a class="text-gray-400 hover:text-rami-indigo" href="#">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+</a>
+</td>
+<td class="p-4">
+<span class="px-2.5 py-1 bg-yellow-500/10 text-yellow-500 text-[10px] font-bold rounded-full border border-yellow-500/20">65% Match</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</main>
+<!-- END: MainResultsArea -->
+</div>
+<!-- BEGIN: StickyBottomBar -->
+<footer class="fixed bottom-0 left-0 right-0 h-20 bg-rami-sidebar/95 backdrop-blur-xl border-t border-white/10 px-8 flex items-center justify-between z-[60] shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.5)]" data-purpose="import-bar">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-rami-indigo/10 rounded-xl flex items-center justify-center border border-rami-indigo/20">
+<svg class="w-5 h-5 text-rami-indigo" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<p class="font-semibold text-white">24 leads sélectionnés</p>
+<p class="text-xs text-gray-500">Prêt à être exporté vers votre CRM RAMI</p>
+</div>
+</div>
+<button class="bg-rami-indigo hover:bg-rami-indigo/90 text-white font-semibold py-3 px-8 rounded-xl shadow-lg shadow-rami-indigo/20 transition-all active:scale-95 flex items-center gap-2">
+      Importer la sélection
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</footer>
+<!-- END: StickyBottomBar -->
+</body></html>

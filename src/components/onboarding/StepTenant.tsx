@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { V } from "@/lib/utils/validation-messages"
+import { TranslatedFieldError } from "@/components/ui/field-error-i18n"
 import { Building2, CheckCircle2, XCircle, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -14,16 +16,16 @@ import { cn } from "@/lib/utils"
 const stepSchema = z.object({
   name: z
     .string()
-    .min(2, "Le nom doit contenir au moins 2 caractères")
-    .max(100, "Le nom ne peut pas dépasser 100 caractères")
+    .min(2, V.tenantNameMinLength)
+    .max(100, V.tenantNameMaxLength)
     .trim(),
   slug: z
     .string()
-    .min(2, "Le slug doit contenir au moins 2 caractères")
-    .max(63, "Le slug ne peut pas dépasser 63 caractères")
+    .min(2, V.slugMinLength)
+    .max(63, V.slugMaxLength)
     .regex(
       /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-      "Lettres minuscules, chiffres et tirets uniquement"
+      V.slugInvalidChars
     ),
 })
 
@@ -133,7 +135,7 @@ export function StepTenant({ defaultValues, onNext }: StepTenantProps) {
             {...register("name")}
           />
           {errors.name && (
-            <p className="text-xs text-destructive">{errors.name.message}</p>
+            <TranslatedFieldError message={errors.name.message} />
           )}
         </div>
 
@@ -176,7 +178,7 @@ export function StepTenant({ defaultValues, onNext }: StepTenantProps) {
             </div>
           </div>
           {errors.slug && (
-            <p className="text-xs text-destructive">{errors.slug.message}</p>
+            <TranslatedFieldError message={errors.slug.message} />
           )}
           {slugStatus === "available" && !errors.slug && (
             <p className="text-xs text-green-600">

@@ -21,6 +21,7 @@ import type { Job } from "pg-boss"
 import { decryptToken } from "@/lib/services/oauth/state"
 import { createServiceClient } from "@/lib/supabase/service"
 import { log } from "@/lib/utils/logger"
+import { captureServerEvent } from "@/lib/utils/posthog-server"
 
 // ── Worker principal ──────────────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ export async function startPublishWorker(): Promise<void> {
   const boss = await getBoss()
 
   if (!boss) {
-    console.warn("[publish-worker] Queue indisponible — worker non démarré")
+    log({ level: "warn", module: "publish-worker", action: "queue_unavailable", message: "Queue indisponible — worker non démarré" })
     return
   }
 
@@ -194,6 +195,20 @@ async function processPublishJob(
       },
     })
     .eq("id", postId)
+
+  // PostHog — post_published (ou post_failed)
+  captureServerEvent({
+    distinctId: tenantId,
+    event: finalStatus === "published" ? "post_published" : "post_failed",
+    properties: {
+      tenant_id: tenantId,
+      post_id: postId,
+      platforms,
+      platform_count: platforms.length,
+      success_count: allResults.filter((r) => r.status === "published").length,
+      failure_count: allResults.filter((r) => r.status === "failed").length,
+    },
+  })
 
   // 7. Si tout a échoué → throw pour déclencher le retry pg-boss
   if (finalStatus === "failed") {

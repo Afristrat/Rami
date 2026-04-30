@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { FileEdit, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { useTransition } from "react"
@@ -16,6 +18,7 @@ interface DraftPostsListProps {
 }
 
 export function DraftPostsList({ posts, onDeleted, onSelect }: DraftPostsListProps) {
+  const t = useTranslations("calendar")
   if (posts.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">
@@ -50,6 +53,7 @@ function DraftPostItem({
   onDeleted?: (postId: string) => void
   onSelect?: (post: ScheduledPost) => void
 }) {
+  const t = useTranslations("calendar")
   const [isPending, startTransition] = useTransition()
 
   function handleDelete(e: React.MouseEvent) {
@@ -57,7 +61,7 @@ function DraftPostItem({
     startTransition(async () => {
       const result = await deletePost(post.id)
       if (result.success) {
-        toast.success("Brouillon supprimé")
+        toast.success(t("draftDeleted"))
         onDeleted?.(post.id)
       } else {
         toast.error(result.error)
@@ -123,7 +127,7 @@ function DraftPostItem({
           "opacity-0 group-hover:opacity-100",
           "hover:bg-destructive/10 hover:text-destructive"
         )}
-        title="Supprimer ce brouillon"
+        title={t("draftDeleted")}
       >
         <Trash2 className="size-3.5" />
       </button>

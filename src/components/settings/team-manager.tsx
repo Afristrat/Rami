@@ -2,21 +2,20 @@
 
 import { useState, useTransition } from "react"
 import {
-  Users,
   UserPlus,
   Loader2,
-  Crown,
   CheckCircle2,
   AlertCircle,
-  Clock,
-  Trash2,
+  MoreVertical,
+  ShieldCheck,
+  Settings2,
+  Pencil,
+  Eye,
+  X,
+  Send,
 } from "lucide-react"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Select } from "@/components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -33,49 +32,87 @@ import {
   type TeamMember,
 } from "@/lib/actions/settings.actions"
 import { cn } from "@/lib/utils"
+import { useIntlLocale } from "@/lib/utils/format-locale"
 
 interface TeamManagerProps {
   initialMembers: TeamMember[]
   ownerEmail: string
 }
 
-const ROLE_LABELS: Record<TeamMember["role"], string> = {
-  admin: "Admin",
-  editor: "Éditeur",
-  viewer: "Lecteur",
-}
-
-const ROLE_DESCRIPTIONS: Record<TeamMember["role"], string> = {
-  admin: "Accès complet sauf facturation",
-  editor: "Créer et publier du contenu",
-  viewer: "Lecture seule",
-}
-
-function getInitials(email: string) {
-  return email.slice(0, 2).toUpperCase()
-}
-
-function StatusBadge({ status }: { status: TeamMember["status"] }) {
-  if (status === "accepted") {
-    return (
-      <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-0 text-xs">
-        Actif
-      </Badge>
-    )
-  }
-  return (
-    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-0 text-xs">
-      <Clock className="size-3 mr-1" />
-      En attente
-    </Badge>
-  )
+function getInitials(text: string) {
+  return text.slice(0, 2).toUpperCase()
 }
 
 export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
+  const t = useTranslations("settings.teamSection")
+  const tCommon = useTranslations("common")
+  const intlLocale = useIntlLocale()
+
+  const ROLE_CONFIG = {
+    owner: {
+      label: t("owner"),
+      color: "text-violet-500 dark:text-violet-400",
+      bg: "bg-violet-500/10",
+      border: "border-violet-500/20",
+      icon: ShieldCheck,
+      iconColor: "text-violet-500",
+      bgIcon: "bg-violet-500/20",
+      description: t("ownerDescription"),
+    },
+    admin: {
+      label: t("admin"),
+      color: "text-blue-500 dark:text-blue-400",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20",
+      icon: Settings2,
+      iconColor: "text-blue-500",
+      bgIcon: "bg-blue-500/20",
+      description: t("adminDescription"),
+    },
+    editor: {
+      label: t("editor"),
+      color: "text-emerald-500 dark:text-emerald-400",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
+      icon: Pencil,
+      iconColor: "text-emerald-500",
+      bgIcon: "bg-emerald-500/20",
+      description: t("editorDescription"),
+    },
+    viewer: {
+      label: t("viewer"),
+      color: "text-gray-400 dark:text-slate-500",
+      bg: "bg-gray-100 dark:bg-slate-500/10",
+      border: "border-gray-200 dark:border-white/5",
+      icon: Eye,
+      iconColor: "text-gray-400 dark:text-slate-500",
+      bgIcon: "bg-gray-200/50 dark:bg-slate-500/20",
+      description: t("viewerDescription"),
+    },
+  } as const
+
+  function RoleBadge({ role }: { role: string }) {
+    const config = ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] ?? ROLE_CONFIG.viewer
+    return (
+      <div
+        className={cn(
+          "flex items-center gap-2 font-medium text-xs px-3 py-1 rounded-full w-fit",
+          config.color,
+          config.bg
+        )}
+      >
+        {config.label}
+      </div>
+    )
+  }
+
   const [members, setMembers] = useState<TeamMember[]>(initialMembers)
+  const [inviteOpen, setInviteOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState("")
   const [inviteRole, setInviteRole] = useState<TeamMember["role"]>("editor")
-  const [inviteMessage, setInviteMessage] = useState<{
+  const [inviteProject, setInviteProject] = useState("all")
+  const [inviteMessageText, setInviteMessageText] = useState("")
+  const [inviteResult, setInviteResult] = useState<{
     type: "success" | "error"
     text: string
   } | null>(null)
@@ -85,23 +122,18 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
 
   function handleInvite(e: React.FormEvent) {
     e.preventDefault()
-    setInviteMessage(null)
+    setInviteResult(null)
 
     startInviteTransition(async () => {
       const result = await inviteTeamMemberAction({
         email: inviteEmail,
         role: inviteRole,
       })
-
       if (result.error) {
-        setInviteMessage({ type: "error", text: result.error })
+        setInviteResult({ type: "error", text: result.error })
         return
       }
-
-      setInviteMessage({ type: "success", text: result.success ?? "Invitation envoyée." })
-      setInviteEmail("")
-
-      // Ajouter optimistiquement le membre
+      setInviteResult({ type: "success", text: result.success ?? t("sentRecently") })
       setMembers((prev) => [
         {
           id: crypto.randomUUID(),
@@ -114,14 +146,14 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
         },
         ...prev,
       ])
+      setInviteEmail("")
+      setInviteMessageText("")
+      setTimeout(() => setInviteOpen(false), 1500)
     })
   }
 
-  function handleRoleChange(memberId: string, role: TeamMember["role"]) {
-    setMembers((prev) =>
-      prev.map((m) => (m.id === memberId ? { ...m, role } : m))
-    )
-
+  function _handleRoleChange(memberId: string, role: TeamMember["role"]) {
+    setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, role } : m)))
     startInviteTransition(async () => {
       await updateMemberRoleAction(memberId, role)
     })
@@ -129,7 +161,6 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
 
   function handleRevoke() {
     if (!memberToRevoke) return
-
     startRevokeTransition(async () => {
       const result = await revokeMemberAccessAction(memberToRevoke.id)
       if (!result.error) {
@@ -139,179 +170,418 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
     })
   }
 
+  const acceptedMembers = members.filter((m) => m.status === "accepted")
+  const pendingMembers = members.filter((m) => m.status === "pending")
+
   return (
-    <div className="space-y-6">
-      {/* Inviter un membre */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Inviter un membre</CardTitle>
-          <CardDescription>
-            Les membres invités recevront un email pour rejoindre votre espace RAMI.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleInvite} className="space-y-4">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="flex-1 space-y-1.5">
-                <Label htmlFor="inviteEmail">Email</Label>
-                <Input
-                  id="inviteEmail"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="collaborateur@exemple.com"
-                  required
-                />
+    <div className="space-y-10">
+      {/* Header */}
+      <div className="flex justify-between items-end">
+        <div>
+          <h2 className="text-3xl font-extrabold text-foreground dark:text-white tracking-tight mb-2">
+            {t("managementTitle")}
+          </h2>
+        </div>
+        <button
+          onClick={() => {
+            setInviteResult(null)
+            setInviteOpen(true)
+          }}
+          className={cn(
+            "flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold transition-all",
+            "bg-gradient-to-r from-violet-600 to-blue-600 text-white",
+            "shadow-xl shadow-violet-500/20",
+            "hover:scale-[1.02] active:scale-95"
+          )}
+        >
+          <UserPlus className="size-4" />
+          {t("inviteMember")}
+        </button>
+      </div>
+
+      {/* Role Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {(["owner", "admin", "editor", "viewer"] as const).map((role) => {
+          const config = ROLE_CONFIG[role]
+          const RoleIcon = config.icon
+          return (
+            <div
+              key={role}
+              className={cn(
+                "p-5 rounded-2xl relative overflow-hidden group transition-all",
+                "bg-white border border-gray-200/60 shadow-sm",
+                "dark:bg-white/[0.04] dark:backdrop-blur-xl dark:border-white/[0.08]"
+              )}
+            >
+              <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+                <RoleIcon className={cn("size-12", config.iconColor)} />
               </div>
-              <div className="space-y-1.5 sm:w-40">
-                <Label htmlFor="inviteRole">Rôle</Label>
-                <Select
-                  id="inviteRole"
-                  value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value as TeamMember["role"])}
+              <div
+                className={cn(
+                  "size-10 rounded-lg flex items-center justify-center mb-4",
+                  config.bgIcon
+                )}
+              >
+                <RoleIcon className={cn("size-5", config.iconColor)} />
+              </div>
+              <h3
+                className={cn(
+                  "font-bold text-lg mb-1",
+                  role === "viewer" ? "text-gray-400 dark:text-slate-300" : "text-foreground dark:text-white"
+                )}
+              >
+                {config.label}
+              </h3>
+              <p className="text-xs text-muted-foreground dark:text-slate-400 leading-relaxed">
+                {config.description}
+              </p>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Members Table */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-xl font-bold text-foreground dark:text-white">
+            {t("teamMembers")}{" "}
+            <span className="text-muted-foreground text-sm font-normal ml-2">
+              {acceptedMembers.length + 1} {t("members")}
+            </span>
+          </h3>
+        </div>
+        <div
+          className={cn(
+            "rounded-2xl overflow-hidden",
+            "bg-white border border-gray-200/60 shadow-sm",
+            "dark:bg-white/[0.04] dark:backdrop-blur-xl dark:border-white/[0.08]"
+          )}
+        >
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-white/5">
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">
+                  {t("memberColumn")}
+                </th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">
+                  {t("emailColumn")}
+                </th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">
+                  {t("roleColumn")}
+                </th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400">
+                  {t("activityColumn")}
+                </th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground dark:text-slate-400 text-right">
+                  {t("actionsColumn")}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200 dark:divide-white/5">
+              {/* Owner row */}
+              <tr className="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex size-9 items-center justify-center rounded-full bg-violet-500/15 text-xs font-semibold text-violet-500">
+                      {getInitials(ownerEmail)}
+                    </div>
+                    <span className="text-sm font-semibold text-foreground dark:text-white">
+                      {ownerEmail.split("@")[0]}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-sm text-muted-foreground dark:text-slate-400">
+                  {ownerEmail}
+                </td>
+                <td className="px-6 py-4">
+                  <RoleBadge role="owner" />
+                </td>
+                <td className="px-6 py-4 text-sm text-muted-foreground dark:text-slate-400">
+                  {t("online")}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <button className="p-2 text-gray-400 dark:text-slate-500 hover:text-foreground dark:hover:text-slate-200 transition-colors">
+                    <MoreVertical className="size-5" />
+                  </button>
+                </td>
+              </tr>
+
+              {/* Team members */}
+              {acceptedMembers.map((member) => (
+                <tr
+                  key={member.id}
+                  className="group hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
                 >
-                  <option value="admin">Admin</option>
-                  <option value="editor">Éditeur</option>
-                  <option value="viewer">Lecteur</option>
-                </Select>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex size-9 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
+                        {getInitials(member.email)}
+                      </div>
+                      <span className="text-sm font-semibold text-foreground dark:text-white">
+                        {member.email.split("@")[0]}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground dark:text-slate-400">
+                    {member.email}
+                  </td>
+                  <td className="px-6 py-4">
+                    <RoleBadge role={member.role} />
+                  </td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground dark:text-slate-400">
+                    {member.acceptedAt
+                      ? new Date(member.acceptedAt).toLocaleDateString(intlLocale, {
+                          day: "numeric",
+                          month: "short",
+                        })
+                      : "\u2014"}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => setMemberToRevoke(member)}
+                      className="p-2 text-gray-400 dark:text-slate-500 hover:text-foreground dark:hover:text-slate-200 transition-colors"
+                    >
+                      <MoreVertical className="size-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Pending Invitations */}
+      {pendingMembers.length > 0 && (
+        <div>
+          <h3 className="text-xl font-bold text-foreground dark:text-white mb-4">
+            {t("pendingInvitations")}
+          </h3>
+          <div
+            className={cn(
+              "rounded-2xl overflow-hidden",
+              "bg-white border border-gray-200/60 shadow-sm",
+              "dark:bg-white/[0.04] dark:backdrop-blur-xl dark:border-white/[0.08]"
+            )}
+          >
+            <div className="divide-y divide-gray-200 dark:divide-white/5">
+              {pendingMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between p-6"
+                >
+                  <div className="flex items-center gap-6">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground dark:text-white">
+                        {member.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground dark:text-slate-500">
+                        {member.invitedAt
+                          ? t("sentDaysAgo", { count: Math.max(1, Math.round((Number(new Date()) - new Date(member.invitedAt).getTime()) / (1000 * 60 * 60 * 24))) })
+                          : t("sentRecently")}
+                      </p>
+                    </div>
+                    <div
+                      className={cn(
+                        "px-3 py-1 rounded-lg text-xs font-medium",
+                        "bg-gray-100 border border-gray-200 text-gray-500",
+                        "dark:bg-slate-800 dark:border-white/5 dark:text-slate-400"
+                      )}
+                    >
+                      {ROLE_CONFIG[member.role]?.label ?? member.role}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
+                      {t("resend")}
+                    </button>
+                    <button
+                      onClick={() => setMemberToRevoke(member)}
+                      className="px-4 py-2 rounded-lg text-sm font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-400/10 transition-colors"
+                    >
+                      {tCommon("cancel")}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Invite Modal ──────────────────────────────────────────────────── */}
+      <Dialog open={inviteOpen} onOpenChange={(v) => !isInviting && setInviteOpen(v)}>
+        <DialogContent
+          className={cn(
+            "max-w-lg rounded-[2rem] p-8",
+            "dark:bg-[#0A0A0F]/95 dark:backdrop-blur-xl dark:border-violet-500/20"
+          )}
+        >
+          <button
+            onClick={() => setInviteOpen(false)}
+            className="absolute top-6 right-6 text-gray-400 dark:text-slate-500 hover:text-foreground dark:hover:text-white transition-colors"
+          >
+            <X className="size-5" />
+          </button>
+
+          <div className="size-14 rounded-2xl bg-violet-500/20 flex items-center justify-center text-violet-500 mb-6">
+            <UserPlus className="size-7" />
+          </div>
+
+          <h2 className="text-2xl font-extrabold mb-2 text-foreground dark:text-white">
+            {t("inviteNewMember")}
+          </h2>
+          <p className="text-muted-foreground dark:text-slate-400 text-sm mb-8">
+            {t("inviteSubtitle")}
+          </p>
+
+          <form onSubmit={handleInvite} className="space-y-6">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2">
+                {t("emailLabel")}
+              </label>
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder={t("emailPlaceholder")}
+                required
+                className={cn(
+                  "w-full rounded-xl px-4 py-3 text-sm transition-all",
+                  "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
+                  "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2">
+                  {t("assignedRole")}
+                </label>
+                <div className="relative">
+                  <select
+                    value={inviteRole}
+                    onChange={(e) => setInviteRole(e.target.value as TeamMember["role"])}
+                    className={cn(
+                      "w-full rounded-xl px-4 py-3 text-sm appearance-none transition-all",
+                      "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
+                      "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
+                    )}
+                  >
+                    <option value="editor">{t("editor")}</option>
+                    <option value="admin">{t("admin")}</option>
+                    <option value="viewer">{t("viewer")}</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2">
+                  {t("project")}
+                </label>
+                <div className="relative">
+                  <select
+                    value={inviteProject}
+                    onChange={(e) => setInviteProject(e.target.value)}
+                    className={cn(
+                      "w-full rounded-xl px-4 py-3 text-sm appearance-none transition-all",
+                      "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
+                      "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
+                    )}
+                  >
+                    <option value="all">{t("allProjects")}</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            {/* Description du rôle sélectionné */}
-            <p className="text-xs text-muted-foreground">
-              <span className="font-medium">{ROLE_LABELS[inviteRole]}</span> —{" "}
-              {ROLE_DESCRIPTIONS[inviteRole]}
-            </p>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2">
+                {t("personalMessage")}
+              </label>
+              <textarea
+                value={inviteMessageText}
+                onChange={(e) => setInviteMessageText(e.target.value)}
+                placeholder={t("personalMessagePlaceholder")}
+                rows={3}
+                className={cn(
+                  "w-full rounded-xl px-4 py-3 text-sm transition-all resize-none",
+                  "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
+                  "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
+                )}
+              />
+            </div>
 
-            {inviteMessage && (
+            {inviteResult && (
               <div
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm",
-                  inviteMessage.type === "success"
+                  inviteResult.type === "success"
                     ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                     : "bg-destructive/10 text-destructive"
                 )}
               >
-                {inviteMessage.type === "success" ? (
+                {inviteResult.type === "success" ? (
                   <CheckCircle2 className="size-4 shrink-0" />
                 ) : (
                   <AlertCircle className="size-4 shrink-0" />
                 )}
-                {inviteMessage.text}
+                {inviteResult.text}
               </div>
             )}
 
-            <div className="flex justify-end">
-              <Button type="submit" disabled={isInviting}>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setInviteOpen(false)}
+                className={cn(
+                  "flex-1 py-3 px-6 rounded-xl font-bold text-sm transition-all",
+                  "border border-gray-200 hover:bg-gray-50",
+                  "dark:border-white/10 dark:hover:bg-white/5"
+                )}
+              >
+                {tCommon("cancel")}
+              </button>
+              <button
+                type="submit"
+                disabled={isInviting}
+                className={cn(
+                  "flex-1 py-3 px-6 rounded-xl font-bold text-sm transition-all",
+                  "bg-gradient-to-r from-violet-600 to-blue-600 text-white",
+                  "shadow-xl shadow-violet-500/20",
+                  "hover:scale-[1.02] active:scale-95",
+                  "disabled:opacity-50 flex items-center justify-center gap-2"
+                )}
+              >
                 {isInviting ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <UserPlus className="size-4" />
+                  <Send className="size-4" />
                 )}
-                {isInviting ? "Envoi…" : "Inviter"}
-              </Button>
+                {isInviting ? t("sending") : t("sendInvite")}
+              </button>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
 
-      {/* Liste des membres */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="size-4" />
-            Membres ({members.length + 1})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {/* Owner */}
-          <div className="flex items-center gap-3 border-b px-4 py-3">
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary">
-              {getInitials(ownerEmail)}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{ownerEmail}</p>
-              <p className="text-xs text-muted-foreground">Vous</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-primary/10 text-primary border-0 text-xs">
-                <Crown className="size-3 mr-1" />
-                Propriétaire
-              </Badge>
-            </div>
-          </div>
-
-          {/* Membres invités */}
-          {members.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-              <Users className="size-8 text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">Aucun membre invité pour l&apos;instant.</p>
-            </div>
-          ) : (
-            <ul className="divide-y">
-              {members.map((member) => (
-                <li key={member.id} className="flex items-center gap-3 px-4 py-3">
-                  <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
-                    {getInitials(member.email)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{member.email}</p>
-                    <div className="mt-0.5 flex items-center gap-2">
-                      <StatusBadge status={member.status} />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <Select
-                      value={member.role}
-                      onChange={(e) =>
-                        handleRoleChange(member.id, e.target.value as TeamMember["role"])
-                      }
-                      className="w-28 text-xs h-7"
-                    >
-                      <option value="admin">Admin</option>
-                      <option value="editor">Éditeur</option>
-                      <option value="viewer">Lecteur</option>
-                    </Select>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => setMemberToRevoke(member)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <Trash2 className="size-3.5" />
-                      <span className="sr-only">Révoquer l&apos;accès</span>
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Dialog confirmation révocation */}
+      {/* ─── Revoke confirmation ───────────────────────────────────────────── */}
       <Dialog open={!!memberToRevoke} onOpenChange={(open) => !open && setMemberToRevoke(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Révoquer l&apos;accès</DialogTitle>
+            <DialogTitle>{t("revokeAccess")}</DialogTitle>
             <DialogDescription>
-              Voulez-vous révoquer l&apos;accès de{" "}
+              {t("revokeConfirm")}{" "}
               <span className="font-medium text-foreground">{memberToRevoke?.email}</span> ?
-              Cette action peut être annulée en réinvitant ce membre.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Annuler</Button>
+              <Button variant="outline">{tCommon("cancel")}</Button>
             </DialogClose>
-            <Button
-              variant="destructive"
-              onClick={handleRevoke}
-              disabled={isRevoking}
-            >
+            <Button variant="destructive" onClick={handleRevoke} disabled={isRevoking}>
               {isRevoking && <Loader2 className="size-4 animate-spin" />}
-              Révoquer
+              {t("revoke")}
             </Button>
           </DialogFooter>
         </DialogContent>

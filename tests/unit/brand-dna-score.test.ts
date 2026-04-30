@@ -282,13 +282,10 @@ describe("CAUSSE_COLORS", () => {
     expect(CAUSSE_COLORS).toHaveLength(12)
   })
 
-  test("chaque couleur a un id, hex, name, emotion, psycho et sectors", () => {
+  test("chaque couleur a un id, hex et sectors", () => {
     for (const color of CAUSSE_COLORS) {
       expect(color.id).toBeTruthy()
       expect(color.hex).toMatch(/^#[0-9A-Fa-f]{6}$/)
-      expect(color.name).toBeTruthy()
-      expect(color.emotion).toBeTruthy()
-      expect(color.psycho).toBeTruthy()
       expect(Array.isArray(color.sectors)).toBe(true)
       expect(color.sectors.length).toBeGreaterThan(0)
     }
@@ -306,16 +303,14 @@ describe("CAUSSE_COLORS", () => {
     expect(unique.size).toBe(CAUSSE_COLORS.length)
   })
 
-  test("contient bleu_marine (couleur confiance)", () => {
+  test("contient bleu_marine", () => {
     const bleu = CAUSSE_COLORS.find((c) => c.id === "bleu_marine")
     expect(bleu).toBeDefined()
-    expect(bleu?.emotion).toContain("Confiance")
   })
 
-  test("contient rouge_passion (couleur urgence)", () => {
+  test("contient rouge_passion", () => {
     const rouge = CAUSSE_COLORS.find((c) => c.id === "rouge_passion")
     expect(rouge).toBeDefined()
-    expect(rouge?.emotion.toLowerCase()).toContain("urgence")
   })
 
   test("contient vert_emeraude (croissance + Islam)", () => {
@@ -332,14 +327,10 @@ describe("VOICE_TONES", () => {
     expect(VOICE_TONES).toHaveLength(6)
   })
 
-  test("chaque ton a un id, label, description, icon et keywords", () => {
+  test("chaque ton a un id et icon", () => {
     for (const tone of VOICE_TONES) {
       expect(tone.id).toBeTruthy()
-      expect(tone.label).toBeTruthy()
-      expect(tone.description).toBeTruthy()
       expect(tone.icon).toBeTruthy()
-      expect(Array.isArray(tone.keywords)).toBe(true)
-      expect(tone.keywords.length).toBeGreaterThan(0)
     }
   })
 
@@ -352,14 +343,11 @@ describe("VOICE_TONES", () => {
   test("contient le ton 'expert'", () => {
     const expert = VOICE_TONES.find((t) => t.id === "expert")
     expect(expert).toBeDefined()
-    expect(expert?.label).toContain("Expert")
-    expect(expert?.keywords).toContain("analytique")
   })
 
   test("contient le ton 'premium'", () => {
     const premium = VOICE_TONES.find((t) => t.id === "premium")
     expect(premium).toBeDefined()
-    expect(premium?.keywords).toContain("exclusif")
   })
 })
 
@@ -370,16 +358,16 @@ describe("SECTORS", () => {
     expect(SECTORS.length).toBeGreaterThanOrEqual(10)
   })
 
-  test("contient 'Finance & Banque'", () => {
-    expect(SECTORS).toContain("Finance & Banque")
+  test("contient 'finance_banque'", () => {
+    expect(SECTORS).toContain("finance_banque")
   })
 
-  test("contient 'Finance Islamique'", () => {
-    expect(SECTORS).toContain("Finance Islamique")
+  test("contient 'finance_islamique'", () => {
+    expect(SECTORS).toContain("finance_islamique")
   })
 
-  test("se termine par 'Autre'", () => {
-    expect(SECTORS[SECTORS.length - 1]).toBe("Autre")
+  test("se termine par 'autre'", () => {
+    expect(SECTORS[SECTORS.length - 1]).toBe("autre")
   })
 
   test("tous les secteurs sont des chaînes non vides", () => {
@@ -448,32 +436,32 @@ describe("SECTOR_COLOR_RULES", () => {
     }
   })
 
-  test("avoidReason est présente quand avoidAlternative est définie", () => {
+  test("avoidReasonKey est présente quand avoidAlternative est définie", () => {
     for (const [sector, rule] of Object.entries(SECTOR_COLOR_RULES)) {
       if (rule.avoidAlternative !== undefined) {
-        if (typeof rule.avoidReason !== "string") {
-          throw new Error(`Secteur "${sector}" : avoidReason manquante alors qu'avoidAlternative est définie`)
+        if (typeof rule.avoidReasonKey !== "string") {
+          throw new Error(`Secteur "${sector}" : avoidReasonKey manquante alors qu'avoidAlternative est définie`)
         }
       }
     }
   })
 
-  test("Finance Islamique recommande vert_emeraude et évite rouge_passion", () => {
-    const rule = SECTOR_COLOR_RULES["Finance Islamique"]
+  test("finance_islamique recommande vert_emeraude et évite rouge_passion", () => {
+    const rule = SECTOR_COLOR_RULES["finance_islamique"]
     expect(rule).toBeDefined()
     expect(rule.recommended).toContain("vert_emeraude")
     expect(rule.avoid).toContain("rouge_passion")
   })
 
-  test("Santé & Médical évite rouge_passion avec alternative bordeaux_premium", () => {
-    const rule = SECTOR_COLOR_RULES["Santé & Médical"]
+  test("sante_medical évite rouge_passion avec alternative bordeaux_premium", () => {
+    const rule = SECTOR_COLOR_RULES["sante_medical"]
     expect(rule).toBeDefined()
     expect(rule.avoid).toContain("rouge_passion")
     expect(rule.avoidAlternative).toBe("bordeaux_premium")
   })
 
-  test("Luxe & Mode évite orange et jaune (incompatibles avec positionnement luxe)", () => {
-    const rule = SECTOR_COLOR_RULES["Luxe & Mode"]
+  test("luxe_haute_couture évite orange et jaune (incompatibles avec positionnement luxe)", () => {
+    const rule = SECTOR_COLOR_RULES["luxe_haute_couture"]
     expect(rule).toBeDefined()
     expect(rule.avoid).toContain("orange_chaleureux")
     expect(rule.avoid).toContain("jaune_optimiste")
@@ -492,20 +480,15 @@ describe("SECTOR_COLOR_RULES", () => {
 // ─── COGNITIVE_OBJECTIVES ────────────────────────────────────────────────────
 
 describe("COGNITIVE_OBJECTIVES", () => {
-  test("contient exactement 6 objectifs", () => {
-    expect(COGNITIVE_OBJECTIVES).toHaveLength(6)
+  test("contient exactement 7 objectifs", () => {
+    expect(COGNITIVE_OBJECTIVES).toHaveLength(7)
   })
 
-  test("chaque objectif a id, label, icon, description, visualStyles et keywords", () => {
+  test("chaque objectif a id, icon et visualStyles", () => {
     for (const obj of COGNITIVE_OBJECTIVES) {
       expect(obj.id).toBeTruthy()
-      expect(obj.label).toBeTruthy()
       expect(obj.icon).toBeTruthy()
-      expect(obj.description).toBeTruthy()
       expect(Array.isArray(obj.visualStyles)).toBe(true)
-      expect(obj.visualStyles.length).toBeGreaterThan(0)
-      expect(Array.isArray(obj.keywords)).toBe(true)
-      expect(obj.keywords.length).toBeGreaterThan(0)
     }
   })
 
@@ -546,37 +529,37 @@ describe("COGNITIVE_OBJECTIVES", () => {
 // ─── getDnaScoreLevel ────────────────────────────────────────────────────────
 
 describe("getDnaScoreLevel", () => {
-  test("score 0.85+ → label 'Excellent'", () => {
-    expect(getDnaScoreLevel(0.85).label).toBe("Excellent")
-    expect(getDnaScoreLevel(1.0).label).toBe("Excellent")
+  test("score 0.85+ → labelKey 'excellent'", () => {
+    expect(getDnaScoreLevel(0.85).labelKey).toBe("excellent")
+    expect(getDnaScoreLevel(1.0).labelKey).toBe("excellent")
   })
 
-  test("score 0.65–0.84 → label 'Bon'", () => {
-    expect(getDnaScoreLevel(0.65).label).toBe("Bon")
-    expect(getDnaScoreLevel(0.84).label).toBe("Bon")
+  test("score 0.65–0.84 → labelKey 'good'", () => {
+    expect(getDnaScoreLevel(0.65).labelKey).toBe("good")
+    expect(getDnaScoreLevel(0.84).labelKey).toBe("good")
   })
 
-  test("score 0.40–0.64 → label 'En cours'", () => {
-    expect(getDnaScoreLevel(0.40).label).toBe("En cours")
-    expect(getDnaScoreLevel(0.64).label).toBe("En cours")
+  test("score 0.40–0.64 → labelKey 'inProgress'", () => {
+    expect(getDnaScoreLevel(0.40).labelKey).toBe("inProgress")
+    expect(getDnaScoreLevel(0.64).labelKey).toBe("inProgress")
   })
 
-  test("score < 0.40 → label 'Incomplet'", () => {
-    expect(getDnaScoreLevel(0).label).toBe("Incomplet")
-    expect(getDnaScoreLevel(0.39).label).toBe("Incomplet")
+  test("score < 0.40 → labelKey 'incomplete'", () => {
+    expect(getDnaScoreLevel(0).labelKey).toBe("incomplete")
+    expect(getDnaScoreLevel(0.39).labelKey).toBe("incomplete")
   })
 
-  test("chaque niveau a color, bgColor, borderColor et description non vides", () => {
+  test("chaque niveau a color, bgColor, borderColor et descriptionKey non vides", () => {
     for (const score of [0, 0.25, 0.50, 0.75, 1.0]) {
       const level = getDnaScoreLevel(score)
       expect(level.color).toBeTruthy()
       expect(level.bgColor).toBeTruthy()
       expect(level.borderColor).toBeTruthy()
-      expect(level.description).toBeTruthy()
+      expect(level.descriptionKey).toBeTruthy()
     }
   })
 
-  test("description du niveau Excellent mentionne Brand DNA", () => {
-    expect(getDnaScoreLevel(1.0).description.toLowerCase()).toContain("brand dna")
+  test("descriptionKey du niveau Excellent est 'excellent'", () => {
+    expect(getDnaScoreLevel(1.0).descriptionKey).toBe("excellent")
   })
 })
