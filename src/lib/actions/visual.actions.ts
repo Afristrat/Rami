@@ -11,7 +11,9 @@ import { generateBatch } from '@/lib/services/image-generation'
 import {
   compileBrandDNAToPrompts,
   BrandDNA,
+  type PerformancePrior,
 } from '@/lib/services/brand-dna/prompt-compiler'
+import { buildPerformancePrior } from '@/lib/services/metrics/attribution'
 import { scoreImageWithVision } from '@/lib/services/brand-dna/vision-scorer'
 import { storeVisual } from '@/lib/services/storage/visual-storage'
 import { GenerateBriefSchema, GenerateBriefInput } from '@/lib/schemas/visual.schema'
@@ -53,7 +55,8 @@ async function persistVisualSession(
   brief: string,
   platform: string,
   sessionSeed: number,
-  visuals: GeneratedVisual[]
+  visuals: GeneratedVisual[],
+  performancePrior: PerformancePrior | null
 ): Promise<string | null> {
   try {
     const { data: session, error: sessionError } = await supabase
@@ -98,6 +101,8 @@ async function persistVisualSession(
         vision_scored:       (ext._vision_scored as boolean) ?? false,
         dominant_color_hex:  ext._dominant_color as string | undefined,
         model:               ext._model as string | undefined,
+        // Performance prior utilisé pour cette génération (US-008) — null si Causse pur
+        performance_prior:   performancePrior,
       }
     })
 
@@ -200,10 +205,16 @@ export async function generateVisualsAction(
     : []
   const targetEmotion = brandDNA.cognitive_objective as string | undefined
 
+  // Performance prior (US-008) — couleurs/styles gagnants réels, gaté par volume.
+  // Retourne null tant que < seuil de posts mesurés → fallback Causse pur.
+  const performancePrior = tenantData?.id
+    ? await buildPerformancePrior(tenantData.id, brandDNA.identity?.sector ?? null)
+    : null
+
   // Compiler 4 directions de prompts
   const sessionSeed = Math.floor(Math.random() * 100_000)
   const sessionId = crypto.randomUUID()
-  const structuredPrompts = compileBrandDNAToPrompts(brandDNA, brief, platform, sessionSeed)
+  const structuredPrompts = compileBrandDNAToPrompts(brandDNA, brief, platform, sessionSeed, performancePrior)
 
   const allVisuals: GeneratedVisual[] = []
   const errors: string[] = []
@@ -339,7 +350,8 @@ export async function generateVisualsAction(
     brief,
     platform,
     sessionSeed,
-    allVisuals
+    allVisuals,
+    performancePrior
   )
 
   // Incrémenter compteur générations

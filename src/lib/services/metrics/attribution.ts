@@ -15,6 +15,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { log } from "@/lib/utils/logger"
+import type { PerformancePrior } from "@/lib/services/brand-dna/prompt-compiler"
 
 // ── Dimensions analysables ──────────────────────────────────────────────────────
 
@@ -126,4 +127,35 @@ export async function topFeatures(
   }))
 
   return { dimension, sector, rankings: aggregateAttribution(facts) }
+}
+
+// ── Performance prior pour le Prompt Compiler (US-008) ─────────────────────────
+
+/** Volume minimal de posts mesurés pour activer le prior (sinon Causse pur). */
+export const MIN_PRIOR_SAMPLE = 10
+
+/**
+ * Construit le signal de performance réelle (couleurs/styles gagnants) pour
+ * pondérer la génération. Retourne `null` tant que le volume mesuré est sous le
+ * seuil → la génération retombe sur la matrice Causse pure (FR-2).
+ */
+export async function buildPerformancePrior(
+  tenantId: string,
+  sector: string | null
+): Promise<PerformancePrior | null> {
+  const [colors, styles] = await Promise.all([
+    topFeatures(tenantId, sector, "dominant_color_hex"),
+    topFeatures(tenantId, sector, "visual_direction"),
+  ])
+
+  // Volume = somme des échantillons des couleurs classées (posts mesurés colorisés).
+  const totalSample = colors.rankings.reduce((sum, r) => sum + r.sampleSize, 0)
+  if (totalSample < MIN_PRIOR_SAMPLE) return null
+
+  return {
+    topColors: colors.rankings.slice(0, 3).map((r) => r.value),
+    topStyles: styles.rankings.slice(0, 2).map((r) => r.value),
+    sampleSize: totalSample,
+    source: "tenant",
+  }
 }

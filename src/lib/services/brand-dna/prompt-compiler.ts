@@ -51,6 +51,22 @@ export interface StructuredPrompt {
   }
 }
 
+/**
+ * Signal de performance réelle (Performance Loop, US-008) : couleurs et styles
+ * qui ont historiquement le mieux performé pour le tenant (secteur × culture).
+ * Construit par `buildPerformancePrior()` UNIQUEMENT au-dessus d'un seuil de
+ * volume mesuré — sinon la génération retombe sur la matrice Causse pure.
+ */
+export interface PerformancePrior {
+  /** HEX gagnants, ordre décroissant de performance. */
+  topColors: string[]
+  /** Directions/objectifs gagnants. */
+  topStyles: string[]
+  /** Nombre de posts mesurés ayant alimenté le prior. */
+  sampleSize: number
+  source: "tenant"
+}
+
 // Négatif universel
 const UNIVERSAL_NEGATIVE = [
   'text', 'watermark', 'logo', 'signature', 'blurry', 'blur', 'noisy',
@@ -118,7 +134,8 @@ export function compileBrandDNAToPrompts(
   brandDNA: BrandDNA,
   brief: string,
   platform: string = 'instagram',
-  sessionSeed: number = Math.floor(Math.random() * 100000)
+  sessionSeed: number = Math.floor(Math.random() * 100000),
+  performancePrior: PerformancePrior | null = null
 ): StructuredPrompt[] {
   const sector = brandDNA.identity?.sector ?? 'tech'
   const positioning = brandDNA.identity?.positioning ?? ''
@@ -133,9 +150,19 @@ export function compileBrandDNAToPrompts(
 
   // Si pas de palette définie, utiliser la matrice Causse
   const recommendedColors = getRecommendedColors(cognitiveObjective, sector, brandHexColors)
-  const hexList = (brandHexColors.length > 0 ? brandHexColors : recommendedColors)
-    .slice(0, 3)
-    .join(', ')
+  const baseColors = brandHexColors.length > 0 ? brandHexColors : recommendedColors
+
+  // Performance prior (US-008) : si actif, les couleurs gagnantes passent en tête
+  // (pondération réelle) — sinon fallback Causse pur (baseColors).
+  const priorColors = performancePrior?.topColors ?? []
+  const effectiveColors = Array.from(new Set([...priorColors, ...baseColors]))
+  const hexList = effectiveColors.slice(0, 3).join(', ')
+
+  // Emphase optionnelle sur le style historiquement gagnant.
+  const performanceKW =
+    performancePrior && performancePrior.topStyles.length > 0
+      ? `proven high-performing ${performancePrior.topStyles[0]} aesthetic`
+      : ''
 
   // Mots-clés émotionnels selon objectif cognitif
   const emotionKeywords: Record<string, string> = {
@@ -197,6 +224,8 @@ export function compileBrandDNAToPrompts(
       `${emotionKW},`,
       // Spécificité culturelle
       `${cultureKW},`,
+      // Signal de performance réelle (si prior actif)
+      performanceKW ? `${performanceKW},` : '',
       // Direction spécifique
       directionSpecific,
       // Positionnement brand
