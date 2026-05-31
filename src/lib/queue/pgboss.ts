@@ -19,6 +19,7 @@ import { log } from "@/lib/utils/logger"
 
 export const JOBS = {
   PUBLISH_POST: "publish-post",
+  COLLECT_METRICS: "collect-metrics",
 } as const
 
 // ── Payload du job publish-post ───────────────────────────────────────────────
@@ -27,6 +28,22 @@ export interface PublishPostPayload {
   postId: string
   tenantId: string
 }
+
+// ── Payload du job collect-metrics (Performance Loop, US-006) ──────────────────
+
+export interface CollectMetricsPayload {
+  postId: string
+  tenantId: string
+  /** Étiquette de l'échéance, pour la traçabilité (T+1h, T+24h, T+7j). */
+  window: "1h" | "24h" | "7d"
+}
+
+// Délais de collecte après publication (en secondes).
+const COLLECT_OFFSETS: Array<{ window: CollectMetricsPayload["window"]; seconds: number }> = [
+  { window: "1h", seconds: 60 * 60 },
+  { window: "24h", seconds: 24 * 60 * 60 },
+  { window: "7d", seconds: 7 * 24 * 60 * 60 },
+]
 
 // ── État du boss ──────────────────────────────────────────────────────────────
 
@@ -133,4 +150,34 @@ export async function enqueueScheduledPublish(
 export async function cancelPublishJob(jobId: string): Promise<void> {
   const boss = await getBoss()
   await boss.cancel(JOBS.PUBLISH_POST, jobId)
+}
+
+/**
+ * Performance Loop (US-006) — planifie 3 collectes de metrics après publication :
+ * T+1h, T+24h, T+7j. Chaque job route ensuite vers le bon MetricsProvider.
+ * singletonKey par (post, fenêtre) → idempotent si appelé plusieurs fois.
+ */
+export async function scheduleMetricsCollection(payload: {
+  postId: string
+  tenantId: string
+}): Promise<void> {
+  const boss = await getBoss()
+
+  await Promise.all(
+    COLLECT_OFFSETS.map(({ window, seconds }) =>
+      boss.send(
+        JOBS.COLLECT_METRICS,
+        { postId: payload.postId, tenantId: payload.tenantId, window } satisfies CollectMetricsPayload,
+        {
+          singletonKey: `metrics:${payload.postId}:${window}`,
+          startAfter: seconds,
+          retryLimit: 3,
+          retryDelay: 120, // 2 min entre les retries
+          retryBackoff: true, // exponentiel : 120s, 240s, 480s
+          expireInSeconds: 300,
+          priority: 0,
+        }
+      )
+    )
+  )
 }

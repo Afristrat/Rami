@@ -14,11 +14,11 @@
  * Conforme SOP-004 + CLAUDE.md Section 2.1
  */
 
-import { getBoss, JOBS, type PublishPostPayload } from "./pgboss"
+import { getBoss, JOBS, scheduleMetricsCollection, type PublishPostPayload } from "./pgboss"
 import { publishToPlatform } from "@/lib/services/publishing"
 import type { PublishResult } from "@/lib/services/publishing"
 import type { Job } from "pg-boss"
-import { decryptToken } from "@/lib/services/oauth/state"
+import { getValidAccessToken } from "./token-refresh"
 import { createServiceClient } from "@/lib/supabase/service"
 import { log } from "@/lib/utils/logger"
 import { captureServerEvent } from "@/lib/utils/posthog-server"
@@ -219,84 +219,17 @@ async function processPublishJob(
 
     throw new Error(`Publication échouée sur toutes les plateformes : ${errorSummary}`)
   }
+
+  // 8. Performance Loop (US-006) — planifier la collecte de metrics (T+1h/24h/7j).
+  //    Best-effort : si la queue est indisponible, on ne fait pas échouer la publication.
+  try {
+    await scheduleMetricsCollection({ postId, tenantId })
+  } catch (err) {
+    log({ level: "warn", module: "publish-worker", action: "metrics_schedule_failed", tenant_id: tenantId, metadata: { postId, error: err instanceof Error ? err.message : String(err) } })
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-const REFRESH_THRESHOLD_MS = 5 * 60 * 1000
-
-async function getValidAccessToken(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  conn: any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any
-): Promise<string> {
-  const expiresAt = conn.expires_at ? new Date(conn.expires_at as string) : null
-  const needsRefresh =
-    expiresAt !== null && expiresAt.getTime() - Date.now() < REFRESH_THRESHOLD_MS
-
-  if (!needsRefresh) {
-    return decryptToken(conn.access_token_encrypted as string)
-  }
-
-  if (!conn.refresh_token_encrypted) {
-    throw new Error("Token expiré et aucun refresh token disponible. Reconnectez le compte.")
-  }
-
-  // Import dynamique pour éviter la dépendance circulaire
-  const { getOAuthConfig } = await import("@/lib/services/oauth/config")
-  const { encryptToken } = await import("@/lib/services/oauth/state")
-
-  const config = getOAuthConfig(conn.platform)
-  const clientId = process.env[config.clientIdEnv]
-  const clientSecret = process.env[config.clientSecretEnv]
-
-  if (!clientId || !clientSecret) {
-    throw new Error(`Credentials OAuth manquants pour ${conn.platform}.`)
-  }
-
-  const refreshToken = decryptToken(conn.refresh_token_encrypted as string)
-
-  const res = await fetch(config.tokenUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
-  })
-
-  if (!res.ok) {
-    throw new Error(`Refresh token révoqué. Reconnectez le compte ${conn.platform}.`)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tokenData: any = await res.json()
-  const newAccessToken: string = tokenData.access_token
-  const newRefreshToken: string | undefined = tokenData.refresh_token
-  const expiresIn: number | undefined = tokenData.expires_in
-
-  const newExpiresAt = expiresIn
-    ? new Date(Date.now() + expiresIn * 1000).toISOString()
-    : null
-
-  await supabase
-    .from("oauth_connections")
-    .update({
-      access_token_encrypted: encryptToken(newAccessToken),
-      ...(newRefreshToken && {
-        refresh_token_encrypted: encryptToken(newRefreshToken),
-      }),
-      expires_at: newExpiresAt,
-      is_active: true,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", conn.id)
-
-  return newAccessToken
-}
 
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
