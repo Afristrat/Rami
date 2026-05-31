@@ -35,7 +35,7 @@ const selfHostedConnect = [SUPABASE_HOST, MINIO_HOST, APP_HOST]
 const CSP = [
   "default-src 'self'",
   // Scripts : Next.js + Stripe (billing)
-  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com",
+  "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://static.cloudflareinsights.com",
   // Styles : Tailwind inline
   "style-src 'self' 'unsafe-inline'",
   // Images : self + Supabase Storage + Cloudflare R2 + avatars réseaux sociaux
@@ -58,7 +58,6 @@ const CSP = [
     // Meta (Facebook + Instagram) avatars
     "https://*.fbcdn.net",
     "https://*.cdninstagram.com",
-    "https://scontent.*.fbcdn.net",
     // Pinterest avatars
     "https://i.pinimg.com",
   ].join(" "),
@@ -77,7 +76,10 @@ const CSP = [
     "https://eu.posthog.com",
     // Sentry error reporting
     "https://*.sentry.io",
-    "https://o*.ingest.sentry.io",
+    "https://*.ingest.sentry.io",
+    // Cloudflare Web Analytics (beacon auto-injecté par le proxy Cloudflare)
+    "https://cloudflareinsights.com",
+    "https://static.cloudflareinsights.com",
     // Image generation providers (API calls côté serveur — mais CSP couvre les fetch() client)
     "https://fal.run",
     "https://queue.fal.run",
