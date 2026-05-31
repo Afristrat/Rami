@@ -25,6 +25,21 @@
 - Coolify app `rami` (uuid ry8ytnene4czxdhsoes0z56y), Nixpacks, auto-deploy sur push. API Coolify : token coffre.
 - cloudflared tunnel nahda ; DNS via `cloudflared tunnel route dns --overwrite-dns 7156c3f9-... <host>`.
 
+## CHECKPOINT — Prochaine story : US-007 (Attribution feature→performance)
+*Posé le 2026-05-31 après US-002→006 (couche collecte metrics complète). Contexte chargé → reprise en session fraîche recommandée.*
+
+**Modèle de données réel cartographié (l'énoncé US-007 cite `generated_assets` — table INEXISTANTE) :**
+- Dimensions d'attribution stockées dans **`posts.ai_metadata`** (jsonb) : `cognitive_objective`, `brand_dna_score`, `direction` (≈ style/forme), `provider`. + `posts.scheduled_at` (heure de créneau), `posts.platforms`.
+- Features visuelles fines : table **`visual_session_images`** (`dominant_color_hex`, `direction_id`, `direction_name`, `direction_style`, `direction_emotion`, `brand_dna_score`, `provider`). ⚠️ Lien post→image = **flou** (par URL `media_urls` ↔ `image_url`/`public_url`), PAS de FK → ne PAS s'appuyer dessus pour le MVP.
+- `post_metrics` (US-001) joint sur `post_id` + `platform`. Dernier snapshot = `collected_at` max.
+- ⚠️ `scheduler.ts createPost` n'écrit PAS `ai_metadata` (seul le seed + potentiellement le workflow le font) → beaucoup de dimensions seront NULL en réel. **C'est honnête (DÉFCON 1)** : la vue reflète la réalité, se peuple quand le workflow enrichira `ai_metadata`.
+
+**Design retenu (RLS non négociable) :**
+- `attribution_facts` = **VIEW `security_invoker=true`** (PG15+, Supabase OK) sur `post_metrics m JOIN posts p ON m.post_id=p.id`, extrayant les dimensions via `p.ai_metadata->>'...'` + `extract(hour from p.scheduled_at)`. Une vue invoker hérite des RLS de `posts`/`post_metrics` → isolation tenant garantie SANS policy ajoutée. (Une MATERIALIZED VIEW contournerait la RLS → exclue.)
+- Service `src/lib/services/metrics/attribution.ts` : `topFeatures(tenantId, sector, dimension)` → GROUP BY dimension, AVG(engagement_rate), COUNT(*) comme `sample_size`, ORDER BY avg DESC, filtré sur sample_size ≥ seuil (ex. 3) pour éviter le bruit.
+- Job `attribution.refresh` : pg-boss. Comme `attribution_facts` est une vue live (rien à rafraîchir), le job pré-calcule un cache **`attribution_rankings`** (table RLS `tenant_id, dimension, value, avg_engagement, sample_size, computed_at`) — "incrémental" = ne recalcule que les tenants ayant de nouvelles metrics depuis `computed_at`. Lecture rapide pour le dashboard US-012.
+- Migration `supabase/migrations/2026XXXX_attribution.sql` → **à appliquer sur db-rami** (SSH `serveurai` + psql, cf. memory deploiement-coolify-infra : conteneur `supabase-db-szn6...`) + **test RLS cross-tenant** (obligatoire, nouvelle table `attribution_rankings`).
+
 ## Log itérations
 <!-- (date | story | fichiers | learnings) -->
 - **2026-05-31 | US-001 | Schéma post_metrics + RLS** — `src/lib/db/schema.ts` (table `postMetrics` + types `PostMetric`/`NewPostMetric`, import `real`), `supabase/migrations/20260315000001_post_metrics.sql` (table + 4 policies RLS `tenant_id = get_current_tenant_id()` + 2 index). Appliqué sur db-rami (RLS=t, 4 policies). Gates: TS0/lint0/build OK. *Learning* : schéma réel = `src/lib/db/schema.ts` (pas packages/db) ; migrations dans `supabase/migrations/` ; enum `platform` réutilisé.
