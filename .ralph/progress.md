@@ -39,7 +39,17 @@
 - `.env.local` (dev local) → `NEXT_PUBLIC_SUPABASE_URL=https://rfndjbrwpdltfzvyreyv.supabase.co` (instance Supabase **cloud hébergée**, séparée).
 - **Prod** = `db-rami` (Coolify, conteneur `supabase-db-szn6...`) où j'applique les migrations via SSH.
 - **Conséquence** : les migrations appliquées sur db-rami NE sont PAS sur l'instance dev cloud, et inversement. Un `npm run dev` local tape sur rfndjbrwpdltfzvyreyv (où `collective_optin` n'existe pas encore). db-rami n'a QUE le super-admin (mot de passe non accessible — anti-leak). → **Vérification navigateur authentifiée non triviale** : nécessite soit appliquer les migrations aussi sur l'instance dev + un compte test connu, soit un déploiement preview, soit un magic-link via service-role.
-- TODO transverse : décider de la stratégie de migration sur les DEUX instances + stratégie de browser-verify (cf. US-011 en attente).
+- **DÉCISIONS Amine (2026-05-31)** : (1) migrations sur **db-rami uniquement** (prod = source de vérité, ne PAS synchroniser l'instance cloud). (2) browser-verify via **compte test + dev local pointé sur db-rami**.
+
+## CHECKPOINT — Vérif navigateur US-011 (à exécuter en session fraîche)
+US-011 = **implémenté + RLS testée db-rami** mais `passes=false` tant que la vérif navigateur n'est pas faite. Plan d'exécution :
+1. **Créer un compte test sur db-rami** (n'a que le super-admin). Via l'API admin GoTrue (service-role) — récupérer la SERVICE_ROLE_KEY depuis l'env du conteneur `rami` côté serveur SANS l'afficher (tout en un seul SSH), POST `http://supabase-kong-szn6...:8000/auth/v1/admin/users` `{email:"test-ralph@rami.local", password:<connu, ex 'TestRalph2026!'>, email_confirm:true}`. Puis SQL : `INSERT public.tenants(slug,name,owner_id,plan)` + `INSERT public.users(id,email,tenant_id,role,onboarding_completed)` + `UPDATE tenants SET brand_dna='{"sector":"tech"}'::jsonb` (sinon 404 tenant, cf. GOTCHA). Imprimer uniquement l'user id.
+2. **Dev local → db-rami** : lancer `npm run dev` avec override env (NE PAS modifier .env.local) : `NEXT_PUBLIC_SUPABASE_URL=https://db-rami.ai-mpower.com` + anon key db-rami (à récupérer depuis l'env conteneur rami, non-secret). En PowerShell : `$env:NEXT_PUBLIC_SUPABASE_URL=...; $env:NEXT_PUBLIC_SUPABASE_ANON_KEY=...; npm run dev`.
+3. **Playwright** (MCP) : login test-ralph → `/settings/profile` → vérifier la section « Intelligence collective » + screenshot → toggle ON → recharger → confirmer persistance (DB `tenants.collective_optin=true`) → toggle OFF.
+4. Nettoyer le compte test si souhaité (`DELETE FROM auth.users WHERE email='test-ralph@rami.local'` → CASCADE).
+5. Si OK → US-011 `passes=true` + commit `[US-011] ... browser-verified`.
+
+Ce compte test servira aussi pour US-012 (dashboard), US-031, US-032 (toutes UI, browser-verify requis).
 
 ## brand_dna : shape RÉELLE (plate) — IMPORTANT
 Le brand_dna sauvegardé par l'onboarding est **PLAT**, PAS nesté. Clés réelles : `sector`, `primaryCulture`, `objectifCognitif`, `objectifsCognitifs`, `colorPrimary`/`colorSecondary`/`colorAccent`, `brandName`, `tagline`, `positioning`, `voiceTone`, `typography`, `audienceAge`/`audienceLocation`/`audienceDescription`/`audiencePainPoints`, `logoDataUrl`, `sectorCustom`, `perplexity_benchmark`. ⚠️ L'interface `BrandDNA` du prompt-compiler suppose une shape NESTÉE (`identity.sector`, `color_palette[]`, `culture_markets.primary_culture`) → **divergence** : le compiler lit probablement mal les couleurs en prod (dette pré-existante, hors-scope US-009, à traiter dans une story dédiée). Pour US-010 lire le secteur via `brand_dna->>'sector'` et la culture via `brand_dna->>'primaryCulture'`.
