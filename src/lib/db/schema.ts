@@ -7,6 +7,7 @@ import {
   boolean,
   timestamp,
   integer,
+  real,
   pgEnum,
 } from 'drizzle-orm/pg-core'
 
@@ -115,6 +116,30 @@ export const media = pgTable('media', {
   alt_text: text('alt_text'),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
+
+// ============================================================
+// POST METRICS (engagement réel — Performance Loop, MOAT-1)
+// ============================================================
+
+export const postMetrics = pgTable('post_metrics', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  post_id: uuid('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+  platform: platformEnum('platform').notNull(),
+  collected_at: timestamp('collected_at', { withTimezone: true }).defaultNow().notNull(),
+  impressions: integer('impressions').default(0),
+  likes: integer('likes').default(0),
+  comments: integer('comments').default(0),
+  shares: integer('shares').default(0),
+  clicks: integer('clicks').default(0),
+  saves: integer('saves').default(0),
+  engagement_rate: real('engagement_rate').default(0), // (likes+comments+shares+saves)/impressions
+  raw: jsonb('raw'), // réponse brute normalisée de l'API plateforme
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export type PostMetric = typeof postMetrics.$inferSelect
+export type NewPostMetric = typeof postMetrics.$inferInsert
 
 // ============================================================
 // AUDIT LOG

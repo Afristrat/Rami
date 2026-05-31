@@ -27,3 +27,4 @@
 
 ## Log itérations
 <!-- (date | story | fichiers | learnings) -->
+- **2026-05-31 | US-001 | Schéma post_metrics + RLS** — `src/lib/db/schema.ts` (table `postMetrics` + types `PostMetric`/`NewPostMetric`, import `real`), `supabase/migrations/20260315000001_post_metrics.sql` (table + 4 policies RLS `tenant_id = get_current_tenant_id()` + 2 index). Appliqué sur db-rami (RLS=t, 4 policies). Gates: TS0/lint0/build OK. *Learning* : schéma réel = `src/lib/db/schema.ts` (pas packages/db) ; migrations dans `supabase/migrations/` ; enum `platform` réutilisé.

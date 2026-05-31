@@ -4,7 +4,7 @@
   "qualityGates": ["npm run typecheck", "npm run lint", "npm run build", "browser-verify (UI)", "RLS test (new tables)"],
   "maxIterationsPerSession": 25,
   "stories": [
-    {"id": "US-001", "epic": "A", "priority": "P0", "title": "Schéma post_metrics + RLS", "deps": [], "passes": false},
+    {"id": "US-001", "epic": "A", "priority": "P0", "title": "Schéma post_metrics + RLS", "deps": [], "passes": true, "completedAt": "2026-05-31"},
     {"id": "US-002", "epic": "A", "priority": "P0", "title": "MetricsProvider + collecte X (Twitter)", "deps": ["US-001"], "passes": false},
     {"id": "US-003", "epic": "A", "priority": "P0", "title": "Collecte metrics LinkedIn", "deps": ["US-001"], "passes": false},
     {"id": "US-004", "epic": "A", "priority": "P0", "title": "Collecte metrics Meta (FB+IG)", "deps": ["US-001"], "passes": false},
