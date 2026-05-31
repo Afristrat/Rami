@@ -86,11 +86,23 @@ Retourne ce JSON exact :
   "reasoning": "<une phrase explicative>"
 }`
 
-  // Source image OpenAI-compatible : URL HTTPS directe OU data URI base64.
-  // Dans les deux cas, le champ image_url.url accepte la valeur telle quelle.
+  // Moonshot Vision n'accepte QUE des images base64 inline (pas d'URL http).
+  // On résout la source en data URL : un data: passe tel quel, une URL http(s)
+  // (assets générés Fal/MinIO) est téléchargée puis encodée en base64.
+  let imageSource: string
   if (imageUrl.startsWith('data:')) {
-    // Valider le format data URI base64 avant l'envoi.
     if (!/^data:[^;]+;base64,.+$/.test(imageUrl)) {
+      return heuristicScore(input)
+    }
+    imageSource = imageUrl
+  } else {
+    try {
+      const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(TIMEOUT_MS) })
+      if (!imgRes.ok) return heuristicScore(input)
+      const contentType = imgRes.headers.get('content-type') || 'image/png'
+      const buffer = Buffer.from(await imgRes.arrayBuffer())
+      imageSource = `data:${contentType};base64,${buffer.toString('base64')}`
+    } catch {
       return heuristicScore(input)
     }
   }
@@ -119,7 +131,7 @@ Retourne ce JSON exact :
               },
               {
                 type: 'image_url',
-                image_url: { url: imageUrl },
+                image_url: { url: imageSource },
               },
             ],
           },
