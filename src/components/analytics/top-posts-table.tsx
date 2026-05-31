@@ -29,15 +29,6 @@ function formatNumber(n: number, locale: string): string {
   return n.toLocaleString(locale)
 }
 
-/** Demo data when real posts lack engagement metrics (Phase 2 will use Ayrshare) */
-const DEMO_POSTS = [
-  { title: "Comment l\u2019IA r\u00e9volutionne le workflow des agences en 2024\u2026", platform: "linkedin" as Platform, reach: 45200, engagement: 8.2, clicks: 1240, rawEngagement: 820 },
-  { title: "Nouveau design system RAMI : La simplicit\u00e9 au service de la donn\u00e9e", platform: "instagram" as Platform, reach: 32100, engagement: 6.1, clicks: 890, rawEngagement: 610 },
-  { title: "Pourquoi votre agence doit passer \u00e0 l\u2019OS unifi\u00e9 ?", platform: "twitter" as Platform, reach: 28500, engagement: 4.5, clicks: 410, rawEngagement: 450 },
-  { title: "Behind the scenes : L\u2019\u00e9quipe derri\u00e8re RAMI", platform: "linkedin" as Platform, reach: 19400, engagement: 3.8, clicks: 225, rawEngagement: 380 },
-  { title: "Rejoignez notre prochain webinaire sur l\u2019IA", platform: "facebook" as Platform, reach: 12100, engagement: 2.1, clicks: 98, rawEngagement: 210 },
-]
-
 function PlatformCircle({ platform }: { platform: Platform }) {
   const circle = PLATFORM_CIRCLES[platform]
   if (!circle) {
@@ -73,18 +64,24 @@ function EngagementBar({ value }: { value: number }) {
 export function TopPostsTable({ posts }: TopPostsTableProps) {
   const t = useTranslations("analytics")
   const intlLocale = useIntlLocale()
-  const hasRealData = posts.length > 0
-  const displayData = hasRealData
-    ? posts.slice(0, 5).map((post, i) => ({
-        rank: i + 1,
-        title: post.title ?? post.content.slice(0, 80),
-        platform: (post.platforms[0] ?? "linkedin") as Platform,
-        reach: Math.round(post.engagementScore * 35),
-        engagement: parseFloat((1.5 + (post.engagementScore / 200) * 7).toFixed(1)),
-        clicks: Math.round(post.engagementScore * 0.9),
-        rawEngagement: post.engagementScore,
-      }))
-    : DEMO_POSTS.map((p, i) => ({ rank: i + 1, ...p }))
+  // Données 100 % réelles issues de post_metrics (US-012). Une absence vaut 0.
+  const displayData = posts.slice(0, 5).map((post, i) => ({
+    rank: i + 1,
+    title: post.title ?? post.content.slice(0, 80),
+    platform: (post.platforms[0] ?? "linkedin") as Platform,
+    reach: post.reach,
+    engagement: post.engagementRate,
+    clicks: post.clicks,
+    rawEngagement: post.interactions,
+  }))
+
+  if (displayData.length === 0) {
+    return (
+      <div className="px-6 py-12 text-center text-sm text-muted-foreground">
+        {t("noDataYet")}
+      </div>
+    )
+  }
 
   return (
     <div className="overflow-x-auto">

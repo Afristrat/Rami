@@ -1,7 +1,7 @@
 "use client"
 
 import { useTranslations } from "next-intl"
-import { TrendingUp, TrendingDown, Minus, Eye, BarChart3, MousePointerClick, UserPlus, Activity } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus, Eye, BarChart3, MousePointerClick, ThumbsUp, Activity } from "lucide-react"
 import { useIntlLocale } from "@/lib/utils/format-locale"
 import type { KPIData } from "@/app/actions/analytics"
 import { cn } from "@/lib/utils"
@@ -103,44 +103,39 @@ function KPICard({ label, value, delta, icon, badge, highlight }: KPICardData) {
 export function KPICards({ kpis }: { kpis: KPIData }) {
   const t = useTranslations("analytics")
   const intlLocale = useIntlLocale()
-  // Use real data when available, otherwise realistic demo values
-  const reach = kpis.totalReach > 0 ? kpis.totalReach : 1_200_000
-  const impressions = kpis.totalReach > 0 ? Math.round(kpis.totalReach * 3.87) : 4_800_000
-  const engagementRate = kpis.engagementRate > 0 ? kpis.engagementRate : 5.8
-  const clicks = kpis.totalReach > 0 ? Math.round(kpis.totalReach * 0.068) : 84_200
-  const followerGrowth = kpis.publishedCount > 0 ? Math.round(kpis.publishedCount * 26.3) : 12_402
+  // Données 100 % réelles issues de post_metrics (US-012). Une absence vaut 0.
 
   const cards: KPICardData[] = [
     {
-      label: t("totalReach"),
-      value: formatCompact(reach, intlLocale),
-      delta: kpis.reachDelta || 12,
+      label: t("impressions"),
+      value: formatCompact(kpis.impressions, intlLocale),
+      delta: kpis.impressionsDelta,
       icon: <Eye className="size-4" />,
     },
     {
-      label: t("impressions"),
-      value: formatCompact(impressions, intlLocale),
-      delta: kpis.publishedDelta || 8,
-      icon: <BarChart3 className="size-4" />,
+      label: t("engagement"),
+      value: formatCompact(kpis.interactions, intlLocale),
+      delta: kpis.interactionsDelta,
+      icon: <Activity className="size-4" />,
     },
     {
       label: t("engagementRate"),
-      value: `${engagementRate}%`,
-      delta: 0,
-      icon: <Activity className="size-4" />,
-      badge: getEngagementBadge(engagementRate),
+      value: `${kpis.engagementRate}%`,
+      delta: kpis.engagementDelta,
+      icon: <BarChart3 className="size-4" />,
+      badge: getEngagementBadge(kpis.engagementRate),
     },
     {
       label: t("clicks"),
-      value: formatCompact(clicks, intlLocale),
-      delta: kpis.reachDelta > 0 ? Math.round(kpis.reachDelta * 0.6) : 5,
+      value: formatCompact(kpis.clicks, intlLocale),
+      delta: kpis.clicksDelta,
       icon: <MousePointerClick className="size-4" />,
     },
     {
-      label: t("followerGrowth"),
-      value: `+${followerGrowth.toLocaleString(intlLocale)}`,
-      delta: kpis.publishedDelta > 0 ? Math.round(kpis.publishedDelta * 0.8) : 9,
-      icon: <UserPlus className="size-4" />,
+      label: t("likes"),
+      value: formatCompact(kpis.likes, intlLocale),
+      delta: kpis.likesDelta,
+      icon: <ThumbsUp className="size-4" />,
       highlight: true,
     },
   ]

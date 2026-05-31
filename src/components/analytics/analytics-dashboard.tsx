@@ -33,12 +33,10 @@ function computePerformanceScore(data: AnalyticsData): {
   label: string
 } {
   // Engagement : normalisé 0-100 (un taux de 6%+ = excellent = 100)
-  const engRate = data.kpis.engagementRate > 0 ? data.kpis.engagementRate : 5.8
-  const engagementScore = Math.min(100, Math.round((engRate / 6) * 100))
+  const engagementScore = Math.min(100, Math.round((data.kpis.engagementRate / 6) * 100))
 
-  // Reach : basé sur le delta (positif = bon)
-  const reachDelta = data.kpis.reachDelta || 12
-  const reachScore = Math.min(100, Math.max(0, 50 + reachDelta))
+  // Reach : basé sur le delta d'impressions (positif = bon)
+  const reachScore = Math.min(100, Math.max(0, 50 + data.kpis.impressionsDelta))
 
   // Régularité : basé sur le nombre de jours avec des publications
   const daysWithPosts = data.dailyEngagement.filter((d) => {
@@ -145,14 +143,6 @@ export function AnalyticsDashboard({ data, period, platforms }: AnalyticsDashboa
 
       {/* Row 4 : AI Recommendations */}
       <AiRecommendations />
-
-      {/* Phase 2 notice */}
-      <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 dark:bg-violet-500/5 p-4">
-        <p className="text-xs text-violet-600 dark:text-violet-300/80">
-          <span className="font-semibold text-violet-700 dark:text-violet-300">{t("phase2Notice")}</span>{" "}
-          {t("phase2Description")}
-        </p>
-      </div>
     </div>
   )
 }
