@@ -24,9 +24,10 @@
 ## [ENCOURS] — Tâches actives
 
 > **MODE RALPH ACTIF** sur la branche `ralph/rami-completion`. État dans `.ralph/prd.json` (50 US).
-> Avancement : **12/50** (US-001→012 ✓). **🎯 Epic A — Performance Loop (MOAT-1) COMPLET** : collecte 5 plateformes → job pg-boss → attribution → prior Prompt Compiler → benchmarks collectifs (k-anonymity + opt-in RGPD) → dashboard analytics 100 % réel. US-011 + US-012 **browser-verified**.
-> **Session Ralph #3 (2026-05-31 soir)** : US-011 (vérif navigateur), US-010 (job agrégation collective + 10 tests Jest), US-012 (dashboard réel + 11 tests Jest + vérif navigateur). Commits `527c9e2`, `659a79b`, `c0a721c`, `4816dfb`.
-> **Prochaines actions** : Epic B (US-013 page publique Causse×Culture [deps OK], US-016 score cohérence culturelle [deps OK], US-014 rapport MENA [deps US-009 ✓]) **OU** OPS. ⚠️ Plusieurs OPS P0 nécessitent un input d'Amine : **US-017** (nouveau mot de passe super-admin), **US-018** (Price IDs Stripe live + webhook). **US-020** (enforcement quotas) est autonome.
+> Avancement : **13/50** (US-001→013 ✓). **🎯 Epic A — Performance Loop (MOAT-1) COMPLET** (US-001→012). **Epic B (MOAT-2 Autorité Brand DNA) démarré** : US-013 page publique `/causse` ✓.
+> **Session Ralph #3 (2026-05-31 → 06-01)** : US-011, US-010, US-012, US-013 — tous browser-verified ou testés. Commits `527c9e2`, `659a79b`, `c0a721c`, `4816dfb`, `a61747d`.
+> **Méthode browser-verify débloquée** : tunnel SSH vers le Postgres conteneur db-rami (`-L 54322:172.24.0.6:5432`) pour les stories Drizzle ; override NEXT_PUBLIC→db-rami seul pour les pages sans Drizzle. ⚠️ instance cloud `.env.local` SUPPRIMÉE → toujours override.
+> **Prochaine story prête** : **US-016** (score cohérence culturelle, deps [], **design complet dans `.ralph/progress.md` § CHECKPOINT US-016**). Puis US-014 (rapport MENA, deps US-009 ✓). ⚠️ OPS P0 nécessitant input Amine : **US-017** (mot de passe super-admin), **US-018** (Stripe live). **US-020** (quotas) autonome.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
 > ⚠️ **2 dettes à traiter (hors-scope Ralph)** : (1) test pré-existant rouge `tests/unit/brand-dna-score.test.ts` (`SECTOR_COLOR_RULES` `pharmacie_parapharmacie` : `avoidReasonKey` manquante) ; (2) `AiRecommendations` du dashboard = recommandations hardcodées (statistiques inventées) — à câbler sur l'attribution réelle (US-007 `topFeatures`).
 
