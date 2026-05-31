@@ -21,6 +21,7 @@ export const JOBS = {
   PUBLISH_POST: "publish-post",
   COLLECT_METRICS: "collect-metrics",
   ATTRIBUTION_REFRESH: "attribution-refresh",
+  COLLECTIVE_AGGREGATE: "collective-aggregate",
 } as const
 
 // ── Payload du job publish-post ───────────────────────────────────────────────
