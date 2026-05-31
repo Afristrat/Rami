@@ -8,7 +8,7 @@
     {"id": "US-002", "epic": "A", "priority": "P0", "title": "MetricsProvider + collecte X (Twitter)", "deps": ["US-001"], "passes": true, "completedAt": "2026-05-31"},
     {"id": "US-003", "epic": "A", "priority": "P0", "title": "Collecte metrics LinkedIn", "deps": ["US-001"], "passes": true, "completedAt": "2026-05-31"},
     {"id": "US-004", "epic": "A", "priority": "P0", "title": "Collecte metrics Meta (FB+IG)", "deps": ["US-001"], "passes": true, "completedAt": "2026-05-31"},
-    {"id": "US-005", "epic": "A", "priority": "P0", "title": "Collecte metrics Pinterest", "deps": ["US-001"], "passes": false},
+    {"id": "US-005", "epic": "A", "priority": "P0", "title": "Collecte metrics Pinterest", "deps": ["US-001"], "passes": true, "completedAt": "2026-05-31"},
     {"id": "US-006", "epic": "A", "priority": "P0", "title": "Job pg-boss collecte planifiée", "deps": ["US-002","US-003","US-004","US-005"], "passes": false},
     {"id": "US-007", "epic": "A", "priority": "P0", "title": "Attribution feature→performance", "deps": ["US-001"], "passes": false},
     {"id": "US-008", "epic": "A", "priority": "P0", "title": "Performance prior dans Prompt Compiler", "deps": ["US-007"], "passes": false},
