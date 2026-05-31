@@ -11,18 +11,21 @@
 Internet
    │  HTTPS (TLS terminé par Cloudflare)
    ▼
-Cloudflare  ──►  cloudflared tunnel (sur le serveur Ubuntu)
+Cloudflare  ──►  cloudflared tunnel "nahda" (~/.cloudflared/config-nahda.yml)
    │
-   ├─►  rami.ai-mpower.com          → conteneur app RAMI (Next.js standalone)  :3000
-   └─►  supabase.rami.ai-mpower.com → Supabase Kong gateway                    :8000
+   ├─►  rami.ai-mpower.com  → coolify-proxy (Traefik)  localhost:80  ──► conteneur RAMI :3000
+   └─►  db.ai-mpower.com    → Supabase Kong            localhost:8200 → :8000  (PARTAGÉ)
 
-Réseau Docker Coolify (interne) :
-   app RAMI ──► supabase-db:5432 (Postgres)   ──► Supabase Auth / Storage / Edge Functions
-   app RAMI ──► MinIO (assets privés)
+Réseau Docker (serveur Ubuntu) :
+   coolify-proxy (Traefik :80/:443) route par hostname vers les apps Coolify
+   Supabase self-hosted PARTAGÉ : supabase-kong, supabase-db:5432, supabase-pooler:6543,
+     supabase-auth / storage / rest / realtime / edge-functions
+   app RAMI ──► supabase-db / pooler  +  MinIO (assets privés)
 ```
 
-L'app n'est **jamais** exposée en direct : seul cloudflared publie les domaines. Cela rend
-inutiles les certificats locaux et masque l'IP du serveur.
+L'app n'est **jamais** exposée en direct : seul cloudflared publie les domaines (via le
+reverse-proxy Traefik de Coolify sur :80). Cela masque l'IP du serveur et mutualise le TLS.
+Supabase est une **instance unique partagée** entre les builders AI-MPower (URL `db.ai-mpower.com`).
 
 ---
 
@@ -31,9 +34,16 @@ inutiles les certificats locaux et masque l'IP du serveur.
 - Coolify installé et fonctionnel (cf. skill `coolify-manager`).
 - Supabase self-hosted déployé (stack `supabase` : db, kong, auth, storage, rest, realtime,
   edge-functions). Noter le nom du service Postgres dans le réseau Docker (ex. `supabase-db`).
-- `cloudflared` installé, tunnel créé, et les hostnames routés :
-  - `rami.ai-mpower.com` → `http://<app-coolify>:3000`
-  - `supabase.rami.ai-mpower.com` → `http://<kong>:8000`
+- `cloudflared` installé (service systemd `cloudflared-nahda`, config `~/.cloudflared/config-nahda.yml`).
+  Supabase est **déjà** routé (`db.ai-mpower.com → localhost:8200`). Il reste à **ajouter RAMI** :
+  ```yaml
+  # ~/.cloudflared/config-nahda.yml  → bloc ingress, AVANT le catch-all "http_status:404"
+    - hostname: rami.ai-mpower.com
+      service: http://localhost:80      # coolify-proxy (Traefik) route ensuite par domaine
+  ```
+  Puis : DNS Cloudflare `rami.ai-mpower.com` CNAME → `<tunnel-id>.cfargotunnel.com` (proxied),
+  `cloudflared tunnel ingress validate`, et `sudo systemctl restart cloudflared-nahda`.
+  Dans Coolify, configurer le domaine de l'app RAMI sur `https://rami.ai-mpower.com`.
 - Accès SSH au serveur (cf. directives globales : `ssh -i ~/.ssh/serveurai_mnemo serveurai@<IP>`).
 
 ---
