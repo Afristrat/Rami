@@ -24,6 +24,7 @@ export async function register() {
     // Import dynamique pour éviter le bundling côté Edge
     const { startPublishWorker } = await import("@/lib/queue/publish-worker")
     const { startCollectMetricsWorker } = await import("@/lib/queue/jobs/collect-metrics")
+    const { startAttributionRefreshWorker } = await import("@/lib/queue/jobs/attribution-refresh")
     const { log } = await import("@/lib/utils/logger")
 
     try {
@@ -38,6 +39,12 @@ export async function register() {
       await startCollectMetricsWorker()
     } catch (err) {
       log({ level: "error", module: "instrumentation", action: "collect_metrics_worker_start_failed", metadata: { error: err instanceof Error ? err.message : String(err) } })
+    }
+
+    try {
+      await startAttributionRefreshWorker()
+    } catch (err) {
+      log({ level: "error", module: "instrumentation", action: "attribution_refresh_worker_start_failed", metadata: { error: err instanceof Error ? err.message : String(err) } })
     }
   }
 }

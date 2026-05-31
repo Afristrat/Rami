@@ -7,6 +7,7 @@ import {
   boolean,
   timestamp,
   integer,
+  bigint,
   real,
   pgEnum,
 } from 'drizzle-orm/pg-core'
@@ -140,6 +141,24 @@ export const postMetrics = pgTable('post_metrics', {
 
 export type PostMetric = typeof postMetrics.$inferSelect
 export type NewPostMetric = typeof postMetrics.$inferInsert
+
+// ============================================================
+// ATTRIBUTION RANKINGS (cache feature→performance — US-007)
+// ============================================================
+
+export const attributionRankings = pgTable('attribution_rankings', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  dimension: varchar('dimension', { length: 50 }).notNull(), // cognitive_objective | dominant_color_hex | visual_direction | hook | format | scheduled_hour | platform
+  value: text('value').notNull(),
+  avg_engagement: real('avg_engagement').notNull().default(0),
+  total_impressions: bigint('total_impressions', { mode: 'number' }).notNull().default(0),
+  sample_size: integer('sample_size').notNull().default(0),
+  computed_at: timestamp('computed_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export type AttributionRanking = typeof attributionRankings.$inferSelect
+export type NewAttributionRanking = typeof attributionRankings.$inferInsert
 
 // ============================================================
 // AUDIT LOG

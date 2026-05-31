@@ -20,6 +20,7 @@ import { log } from "@/lib/utils/logger"
 export const JOBS = {
   PUBLISH_POST: "publish-post",
   COLLECT_METRICS: "collect-metrics",
+  ATTRIBUTION_REFRESH: "attribution-refresh",
 } as const
 
 // ── Payload du job publish-post ───────────────────────────────────────────────
