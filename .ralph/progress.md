@@ -27,7 +27,21 @@
 - Coolify app `rami` (uuid ry8ytnene4czxdhsoes0z56y), Nixpacks, auto-deploy sur push. API Coolify : token coffre.
 - cloudflared tunnel nahda ; DNS via `cloudflared tunnel route dns --overwrite-dns 7156c3f9-... <host>`.
 
-## Méthode migration db-rami (validée US-007)
+## CHECKPOINT — Prochaine story : US-009 (Schéma intelligence collective)
+*Posé le 2026-05-31 après US-002→008 (boucle de performance mono-tenant COMPLÈTE). Sous-épic collectif = sécurité-critique → session fraîche recommandée.*
+
+**US-009 — Table `collective_benchmarks(sector, culture, platform, metric, value, sample_size, updated_at)` :**
+- Migration via la méthode db-rami ci-dessous (créer `supabase/migrations/20260315000004_collective_benchmarks.sql`).
+- **RLS nuancée (≠ pattern tenant habituel)** : PAS de `tenant_id` sur cette table (données agrégées cross-tenant). Policies à écrire :
+  - SELECT : un tenant lit UNIQUEMENT les lignes dont `sector` = le secteur de SON tenant. Besoin d'un helper `get_current_tenant_sector()` (SECURITY DEFINER) = `SELECT t.brand_dna->'identity'->>'sector' FROM tenants t JOIN users u ON u.tenant_id=t.id WHERE u.id=auth.uid()` (⚠️ le secteur vit dans `tenants.brand_dna` jsonb, cf. US-007 ; vérifier le chemin exact `identity.sector`). Policy : `USING (sector = get_current_tenant_sector())`.
+  - INSERT/UPDATE/DELETE : **service-role uniquement** → AUCUNE policy pour authenticated/anon (RLS active sans policy = tout bloqué sauf service_role qui bypass). Vérifier que service_role bypass bien (sinon policy `USING(false)` explicite + le job utilise service client).
+- **k-anonymity ≥ 5** : contrainte au niveau du job d'agrégation (US-010), MAIS ajouter aussi `CHECK (sample_size >= 5)` sur la table → garantit qu'aucune ligne k<5 ne peut exister, même par erreur.
+- Index `(sector, culture, platform, metric)` unique pour upsert.
+- **Test RLS obligatoire** : tenant secteur A ne voit pas les lignes secteur B ; insert depuis authenticated bloqué.
+
+⚠️ Vérifier d'abord le chemin réel du secteur dans `tenants.brand_dna` (peut être `brand_dna->'identity'->>'sector'` OU autre — inspecter une ligne réelle sur db-rami avant d'écrire le helper).
+
+## Méthode migration db-rami (validée US-007/008)
 Appliquer une migration SQL sur l'instance dédiée db-rami **sans casser le copier-coller** :
 ```powershell
 . "C:\Users\amans\.claude\secrets\load-secrets.ps1" | Out-Null
