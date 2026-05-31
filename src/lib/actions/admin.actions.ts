@@ -1062,7 +1062,7 @@ export async function updateTenantAction(
 
 async function pingProvider(provider: string, apiKey: string): Promise<void> {
   if (provider === "anthropic") {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
+    const res = await fetch(`${process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com"}/v1/messages`, {
       method: "POST",
       headers: {
         "x-api-key": apiKey,

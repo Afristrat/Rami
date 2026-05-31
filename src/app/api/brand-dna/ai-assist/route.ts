@@ -215,7 +215,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (!apiKey) throw new Error(`Clé API manquante pour le provider ${provider}`)
 
     if (provider === "anthropic") {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const res = await fetch(`${process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com"}/v1/messages`, {
         method: "POST",
         headers: {
           "x-api-key": apiKey,

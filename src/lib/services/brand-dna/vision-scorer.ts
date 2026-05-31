@@ -32,7 +32,7 @@ export interface VisionScorerResult {
 }
 
 const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages'
+const ANTHROPIC_API = `${process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com'}/v1/messages`
 const TIMEOUT_MS = 15_000
 
 /**
