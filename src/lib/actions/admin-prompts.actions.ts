@@ -378,7 +378,7 @@ async function callProvider(opts: {
     : provider === "openrouter" ? "https://openrouter.ai/api/v1"
     : provider === "moonshot" ? "https://api.moonshot.ai/v1"
     : provider === "mistral" ? "https://api.mistral.ai/v1"
-    : "https://api.openai.com/v1"
+    : process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
 
   // Moonshot kimi-k2.5 n'accepte que temperature=1 — omettre le paramètre pour ces modèles
   const temperatureParam = provider === "moonshot" && model.startsWith("kimi-k2")

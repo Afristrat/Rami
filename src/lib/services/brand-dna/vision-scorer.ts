@@ -31,18 +31,18 @@ export interface VisionScorerResult {
   reasoning?: string
 }
 
-const HAIKU_MODEL = 'claude-haiku-4-5-20251001'
-const ANTHROPIC_API = `${process.env.ANTHROPIC_BASE_URL || 'https://api.anthropic.com'}/v1/messages`
+const VISION_MODEL = process.env.VISION_MODEL || 'moonshot-v1-8k-vision-preview'
+const OPENAI_API = `${process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1'}/chat/completions`
 const TIMEOUT_MS = 15_000
 
 /**
- * Score une image via Claude Haiku Vision.
+ * Score une image via le proxy Vision OpenAI-compatible.
  * Retourne un score heuristique si la clé API est absente ou si l'appel échoue.
  */
 export async function scoreImageWithVision(
   input: VisionScorerInput
 ): Promise<VisionScorerResult> {
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
     return heuristicScore(input)
   }
@@ -86,49 +86,40 @@ Retourne ce JSON exact :
   "reasoning": "<une phrase explicative>"
 }`
 
-  // Préparer la source image (URL HTTP ou data URI base64)
-  let imageSource: Record<string, unknown>
+  // Source image OpenAI-compatible : URL HTTPS directe OU data URI base64.
+  // Dans les deux cas, le champ image_url.url accepte la valeur telle quelle.
   if (imageUrl.startsWith('data:')) {
-    // Data URI — extraire le média type et le base64
-    const match = imageUrl.match(/^data:([^;]+);base64,(.+)$/)
-    if (!match) {
+    // Valider le format data URI base64 avant l'envoi.
+    if (!/^data:[^;]+;base64,.+$/.test(imageUrl)) {
       return heuristicScore(input)
-    }
-    imageSource = {
-      type: 'base64',
-      media_type: match[1],
-      data: match[2],
-    }
-  } else {
-    imageSource = {
-      type: 'url',
-      url: imageUrl,
     }
   }
 
   try {
-    const response = await fetch(ANTHROPIC_API, {
+    const response = await fetch(OPENAI_API, {
       method: 'POST',
       headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: HAIKU_MODEL,
+        model: VISION_MODEL,
         max_tokens: 512,
-        system: systemPrompt,
         messages: [
+          {
+            role: 'system',
+            content: systemPrompt,
+          },
           {
             role: 'user',
             content: [
               {
-                type: 'image',
-                source: imageSource,
-              },
-              {
                 type: 'text',
                 text: userMessage,
+              },
+              {
+                type: 'image_url',
+                image_url: { url: imageUrl },
               },
             ],
           },
@@ -142,9 +133,9 @@ Retourne ce JSON exact :
     }
 
     const json = await response.json() as {
-      content?: Array<{ type: string; text?: string }>
+      choices?: Array<{ message?: { content?: string } }>
     }
-    const text = json.content?.find((c) => c.type === 'text')?.text ?? ''
+    const text = json.choices?.[0]?.message?.content ?? ''
 
     const parsed = JSON.parse(text) as {
       score?: number

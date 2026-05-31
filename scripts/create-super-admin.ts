@@ -97,8 +97,13 @@ async function main(): Promise<void> {
   const { error: profileError } = await supabase
     .from("profiles")
     .upsert(
-      { user_id: user.id, role: "super_admin", updated_at: new Date().toISOString() },
-      { onConflict: "user_id" }
+      {
+        id: user.id,
+        email: user.email,
+        global_role: "super_admin",
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "id" }
     )
 
   if (profileError) {

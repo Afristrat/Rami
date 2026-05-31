@@ -44,16 +44,16 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     fieldKey: "brand_dna_generate_tagline",
     systemPrompt:
       "Tu es un expert en branding pour les marchés africains et MENA. Génère une tagline percutante. Retourne UNIQUEMENT la tagline, sans guillemets ni explication.",
-    provider: "openrouter",
-    model: "qwen/qwen3-235b-a22b",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.9,
   },
   brand_dna_improve_tagline: {
     fieldKey: "brand_dna_improve_tagline",
     systemPrompt:
       "Tu es un expert en branding. Améliore la tagline fournie pour la rendre plus impactante. Retourne UNIQUEMENT la tagline améliorée, sans guillemets ni explication.",
-    provider: "openrouter",
-    model: "qwen/qwen3-235b-a22b",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.9,
   },
 
@@ -62,8 +62,8 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     fieldKey: "workflow_caption_generation",
     systemPrompt:
       'Tu es un expert en content marketing et copywriting multiplateforme. Génère des captions optimisées pour chaque réseau social. Réponds UNIQUEMENT en JSON valide : {"captions": [{"platform": "string", "hook": "string", "caption": "string", "hashtags": ["string"]}]}',
-    provider: "openrouter",
-    model: "qwen/qwen3-235b-a22b",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.8,
   },
 
@@ -72,8 +72,8 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     fieldKey: "visual_prompt_compiler",
     systemPrompt:
       "Tu es un directeur artistique expert en génération d'images par IA. Génère des prompts optimisés pour FLUX.1 basés sur le Brand DNA. Retourne UNIQUEMENT un objet JSON valide.",
-    provider: "openrouter",
-    model: "qwen/qwen3-235b-a22b",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.85,
   },
 
@@ -82,16 +82,16 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     fieldKey: "brand_dna_generate_positioning",
     systemPrompt:
       "Tu es un stratège en branding spécialisé dans les marchés africains et MENA. Génère un positionnement unique et différenciant. Retourne UNIQUEMENT le texte du positionnement, sans explication.",
-    provider: "openrouter",
-    model: "qwen/qwen3-235b-a22b",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.7,
   },
   brand_dna_improve_positioning: {
     fieldKey: "brand_dna_improve_positioning",
     systemPrompt:
       "Tu es un stratège en branding. Améliore le positionnement fourni pour le rendre plus différenciant. Retourne UNIQUEMENT le positionnement amélioré, sans explication.",
-    provider: "openrouter",
-    model: "qwen/qwen3-235b-a22b",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.7,
   },
 
@@ -100,16 +100,16 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     fieldKey: "brand_dna_prefill_identite",
     systemPrompt:
       'Tu es un expert en branding stratégique spécialisé dans les marchés africains et MENA. Génère une tagline et un positionnement cohérents. Retourne UNIQUEMENT un objet JSON valide : {"tagline": "string", "positioning": "string"}',
-    provider: "openrouter",
-    model: "qwen/qwen3-235b-a22b",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.3,
   },
   brand_dna_prefill_audience: {
     fieldKey: "brand_dna_prefill_audience",
     systemPrompt:
       "Tu es un expert en marketing pour les marchés africains et MENA. Génère un profil d'audience précis. Retourne UNIQUEMENT un objet JSON valide : {\"audienceDescription\": \"string\", \"audienceAge\": \"string\", \"audienceLocation\": \"string\", \"audiencePainPoints\": \"string\"}",
-    provider: "openrouter",
-    model: "google/gemini-2.5-flash",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.3,
   },
 
@@ -118,16 +118,16 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     fieldKey: "brand_dna_prefill_style",
     systemPrompt:
       'Tu es un expert en stratégie éditoriale. Identifie le ton de voix optimal parmi : expert, bienveillant, inspirant, ludique, premium, direct. Retourne UNIQUEMENT un objet JSON valide : {"voiceTone": "id_du_ton"}',
-    provider: "openrouter",
-    model: "google/gemini-2.5-flash",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.2,
   },
   visual_brand_dna_scoring: {
     fieldKey: "visual_brand_dna_scoring",
     systemPrompt:
       'Tu es un expert en cohérence de marque visuelle. Évalue l\'alignement d\'un visuel avec le Brand DNA. Retourne UNIQUEMENT un objet JSON valide : {"score_global": number, "accept": boolean, "feedback": "string"}',
-    provider: "openrouter",
-    model: "google/gemini-2.5-flash",
+    provider: "openai",
+    model: "deepseek-v4-flash",
     temperature: 0.2,
   },
 
@@ -217,14 +217,14 @@ function buildFallback(fieldKey: string): PromptConfig {
   const fallback = FALLBACK_CONFIGS[fieldKey]
 
   if (!fallback) {
-    // field_key inconnu → fallback générique (provider anthropic par défaut)
+    // field_key inconnu → fallback générique texte (proxy OpenAI-compatible)
     return {
       fieldKey,
       systemPrompt: "Tu es un assistant IA expert. Réponds de manière concise et précise.",
       userMessageTemplate: null,
-      provider: "google",
-      model: "gemini-3-flash-preview",
-      apiKey: process.env.GOOGLE_AI_API_KEY,
+      provider: "openai",
+      model: "deepseek-v4-flash",
+      apiKey: process.env.OPENAI_API_KEY,
       temperature: 0.5,
     }
   }

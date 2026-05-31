@@ -259,7 +259,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       ? "https://openrouter.ai/api/v1"
       : provider === "perplexity"
       ? "https://api.perplexity.ai"
-      : "https://api.openai.com/v1"
+      : process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"
 
     const res = await fetch(`${baseUrl}/chat/completions`, {
       method: "POST",

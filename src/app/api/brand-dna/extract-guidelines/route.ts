@@ -49,8 +49,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // 3. Call Claude Haiku Vision
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  // 3. Call Vision (proxy OpenAI-compatible)
+  const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
     return NextResponse.json(
       { error: "API key not configured" },
@@ -71,71 +71,54 @@ Return a JSON object with these fields (all optional, only include what you can 
 }
 Return ONLY the JSON, no markdown fences, no explanation.`
 
-  // Extract base64 data (strip the data URL prefix if present)
+  // Normaliser en data URL (le proxy Vision OpenAI-compatible accepte
+  // une URL data:<mime>;base64,... directement dans image_url.url)
   const base64Data = dataUrl.replace(/^data:[^;]+;base64,/, "")
+  const imageDataUrl = `data:${fileType};base64,${base64Data}`
 
-  // Determine the media type for the API call
-  const mediaType = fileType.startsWith("image/")
-    ? (fileType as
-        | "image/png"
-        | "image/jpeg"
-        | "image/gif"
-        | "image/webp")
-    : "image/png"
-
-  // For PDFs, we use the document type
-  const contentBlock =
-    fileType === "application/pdf"
-      ? {
-          type: "document" as const,
-          source: {
-            type: "base64" as const,
-            media_type: "application/pdf" as const,
-            data: base64Data,
-          },
-        }
-      : {
-          type: "image" as const,
-          source: {
-            type: "base64" as const,
-            media_type: mediaType,
-            data: base64Data,
-          },
-        }
+  const visionModel = process.env.VISION_MODEL || "moonshot-v1-8k-vision-preview"
 
   try {
-    const response = await fetch(`${process.env.ANTHROPIC_BASE_URL || "https://api.anthropic.com"}/v1/messages`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: [
-          {
-            role: "user",
-            content: [
-              contentBlock,
-              {
-                type: "text",
-                text: "Analyze this brand document and extract the brand identity information as specified.",
-              },
-            ],
-          },
-        ],
-      }),
-    })
+    const response = await fetch(
+      `${process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"}/chat/completions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: visionModel,
+          max_tokens: 1024,
+          messages: [
+            {
+              role: "system",
+              content: systemPrompt,
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: "Analyze this brand document and extract the brand identity information as specified.",
+                },
+                {
+                  type: "image_url",
+                  image_url: { url: imageDataUrl },
+                },
+              ],
+            },
+          ],
+        }),
+      }
+    )
 
     if (!response.ok) {
       const errorBody = await response.text()
       log({
         level: "error",
         module: "extract-guidelines",
-        action: "anthropic_api_error",
+        action: "vision_api_error",
         metadata: { status: response.status, body: errorBody },
       })
       return NextResponse.json(
@@ -146,7 +129,7 @@ Return ONLY the JSON, no markdown fences, no explanation.`
 
     const result = await response.json()
     const textContent =
-      (result.content?.[0]?.text as string | undefined) ?? ""
+      (result.choices?.[0]?.message?.content as string | undefined) ?? ""
 
     // Try to parse, handling potential markdown fences
     let cleanJson = textContent.trim()
