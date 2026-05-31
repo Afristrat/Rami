@@ -73,3 +73,6 @@ playwright/.cache/
 /public/uploads/
 /tmp/
 # (couvert par .claude/ ci-dessus)
+
+# Playwright MCP artefacts
+.playwright-mcp/
