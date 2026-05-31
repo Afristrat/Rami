@@ -72,19 +72,49 @@ export async function runPerplexityBenchmark(
 
   const benchmarkConfig = await getPromptConfig("perplexity_sector_benchmark")
 
-  // Résolution de la clé API : BYOK depuis DB > variable d'environnement
-  const perplexityKey = benchmarkConfig.apiKey
-  if (!perplexityKey) {
-    return { error: "PERPLEXITY_API_KEY non configurée dans les variables d'environnement" }
-  }
-
   const culture = primaryCulture ?? "international"
   const cultureLabel = CULTURE_LABELS[culture] ?? "internationale"
 
+  // ── Étape 1 : recherche web via Crawl4AI (DuckDuckGo HTML, crawl-friendly) ──
+  // Crawl4AI crawle la page de résultats et renvoie un markdown (titres + extraits + liens).
+  const crawlBase = (process.env.CRAWL4AI_BASE_URL || "https://crawl4ai.ai-mpower.com").replace(/\/+$/, "")
+  const searchQuery = `tendances marketing réseaux sociaux secteur ${sector} audience ${cultureLabel} 2025 2026`
+  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(searchQuery)}`
+
+  let webContext = ""
+  try {
+    const crawlRes = await fetch(`${crawlBase}/md`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: searchUrl, filter: "fit" }),
+      signal: AbortSignal.timeout(40_000),
+    })
+    if (crawlRes.ok) {
+      const crawlJson = (await crawlRes.json()) as { markdown?: string }
+      webContext = (crawlJson.markdown ?? "").slice(0, 8000)
+    } else {
+      log({ level: "warn", module: "sector-benchmark", action: "crawl4ai_non_ok", tenant_id: tenantId, metadata: { status: crawlRes.status } })
+    }
+  } catch {
+    // Dégradation gracieuse : si le crawl échoue, on synthétise sans contexte web.
+  }
+
+  // ── Étape 2 : synthèse via le LLM (proxy OpenAI-compatible — deepseek) ──
+  const llmKey = process.env.OPENAI_API_KEY
+  if (!llmKey) {
+    return { error: "OPENAI_API_KEY (clé du proxy LLM) non configurée" }
+  }
+  const llmBase = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, "")
+  const llmModel = process.env.LLM_TEXT_MODEL || "deepseek-v4-flash"
+
   const userPrompt = [
-    `Analyse les tendances actuelles du secteur "${sector}" pour une audience ${cultureLabel} sur les réseaux sociaux (2025-2026).`,
+    `Secteur : "${sector}". Audience : ${cultureLabel}. Contexte : réseaux sociaux 2025-2026.`,
     "",
-    "Réponds avec exactement ces 5 clés JSON (valeurs en français, 2-3 phrases chacune) :",
+    webContext
+      ? `Résultats de recherche web récents (titres, extraits, sources) à exploiter :\n${webContext}`
+      : "(Aucun résultat web disponible — base-toi sur tes connaissances du secteur.)",
+    "",
+    "À partir de ces éléments, réponds avec EXACTEMENT ces 5 clés JSON (valeurs en français, 2-3 phrases chacune), sans markdown ni texte hors JSON :",
     `{`,
     `  "tendancesVisuelles": "styles visuels dominants, typographies, compositions, esthétiques en vogue",`,
     `  "tendancesCouleurs": "palettes et couleurs tendance dans ce secteur et cette culture",`,
@@ -97,30 +127,30 @@ export async function runPerplexityBenchmark(
   let benchmarkData: Partial<PerplexityBenchmarkData>
 
   try {
-    const response = await fetch("https://api.perplexity.ai/chat/completions", {
+    const response = await fetch(`${llmBase}/chat/completions`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${perplexityKey}`,
+        Authorization: `Bearer ${llmKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: benchmarkConfig.model,
+        model: llmModel,
         messages: [
           { role: "system", content: benchmarkConfig.systemPrompt },
           { role: "user", content: userPrompt },
         ],
         max_tokens: 1200,
-        temperature: 0.2,
+        temperature: 0.3,
       }),
       signal: AbortSignal.timeout(35_000),
     })
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => "")
-      return { error: `Perplexity API error ${response.status}: ${errorBody.slice(0, 200)}` }
+      return { error: `Benchmark LLM error ${response.status}: ${errorBody.slice(0, 200)}` }
     }
 
-    const json = await response.json() as {
+    const json = (await response.json()) as {
       choices?: Array<{ message?: { content?: string } }>
     }
     const content = json.choices?.[0]?.message?.content ?? ""
@@ -128,13 +158,13 @@ export async function runPerplexityBenchmark(
     // Parser le JSON — gérer les blocs markdown si présents
     const jsonMatch = content.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      return { error: "Réponse Perplexity non parseable (pas de JSON détecté)" }
+      return { error: "Réponse LLM non parseable (pas de JSON détecté)" }
     }
 
     benchmarkData = JSON.parse(jsonMatch[0]) as Partial<PerplexityBenchmarkData>
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur inconnue"
-    return { error: `Erreur appel Perplexity : ${message}` }
+    return { error: `Erreur benchmark (Crawl4AI + LLM) : ${message}` }
   }
 
   const result: PerplexityBenchmarkData = {

@@ -1,0 +1,368 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - link "R RAMI Agency OS" [ref=e6] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e7]: R
+          - generic [ref=e8]:
+            - text: RAMI
+            - paragraph [ref=e9]: Agency OS
+        - button "A Agence Alpha" [ref=e11]:
+          - generic [ref=e12]: A
+          - generic [ref=e13]: Agence Alpha
+          - img [ref=e14]
+        - generic [ref=e17]:
+          - navigation [ref=e18]:
+            - link "Dashboard" [ref=e19] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e20]
+              - generic [ref=e25]: Dashboard
+            - link "Brand DNA" [ref=e26] [cursor=pointer]:
+              - /url: /dashboard/brand-dna
+              - img [ref=e27]
+              - generic [ref=e30]: Brand DNA
+            - link "Créer un post" [ref=e31] [cursor=pointer]:
+              - /url: /dashboard/create
+              - img [ref=e32]
+              - generic [ref=e35]: Créer un post
+            - link "Visuels IA" [ref=e36] [cursor=pointer]:
+              - /url: /create
+              - img [ref=e37]
+              - generic [ref=e43]: Visuels IA
+            - link "Vidéo IA Nouveau" [ref=e44] [cursor=pointer]:
+              - /url: /create/video
+              - img [ref=e45]
+              - generic [ref=e48]: Vidéo IA
+              - generic [ref=e49]: Nouveau
+            - link "Calendrier" [ref=e50] [cursor=pointer]:
+              - /url: /dashboard/calendar
+              - img [ref=e51]
+              - generic [ref=e53]: Calendrier
+            - link "Bibliothèque" [ref=e54] [cursor=pointer]:
+              - /url: /dashboard/library
+              - img [ref=e55]
+              - generic [ref=e60]: Bibliothèque
+            - link "Analytics" [ref=e61] [cursor=pointer]:
+              - /url: /dashboard/analytics
+              - img [ref=e62]
+              - generic [ref=e64]: Analytics
+            - link "Approbations" [ref=e65] [cursor=pointer]:
+              - /url: /dashboard/approvals
+              - img [ref=e66]
+              - generic [ref=e69]: Approbations
+          - generic [ref=e71]: Modules avancés
+          - navigation [ref=e72]:
+            - link "Documents Agency" [ref=e73] [cursor=pointer]:
+              - /url: /dashboard/documents
+              - img [ref=e74]
+              - generic [ref=e77]: Documents
+              - generic [ref=e78]: Agency
+            - link "Transcriptions Pro" [ref=e79] [cursor=pointer]:
+              - /url: /dashboard/transcriptions
+              - img [ref=e80]
+              - generic [ref=e83]: Transcriptions
+              - generic [ref=e84]: Pro
+            - link "Leads Agency" [ref=e85] [cursor=pointer]:
+              - /url: /dashboard/leads
+              - img [ref=e86]
+              - generic [ref=e91]: Leads
+              - generic [ref=e92]: Agency
+            - link "Facturation Agency" [ref=e93] [cursor=pointer]:
+              - /url: /billing
+              - img [ref=e94]
+              - generic [ref=e96]: Facturation
+              - generic [ref=e97]: Agency
+        - link "Console Admin" [ref=e99] [cursor=pointer]:
+          - /url: /admin
+          - img [ref=e100]
+          - text: Console Admin
+        - generic [ref=e103]:
+          - button "Clair" [ref=e104]:
+            - img [ref=e105]
+          - button "Sombre" [ref=e111]:
+            - img [ref=e112]
+          - button "Système" [ref=e114]:
+            - img [ref=e115]
+        - navigation [ref=e118]:
+          - link "Paramètres" [ref=e119] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e120]
+            - generic [ref=e123]: Paramètres
+    - generic [ref=e124]:
+      - banner [ref=e125]:
+        - generic [ref=e127]:
+          - img [ref=e128]
+          - textbox "Rechercher..." [ref=e131]
+        - generic [ref=e132]:
+          - button "Français" [ref=e133]:
+            - img [ref=e134]
+          - button "Notifications" [ref=e137]:
+            - img [ref=e138]
+            - generic [ref=e141]: "2"
+          - button "Centre d'aide" [ref=e142]:
+            - img [ref=e143]
+          - button "ME medamine.mansouriidrissi@gmail.com" [ref=e193]:
+            - generic [ref=e147]: ME
+            - generic [ref=e148]: medamine.mansouriidrissi@gmail.com
+      - main [ref=e149]:
+        - generic [ref=e194]:
+          - navigation [ref=e195]:
+            - link "Vue d'ensemble" [ref=e196] [cursor=pointer]:
+              - /url: /dashboard/brand-dna
+              - img [ref=e197]
+              - text: Vue d'ensemble
+            - link "Assets" [ref=e209] [cursor=pointer]:
+              - /url: /dashboard/brand-dna/assets
+              - img [ref=e210]
+              - text: Assets
+            - link "Directives" [ref=e214] [cursor=pointer]:
+              - /url: /dashboard/brand-dna/guidelines
+              - img [ref=e215]
+              - text: Directives
+            - link "Modifier" [ref=e217] [cursor=pointer]:
+              - /url: /dashboard/brand-dna/edit
+              - img [ref=e218]
+              - text: Modifier
+          - generic [ref=e221]:
+            - generic [ref=e222]:
+              - generic [ref=e224]:
+                - generic [ref=e225]:
+                  - generic [ref=e226]:
+                    - generic [ref=e228]:
+                      - img [ref=e229]
+                      - generic [ref=e241]: Identité
+                    - generic [ref=e244]:
+                      - img [ref=e245]
+                      - generic [ref=e251]: Palette Causse
+                    - generic [ref=e254]:
+                      - img [ref=e255]
+                      - generic [ref=e258]: Ton de voix
+                    - generic [ref=e261]:
+                      - img [ref=e262]
+                      - generic [ref=e266]: Audience
+                  - generic [ref=e267]: 1/4 (25%)
+                - generic [ref=e270]:
+                  - heading "Définissez l'identité de votre marque" [level=2] [ref=e271]
+                  - paragraph [ref=e272]: Ces informations guident l'IA pour créer du contenu aligné avec votre positionnement.
+              - button "Expert" [ref=e273]:
+                - img [ref=e274]
+                - text: Expert
+            - button "Conseil IA" [ref=e276]:
+              - generic [ref=e277]:
+                - generic [ref=e278]:
+                  - img [ref=e279]
+                  - generic [ref=e281]: Conseil IA
+                - img [ref=e282]
+            - generic [ref=e284]:
+              - generic [ref=e285]:
+                - button "Pré-remplir avec IA" [ref=e287]:
+                  - img
+                  - text: Pré-remplir avec IA
+                - generic [ref=e288]:
+                  - generic [ref=e289]:
+                    - paragraph [ref=e290]: Logo
+                    - button "PNG, JPG, SVG" [ref=e292]:
+                      - img [ref=e293]
+                      - generic [ref=e296]: PNG, JPG, SVG
+                  - generic [ref=e297]:
+                    - generic [ref=e298]:
+                      - generic [ref=e300]:
+                        - text: Nom de la marque
+                        - generic [ref=e301]: "*"
+                      - textbox "Nom de la marque *" [ref=e302]:
+                        - /placeholder: "ex : AI-MPower, NovaPay, FreshMarket..."
+                        - text: AI-MPower
+                    - generic [ref=e303]:
+                      - generic [ref=e304]:
+                        - generic [ref=e305]: Tagline (Slogan ou promesse)
+                        - generic [ref=e306]: Optionnel
+                      - generic [ref=e307]:
+                        - 'textbox "ex : L''IA qui vise juste." [ref=e308]'
+                        - button "Générer avec IA" [ref=e402]:
+                          - img [ref=e403]
+                - generic [ref=e313]:
+                  - generic [ref=e314]:
+                    - generic [ref=e316]:
+                      - text: Secteur d'activité
+                      - generic [ref=e317]: "*"
+                    - combobox "Secteur d'activité *" [ref=e318]:
+                      - option "Choisissez un secteur..."
+                      - option "Finance & Banque"
+                      - option "Finance Islamique"
+                      - option "Assurance & Mutuelles"
+                      - option "Immobilier & Promotion"
+                      - option "BTP & Construction"
+                      - option "Industrie & Manufacturing"
+                      - option "Agroalimentaire & Agriculture"
+                      - option "Énergie & Environnement"
+                      - option "Santé & Médical"
+                      - option "Pharmacie & Parapharmacie"
+                      - option "Bien-être & Spa"
+                      - option "Tech & SaaS"
+                      - option "Intelligence Artificielle & Data" [selected]
+                      - option "Cybersécurité"
+                      - option "E-commerce & Marketplace"
+                      - option "Télécommunications"
+                      - option "Éducation & Formation"
+                      - option "EdTech & E-learning"
+                      - option "Média & Presse"
+                      - option "Marketing & Publicité"
+                      - option "Consulting & Conseil"
+                      - option "Ressources Humaines"
+                      - option "Juridique & Droit"
+                      - option "Luxe & Haute Couture"
+                      - option "Mode & Prêt-à-porter"
+                      - option "Beauté & Cosmétiques"
+                      - option "Sport & Fitness"
+                      - option "Tourisme & Hospitality"
+                      - option "Restauration & Food"
+                      - option "ONG & Social Impact"
+                      - option "Autre"
+                  - generic [ref=e319]:
+                    - generic [ref=e321]:
+                      - text: Positionnement
+                      - generic [ref=e322]: "*"
+                    - paragraph [ref=e323]: Quelle est votre proposition de valeur unique ?
+                    - generic [ref=e324]:
+                      - 'textbox "ex : Nous aidons les agences digitales à produire 10x plus de contenu premium grâce à l''IA." [ref=e325]'
+                      - button "Générer avec IA" [ref=e326]:
+                        - img [ref=e327]
+                - generic [ref=e330]:
+                  - generic [ref=e331]:
+                    - paragraph [ref=e332]: Objectif cognitif principal
+                    - paragraph [ref=e333]: Quelles émotions souhaitez-vous déclencher ? (plusieurs choix possibles)
+                  - generic [ref=e334]:
+                    - checkbox "Vos clients vous font confiance avant de vous rencontrer" [ref=e335]:
+                      - generic [ref=e336]: 🏛️
+                      - paragraph [ref=e338]: Vos clients vous font confiance avant de vous rencontrer
+                    - checkbox "Ils agissent maintenant, pas demain" [ref=e339]:
+                      - generic [ref=e340]: ⚡
+                      - paragraph [ref=e342]: Ils agissent maintenant, pas demain
+                    - checkbox "Ils se projettent dans votre univers" [ref=e343]:
+                      - generic [ref=e344]: ✨
+                      - paragraph [ref=e346]: Ils se projettent dans votre univers
+                    - checkbox "Vous devenez la référence de votre secteur" [ref=e347]:
+                      - generic [ref=e348]: 🎓
+                      - paragraph [ref=e350]: Vous devenez la référence de votre secteur
+                    - checkbox "Ils se sentent membres d'un mouvement" [ref=e351]:
+                      - generic [ref=e352]: 🤝
+                      - paragraph [ref=e354]: Ils se sentent membres d'un mouvement
+                    - checkbox "Votre marque leur fait du bien" [ref=e355]:
+                      - generic [ref=e356]: 🎉
+                      - paragraph [ref=e358]: Votre marque leur fait du bien
+                    - checkbox "Épatez-nous" [ref=e359]:
+                      - generic [ref=e360]: 🎨
+                      - paragraph [ref=e362]: Épatez-nous
+                - generic [ref=e363]:
+                  - generic [ref=e364]:
+                    - img [ref=e366]
+                    - paragraph [ref=e368]: Hiérarchie typographique
+                  - generic [ref=e369]:
+                    - generic [ref=e370]:
+                      - paragraph [ref=e371]: Titre
+                      - generic [ref=e372]:
+                        - combobox "Police" [ref=e373]:
+                          - option "Inter" [selected]
+                          - option "Geist"
+                          - option "Roboto"
+                          - option "Open Sans"
+                          - option "Montserrat"
+                          - option "Lato"
+                          - option "Poppins"
+                          - option "Raleway"
+                          - option "Playfair Display"
+                          - option "Merriweather"
+                          - option "Source Sans Pro"
+                          - option "Nunito"
+                          - option "Work Sans"
+                          - option "DM Sans"
+                          - option "Space Grotesk"
+                          - option "Plus Jakarta Sans"
+                          - option "IBM Plex Sans"
+                          - option "Outfit"
+                          - option "Manrope"
+                          - option "Sora"
+                        - generic [ref=e374]:
+                          - spinbutton "Taille" [ref=e375]: "32"
+                          - generic: px
+                        - combobox "Graisse" [ref=e376]:
+                          - option "Regular"
+                          - option "Medium"
+                          - option "Semi-bold"
+                          - option "Bold" [selected]
+                          - option "Black"
+                      - paragraph [ref=e377]: Votre marque parle ici.
+                    - generic [ref=e378]:
+                      - paragraph [ref=e379]: Sous-titre
+                      - generic [ref=e380]:
+                        - combobox "Police" [ref=e381]:
+                          - option "Inter" [selected]
+                          - option "Geist"
+                          - option "Roboto"
+                          - option "Open Sans"
+                          - option "Montserrat"
+                          - option "Lato"
+                          - option "Poppins"
+                          - option "Raleway"
+                          - option "Playfair Display"
+                          - option "Merriweather"
+                          - option "Source Sans Pro"
+                          - option "Nunito"
+                          - option "Work Sans"
+                          - option "DM Sans"
+                          - option "Space Grotesk"
+                          - option "Plus Jakarta Sans"
+                          - option "IBM Plex Sans"
+                          - option "Outfit"
+                          - option "Manrope"
+                          - option "Sora"
+                        - generic [ref=e382]:
+                          - spinbutton "Taille" [ref=e383]: "20"
+                          - generic: px
+                        - combobox "Graisse" [ref=e384]:
+                          - option "Regular"
+                          - option "Medium"
+                          - option "Semi-bold" [selected]
+                          - option "Bold"
+                          - option "Black"
+                      - paragraph [ref=e385]: Votre marque parle ici.
+                    - generic [ref=e386]:
+                      - paragraph [ref=e387]: Corps de texte
+                      - generic [ref=e388]:
+                        - combobox "Police" [ref=e389]:
+                          - option "Inter" [selected]
+                          - option "Geist"
+                          - option "Roboto"
+                          - option "Open Sans"
+                          - option "Montserrat"
+                          - option "Lato"
+                          - option "Poppins"
+                          - option "Raleway"
+                          - option "Playfair Display"
+                          - option "Merriweather"
+                          - option "Source Sans Pro"
+                          - option "Nunito"
+                          - option "Work Sans"
+                          - option "DM Sans"
+                          - option "Space Grotesk"
+                          - option "Plus Jakarta Sans"
+                          - option "IBM Plex Sans"
+                          - option "Outfit"
+                          - option "Manrope"
+                          - option "Sora"
+                        - generic [ref=e390]:
+                          - spinbutton "Taille" [ref=e391]: "16"
+                          - generic: px
+                        - combobox "Graisse" [ref=e392]:
+                          - option "Regular" [selected]
+                          - option "Medium"
+                          - option "Semi-bold"
+                          - option "Bold"
+                          - option "Black"
+                      - paragraph [ref=e393]: Votre marque parle ici.
+              - button "Suivant" [ref=e395]:
+                - text: Suivant
+                - img [ref=e396]
+  - region "Notifications alt+T"
+  - alert [ref=e192]
