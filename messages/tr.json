@@ -1,4 +1,24 @@
 {
+  "causse": {
+    "metaTitle": "Renk × Duygu × Kültür Referansı — Causse Renk Nöropsikolojisi | RAMI",
+    "metaDescription": "RAMI'nin renk nöropsikolojisi referansı: her renk için duygusu, fizyolojik etkisi ve Fas, Afrika, Avrupa ve Orta Doğu'daki kültürel kodları.",
+    "badge": "Referans",
+    "title": "Renk × Duygu × Kültür",
+    "subtitle": "Markanıza uygulanan, MENA kültürel bağlamı için kalibre edilmiş renk nöropsikolojisi.",
+    "intro": "Her renk, hedef kitlenizin kültürüne göre değişen ölçülebilir duygusal ve fizyolojik bir tepki tetikler. Bu, RAMI'nin Brand DNA'sını yönlendiren referanstır.",
+    "emotions": "Duygular",
+    "physiologicalEffect": "Fizyolojik etki",
+    "variants": "Varyantlar",
+    "optimalNetworks": "Optimal ağlar",
+    "recommendedSectors": "Önerilen sektörler",
+    "avoidSectors": "Kaçınılması gerekenler",
+    "culturalNotes": "Kültürel notlar",
+    "maroc": "Fas",
+    "africa": "Afrika",
+    "europe": "Avrupa",
+    "middleEast": "Orta Doğu",
+    "source": "Referans: Michel Causse — “Renk & Duygu”. MENA kültürel bağlamı için RAMI tarafından uyarlanmıştır."
+  },
   "metadata": {
     "appName": "RAMI by AI-MPower",
     "appDescription": "Agency OS — Psikolojik olarak kalibre edilmiş sosyal medya içeriği",

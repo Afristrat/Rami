@@ -1,4 +1,24 @@
 {
+  "causse": {
+    "metaTitle": "Referência Cor × Emoção × Cultura — Neuropsicologia da cor Causse | RAMI",
+    "metaDescription": "A referência de neuropsicologia da cor da RAMI: para cada cor, a sua emoção, o seu efeito fisiológico e os seus códigos culturais em Marrocos, África, Europa e Médio Oriente.",
+    "badge": "Referência",
+    "title": "Cor × Emoção × Cultura",
+    "subtitle": "A neuropsicologia da cor aplicada à sua marca, calibrada para o contexto cultural MENA.",
+    "intro": "Cada cor desencadeia uma reação emocional e fisiológica mensurável — modulada pela cultura do seu público. Esta é a referência que orienta o Brand DNA da RAMI.",
+    "emotions": "Emoções",
+    "physiologicalEffect": "Efeito fisiológico",
+    "variants": "Variantes",
+    "optimalNetworks": "Redes ideais",
+    "recommendedSectors": "Setores recomendados",
+    "avoidSectors": "A evitar",
+    "culturalNotes": "Notas culturais",
+    "maroc": "Marrocos",
+    "africa": "África",
+    "europe": "Europa",
+    "middleEast": "Médio Oriente",
+    "source": "Referência: Michel Causse — «Cor & Emoção». Adaptado pela RAMI para o contexto cultural MENA."
+  },
   "metadata": {
     "appName": "RAMI by AI-MPower",
     "appDescription": "Agency OS — Conteúdo para mídias sociais psicologicamente calibrado",

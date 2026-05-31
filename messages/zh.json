@@ -1,4 +1,24 @@
 {
+  "causse": {
+    "metaTitle": "颜色 × 情感 × 文化参考 — Causse 色彩神经心理学 | RAMI",
+    "metaDescription": "RAMI 的色彩神经心理学参考：每种颜色的情感、生理效应，以及在摩洛哥、非洲、欧洲和中东的文化含义。",
+    "badge": "参考",
+    "title": "颜色 × 情感 × 文化",
+    "subtitle": "应用于您品牌的色彩神经心理学，专为 MENA 文化背景校准。",
+    "intro": "每种颜色都会引发可测量的情感和生理反应——并随受众文化而变化。这是驱动 RAMI 品牌 DNA 的参考体系。",
+    "emotions": "情感",
+    "physiologicalEffect": "生理效应",
+    "variants": "变体",
+    "optimalNetworks": "最佳平台",
+    "recommendedSectors": "推荐行业",
+    "avoidSectors": "避免使用",
+    "culturalNotes": "文化说明",
+    "maroc": "摩洛哥",
+    "africa": "非洲",
+    "europe": "欧洲",
+    "middleEast": "中东",
+    "source": "参考：Michel Causse —《颜色与情感》。由 RAMI 针对 MENA 文化背景改编。"
+  },
   "metadata": {
     "appName": "RAMI by AI-MPower",
     "appDescription": "Agency OS — 心理学校准的社交媒体内容",
