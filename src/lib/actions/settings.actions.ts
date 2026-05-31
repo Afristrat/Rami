@@ -297,6 +297,38 @@ export async function updateNotificationPreferencesAction(
   return { success: "Préférences mises à jour." }
 }
 
+// ── Intelligence collective — opt-in (US-011, RGPD/CNDP) ───────────────────────
+
+export async function getCollectiveOptinAction(): Promise<{ optin: boolean }> {
+  const supabase = await createClient()
+  const tenantId = await getTenantId(supabase)
+  if (!tenantId) return { optin: false }
+
+  const { data } = await supabase
+    .from("tenants")
+    .select("collective_optin")
+    .eq("id", tenantId)
+    .single()
+
+  return { optin: Boolean(data?.collective_optin) }
+}
+
+export async function setCollectiveOptinAction(
+  optin: boolean
+): Promise<{ success?: boolean; error?: string }> {
+  const supabase = await createClient()
+  const tenantId = await getTenantId(supabase)
+  if (!tenantId) return { error: "Tenant introuvable." }
+
+  const { error } = await supabase
+    .from("tenants")
+    .update({ collective_optin: optin, updated_at: new Date().toISOString() })
+    .eq("id", tenantId)
+
+  if (error) return { error: "Impossible d'enregistrer votre choix." }
+  return { success: true }
+}
+
 // ── Zone de danger ────────────────────────────────────────────────────────────
 
 export async function deleteTenantAction(

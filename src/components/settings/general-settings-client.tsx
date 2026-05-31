@@ -9,11 +9,13 @@ import {
   AlertCircle,
   Download,
   Trash2,
+  Users,
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import {
   updateProfileAction,
   updateNotificationPreferencesAction,
+  setCollectiveOptinAction,
   deleteTenantAction,
   type UserProfile,
   type NotificationPreferences,
@@ -100,11 +102,12 @@ function ToggleSwitch({
 interface Props {
   profile: UserProfile
   initialPrefs: NotificationPreferences
+  initialCollectiveOptin: boolean
 }
 
 const CONFIRMATION_PHRASE = "SUPPRIMER MON ESPACE"
 
-export function GeneralSettingsClient({ profile, initialPrefs }: Props) {
+export function GeneralSettingsClient({ profile, initialPrefs, initialCollectiveOptin }: Props) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -129,6 +132,11 @@ export function GeneralSettingsClient({ profile, initialPrefs }: Props) {
   const [prefs, setPrefs] = useState<NotificationPreferences>(initialPrefs)
   const [notifSaved, setNotifSaved] = useState(false)
   const [isNotifPending, startNotifTransition] = useTransition()
+
+  // Intelligence collective — opt-in (US-011)
+  const [collectiveOptin, setCollectiveOptin] = useState(initialCollectiveOptin)
+  const [optinMessage, setOptinMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const [isOptinPending, startOptinTransition] = useTransition()
 
   // Danger zone state
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -194,6 +202,28 @@ export function GeneralSettingsClient({ profile, initialPrefs }: Props) {
     startNotifTransition(async () => {
       const result = await updateNotificationPreferencesAction(prefs)
       if (!result.error) setNotifSaved(true)
+    })
+  }
+
+  // ─── Opt-in collectif handler ───────────────────────────────────────────────
+
+  function handleCollectiveOptinToggle() {
+    const next = !collectiveOptin
+    setCollectiveOptin(next) // optimiste
+    setOptinMessage(null)
+    startOptinTransition(async () => {
+      const result = await setCollectiveOptinAction(next)
+      if (result.error) {
+        setCollectiveOptin(!next) // rollback visuel
+        setOptinMessage({ type: "error", text: result.error })
+      } else {
+        setOptinMessage({
+          type: "success",
+          text: next
+            ? "Vous contribuez désormais aux benchmarks collectifs anonymisés."
+            : "Vous ne contribuez plus aux benchmarks et n'y avez plus accès.",
+        })
+      }
     })
   }
 
@@ -576,6 +606,56 @@ export function GeneralSettingsClient({ profile, initialPrefs }: Props) {
             {t("saveButton")}
           </button>
         </div>
+      </GlassCard>
+
+      {/* ─── Section : Intelligence collective (opt-in RGPD) ─────────────── */}
+      <GlassCard>
+        <div className="flex items-start justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-violet-500/10">
+              <Users className="size-5 text-violet-500" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-foreground dark:text-white">
+                Intelligence collective
+              </h3>
+              <p className="mt-1 text-sm text-muted-foreground dark:text-slate-400 max-w-2xl">
+                Contribuez vos statistiques de performance, <strong>entièrement anonymisées
+                et agrégées</strong> (jamais de données individuelles), pour débloquer en
+                échange l&apos;accès aux <strong>benchmarks collectifs de votre secteur</strong> :
+                couleurs, formats et créneaux qui performent le mieux. Les agrégats ne sont
+                calculés qu&apos;à partir d&apos;au moins 5 marques distinctes (k-anonymity).
+              </p>
+              <p className="mt-2 text-xs text-muted-foreground/80 dark:text-slate-500 max-w-2xl">
+                Finalité : amélioration des recommandations de génération. Aucune donnée
+                brute n&apos;est exposée à un tiers. Vous pouvez retirer votre consentement à
+                tout moment — le refus désactive également votre accès aux benchmarks.
+              </p>
+            </div>
+          </div>
+          <ToggleSwitch
+            checked={collectiveOptin}
+            onChange={handleCollectiveOptinToggle}
+            disabled={isOptinPending}
+          />
+        </div>
+        {optinMessage && (
+          <div
+            className={cn(
+              "mt-4 flex items-center gap-2 rounded-lg px-4 py-3 text-sm",
+              optinMessage.type === "success"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                : "bg-destructive/10 text-destructive"
+            )}
+          >
+            {optinMessage.type === "success" ? (
+              <CheckCircle2 className="size-4 shrink-0" />
+            ) : (
+              <AlertCircle className="size-4 shrink-0" />
+            )}
+            {optinMessage.text}
+          </div>
+        )}
       </GlassCard>
 
       {/* ─── Section 4: Zone de danger ───────────────────────────────────── */}

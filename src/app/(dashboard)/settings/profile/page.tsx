@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server"
 import {
   getProfileAction,
   getNotificationPreferencesAction,
+  getCollectiveOptinAction,
 } from "@/lib/actions/settings.actions"
 import { GeneralSettingsClient } from "@/components/settings/general-settings-client"
 
@@ -14,9 +15,10 @@ export async function generateMetadata() {
 }
 
 export default async function ProfilePage() {
-  const [profileResult, prefsResult] = await Promise.all([
+  const [profileResult, prefsResult, optinResult] = await Promise.all([
     getProfileAction(),
     getNotificationPreferencesAction(),
+    getCollectiveOptinAction(),
   ])
 
   if (!profileResult.data) {
@@ -27,6 +29,7 @@ export default async function ProfilePage() {
     <GeneralSettingsClient
       profile={profileResult.data}
       initialPrefs={prefsResult.data}
+      initialCollectiveOptin={optinResult.optin}
     />
   )
 }

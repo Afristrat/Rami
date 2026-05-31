@@ -38,6 +38,7 @@ export const tenants = pgTable('tenants', {
   subscription_status: varchar('subscription_status', { length: 50 }),
   generation_count: integer('generation_count').notNull().default(0),
   generation_reset_at: timestamp('generation_reset_at', { withTimezone: true }),
+  collective_optin: boolean('collective_optin').notNull().default(false), // consentement benchmarks collectifs (US-011)
   is_active: boolean('is_active').notNull().default(true),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
