@@ -76,3 +76,4 @@ playwright/.cache/
 
 # Playwright MCP artefacts
 .playwright-mcp/
+.ralph/devserver.log
