@@ -161,6 +161,25 @@ export type AttributionRanking = typeof attributionRankings.$inferSelect
 export type NewAttributionRanking = typeof attributionRankings.$inferInsert
 
 // ============================================================
+// COLLECTIVE BENCHMARKS (intelligence collective anonymisée — US-009)
+// Agrégats cross-tenant (PAS de tenant_id), k-anonymity ≥ 5.
+// ============================================================
+
+export const collectiveBenchmarks = pgTable('collective_benchmarks', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  sector: text('sector').notNull(),
+  culture: text('culture').notNull(),
+  platform: platformEnum('platform').notNull(),
+  metric: text('metric').notNull(), // avg_engagement | avg_impressions | ...
+  value: real('value').notNull().default(0),
+  sample_size: integer('sample_size').notNull(), // nb de tenants distincts (≥ 5)
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export type CollectiveBenchmark = typeof collectiveBenchmarks.$inferSelect
+export type NewCollectiveBenchmark = typeof collectiveBenchmarks.$inferInsert
+
+// ============================================================
 // AUDIT LOG
 // ============================================================
 

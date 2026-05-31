@@ -12,7 +12,7 @@
     {"id": "US-006", "epic": "A", "priority": "P0", "title": "Job pg-boss collecte planifiée", "deps": ["US-002","US-003","US-004","US-005"], "passes": true, "completedAt": "2026-05-31"},
     {"id": "US-007", "epic": "A", "priority": "P0", "title": "Attribution feature→performance", "deps": ["US-001"], "passes": true, "completedAt": "2026-05-31"},
     {"id": "US-008", "epic": "A", "priority": "P0", "title": "Performance prior dans Prompt Compiler", "deps": ["US-007"], "passes": true, "completedAt": "2026-05-31"},
-    {"id": "US-009", "epic": "A", "priority": "P0", "title": "Schéma collective_benchmarks + anonymisation", "deps": ["US-001"], "passes": false},
+    {"id": "US-009", "epic": "A", "priority": "P0", "title": "Schéma collective_benchmarks + anonymisation", "deps": ["US-001"], "passes": true, "completedAt": "2026-05-31"},
     {"id": "US-010", "epic": "A", "priority": "P0", "title": "Job agrégation collective", "deps": ["US-009","US-011"], "passes": false},
     {"id": "US-011", "epic": "A", "priority": "P0", "title": "Consentement opt-in benchmarks (RGPD)", "deps": ["US-009"], "passes": false},
     {"id": "US-012", "epic": "A", "priority": "P0", "title": "Dashboard analytics réel", "deps": ["US-001","US-007"], "passes": false},
