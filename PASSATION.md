@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-05-31T12:00:00Z ==
+# == PASSATION RAMI 2026-05-31T19:30:00Z ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -24,12 +24,28 @@
 ## [ENCOURS] — Tâches actives
 
 > **MODE RALPH ACTIF** sur la branche `ralph/rami-completion`. État dans `.ralph/prd.json` (50 US).
-> Avancement : **1/50** (US-001 ✓). Prochaine story : **US-002** (MetricsProvider + collecte X), deps satisfaites.
-> Reprendre : *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md, prendre prochaine `passes=false`).
+> Avancement : **9/50** (US-001→009 ✓) + **US-011 implémentée** (`passes=false`, en attente du SEUL gate « vérif navigateur »).
+> **Epic A — Performance Loop (MOAT-1) quasi complet** : collecte 5 plateformes + job + attribution + prior + schéma collectif + opt-in.
+> **Prochaine action** : exécuter la **vérif navigateur US-011** (plan détaillé dans `.ralph/progress.md` § CHECKPOINT) → puis **US-010** (job agrégation collective, déblocable, backend-only) → **US-012** (dashboard).
+> Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
 
 ---
 
-## [FAIT] — Accompli cette session (2026-05-31) — ÉNORME
+## [FAIT] — Session Ralph #2 (2026-05-31 après-midi) — Epic A
+
+> 8 stories `passes=true` (US-002→009) + US-011 implémentée. **5 migrations appliquées sur la prod db-rami, chacune RLS-testée.** Gates TS0/lint0/build OK à chaque story. Zéro donnée inventée (DÉFCON 1).
+
+- **US-002→005 — Collecte metrics réelles** : module `src/lib/services/metrics/` (abstraction `MetricsProvider` + router `collectMetricsFromPlatform`). Providers Twitter (API v2), LinkedIn (organizationalEntityShareStatistics / socialActions), Meta FB+IG (Graph insights), Pinterest (v5 analytics). Token révoqué/post supprimé → `{unavailable:true}` sans crash. Metrics non exposées par une API → 0 (jamais estimé).
+- **US-006 — Job pg-boss collecte** : `jobs/collect-metrics.ts` planifie T+1h/24h/7j après publication (`scheduleMetricsCollection`), upsert snapshots dans `post_metrics`. Refresh OAuth extrait en `queue/token-refresh.ts` (DRY publish+collecte).
+- **US-007 — Attribution feature→performance** : migration → VIEW `attribution_facts` (`security_invoker`, RLS héritée) + table `attribution_rankings` (RLS). Service `metrics/attribution.ts` (`topFeatures`, `aggregateAttribution`). Job cron `attribution.refresh` (6h, incrémental). **RLS testée** (SELECT isolé + INSERT cross-tenant bloqué).
+- **US-008 — Performance prior** : `compileBrandDNAToPrompts` accepte un `performancePrior` (couleurs/styles gagnants), gaté `MIN_PRIOR_SAMPLE=10` (sinon Causse pur). Persisté `visual_session_images.performance_prior` (jsonb).
+- **US-009 — Intelligence collective** : table `collective_benchmarks` SANS tenant_id (cross-tenant), `CHECK(sample_size>=5)` k-anonymity, helper `get_current_tenant_sector()`, RLS SELECT filtrée secteur + write service-role only. **3 tests sécurité passés.**
+- **US-011 — Opt-in RGPD (impl)** : `tenants.collective_optin` + helper `current_tenant_is_collective_optin()` + RLS benchmarks exige opt-in (refus=0 accès). Actions get/set + UI section « Intelligence collective » (toggle + texte consentement). **RLS testée db-rami** (false→0, true→accès). ✗ **vérif navigateur en attente** (cf. ALERTE split env).
+- Commits : `b6c087c · 1409e11 · 0c9acd6 · 7a193ff · e436daf · a3db978 · 174e5ff · eac7dab · 15b25ae` + checkpoints.
+
+---
+
+## [FAIT] — Session #1 (2026-05-31 matin) — ÉNORME
 
 ### Dette technique purgée (DEFCON N°3)
 - Lint **5 erreurs + 39 warnings → 0/0** (RoleBadge, useCallback React Compiler, imports morts, alt-text, hooks deps).
@@ -69,7 +85,9 @@
 - **! Modules FACTICES en prod** (affichés mais non câblés) : Vidéo, Présentations, Competitors (données hardcodées), + 🟡 Transcriptions (Whisper absent), Documents (PDF absent), Leads (Apollo absent), Analytics (engagement réel absent). Détail : `docs/PRD_RAMI_L99.md` §0.2.
 - **! Stripe encore en TEST** — Price IDs live + webhook live non configurés.
 - **! IP publique serveur dynamique** (DHCP) — re-vérifier après reboot ; le tunnel cloudflared (cfargotunnel) est IP-indépendant donc OK.
-- **! Branche ralph/rami-completion non mergée** dans main — 1 commit US-001 + scaffolding.
+- **! Branche ralph/rami-completion non mergée** dans main — désormais ~12 commits (US-001→009 + US-011 impl + checkpoints).
+- **!! SPLIT ENVIRONNEMENT dev/prod** (découvert session #2) : `.env.local` → instance Supabase **cloud** `rfndjbrwpdltfzvyreyv.supabase.co` (séparée), alors que la **prod = db-rami**. Les migrations vont sur **db-rami uniquement** (décision Amine). Conséquence : `npm run dev` brut tape sur le cloud (non migré) → pour browser-verify, lancer dev avec env override vers db-rami. Plan complet dans `.ralph/progress.md`.
+- **! `brand_dna` shape RÉELLE = PLATE** (`brand_dna->>'sector'`, `->>'primaryCulture'`, `colorPrimary`…), alors que l'interface `BrandDNA` du `prompt-compiler` suppose une shape NESTÉE (`identity.sector`, `color_palette[]`). **Divergence = dette pré-existante** : le compiler lit probablement mal les couleurs en prod. Story dédiée à créer (hors-scope Ralph actuel).
 
 ---
 
@@ -86,25 +104,31 @@
 
 ## [NEXT] — Prochaines actions prioritaires
 
-1. **OPS-1** (US-017) : rotation du mot de passe super-admin (compromis). XS, urgent.
-2. **Reprendre le Ralph loop** → US-002 (collecte metrics X), puis EPIC A complet = activer MOAT-1.
-3. **OPS-2/3** : Stripe live + tâche cron reconcile Coolify.
-4. Suivre le backlog `.ralph/prd.json` (P0 moats → P1 cœur factice → P2 surface).
+1. **Vérif navigateur US-011** : créer compte test sur db-rami + dev local override → db-rami + Playwright (plan exact dans `.ralph/progress.md` § CHECKPOINT). Puis `passes=true`.
+2. **US-010** (job agrégation collective, backend-only, déblocable — le flag opt-in qu'il consomme est en place + DB-testé) : sweep tenants opt-in → agrège `post_metrics` par (secteur,culture,plateforme,metric), k≥5, upsert `collective_benchmarks`. Test : <5 tenants → 0 ligne.
+3. **US-012** (dashboard analytics réel) : lit `post_metrics` + `attribution_rankings` (réutilise le compte test pour browser-verify).
+4. **OPS-1** (US-017) : rotation mot de passe super-admin (compromis). XS, urgent.
+5. Suivre le backlog `.ralph/prd.json` (fin Epic A → OPS → P1 cœur factice → P2 surface).
 
 ---
 
 ## [CTX] — Contexte session
 
-- Session marathon (audit → purge dette → migration Coolify → déploiement complet → LLM proxy → Crawl4AI → audit+moats → PRD L99 → mode Ralph US-001).
+- Session #2 = Ralph loop Epic A (US-002→009 + US-011 impl), avec migrations + tests RLS exécutés DIRECTEMENT sur la prod db-rami via SSH.
+- **Méthode migration db-rami (validée)** : `$sql=[IO.File]::ReadAllText(<migration>)` → base64 → `ssh -i $env:SERVER_SSH_KEY $env:SERVER_SSH_USER@$env:SERVER_HOST "echo '<blob>' | base64 -d | docker exec -i supabase-db-szn6rjsrqig7n4oerw27egwr psql -U postgres -d postgres -v ON_ERROR_STOP=1"`. Charger le coffre d'abord (`. load-secrets.ps1`).
+- **Test RLS** : transaction `BEGIN; ... SELECT set_config('request.jwt.claims','{"sub":"<userid>"}',true); SET LOCAL ROLE authenticated; <test>; ROLLBACK;`. ⚠️ éviter blocs `DO $$` (échappement PowerShell casse le dollar-quoting) → INSERT directs.
 - Accès : SSH `serveurai_mnemo` ✓ · API Coolify (token coffre) ✓ · coffre DPAPI ✓ · Playwright (vérifs UI) ✓.
-- Commits clés branche ralph : `19f570f` (scaffolding) · `e23c097` (US-001).
+- Commits clés : session #1 `19f570f`/`e23c097` ; session #2 US-002→009 + US-011 (cf. [FAIT]).
 
 ---
 
 ## [MEMO] — À ne pas oublier inter-sessions
 
 - **Infra complète** : cf. memory projet `deploiement-coolify-infra.md` (Supabase dédié, proxy, cloudflared, gotchas).
-- **Schéma DB réel** : `src/lib/db/schema.ts` (pas packages/db) ; migrations `supabase/migrations/` appliquées sur `db-rami` via `docker exec -i supabase-db-szn6rjsrqig7n4oerw27egwr psql -U postgres`.
+- **Schéma DB réel** : `src/lib/db/schema.ts` (pas packages/db) ; migrations `supabase/migrations/` appliquées sur `db-rami` via `docker exec -i supabase-db-szn6rjsrqig7n4oerw27egwr psql -U postgres` (méthode base64 cf. [CTX]).
+- **Tables Performance Loop (session #2)** : `post_metrics`, `attribution_facts` (vue), `attribution_rankings`, `collective_benchmarks`, `tenants.collective_optin`, `visual_session_images.performance_prior`. Helpers RLS : `get_current_tenant_id()`, `get_current_tenant_sector()` (= `brand_dna->>'sector'`), `current_tenant_is_collective_optin()`.
+- **Module metrics** : `src/lib/services/metrics/{types,engagement,twitter,linkedin,meta,pinterest,attribution,index}.ts`. Workers : `src/lib/queue/jobs/{collect-metrics,attribution-refresh}.ts` + `token-refresh.ts`, enregistrés dans `src/instrumentation.ts`.
+- **Compte test db-rami** : à créer (n'existe pas encore) pour browser-verify — db-rami n'a QUE le super-admin. Réutilisable pour toutes les stories UI.
 - **RLS** : `get_current_tenant_id()` lit `public.users.tenant_id`. Tout compte hors-onboarding doit avoir une ligne `tenants` (owner_id) + `users` (tenant_id) sinon 404.
 - **LLM** : `OPENAI_BASE_URL=https://proxy.ai-mpower.com/v1`, `OPENAI_API_KEY`=clé rami. deepseek PAS via /v1/messages. moonshot vision = base64 inline only.
 - **Crawl4AI** : `https://crawl4ai.ai-mpower.com` `POST /md {url, filter:"fit"}`.
