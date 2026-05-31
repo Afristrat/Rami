@@ -9,7 +9,7 @@
 - **Tenant resolution** : `resolveUserTenant(supabase, userId)` (tenants.owner_id → tenant_members → users.tenant_id).
 - **LLM** : via proxy LiteLLM (`OPENAI_BASE_URL=https://proxy.ai-mpower.com/v1`, `OPENAI_API_KEY`). Texte = `deepseek-v4-flash` (`LLM_TEXT_MODEL`), vision = `moonshot-v1-8k-vision-preview` (`VISION_MODEL`, BASE64 only). Provider "openai" route vers le proxy. Config par cas d'usage : `src/lib/services/ai/prompt-config.ts` (DB `ai_prompts_config` + fallback).
 - **Crawl4AI** : `CRAWL4AI_BASE_URL=https://crawl4ai.ai-mpower.com`, `POST /md {url, filter:"fit"}` → markdown.
-- **Abstractions** : `PublishingProvider`, `ImageProvider` (5 providers fallback), `MetricsProvider` (à créer). OAuth refresh : `getValidToken()`.
+- **Abstractions** : `PublishingProvider`, `ImageProvider` (5 providers fallback), `MetricsProvider` (`src/lib/services/metrics/` — types.ts + engagement.ts + index.ts router `collectMetricsFromPlatform`). OAuth refresh : `getValidToken()`.
 - **Queue** : pg-boss connecté (schéma `pgboss`), jobs enregistrés dans `src/instrumentation.ts`.
 - **Storage** : MinIO (privé) + R2 (CDN). `src/lib/services/storage/`.
 - **Crypto** : OAuth tokens AES-256-GCM (`OAUTH_TOKEN_ENCRYPTION_KEY`).
@@ -28,3 +28,4 @@
 ## Log itérations
 <!-- (date | story | fichiers | learnings) -->
 - **2026-05-31 | US-001 | Schéma post_metrics + RLS** — `src/lib/db/schema.ts` (table `postMetrics` + types `PostMetric`/`NewPostMetric`, import `real`), `supabase/migrations/20260315000001_post_metrics.sql` (table + 4 policies RLS `tenant_id = get_current_tenant_id()` + 2 index). Appliqué sur db-rami (RLS=t, 4 policies). Gates: TS0/lint0/build OK. *Learning* : schéma réel = `src/lib/db/schema.ts` (pas packages/db) ; migrations dans `supabase/migrations/` ; enum `platform` réutilisé.
+- **2026-05-31 | US-002 | MetricsProvider + collecte X (Twitter)** — `src/lib/services/metrics/types.ts` (`NormalizedMetrics`, `MetricsFetchInput`, `MetricsResult` union avec `unavailable`, interface `MetricsProvider`), `engagement.ts` (`computeEngagementRate` borné [0,1]), `twitter.ts` (`fetchTwitterMetrics` → API v2 `GET /2/tweets/:id?tweet.fields=public_metrics,non_public_metrics,organic_metrics`, 401/403/404 → `{unavailable:true}` sans crash), `index.ts` (router `collectMetricsFromPlatform` calqué sur `publishing/index.ts`). Gates: TS0/lint0/build OK. *Learnings* : table OAuth réelle = `oauth_connections` (PAS `social_accounts` du schéma Drizzle, vestige) ; `posts.platform_results` JSONB = `{ twitter: { postId, postUrl, status }, ... }` → source du `platformPostId` pour la collecte ; mapping Twitter→post_metrics : shares = retweet+quote, saves = bookmark_count, clicks = non_public.url_link_clicks. `AbortSignal.timeout(15000)` pour le réseau.
