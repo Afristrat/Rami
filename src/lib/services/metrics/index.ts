@@ -2,24 +2,26 @@
  * Router de collecte de metrics — dispatch vers le bon provider par plateforme.
  * Performance Loop (MOAT-1). Pattern identique à `publishing/index.ts`.
  *
- * US-002 : seul Twitter est branché. US-003/004/005 ajouteront LinkedIn,
+ * Twitter (US-002) et LinkedIn (US-003) branchés. US-004/005 ajouteront
  * Meta (FB+IG) et Pinterest. US-006 enregistrera le job pg-boss qui appelle
  * `collectMetricsFromPlatform()` et upsert dans `post_metrics`.
  */
 
 import { fetchTwitterMetrics } from "./twitter"
+import { fetchLinkedInMetrics } from "./linkedin"
 import type { MetricsFetchInput, MetricsResult } from "./types"
 
 export type { MetricsFetchInput, MetricsResult, NormalizedMetrics, MetricsProvider } from "./types"
 export { computeEngagementRate } from "./engagement"
 
-export type SupportedMetricsPlatform = "twitter"
+export type SupportedMetricsPlatform = "twitter" | "linkedin"
 
 const PROVIDERS: Record<
   SupportedMetricsPlatform,
   (input: MetricsFetchInput) => Promise<MetricsResult>
 > = {
   twitter: fetchTwitterMetrics,
+  linkedin: fetchLinkedInMetrics,
 }
 
 /**
