@@ -31,6 +31,8 @@ ARG NEXT_PUBLIC_POSTHOG_HOST
 ARG MINIO_PUBLIC_URL
 ARG MINIO_ENDPOINT
 ENV NEXT_TELEMETRY_DISABLED=1
+# Active le build standalone (requis pour l'image Docker ; ignoré par Nixpacks/next start)
+ENV BUILD_STANDALONE=1
 
 RUN npm run build
 

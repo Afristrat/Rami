@@ -130,8 +130,9 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
-  // Build standalone : serveur Node autonome pour l'image Docker / Coolify
-  output: "standalone",
+  // Build standalone : UNIQUEMENT pour l'image Docker (BUILD_STANDALONE=1).
+  // Nixpacks utilise `next start`, incompatible avec output:standalone → conditionnel.
+  output: process.env.BUILD_STANDALONE === "1" ? "standalone" : undefined,
 
   // ─── Headers de sécurité sur toutes les routes ────────────────────────────
   async headers() {
