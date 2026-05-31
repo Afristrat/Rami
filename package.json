@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:e2e": "playwright test",
-    "deploy": "vercel deploy --prod",
+    "deploy": "node -e \"const u=process.env.COOLIFY_DEPLOY_WEBHOOK;if(!u){console.error('COOLIFY_DEPLOY_WEBHOOK manquant (Coolify > App > Webhooks)');process.exit(1)}fetch(u,{method:'GET'}).then(r=>{console.log('Déploiement Coolify déclenché:',r.status);process.exit(r.ok?0:1)}).catch(e=>{console.error(e);process.exit(1)})\"",
     "smoke-test": "tsx scripts/smoke-test.ts",
     "create-super-admin": "tsx scripts/create-super-admin.ts",
     "seed": "tsx scripts/seed-users.ts",
@@ -37,7 +37,7 @@
     "jszip": "^3.10.1",
     "lucide-react": "^0.577.0",
     "minio": "^8.0.7",
-    "next": "16.1.6",
+    "next": "^16.2.6",
     "next-intl": "^4.8.3",
     "next-themes": "^0.4.6",
     "pg": "^8.20.0",
@@ -68,11 +68,15 @@
     "@types/sharp": "^0.31.1",
     "dotenv": "^17.3.1",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "^16.2.6",
     "jest": "^30.3.0",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
     "tsx": "^4.21.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "^8.5.10",
+    "esbuild": "^0.25.0"
   }
 }

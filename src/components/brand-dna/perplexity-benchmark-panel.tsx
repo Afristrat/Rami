@@ -124,7 +124,7 @@ export function PerplexityBenchmarkPanel({
       setErrorMessage("Impossible de contacter le service de benchmark")
       setFetchState("error")
     }
-  }, [])
+  }, [t])
 
   // Auto-déclencher si pas de données ou cache périmé.
   // setTimeout(0) reporte l'appel après le commit React pour éviter la règle

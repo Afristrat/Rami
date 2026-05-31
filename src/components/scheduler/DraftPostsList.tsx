@@ -18,7 +18,6 @@ interface DraftPostsListProps {
 }
 
 export function DraftPostsList({ posts, onDeleted, onSelect }: DraftPostsListProps) {
-  const t = useTranslations("calendar")
   if (posts.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-muted/20 p-6 text-center">

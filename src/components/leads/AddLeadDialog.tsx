@@ -7,9 +7,7 @@ import { cn } from "@/lib/utils"
 import { createLeadAction } from "@/lib/actions/leads.actions"
 import {
   createLeadSchema,
-  LEAD_STAGES,
   CURRENCIES,
-  STAGE_CONFIG,
   type LeadStage,
   type LeadData,
 } from "@/lib/schemas/lead.schema"

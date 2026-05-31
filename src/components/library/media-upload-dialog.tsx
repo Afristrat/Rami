@@ -2,12 +2,11 @@
 
 import { useTranslations } from "next-intl"
 
-import React, { useCallback, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import {
   X,
   Upload,
-  Loader2,
   CheckCircle,
   Image as ImageIcon,
 } from "lucide-react"
@@ -28,22 +27,15 @@ interface MediaUploadDialogProps {
   onUpload: (file: File) => Promise<void>
 }
 
-const ACCEPTED_TYPES = [
-  "image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml",
-  "video/mp4", "video/webm", "video/ogg", "video/quicktime",
-  "application/pdf",
-]
-
 const ACCEPT_STRING = ".jpg,.jpeg,.png,.gif,.webp,.svg,.mp4,.webm,.mov,.pdf"
 
 export function MediaUploadDialog({ open, onClose, onUpload }: MediaUploadDialogProps) {
   const t = useTranslations("library")
-  const tCommon = useTranslations("common")
   const [isDragging, setIsDragging] = useState(false)
   const [uploads, setUploads] = useState<UploadItem[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const processFile = useCallback(async (file: File) => {
+  const processFile = async (file: File) => {
     if (file.size > 50 * 1024 * 1024) return
 
     const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`
@@ -82,9 +74,9 @@ export function MediaUploadDialog({ open, onClose, onUpload }: MediaUploadDialog
         prev.map((u) => (u.id === id ? { ...u, status: "error", error: t("uploadError") } : u))
       )
     }
-  }, [onUpload])
+  }
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsDragging(false)
@@ -92,15 +84,15 @@ export function MediaUploadDialog({ open, onClose, onUpload }: MediaUploadDialog
     for (const file of files) {
       await processFile(file)
     }
-  }, [processFile])
+  }
 
-  const handleInputChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     for (const file of files) {
       await processFile(file)
     }
     if (inputRef.current) inputRef.current.value = ""
-  }, [processFile])
+  }
 
   const handleClose = () => {
     setUploads([])

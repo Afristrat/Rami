@@ -163,7 +163,6 @@ function AccordionColorSection({
   const t = useTranslations("brandDna.colorPicker")
   const tColors = useTranslations("brandDna.colors")
   const tCultureNotes = useTranslations("brandDna.cultureColorNotes")
-  const tCultures = useTranslations("brandDna.cultures")
   const recommendedIds = new Set(sectorRules?.recommended ?? [])
   const avoidedIds = new Set(sectorRules?.avoid ?? [])
 

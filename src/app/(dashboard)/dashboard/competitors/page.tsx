@@ -8,7 +8,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  Image,
+  Image as ImageIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -237,7 +237,7 @@ export default function CompetitorAnalysisPage() {
               )}
             >
               <div className={cn("h-32 flex items-center justify-center", content.color)}>
-                <Image className="size-8 text-white/30" />
+                <ImageIcon className="size-8 text-white/30" />
               </div>
               <div className="p-4">
                 <p className="text-xs font-medium text-foreground dark:text-white line-clamp-2 leading-relaxed">{content.title}</p>

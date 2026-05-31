@@ -26,7 +26,6 @@ import {
   type MediaAsset,
   type MediaFileType,
 } from "@/lib/actions/library.actions"
-import { MediaUploadZone } from "./media-upload-zone"
 import { MediaCard } from "./media-card"
 import { MediaLightbox } from "./media-lightbox"
 import { MediaUploadDialog } from "./media-upload-dialog"
@@ -48,7 +47,7 @@ interface MediaLibraryClientProps {
 export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibraryClientProps) {
   const t = useTranslations("library")
   const [assets, setAssets] = useState<MediaAsset[]>(initialAssets)
-  const [total, setTotal] = useState(initialTotal)
+  const [, setTotal] = useState(initialTotal)
   const [filter, setFilter] = useState<FilterType>("all")
   const [search, setSearch] = useState("")
   const [lightboxAsset, setLightboxAsset] = useState<MediaAsset | null>(null)
@@ -83,7 +82,7 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
     setFilter(newFilter)
   }, [])
 
-  const handleUpload = useCallback(async (file: File) => {
+  const handleUpload = async (file: File) => {
     const formData = new FormData()
     formData.append("file", file)
 
@@ -95,9 +94,9 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
       setAssets((prev) => [result.data, ...prev])
       setTotal((prev) => prev + 1)
     }
-  }, [])
+  }
 
-  const handleDelete = useCallback((id: string) => {
+  const handleDelete = (id: string) => {
     const asset = assets.find((a) => a.id === id)
     if (!asset) return
 
@@ -111,16 +110,16 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
         setTotal((prev) => prev - 1)
       }
     })
-  }, [assets])
+  }
 
-  const handleUseInPost = useCallback((asset: MediaAsset) => {
+  const handleUseInPost = (asset: MediaAsset) => {
     if (asset.publicUrl) {
       const url = `/dashboard/create?mediaUrl=${encodeURIComponent(asset.publicUrl)}&mediaId=${asset.id}`
       window.location.href = url
     } else {
       toast.info(t("useFromWorkflow"))
     }
-  }, [])
+  }
 
   return (
     <div className="flex h-full flex-col overflow-hidden">

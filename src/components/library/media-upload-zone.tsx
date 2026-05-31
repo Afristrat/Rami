@@ -49,7 +49,7 @@ export function MediaUploadZone({ onUpload, disabled }: MediaUploadZoneProps) {
     } finally {
       setIsUploading(false)
     }
-  }, [onUpload])
+  }, [onUpload, t])
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault()

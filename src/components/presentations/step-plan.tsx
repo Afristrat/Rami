@@ -22,7 +22,6 @@ interface StepPlanProps {
 
 export function StepPlan({ slides, onUpdate, onNext, onBack }: StepPlanProps) {
   const t = useTranslations("presentations")
-  const tCommon = useTranslations("common")
   const [localSlides, setLocalSlides] = useState<SlideItem[]>(slides)
 
   function handleSlideChange(id: string, title: string) {

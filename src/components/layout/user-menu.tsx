@@ -3,7 +3,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { LogOut, Settings, Sun, Moon, Monitor } from "lucide-react"
 import { useTheme } from "next-themes"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
@@ -22,7 +21,6 @@ function getInitials(name: string | null | undefined, email: string | null | und
 
 export function UserMenu() {
   const { theme, setTheme } = useTheme()
-  const router = useRouter()
   const [mounted, setMounted] = useState(false)
   const [userInfo, setUserInfo] = useState<{ name: string; email: string; initials: string } | null>(null)
   const t = useTranslations("auth")

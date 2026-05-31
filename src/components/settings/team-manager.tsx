@@ -91,7 +91,7 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
     },
   } as const
 
-  function RoleBadge({ role }: { role: string }) {
+  const renderRoleBadge = (role: string) => {
     const config = ROLE_CONFIG[role as keyof typeof ROLE_CONFIG] ?? ROLE_CONFIG.viewer
     return (
       <div
@@ -294,7 +294,7 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
                   {ownerEmail}
                 </td>
                 <td className="px-6 py-4">
-                  <RoleBadge role="owner" />
+                  {renderRoleBadge("owner")}
                 </td>
                 <td className="px-6 py-4 text-sm text-muted-foreground dark:text-slate-400">
                   {t("online")}
@@ -326,7 +326,7 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
                     {member.email}
                   </td>
                   <td className="px-6 py-4">
-                    <RoleBadge role={member.role} />
+                    {renderRoleBadge(member.role)}
                   </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground dark:text-slate-400">
                     {member.acceptedAt

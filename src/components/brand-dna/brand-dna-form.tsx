@@ -865,7 +865,7 @@ function ExpertBrandUpload({ form }: { form: ReturnType<typeof useForm<BrandDnaF
       }
     }
     reader.readAsDataURL(file)
-  }, [form])
+  }, [form, tForm])
 
   return (
     <div className="space-y-2">
@@ -1032,7 +1032,6 @@ interface BrandDnaFormProps {
 }
 
 export function BrandDnaForm({ initialData }: BrandDnaFormProps) {
-  const t = useTranslations("brandDna")
   const tForm = useTranslations("brandDna.form")
   const tCommon = useTranslations("common")
   const router = useRouter()

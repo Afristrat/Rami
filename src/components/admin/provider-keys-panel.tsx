@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { useTranslations } from "next-intl"
 import {
   Eye, EyeOff, CheckCircle2, XCircle, Loader2, AlertCircle, Key, Trash2,
-  FlaskConical, Save, Type, Image, Video, Mic, LayoutTemplate,
+  FlaskConical, Save, Type, Image as ImageIcon, Video, Mic, LayoutTemplate,
 } from "lucide-react"
 import { useIntlLocale } from "@/lib/utils/format-locale"
 import type { AiProviderKey, AiProviderKeyCategory } from "@/lib/actions/admin.actions"
@@ -25,7 +25,7 @@ const KEY_PATTERNS: Partial<Record<string, RegExp>> = {
 
 const CATEGORY_META: Record<AiProviderKeyCategory, { label: string; icon: React.ReactNode; color: string }> = {
   text:        { label: "Génération de texte",  icon: <Type         className="size-3.5" />, color: "text-violet-400" },
-  image:       { label: "Génération d'images",  icon: <Image        className="size-3.5" />, color: "text-blue-400" },
+  image:       { label: "Génération d'images",  icon: <ImageIcon    className="size-3.5" />, color: "text-blue-400" },
   video:       { label: "Génération de vidéos", icon: <Video        className="size-3.5" />, color: "text-pink-400" },
   audio:       { label: "Génération audio",     icon: <Mic          className="size-3.5" />, color: "text-amber-400" },
   infographic: { label: "Infographies",         icon: <LayoutTemplate className="size-3.5" />, color: "text-teal-400" },

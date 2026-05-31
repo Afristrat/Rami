@@ -58,7 +58,6 @@ interface NewPostDialogProps {
 
 export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialogProps) {
   const t = useTranslations("calendar.dialog")
-  const tCommon = useTranslations("common")
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 

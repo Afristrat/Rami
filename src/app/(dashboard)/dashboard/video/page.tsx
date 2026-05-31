@@ -2,7 +2,7 @@ import type { ElementType } from "react"
 import {
   FileText,
   Mic2,
-  Image,
+  Image as ImageIcon,
   Film,
   Download,
   Layers,
@@ -40,7 +40,7 @@ const PIPELINE_STEPS: PipelineStep[] = [
   { id: "script", label: "Script", icon: FileText, status: "completed", duration: "CLAUDE V4" },
   { id: "voice", label: "Voice", icon: Mic2, status: "active", duration: "ELEVENLABS" },
   { id: "storyboard", label: "Storyboard", icon: Layers, status: "pending", duration: "CLAUDE" },
-  { id: "imagegen", label: "Image Gen", icon: Image, status: "pending", duration: "FAL AI" },
+  { id: "imagegen", label: "Image Gen", icon: ImageIcon, status: "pending", duration: "FAL AI" },
   { id: "animation", label: "Animation", icon: Film, status: "pending", duration: "RUNWAY" },
   { id: "export", label: "Export", icon: Download, status: "pending", duration: "MP4" },
 ]
@@ -275,7 +275,7 @@ export default async function VideoPipelinePage() {
                 )}
               >
                 {frame.status === "generated" ? (
-                  <Image className="size-4 text-violet-400/50" />
+                  <ImageIcon className="size-4 text-violet-400/50" />
                 ) : (
                   <span className="text-muted-foreground/30">{frame.id}</span>
                 )}

@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Scripts shell : DOIVENT rester en LF (exécutés dans les conteneurs Coolify/Linux)
+*.sh text eol=lf
+Dockerfile text eol=lf

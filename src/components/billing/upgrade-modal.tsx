@@ -24,7 +24,6 @@ export function UpgradeModal({
 }: UpgradeModalProps) {
   const router = useRouter()
   const t = useTranslations('pricing')
-  const tb = useTranslations('billing')
   const [selectedPlan, setSelectedPlan] = useState<Plan>(
     getNextPlan(currentPlan) ?? 'pro'
   )

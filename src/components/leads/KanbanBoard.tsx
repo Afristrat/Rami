@@ -39,11 +39,11 @@ export function KanbanBoard({ initialData, searchQuery }: KanbanBoardProps) {
   const t = useTranslations("leads")
   const [data, setData] = useState<LeadsByStage>(initialData)
   const [selectedLead, setSelectedLead] = useState<LeadData | null>(null)
-  const [draggedLeadId, setDraggedLeadId] = useState<string | null>(null)
+  const [, setDraggedLeadId] = useState<string | null>(null)
   const [dragOverStage, setDragOverStage] = useState<LeadStage | null>(null)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [addDialogStage, setAddDialogStage] = useState<LeadStage>("lead")
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
 
   // ── Recherche ────────────────────────────────────────────────────────────────
 
@@ -169,7 +169,7 @@ export function KanbanBoard({ initialData, searchQuery }: KanbanBoardProps) {
     }))
   }, [])
 
-  const handleEditLead = useCallback((lead: LeadData) => {
+  const handleEditLead = useCallback((_lead: LeadData) => {
     // Pour l'instant, juste un placeholder - le formulaire d'édition sera une prochaine itération
   }, [])
 

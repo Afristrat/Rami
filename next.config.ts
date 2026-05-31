@@ -4,6 +4,31 @@ import createNextIntlPlugin from "next-intl/plugin"
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts")
 
+// ─── Hôtes self-hosted dérivés de l'environnement ─────────────────────────────
+// Supabase & MinIO ne sont plus sur *.supabase.co / *.railway.app : ils sont
+// auto-hébergés sur le serveur Ubuntu (exposés via cloudflared tunnel). On dérive
+// leur hostname depuis les variables d'env pour les autoriser dans la CSP + images.
+function safeHost(url: string | undefined): string {
+  if (!url) return ""
+  try {
+    return new URL(url).host
+  } catch {
+    return ""
+  }
+}
+
+const SUPABASE_HOST = safeHost(process.env.NEXT_PUBLIC_SUPABASE_URL)
+const MINIO_HOST = safeHost(process.env.MINIO_PUBLIC_URL ?? process.env.MINIO_ENDPOINT)
+const APP_HOST = safeHost(process.env.NEXT_PUBLIC_APP_URL)
+
+// Directives CSP additionnelles pour les hôtes self-hosted (vides si non définis)
+const selfHostedImg = [SUPABASE_HOST, MINIO_HOST]
+  .filter(Boolean)
+  .map((h) => `https://${h}`)
+const selfHostedConnect = [SUPABASE_HOST, MINIO_HOST, APP_HOST]
+  .filter(Boolean)
+  .flatMap((h) => [`https://${h}`, `wss://${h}`])
+
 // ─── Headers de sécurité ──────────────────────────────────────────────────────
 // Conforme CLAUDE.md Section 4.8 + 4.10
 
@@ -16,6 +41,8 @@ const CSP = [
   // Images : self + Supabase Storage + Cloudflare R2 + avatars réseaux sociaux
   [
     "img-src 'self' data: blob:",
+    // Supabase & MinIO self-hosted (dérivés de l'env)
+    ...selfHostedImg,
     "https://*.supabase.co",
     "https://*.r2.cloudflarestorage.com",
     // Fal.ai generated images CDN
@@ -40,6 +67,8 @@ const CSP = [
   // Connexions API : Supabase + Stripe
   [
     "connect-src 'self'",
+    // Supabase & MinIO self-hosted (dérivés de l'env)
+    ...selfHostedConnect,
     "https://*.supabase.co",
     "wss://*.supabase.co",
     "https://api.stripe.com",
@@ -101,12 +130,20 @@ const securityHeaders = [
 ]
 
 const nextConfig: NextConfig = {
+  // Build standalone : serveur Node autonome pour l'image Docker / Coolify
+  output: "standalone",
+
   // ─── Headers de sécurité sur toutes les routes ────────────────────────────
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      // API non indexable (migré depuis vercel.json — Coolify n'utilise pas vercel.json)
+      {
+        source: "/api/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex" }],
       },
       // CORS : API interne (dashboard uniquement)
       {
@@ -144,12 +181,17 @@ const nextConfig: NextConfig = {
   // ─── Images (optimisation Next.js pour les avatars plateformes) ───────────
   images: {
     remotePatterns: [
-      // Supabase Storage
+      // Supabase self-hosted (hostname dérivé de l'env) + Supabase Cloud (dev)
+      ...(SUPABASE_HOST
+        ? [{ protocol: "https" as const, hostname: SUPABASE_HOST }]
+        : []),
       { protocol: "https", hostname: "*.supabase.co" },
+      // MinIO self-hosted (hostname dérivé de l'env)
+      ...(MINIO_HOST
+        ? [{ protocol: "https" as const, hostname: MINIO_HOST }]
+        : []),
       // Cloudflare R2
       { protocol: "https", hostname: "*.r2.cloudflarestorage.com" },
-      // MinIO Railway (assets privés)
-      { protocol: "https", hostname: "*.railway.app" },
       // Twitter / X
       { protocol: "https", hostname: "pbs.twimg.com" },
       { protocol: "https", hostname: "abs.twimg.com" },

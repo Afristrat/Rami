@@ -83,7 +83,7 @@ export function BrandAssetsManager({ initialAssets }: Props) {
         setUploading(false)
       }
     },
-    [activeTab]
+    [activeTab, t]
   )
 
   const handleFileChange = useCallback(
@@ -119,7 +119,7 @@ export function BrandAssetsManager({ initialAssets }: Props) {
     } finally {
       setDeletingId(null)
     }
-  }, [])
+  }, [t])
 
   return (
     <div className="space-y-6">

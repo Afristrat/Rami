@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import { DocumentStatusBadge } from "./DocumentStatusBadge"
 import { deleteDocumentAction, type DocumentItem } from "@/lib/actions/documents.actions"
-import type { DocumentType, DocumentStatus } from "@/lib/schemas/document.schema"
+import type { DocumentType } from "@/lib/schemas/document.schema"
 import type { LucideIcon } from "lucide-react"
 
 // ── Config par type ────────────────────────────────────────

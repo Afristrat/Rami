@@ -7,12 +7,6 @@ import {
   Star,
   Zap,
   MoreHorizontal,
-  Phone,
-  Mail,
-  Linkedin,
-  MapPin,
-  Building2,
-  Users as UsersIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { LeadData, BrandDnaMatch } from "@/lib/schemas/lead.schema"

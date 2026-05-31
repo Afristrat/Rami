@@ -61,7 +61,6 @@ export function PrefillSectionButton({
   className,
 }: PrefillSectionButtonProps) {
   const t = useTranslations("brandDna.prefill")
-  const tCommon = useTranslations("common")
   const [state, setState] = useState<PrefillState>("idle")
   const [countdown, setCountdown] = useState(ANNULER_DURATION_S)
   const [errorMsg, setErrorMsg] = useState("")

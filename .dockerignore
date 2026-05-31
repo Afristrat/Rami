@@ -1,0 +1,42 @@
+# Dépendances et build (régénérés dans l'image)
+node_modules
+.next
+out
+build
+
+# Secrets — JAMAIS dans l'image
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+*.pem
+*.key
+
+# Git & CI
+.git
+.github
+.gitignore
+
+# Tests & rapports
+coverage
+playwright-report
+test-results
+blob-report
+playwright/.cache
+tests
+
+# Outils & docs locaux
+.claude
+.vercel
+.turbo
+docs
+design
+Kb
+database
+*.md
+!README.md
+
+# OS
+.DS_Store
+*.tsbuildinfo

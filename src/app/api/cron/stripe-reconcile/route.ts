@@ -1,6 +1,9 @@
 /**
  * RAMI — Cron de réconciliation Stripe
- * Déclenché par Vercel Cron Jobs (vercel.json) tous les jours à 2h UTC.
+ * Déclenché par une Tâche Planifiée Coolify (Scheduled Task) tous les jours à 2h UTC :
+ *   curl -fsS -H "Authorization: Bearer $STRIPE_RECONCILE_CRON_SECRET" \
+ *        "$NEXT_PUBLIC_APP_URL/api/cron/stripe-reconcile"
+ * (cf. scripts/cron-stripe-reconcile.sh et docs/DEPLOY_COOLIFY.md)
  *
  * Appelle la Supabase Edge Function "stripe-reconcile" qui synchronise
  * les abonnements Stripe avec la table tenants (plan, status, quota).

@@ -128,7 +128,6 @@ export function DnaScoreBadge({ data, className }: DnaScoreBadgeProps) {
  */
 export function DnaScoreCompact({ score }: { score: number }) {
   const t = useTranslations("brandDna.form")
-  const tScore = useTranslations("brandDna.scoreLevel")
   const percentage = Math.round(score * 100)
   const level = getDnaScoreLevel(score)
 

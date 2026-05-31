@@ -704,7 +704,7 @@ export function ModelPicker({ provider, value, onChange }: Props) {
   const panelRef                  = useRef<HTMLDivElement>(null)
   const searchRef                 = useRef<HTMLInputElement>(null)
 
-  const models = MODELS[provider] ?? []
+  const models = useMemo(() => MODELS[provider] ?? [], [provider])
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim()
