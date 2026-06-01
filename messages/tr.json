@@ -847,6 +847,20 @@
       "ong_social_impact": "Le noir et l'or évoquent le luxe — en opposition avec les valeurs associatives",
       "juridique_droit": "Ces couleurs évoquent l'impulsivité — contraire à la rigueur juridique"
     },
+    "culturalScore": {
+      "title": "Kültürel uyum",
+      "levels": {
+        "excellent": "Mükemmel",
+        "good": "İyi",
+        "warning": "Dikkat",
+        "poor": "Riskli"
+      },
+      "recommended": "sektörünüz için önerilir",
+      "neutral": "sektörünüz için nötr",
+      "avoid": "sektörünüzde kaçınılmalı",
+      "alternative": "Önerilen alternatif: {color}",
+      "noRules": "Bu sektör için özel renk kuralı yok — palet nötr kabul edildi."
+    },
     "scoreLevel": {
       "excellent": {
         "label": "Excellent",

@@ -237,6 +237,7 @@ export const SECTOR_COLOR_RULES: Record<string, {
   pharmacie_parapharmacie: {
     recommended: ["bleu_roi", "vert_emeraude", "turquoise_innovation"],
     avoid: ["rouge_passion"],
+    avoidReasonKey: "sante_medical",
     avoidAlternative: "bordeaux_premium",
   },
   bien_etre_spa: {

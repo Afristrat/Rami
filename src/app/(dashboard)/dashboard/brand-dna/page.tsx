@@ -32,6 +32,8 @@ import type { BrandDnaFormData } from "@/lib/schemas/brand-dna.schema"
 import { cn } from "@/lib/utils"
 import { BrandDnaOverviewClient } from "@/components/brand-dna/brand-dna-overview-client"
 import { BrandDnaNav } from "@/components/brand-dna/brand-dna-nav"
+import { CulturalScoreBadge } from "@/components/brand-dna/cultural-score-badge"
+import { scoreCulturalCoherence } from "@/lib/services/brand-dna/cultural-scorer"
 
 /* ─── Mapping plateformes optimales par couleur (Causse) ─── */
 const COLOR_NETWORKS: Record<string, string[]> = {
@@ -181,6 +183,16 @@ export default async function BrandDnaPage() {
   const _paletteColors = [primaryColor, secondaryColor, accentColor].filter(
     Boolean
   )
+
+  // Score de cohérence culturelle (US-016) — palette × secteur (matrice Causse)
+  const culturalScore = scoreCulturalCoherence({
+    sector: initialData.sector ?? "",
+    colorIds: [
+      initialData.colorPrimary,
+      initialData.colorSecondary,
+      initialData.colorAccent,
+    ].filter((id): id is string => Boolean(id)),
+  })
 
   // Résolution du ton
   const tone = VOICE_TONES.find((t) => t.id === initialData.voiceTone)
@@ -367,6 +379,13 @@ export default async function BrandDnaPage() {
           <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-[0.2em] mb-6">
             {t("caussePalette")}
           </h3>
+
+          {/* Score de cohérence culturelle (US-016) */}
+          {_paletteColors.length > 0 && (
+            <div className="mb-6">
+              <CulturalScoreBadge result={culturalScore} />
+            </div>
+          )}
 
           {/* Color cards with neuropsychological insights */}
           <div className="space-y-4 mb-8">

@@ -847,6 +847,20 @@
       "ong_social_impact": "Le noir et l'or évoquent le luxe — en opposition avec les valeurs associatives",
       "juridique_droit": "Ces couleurs évoquent l'impulsivité — contraire à la rigueur juridique"
     },
+    "culturalScore": {
+      "title": "文化一致性",
+      "levels": {
+        "excellent": "优秀",
+        "good": "良好",
+        "warning": "需注意",
+        "poor": "有风险"
+      },
+      "recommended": "适合您的行业",
+      "neutral": "对您的行业中性",
+      "avoid": "您的行业应避免",
+      "alternative": "建议替代：{color}",
+      "noRules": "该行业没有特定的色彩规则——调色板被视为中性。"
+    },
     "scoreLevel": {
       "excellent": {
         "label": "Excellent",
