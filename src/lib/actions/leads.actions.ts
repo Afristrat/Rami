@@ -353,9 +353,11 @@ export type EnrichLeadResult =
   | { success: false; error: string }
 
 /**
- * Enrichit un lead via Apollo (US-027) : remplit `apollo_data` (titre, entreprise,
- * email…) et complète les champs vides du lead (email, secteur, taille, localisation,
- * linkedin) sans écraser les valeurs déjà saisies.
+ * Enrichit un lead via le provider d'enrichissement actif (US-027 : Apollo, Hunter,
+ * PDL, Dropcontact ou Enrich.so selon `LEADS_ENRICHMENT_PROVIDER` + BYOK). Remplit
+ * `apollo_data` (colonne historique : titre, entreprise, email…) et complète les
+ * champs vides du lead (email, secteur, taille, localisation, linkedin) sans écraser
+ * les valeurs déjà saisies.
  */
 export async function enrichLeadAction(leadId: string): Promise<EnrichLeadResult> {
   const ctx = await getAuthContext()
@@ -386,9 +388,9 @@ export async function enrichLeadAction(leadId: string): Promise<EnrichLeadResult
 
     if (!result.success) {
       const messages: Record<typeof result.reason, string> = {
-        no_key: "Enrichissement Apollo non configuré (clé API absente).",
-        not_found: "Aucune correspondance Apollo pour ce contact.",
-        error: "Erreur lors de l'enrichissement Apollo.",
+        no_key: "Enrichissement non configuré (clé API absente).",
+        not_found: "Aucune correspondance trouvée pour ce contact.",
+        error: "Erreur lors de l'enrichissement du lead.",
       }
       if (result.reason === "error") {
         log({
@@ -396,7 +398,7 @@ export async function enrichLeadAction(leadId: string): Promise<EnrichLeadResult
           module: "leads",
           action: "enrich_lead",
           tenant_id: ctx.tenantId,
-          message: "Échec enrichissement Apollo",
+          message: "Échec de l'enrichissement du lead",
           metadata: { lead_id: leadId, error: result.message },
         })
       }

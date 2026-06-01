@@ -208,7 +208,7 @@ export function LeadDetailPanel({ lead, onClose, onEdit, onEnriched }: LeadDetai
             </div>
           </div>
 
-          {/* Enrichissement Apollo */}
+          {/* Enrichissement du lead (provider actif : Apollo / Hunter / PDL / Dropcontact / Enrich.so) */}
           <div
             className="rounded-xl p-4 bg-muted/30 border border-border"
           >
