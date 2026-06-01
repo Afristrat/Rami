@@ -58,7 +58,10 @@ Ce compte test servira aussi pour US-012 (dashboard), US-031, US-032 (toutes UI,
 3. Playwright : ouvrir le lead → onglet Infos → bloc « Enrichissement Apollo » → cliquer **Enrichir via Apollo** → vérifier spinner puis : `apollo_data` rempli (badge « Mis à jour »), champs vides complétés (email/secteur/taille/localisation), bouton devient « Réenrichir ». Tester aussi un contact introuvable → message « Aucune correspondance Apollo ». Screenshot.
 4. Si OK → US-027 `passes=true` + `completedAt` + commit `[US-027] browser-verified`.
 
-## CHECKPOINT — Browser-verify US-016 (à exécuter en session ON-LAN)
+## ✅ US-016 BROWSER-VERIFIED (2026-06-01, on-LAN) — passes=true
+Vérif navigateur exécutée (dev local override `NEXT_PUBLIC_*`→db-rami, login test-ralph, `/dashboard/brand-dna`). Tenant test posé en `finance_islamique` + palette `vert_emeraude`/`rouge_passion`/`bleu_marine` (SQL db-rami). Badge `cultural-score-badge` rendu : **score 70/100 « Bonne »** (70+10+10−20), vert_emeraude→recommandée, rouge_passion→à éviter + raison + **alternative Bordeaux Premium**, bleu_marine→recommandée. **Switch FR↔EN OK** (« Cohérence culturelle/Bonne » ↔ « Cultural coherence/Good », recommended/to avoid/Suggested alternative). **DETTE i18n corrigée au passage** : les 5 raisons `brandDna.sectorColorRules.*` étaient en FR dans en/es/de/pt/tr/zh (ar déjà traduit) → traduites dans les 7 locales (les NOMS de couleurs « Vert Émeraude » restent FR = noms propres de marque, cohérent avec le picker). ⚠️ Le tenant test a désormais `brand_dna.sector=finance_islamique` (et non plus `tech`) — fixture pour futurs browser-verify Brand DNA.
+
+## CHECKPOINT (CLOS) — Browser-verify US-016
 *US-016 = impl complète + tous gates auto verts (TS0/lint0/build/jest 90/90), passes=false tant que la vérif navigateur n'est pas faite. Bloquée cette session : poste hors réseau serveur (SSH timeout).* 
 Plan d'exécution (réutilise la méthode US-011, **PAS de tunnel Postgres** car page Brand DNA = Supabase HTTPS) :
 1. **Re-vérifier l'IP LAN du serveur** (DHCP dynamique) : `ssh ... hostname`. Récupérer l'anon key db-rami via `docker exec rami printenv NEXT_PUBLIC_SUPABASE_ANON_KEY` (côté serveur, sans l'afficher) OU coffre si documentée.

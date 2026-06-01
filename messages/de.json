@@ -841,11 +841,11 @@
       }
     },
     "sectorColorRules": {
-      "finance_islamique": "Symbolisme culturel — le rouge est associé à la passion profane dans ce contexte",
-      "sante_medical": "Le rouge augmente la tension artérielle — contre-productif en contexte médical",
-      "luxe_haute_couture": "L'orange et le jaune évoquent l'accessibilité — incompatible avec le positionnement luxe",
-      "ong_social_impact": "Le noir et l'or évoquent le luxe — en opposition avec les valeurs associatives",
-      "juridique_droit": "Ces couleurs évoquent l'impulsivité — contraire à la rigueur juridique"
+      "finance_islamique": "Kulturelle Symbolik — Rot wird in diesem Kontext mit profaner Leidenschaft assoziiert",
+      "sante_medical": "Rot erhöht den Blutdruck — im medizinischen Kontext kontraproduktiv",
+      "luxe_haute_couture": "Orange und Gelb wirken zugänglich — unvereinbar mit einer Luxus-Positionierung",
+      "ong_social_impact": "Schwarz und Gold wirken luxuriös — im Widerspruch zu gemeinnützigen Werten",
+      "juridique_droit": "Diese Farben wirken impulsiv — im Widerspruch zur juristischen Strenge"
     },
     "culturalScore": {
       "title": "Kulturelle Kohärenz",

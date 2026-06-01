@@ -19,7 +19,7 @@
     {"id": "US-013", "epic": "B", "priority": "P0", "title": "Page publique standard Causse×Culture", "deps": [], "passes": true, "completedAt": "2026-06-01"},
     {"id": "US-014", "epic": "B", "priority": "P0", "title": "Service rapport Couleur MENA", "deps": ["US-009"], "passes": false},
     {"id": "US-015", "epic": "B", "priority": "P0", "title": "Cadence + gating rapport tendances", "deps": ["US-014"], "passes": false},
-    {"id": "US-016", "epic": "B", "priority": "P0", "title": "Score cohérence culturelle", "deps": [], "passes": false},
+    {"id": "US-016", "epic": "B", "priority": "P0", "title": "Score cohérence culturelle", "deps": [], "passes": true, "completedAt": "2026-06-01"},
     {"id": "US-017", "epic": "OPS", "priority": "P0", "title": "Rotation mot de passe super-admin", "deps": [], "passes": false},
     {"id": "US-018", "epic": "OPS", "priority": "P0", "title": "Configuration Stripe live", "deps": [], "passes": false},
     {"id": "US-019", "epic": "OPS", "priority": "P0", "title": "Tâche planifiée reconciliation Stripe", "deps": ["US-018"], "passes": false},
