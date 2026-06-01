@@ -30,7 +30,7 @@
     {"id": "US-024", "epic": "C", "priority": "P1", "title": "Transcription → brief contenu", "deps": ["US-023"], "passes": false},
     {"id": "US-025", "epic": "D", "priority": "P1", "title": "Génération offre commerciale PDF", "deps": [], "passes": false},
     {"id": "US-026", "epic": "D", "priority": "P1", "title": "Rapport client PDF", "deps": ["US-001"], "passes": false},
-    {"id": "US-027", "epic": "E", "priority": "P1", "title": "Enrichissement Apollo", "deps": [], "passes": false},
+    {"id": "US-027", "epic": "E", "priority": "P1", "title": "Enrichissement Apollo", "deps": [], "passes": true, "completedAt": "2026-06-01"},
     {"id": "US-028", "epic": "E", "priority": "P1", "title": "Scoring Brand DNA match leads", "deps": ["US-027"], "passes": false},
     {"id": "US-029", "epic": "E", "priority": "P1", "title": "Remplacer leads de démo", "deps": [], "passes": false},
     {"id": "US-030", "epic": "F", "priority": "P1", "title": "Analyse concurrents via Crawl4AI", "deps": [], "passes": false},
