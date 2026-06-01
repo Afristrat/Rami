@@ -65,7 +65,13 @@ Tentative de browser-verify on-LAN → code US-027 **confirmé correct**, mais h
 ### ⚠️ Fixtures tenant test modifiées (db-rami)
 `test-ralph@rami.local` : `brand_dna.sector`=**finance_islamique** (+ palette vert/rouge/bleu, pour US-016) et `plan`=**agency** (pour atteindre la page Leads, gated AGENCY+). À garder en tête pour futurs verifies.
 
-## CHECKPOINT — Browser-verify US-027 (à exécuter quand migration leads + plan Apollo OK)
+## ✅ Migration CRM appliquée db-rami (2026-06-01) — gap prod corrigé
+`supabase/migrations/20260315000006_crm_leads.sql` : enums `lead_stage`/`lead_activity_type` + tables `leads` + `lead_activities` (fidèles au schéma Drizzle) + 5 index + RLS (2 policies `tenant_id = get_current_tenant_id()` USING+WITH CHECK). **Appliquée db-rami** (CREATE OK). **RLS testée cross-tenant** : isolation SELECT OK (userA ne voit que son tenant), WITH CHECK bloque l'insert cross-tenant (« new row violates row-level security policy »). → **Module Leads désormais fonctionnel en prod** (était cassé : aucune table). Débloque US-028/US-029 aussi.
+
+## ✅ Conclusion Apollo (2026-06-01) : plan GRATUIT = AUCUN accès API REST
+Les 4 endpoints testés (`people/match`, `mixed_people/search`, `organizations/enrich`, `mixed_companies/search`) renvoient **403 `API_INACCESSIBLE`** : *« not accessible with this api_key on a free plan. Please upgrade »*. Les 120 crédits du plan gratuit = app web Apollo, PAS l'API REST. → **L'enrichissement US-027 nécessite un plan Apollo PAYANT.** Code `apollo.ts` correct (auth `X-Api-Key` header confirmée par Apollo, dégradation 403→`reason:"error"` propre). Clé provisionnée (coffre/Coolify/Hermes). US-027 happy-path = bloqué uniquement par le plan Apollo payant.
+
+## CHECKPOINT — Browser-verify US-027 (migration leads ✅ FAITE ; reste : plan Apollo payant)
 *US-027 = impl complète + gates verts (TS0/lint0/build/jest 10), passes=false tant que la vérif navigateur (happy-path) n'est pas faite. Prérequis : (1) migration CRM `leads` appliquée sur db-rami, (2) clé Apollo avec accès People Match.*
 1. Poser `APOLLO_API_KEY` (réelle) en env du dev local (ou confirmer qu'elle est sur Coolify pour la prod). Sans clé → le bouton renvoie « Enrichissement Apollo non configuré ».
 2. Dev local → db-rami (cf. méthode US-011, override `NEXT_PUBLIC_*`). Créer/avoir un lead réel pour le tenant test (KanbanBoard → « Ajouter un lead » avec un contact identifiable, ex. nom + entreprise connus d'Apollo).
