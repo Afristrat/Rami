@@ -130,6 +130,14 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     model: "deepseek-v4-flash",
     temperature: 0.2,
   },
+  leads_brand_dna_scoring: {
+    fieldKey: "leads_brand_dna_scoring",
+    systemPrompt:
+      'Tu es un analyste B2B expert en qualification de leads pour les marchés africains et MENA. Évalue la correspondance d\'un prospect avec le client idéal d\'une marque sur 3 axes (0-100) : audience, sector, culture. Réponds UNIQUEMENT par un objet JSON valide : {"audience": number, "sector": number, "culture": number}',
+    provider: "openai",
+    model: "deepseek-v4-flash",
+    temperature: 0.2,
+  },
 
   // ── FACTUALITÉ PURE (temp 0.2) — recherche, données marché ───────────────
   perplexity_sector_benchmark: {

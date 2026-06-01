@@ -8,9 +8,10 @@ import {
   Zap,
   MoreHorizontal,
   Loader2,
+  Target,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { enrichLeadAction } from "@/lib/actions/leads.actions"
+import { enrichLeadAction, scoreLeadAction } from "@/lib/actions/leads.actions"
 import type { LeadData, BrandDnaMatch } from "@/lib/schemas/lead.schema"
 
 // ── Couleur avatar (même logique que LeadCard) ─────────────────────────────────
@@ -56,13 +57,16 @@ interface LeadDetailPanelProps {
   onClose: () => void
   onEdit: (lead: LeadData) => void
   onEnriched?: (lead: LeadData) => void
+  onScored?: (lead: LeadData) => void
 }
 
-export function LeadDetailPanel({ lead, onClose, onEdit, onEnriched }: LeadDetailPanelProps) {
+export function LeadDetailPanel({ lead, onClose, onEdit, onEnriched, onScored }: LeadDetailPanelProps) {
   const t = useTranslations("leads")
   const [activeTab, setActiveTab] = useState<TabKey>("tabInfos")
   const [isEnriching, startEnrich] = useTransition()
   const [enrichError, setEnrichError] = useState<string | null>(null)
+  const [isScoring, startScore] = useTransition()
+  const [scoreError, setScoreError] = useState<string | null>(null)
 
   const handleEnrich = () => {
     setEnrichError(null)
@@ -72,6 +76,18 @@ export function LeadDetailPanel({ lead, onClose, onEdit, onEnriched }: LeadDetai
         onEnriched?.(result.data)
       } else {
         setEnrichError(result.error)
+      }
+    })
+  }
+
+  const handleScore = () => {
+    setScoreError(null)
+    startScore(async () => {
+      const result = await scoreLeadAction(lead.id)
+      if (result.success) {
+        onScored?.(result.data)
+      } else {
+        setScoreError(result.error)
       }
     })
   }
@@ -279,6 +295,29 @@ export function LeadDetailPanel({ lead, onClose, onEdit, onEnriched }: LeadDetai
                 </div>
               </div>
             ))}
+            <button
+              onClick={handleScore}
+              disabled={isScoring}
+              className={cn(
+                "mt-1 inline-flex items-center justify-center gap-2 h-8 px-3 rounded-lg text-xs font-semibold w-full transition-colors",
+                "bg-violet-500/15 text-violet-400 hover:bg-violet-500/25 disabled:opacity-60 disabled:cursor-not-allowed"
+              )}
+            >
+              {isScoring ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" />
+                  {t("scoring")}
+                </>
+              ) : (
+                <>
+                  <Target className="size-3.5" />
+                  {dnaMatch ? t("reScore") : t("scoreButton")}
+                </>
+              )}
+            </button>
+            {scoreError && (
+              <p className="mt-1 text-[10px] text-red-400 leading-relaxed">{scoreError}</p>
+            )}
           </div>
         </>
       )}

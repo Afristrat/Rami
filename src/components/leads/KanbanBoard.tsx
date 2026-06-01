@@ -26,6 +26,11 @@ function getStageTotal(leads: LeadData[]): number {
   return leads.reduce((sum, l) => sum + (l.deal_value ?? 0), 0)
 }
 
+/** Trie une colonne par score Brand DNA décroissant (non scorés en dernier). */
+function sortByScore(leads: LeadData[]): LeadData[] {
+  return [...leads].sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+}
+
 // ── Props ──────────────────────────────────────────────────────────────────────
 
 interface KanbanBoardProps {
@@ -48,17 +53,20 @@ export function KanbanBoard({ initialData, searchQuery }: KanbanBoardProps) {
   // ── Recherche ────────────────────────────────────────────────────────────────
 
   const filteredData = useMemo(() => {
-    if (!searchQuery.trim()) return data
-    const q = searchQuery.toLowerCase()
+    const q = searchQuery.trim().toLowerCase()
     const result: LeadsByStage = { lead: [], contacted: [], proposal: [], signed: [] }
     for (const stage of LEAD_STAGES) {
-      result[stage] = data[stage].filter(
-        (l) =>
-          l.company_name.toLowerCase().includes(q) ||
-          l.contact_name.toLowerCase().includes(q) ||
-          (l.email && l.email.toLowerCase().includes(q)) ||
-          (l.sector && l.sector.toLowerCase().includes(q))
-      )
+      const source = q
+        ? data[stage].filter(
+            (l) =>
+              l.company_name.toLowerCase().includes(q) ||
+              l.contact_name.toLowerCase().includes(q) ||
+              (l.email && l.email.toLowerCase().includes(q)) ||
+              (l.sector && l.sector.toLowerCase().includes(q))
+          )
+        : data[stage]
+      // Tri par score Brand DNA décroissant (US-028).
+      result[stage] = sortByScore(source)
     }
     return result
   }, [data, searchQuery])
@@ -278,6 +286,7 @@ export function KanbanBoard({ initialData, searchQuery }: KanbanBoardProps) {
                 onClose={handleCloseDetail}
                 onEdit={handleEditLead}
                 onEnriched={handleLeadEnriched}
+                onScored={handleLeadEnriched}
               />
             ) : (
               <div

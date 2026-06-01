@@ -2,11 +2,22 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { db } from "@/lib/db"
-import { leads, leadActivities } from "@/lib/db/schema"
+import { leads, leadActivities, tenants } from "@/lib/db/schema"
 import { eq, and, desc } from "drizzle-orm"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { log } from "@/lib/utils/logger"
 import { enrichLead } from "@/lib/services/leads"
+import { getPromptConfig } from "@/lib/services/ai/prompt-config"
+import { callTextLLM } from "@/lib/services/ai/text-llm"
+import {
+  buildLeadScoringSystemPrompt,
+  buildLeadScoringUserPrompt,
+  parseLeadScore,
+  assembleLeadScore,
+  heuristicLeadScore,
+  type LeadScoringBrandDna,
+  type LeadScoringInput,
+} from "@/lib/services/leads/scorer"
 import {
   createLeadSchema,
   updateLeadSchema,
@@ -443,6 +454,148 @@ export async function enrichLeadAction(leadId: string): Promise<EnrichLeadResult
       metadata: { error: String(err), lead_id: leadId },
     })
     return { success: false, error: "Impossible d'enrichir le lead." }
+  }
+}
+
+export type ScoreLeadResult =
+  | { success: true; data: LeadData }
+  | { success: false; error: string }
+
+/** Lit un champ string d'un brand_dna (shape PLATE, variantes FR tolérées). */
+function pickString(src: Record<string, unknown>, ...keys: string[]): string | null {
+  for (const k of keys) {
+    const v = src[k]
+    if (typeof v === "string" && v.trim().length > 0) return v
+  }
+  return null
+}
+
+/**
+ * Score le match Brand DNA d'un lead (US-028) : 3 axes (audience/secteur/culture) +
+ * score global, calculés par le LLM (deepseek via proxy) avec repli heuristique pur.
+ * Persiste `leads.brand_dna_match` + `leads.score` (global). Requiert un Brand DNA
+ * (impossible de scorer un « client idéal » inexistant → message explicite).
+ */
+export async function scoreLeadAction(leadId: string): Promise<ScoreLeadResult> {
+  const ctx = await getAuthContext()
+  if (!ctx) return { success: false, error: "Non authentifié." }
+
+  if (typeof leadId !== "string" || leadId.length === 0) {
+    return { success: false, error: "Identifiant de lead invalide." }
+  }
+
+  try {
+    const rows = await db
+      .select()
+      .from(leads)
+      .where(and(eq(leads.id, leadId), eq(leads.tenant_id, ctx.tenantId)))
+      .limit(1)
+
+    if (rows.length === 0) {
+      return { success: false, error: "Lead introuvable." }
+    }
+    const lead = rows[0]
+
+    // Charger le Brand DNA du tenant (shape PLATE réelle).
+    const tenantRow = await db
+      .select({ brand_dna: tenants.brand_dna, name: tenants.name })
+      .from(tenants)
+      .where(eq(tenants.id, ctx.tenantId))
+      .limit(1)
+
+    const rawDna = (tenantRow[0]?.brand_dna as Record<string, unknown> | null) ?? null
+    if (!rawDna || Object.keys(rawDna).length === 0) {
+      return {
+        success: false,
+        error: "Brand DNA requis pour le scoring. Complétez d'abord votre Brand DNA.",
+      }
+    }
+
+    const brand: LeadScoringBrandDna = {
+      brandName: pickString(rawDna, "brandName", "nomEntreprise") ?? tenantRow[0]?.name ?? null,
+      sector: pickString(rawDna, "sector", "secteur"),
+      positioning: pickString(rawDna, "positioning", "positionnement"),
+      primaryCulture: pickString(rawDna, "primaryCulture", "marchePrimaire"),
+      audienceDescription: pickString(rawDna, "audienceDescription"),
+      audienceLocation: pickString(rawDna, "audienceLocation"),
+      audiencePainPoints: pickString(rawDna, "audiencePainPoints"),
+    }
+
+    const apolloIndustry =
+      lead.apollo_data && typeof lead.apollo_data === "object"
+        ? pickString(lead.apollo_data as Record<string, unknown>, "industry")
+        : null
+
+    const scoringInput: LeadScoringInput = {
+      company_name: lead.company_name,
+      contact_name: lead.contact_name,
+      sector: lead.sector,
+      company_size: lead.company_size,
+      location: lead.location,
+      industry: apolloIndustry,
+    }
+
+    // 1) Tentative LLM ; 2) repli heuristique déterministe.
+    let score = heuristicLeadScore(brand, scoringInput)
+    let source: "llm" | "heuristic" = "heuristic"
+    try {
+      const config = await getPromptConfig("leads_brand_dna_scoring")
+      const raw = await callTextLLM({
+        provider: config.provider,
+        model: config.model,
+        apiKey: config.apiKey,
+        systemPrompt: config.systemPrompt || buildLeadScoringSystemPrompt(),
+        userPrompt: buildLeadScoringUserPrompt(brand, scoringInput),
+        maxTokens: 200,
+        temperature: config.temperature,
+      })
+      const parsed = parseLeadScore(raw)
+      if (parsed) {
+        score = assembleLeadScore(parsed)
+        source = "llm"
+      }
+    } catch (err) {
+      // LLM indisponible → on garde le repli heuristique (pas d'échec dur).
+      log({
+        level: "warn",
+        module: "leads",
+        action: "score_lead_llm_fallback",
+        tenant_id: ctx.tenantId,
+        message: "Scoring LLM indisponible, repli heuristique",
+        metadata: { lead_id: leadId, error: String(err) },
+      })
+    }
+
+    const [row] = await db
+      .update(leads)
+      .set({
+        brand_dna_match: { audience: score.audience, sector: score.sector, culture: score.culture },
+        score: score.overall,
+        updated_at: new Date(),
+      })
+      .where(and(eq(leads.id, leadId), eq(leads.tenant_id, ctx.tenantId)))
+      .returning()
+
+    log({
+      level: "info",
+      module: "leads",
+      action: "lead_scored",
+      tenant_id: ctx.tenantId,
+      message: `Lead scoré : ${row.company_name} (${score.overall}/100)`,
+      metadata: { lead_id: leadId, overall: score.overall, source },
+    })
+
+    return { success: true, data: serializeLead(row) }
+  } catch (err) {
+    log({
+      level: "error",
+      module: "leads",
+      action: "score_lead",
+      tenant_id: ctx.tenantId,
+      message: "Erreur lors du scoring du lead",
+      metadata: { error: String(err), lead_id: leadId },
+    })
+    return { success: false, error: "Impossible de scorer le lead." }
   }
 }
 
