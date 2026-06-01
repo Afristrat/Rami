@@ -169,6 +169,16 @@ export function KanbanBoard({ initialData, searchQuery }: KanbanBoardProps) {
     }))
   }, [])
 
+  const handleLeadEnriched = useCallback((updatedLead: LeadData) => {
+    setData((prev) => ({
+      ...prev,
+      [updatedLead.stage]: prev[updatedLead.stage].map((l) =>
+        l.id === updatedLead.id ? updatedLead : l
+      ),
+    }))
+    setSelectedLead((prev) => (prev?.id === updatedLead.id ? updatedLead : prev))
+  }, [])
+
   const handleEditLead = useCallback((_lead: LeadData) => {
     // Pour l'instant, juste un placeholder - le formulaire d'édition sera une prochaine itération
   }, [])
@@ -267,6 +277,7 @@ export function KanbanBoard({ initialData, searchQuery }: KanbanBoardProps) {
                 lead={selectedLead}
                 onClose={handleCloseDetail}
                 onEdit={handleEditLead}
+                onEnriched={handleLeadEnriched}
               />
             ) : (
               <div
@@ -293,6 +304,7 @@ export function KanbanBoard({ initialData, searchQuery }: KanbanBoardProps) {
               lead={selectedLead}
               onClose={handleCloseDetail}
               onEdit={handleEditLead}
+              onEnriched={handleLeadEnriched}
             />
           </div>
         </div>

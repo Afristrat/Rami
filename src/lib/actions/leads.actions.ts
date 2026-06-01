@@ -6,6 +6,7 @@ import { leads, leadActivities } from "@/lib/db/schema"
 import { eq, and, desc } from "drizzle-orm"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { log } from "@/lib/utils/logger"
+import { enrichViaApollo } from "@/lib/services/leads/apollo"
 import {
   createLeadSchema,
   updateLeadSchema,
@@ -344,6 +345,102 @@ export async function getLeadDetailAction(
       metadata: { error: String(err), lead_id: id },
     })
     return { success: false, error: "Impossible de charger le lead." }
+  }
+}
+
+export type EnrichLeadResult =
+  | { success: true; data: LeadData }
+  | { success: false; error: string }
+
+/**
+ * Enrichit un lead via Apollo (US-027) : remplit `apollo_data` (titre, entreprise,
+ * email…) et complète les champs vides du lead (email, secteur, taille, localisation,
+ * linkedin) sans écraser les valeurs déjà saisies.
+ */
+export async function enrichLeadAction(leadId: string): Promise<EnrichLeadResult> {
+  const ctx = await getAuthContext()
+  if (!ctx) return { success: false, error: "Non authentifié." }
+
+  if (typeof leadId !== "string" || leadId.length === 0) {
+    return { success: false, error: "Identifiant de lead invalide." }
+  }
+
+  try {
+    const rows = await db
+      .select()
+      .from(leads)
+      .where(and(eq(leads.id, leadId), eq(leads.tenant_id, ctx.tenantId)))
+      .limit(1)
+
+    if (rows.length === 0) {
+      return { success: false, error: "Lead introuvable." }
+    }
+
+    const lead = rows[0]
+    const result = await enrichViaApollo({
+      name: lead.contact_name,
+      email: lead.email,
+      organization: lead.company_name,
+      linkedinUrl: lead.linkedin_url,
+    })
+
+    if (!result.success) {
+      const messages: Record<typeof result.reason, string> = {
+        no_key: "Enrichissement Apollo non configuré (clé API absente).",
+        not_found: "Aucune correspondance Apollo pour ce contact.",
+        error: "Erreur lors de l'enrichissement Apollo.",
+      }
+      if (result.reason === "error") {
+        log({
+          level: "error",
+          module: "leads",
+          action: "enrich_lead",
+          tenant_id: ctx.tenantId,
+          message: "Échec enrichissement Apollo",
+          metadata: { lead_id: leadId, error: result.message },
+        })
+      }
+      return { success: false, error: messages[result.reason] }
+    }
+
+    const enrichment = result.data
+    // Complète uniquement les champs vides (ne jamais écraser une saisie manuelle)
+    const values: Record<string, unknown> = {
+      apollo_data: enrichment,
+      updated_at: new Date(),
+    }
+    if (!lead.email && enrichment.email) values.email = enrichment.email
+    if (!lead.linkedin_url && enrichment.linkedin_url) values.linkedin_url = enrichment.linkedin_url
+    if (!lead.sector && enrichment.industry) values.sector = enrichment.industry
+    if (!lead.company_size && enrichment.company_size) values.company_size = enrichment.company_size
+    if (!lead.location && enrichment.location) values.location = enrichment.location
+
+    const [row] = await db
+      .update(leads)
+      .set(values)
+      .where(and(eq(leads.id, leadId), eq(leads.tenant_id, ctx.tenantId)))
+      .returning()
+
+    log({
+      level: "info",
+      module: "leads",
+      action: "lead_enriched",
+      tenant_id: ctx.tenantId,
+      message: `Lead enrichi via Apollo : ${row.company_name}`,
+      metadata: { lead_id: leadId },
+    })
+
+    return { success: true, data: serializeLead(row) }
+  } catch (err) {
+    log({
+      level: "error",
+      module: "leads",
+      action: "enrich_lead",
+      tenant_id: ctx.tenantId,
+      message: "Erreur lors de l'enrichissement du lead",
+      metadata: { error: String(err), lead_id: leadId },
+    })
+    return { success: false, error: "Impossible d'enrichir le lead." }
   }
 }
 

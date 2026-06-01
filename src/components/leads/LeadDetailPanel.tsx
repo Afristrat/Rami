@@ -1,14 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { useTranslations } from "next-intl"
 import {
   X,
   Star,
   Zap,
   MoreHorizontal,
+  Loader2,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { enrichLeadAction } from "@/lib/actions/leads.actions"
 import type { LeadData, BrandDnaMatch } from "@/lib/schemas/lead.schema"
 
 // ── Couleur avatar (même logique que LeadCard) ─────────────────────────────────
@@ -53,11 +55,26 @@ interface LeadDetailPanelProps {
   lead: LeadData
   onClose: () => void
   onEdit: (lead: LeadData) => void
+  onEnriched?: (lead: LeadData) => void
 }
 
-export function LeadDetailPanel({ lead, onClose, onEdit }: LeadDetailPanelProps) {
+export function LeadDetailPanel({ lead, onClose, onEdit, onEnriched }: LeadDetailPanelProps) {
   const t = useTranslations("leads")
   const [activeTab, setActiveTab] = useState<TabKey>("tabInfos")
+  const [isEnriching, startEnrich] = useTransition()
+  const [enrichError, setEnrichError] = useState<string | null>(null)
+
+  const handleEnrich = () => {
+    setEnrichError(null)
+    startEnrich(async () => {
+      const result = await enrichLeadAction(lead.id)
+      if (result.success) {
+        onEnriched?.(result.data)
+      } else {
+        setEnrichError(result.error)
+      }
+    })
+  }
   const initials = getInitials(lead.company_name)
   const avatarColor = getAvatarColor(lead.company_name)
   const dnaMatch = lead.brand_dna_match as BrandDnaMatch | null
@@ -211,6 +228,29 @@ export function LeadDetailPanel({ lead, onClose, onEdit }: LeadDetailPanelProps)
                 ? t("apolloEnrichedDesc")
                 : t("apolloNotEnrichedDesc")}
             </p>
+            <button
+              onClick={handleEnrich}
+              disabled={isEnriching}
+              className={cn(
+                "mt-3 inline-flex items-center justify-center gap-2 h-8 px-3 rounded-lg text-xs font-semibold w-full transition-colors",
+                "bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 disabled:opacity-60 disabled:cursor-not-allowed"
+              )}
+            >
+              {isEnriching ? (
+                <>
+                  <Loader2 className="size-3.5 animate-spin" />
+                  {t("apolloEnriching")}
+                </>
+              ) : (
+                <>
+                  <Zap className="size-3.5" />
+                  {lead.apollo_data ? t("apolloReEnrich") : t("apolloEnrichButton")}
+                </>
+              )}
+            </button>
+            {enrichError && (
+              <p className="mt-2 text-[10px] text-red-400 leading-relaxed">{enrichError}</p>
+            )}
           </div>
 
           {/* Brand DNA Breakdown */}
