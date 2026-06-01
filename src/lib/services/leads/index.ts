@@ -9,18 +9,35 @@ import { createServiceClient } from "@/lib/supabase/service"
 import { decryptToken } from "@/lib/services/oauth/state"
 import { enrichViaApollo } from "./apollo"
 import { enrichViaHunter } from "./hunter"
+import { enrichViaPdl } from "./pdl"
+import { enrichViaDropcontact } from "./dropcontact"
+import { enrichViaEnrich } from "./enrich"
 import type { EnrichInput, EnrichmentResult, EnrichmentProviderId } from "./types"
 
 /** Variable d'environnement de fallback par provider. */
 const ENV_KEY: Record<EnrichmentProviderId, string> = {
   apollo: "APOLLO_API_KEY",
   hunter: "HUNTER_API_KEY",
+  pdl: "PDL_API_KEY",
+  dropcontact: "DROPCONTACT_API_KEY",
+  enrich: "ENRICH_API_KEY",
 }
+
+/** Providers reconnus (validation de la variable d'environnement). */
+const KNOWN_PROVIDERS: readonly EnrichmentProviderId[] = [
+  "apollo",
+  "hunter",
+  "pdl",
+  "dropcontact",
+  "enrich",
+]
 
 /** Provider actif (env `LEADS_ENRICHMENT_PROVIDER`), défaut `apollo` (rétro-compat). */
 export function getActiveEnrichmentProvider(): EnrichmentProviderId {
   const v = (process.env.LEADS_ENRICHMENT_PROVIDER ?? "").toLowerCase()
-  return v === "hunter" ? "hunter" : "apollo"
+  return (KNOWN_PROVIDERS as readonly string[]).includes(v)
+    ? (v as EnrichmentProviderId)
+    : "apollo"
 }
 
 /**
@@ -62,17 +79,30 @@ export async function resolveEnrichmentKey(
 export async function enrichLead(input: EnrichInput): Promise<EnrichmentResult> {
   const provider = getActiveEnrichmentProvider()
 
-  if (provider === "hunter") {
-    const key = await resolveEnrichmentKey("hunter")
-    return enrichViaHunter(input, key)
+  switch (provider) {
+    case "hunter": {
+      const key = await resolveEnrichmentKey("hunter")
+      return enrichViaHunter(input, key)
+    }
+    case "pdl": {
+      const key = await resolveEnrichmentKey("pdl")
+      return enrichViaPdl(input, key)
+    }
+    case "dropcontact": {
+      const key = await resolveEnrichmentKey("dropcontact")
+      return enrichViaDropcontact(input, key)
+    }
+    case "enrich": {
+      const key = await resolveEnrichmentKey("enrich")
+      return enrichViaEnrich(input, key)
+    }
+    default:
+      // apollo (défaut) — apollo.ts lit APOLLO_API_KEY via l'environnement.
+      return enrichViaApollo({
+        name: input.name,
+        email: input.email,
+        organization: input.organization,
+        linkedinUrl: input.linkedinUrl,
+      })
   }
-
-  // apollo (défaut) — apollo.ts lit APOLLO_API_KEY via l'environnement.
-  const result = await enrichViaApollo({
-    name: input.name,
-    email: input.email,
-    organization: input.organization,
-    linkedinUrl: input.linkedinUrl,
-  })
-  return result
 }

@@ -14,6 +14,11 @@ déchiffré et utilisé ; sinon **fallback sur la variable d'environnement** (ex
 - Aucune clé en clair dans le code ou git : env (Coolify) ou table BYOK uniquement.
 - Le provider actif par défaut est défini côté service d'enrichissement (`src/lib/services/leads/`).
 
+> **Statut d'implémentation (2026-06-02)** : les **5 providers sont implémentés et routables**
+> via `LEADS_ENRICHMENT_PROVIDER` (`apollo` | `hunter` | `pdl` | `dropcontact` | `enrich`).
+> Code : `src/lib/services/leads/{apollo,hunter,pdl,dropcontact,enrich,index}.ts`.
+> Chacun a son mapper PUR testé (Jest) et dégrade proprement (`no_key` / `not_found` / `error`).
+
 | Provider | Env var (fallback) | Auth | Base URL | Tier gratuit API | RGPD |
 |---|---|---|---|---|---|
 | **Hunter.io** | `HUNTER_API_KEY` | `api_key` (query) ou header `X-API-KEY` | `https://api.hunter.io/v2` | ✅ Oui (~25 recherches/mois) | OK |

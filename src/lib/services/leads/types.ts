@@ -30,4 +30,9 @@ export interface EnrichInput {
 }
 
 /** Providers d'enrichissement supportés (cf. ai_provider_keys category='enrichment'). */
-export type EnrichmentProviderId = "apollo" | "hunter"
+export type EnrichmentProviderId =
+  | "apollo"
+  | "hunter"
+  | "pdl"
+  | "dropcontact"
+  | "enrich"
