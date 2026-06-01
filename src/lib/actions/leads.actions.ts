@@ -426,7 +426,7 @@ export async function enrichLeadAction(leadId: string): Promise<EnrichLeadResult
       module: "leads",
       action: "lead_enriched",
       tenant_id: ctx.tenantId,
-      message: `Lead enrichi via Apollo : ${row.company_name}`,
+      message: `Lead enrichi : ${row.company_name}`,
       metadata: { lead_id: leadId },
     })
 
