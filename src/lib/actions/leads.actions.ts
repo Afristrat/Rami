@@ -6,7 +6,7 @@ import { leads, leadActivities } from "@/lib/db/schema"
 import { eq, and, desc } from "drizzle-orm"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { log } from "@/lib/utils/logger"
-import { enrichViaApollo } from "@/lib/services/leads/apollo"
+import { enrichLead } from "@/lib/services/leads"
 import {
   createLeadSchema,
   updateLeadSchema,
@@ -377,7 +377,7 @@ export async function enrichLeadAction(leadId: string): Promise<EnrichLeadResult
     }
 
     const lead = rows[0]
-    const result = await enrichViaApollo({
+    const result = await enrichLead({
       name: lead.contact_name,
       email: lead.email,
       organization: lead.company_name,
