@@ -51,8 +51,22 @@ US-011 = **implémenté + RLS testée db-rami** mais `passes=false` tant que la 
 
 Ce compte test servira aussi pour US-012 (dashboard), US-031, US-032 (toutes UI, browser-verify requis).
 
-## CHECKPOINT — Browser-verify US-027 (à exécuter en session ON-LAN)
-*US-027 = impl complète + gates verts (TS0/lint0/build/jest 10), passes=false tant que la vérif navigateur n'est pas faite.*
+## ⚠️ US-027 — 2 BLOCKERS EXTERNES découverts (2026-06-01, on-LAN) — passes reste false
+Tentative de browser-verify on-LAN → code US-027 **confirmé correct**, mais happy-path bloqué par 2 facteurs EXTERNES (pas des défauts code) :
+1. **Table `leads` ABSENTE de db-rami** : `to_regclass('public.leads')` = NULL. Le module CRM (leads + lead_activities + enum `lead_stage` + RLS) est dans `src/lib/db/schema.ts` mais **n'a AUCUNE migration** (`supabase/migrations/` n'en contient pas) → jamais déployé en prod. `getLeadsAction`/`createLeadAction` (Drizzle) échouent (« Failed query… leads ») → la page tombe en fallback `DEMO_LEADS`. **GAP PROD à traiter** (story dédiée : écrire + appliquer migration CRM sur db-rami). Bloque aussi tout browser-verify Leads (US-028/029).
+2. **Clé Apollo → HTTP 403** : la clé fournie n'a PAS accès à l'endpoint People Match (restriction de plan Apollo, ou clé inactive). **Méthode d'auth confirmée CORRECTE** : Apollo exige `X-Api-Key` en header (vérifié — `api_key` en body → 422 « must be passed in the X-Api-Key header ») = exactement ce que fait `apollo.ts`. Donc `enrichViaApollo` dégrade proprement en `reason:"error"` (HTTP 403). Happy-path réel nécessite un plan Apollo avec accès API Match.
+→ **Code US-027 = correct + unit-testé (10/10) + méthode auth validée contre l'API réelle.** passes=false car « vérifié dans le navigateur » (happy-path) impossible tant que (1) migration leads + (2) plan Apollo non résolus.
+
+### Provisioning clé Apollo (fait 2026-06-01, à la demande d'Amine) — 3 cibles
+- **Coffre DPAPI Claude Code** : `APOLLO_API_KEY` (via `HermesVaultSync.psm1` `Set-VaultKey`, backup auto). 22 car.
+- **Coolify prod app RAMI** : `APOLLO_API_KEY` (POST `/api/v1/applications/{uuid}/envs`, HTTP 201 ; ⚠️ champ `is_buildtime` PAS `is_build_time` ; redeploy requis pour runtime).
+- **Vault Hermes** (credential-vault `vault.js`, conteneur `hermes-oagpd60vuec2zhokge4tf93v`, `/opt/data/home/.hermes-vault/`) : clé `apollo.api_key`, hash-vérifiée (`sha256(val+\n)==distant`). Passphrase = coffre `HERMES_VAULT_PASSPHRASE`. Méthode anti-leak : passphrase+valeur en base64 décodées côté conteneur, `HOME=/opt/data/home`, vérif par hash (jamais `get` brut).
+
+### ⚠️ Fixtures tenant test modifiées (db-rami)
+`test-ralph@rami.local` : `brand_dna.sector`=**finance_islamique** (+ palette vert/rouge/bleu, pour US-016) et `plan`=**agency** (pour atteindre la page Leads, gated AGENCY+). À garder en tête pour futurs verifies.
+
+## CHECKPOINT — Browser-verify US-027 (à exécuter quand migration leads + plan Apollo OK)
+*US-027 = impl complète + gates verts (TS0/lint0/build/jest 10), passes=false tant que la vérif navigateur (happy-path) n'est pas faite. Prérequis : (1) migration CRM `leads` appliquée sur db-rami, (2) clé Apollo avec accès People Match.*
 1. Poser `APOLLO_API_KEY` (réelle) en env du dev local (ou confirmer qu'elle est sur Coolify pour la prod). Sans clé → le bouton renvoie « Enrichissement Apollo non configuré ».
 2. Dev local → db-rami (cf. méthode US-011, override `NEXT_PUBLIC_*`). Créer/avoir un lead réel pour le tenant test (KanbanBoard → « Ajouter un lead » avec un contact identifiable, ex. nom + entreprise connus d'Apollo).
 3. Playwright : ouvrir le lead → onglet Infos → bloc « Enrichissement Apollo » → cliquer **Enrichir via Apollo** → vérifier spinner puis : `apollo_data` rempli (badge « Mis à jour »), champs vides complétés (email/secteur/taille/localisation), bouton devient « Réenrichir ». Tester aussi un contact introuvable → message « Aucune correspondance Apollo ». Screenshot.
