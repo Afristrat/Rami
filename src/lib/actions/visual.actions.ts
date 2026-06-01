@@ -116,7 +116,15 @@ async function persistVisualSession(
     }
 
     return sessionId
-  } catch {
+  } catch (err) {
+    // Persistance non bloquante mais observable (US-021 — Sentry en prod)
+    log({
+      level: 'error',
+      module: 'visual.actions',
+      action: 'persist_session_failed',
+      tenant_id: tenantId,
+      metadata: { error: err instanceof Error ? err.message : String(err) },
+    })
     return null
   }
 }
@@ -333,6 +341,15 @@ export async function generateVisualsAction(
   })
 
   if (allVisuals.length === 0) {
+    // Échec runtime de génération (tous providers/directions ont échoué) → Sentry en prod (US-021)
+    log({
+      level: 'error',
+      module: 'visual.actions',
+      action: 'generation_failed',
+      tenant_id: tenantId,
+      user_id: user.id,
+      metadata: { platform, plan: tenantPlan, directions: structuredPrompts.length, errors },
+    })
     return {
       success: false,
       session_id: '',

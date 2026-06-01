@@ -24,7 +24,7 @@
     {"id": "US-018", "epic": "OPS", "priority": "P0", "title": "Configuration Stripe live", "deps": [], "passes": false},
     {"id": "US-019", "epic": "OPS", "priority": "P0", "title": "Tâche planifiée reconciliation Stripe", "deps": ["US-018"], "passes": false},
     {"id": "US-020", "epic": "OPS", "priority": "P0", "title": "Enforcement quotas génération par plan", "deps": [], "passes": false},
-    {"id": "US-021", "epic": "OPS", "priority": "P0", "title": "Événements Sentry/PostHog réels", "deps": [], "passes": false},
+    {"id": "US-021", "epic": "OPS", "priority": "P0", "title": "Événements Sentry/PostHog réels", "deps": [], "passes": true, "completedAt": "2026-06-01"},
     {"id": "US-022", "epic": "C", "priority": "P1", "title": "Traitement Whisper transcriptions", "deps": [], "passes": false},
     {"id": "US-023", "epic": "C", "priority": "P1", "title": "Verbatims + speakers + résumé", "deps": ["US-022"], "passes": false},
     {"id": "US-024", "epic": "C", "priority": "P1", "title": "Transcription → brief contenu", "deps": ["US-023"], "passes": false},
