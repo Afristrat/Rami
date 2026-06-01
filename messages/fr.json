@@ -177,7 +177,8 @@
     "tenants": "Tenants",
     "video": "Vidéo",
     "invoices": "Factures",
-    "approvals": "Approbations"
+    "approvals": "Approbations",
+    "colorTrends": "Tendances Couleur"
   },
   "theme": {
     "title": "Thème",
@@ -1808,7 +1809,20 @@
     "title": "Visuels IA",
     "createVisual": "Créer un visuel",
     "gallery": "Galerie",
-    "directions": "Directions",
+    "directions": {
+      "1": {
+        "name": "Blueprint Scientifique"
+      },
+      "2": {
+        "name": "Machine Narratif"
+      },
+      "3": {
+        "name": "Carte & Aspiration"
+      },
+      "4": {
+        "name": "Dashboard Expertise"
+      }
+    },
     "formats": {
       "square": "Carré (1:1)",
       "landscape": "Paysage (16:9)",
@@ -1883,12 +1897,6 @@
       "comparisonDesc": "Montrez votre avantage concurrentiel",
       "caseStudy": "Étude de cas",
       "caseStudyDesc": "Transformez vos succès en preuves"
-    },
-    "directions": {
-      "1": { "name": "Blueprint Scientifique" },
-      "2": { "name": "Machine Narratif" },
-      "3": { "name": "Carte & Aspiration" },
-      "4": { "name": "Dashboard Expertise" }
     },
     "directionLabel": "Direction",
     "avgDnaScore": "Score ADN moy.",
@@ -2558,5 +2566,37 @@
     "systemPromptMinLength": "Minimum 10 caractères",
     "providerRequired": "Requis",
     "modelRequired": "Requis"
+  },
+  "colorTrends": {
+    "title": "Tendances Couleur MENA",
+    "description": "Autorité couleur par secteur et culture, fondée sur la matrice Causse.",
+    "generate": "Générer le rapport",
+    "regenerate": "Régénérer",
+    "generating": "Génération…",
+    "exportPdf": "Exporter en PDF",
+    "cadenceNote": "Rapport rafraîchi automatiquement chaque trimestre. Vous pouvez aussi le régénérer à la demande.",
+    "emptyTitle": "Aucun rapport pour l'instant",
+    "emptyDescription": "Générez votre premier rapport de tendances couleur pour votre secteur et votre marché.",
+    "sector": "Secteur",
+    "culture": "Culture",
+    "period": "Période",
+    "generatedAt": "Généré le",
+    "dataCollective": "Données collectives",
+    "dataAuthorityOnly": "Autorité Causse seule",
+    "narrativeTitle": "Synthèse exécutive",
+    "culturalNote": "Note culturelle",
+    "networks": "Réseaux optimaux",
+    "benchmarks": "Benchmarks plateformes",
+    "noBenchmarks": "Données collectives insuffisantes (k-anonymat < 5) — le rapport s'appuie sur l'autorité Causse.",
+    "platform": "Plateforme",
+    "metric": "Métrique",
+    "value": "Valeur",
+    "sampleSize": "Échantillon",
+    "sourceCausse": "Source : matrice Causse — Couleur & Émotion (référentiel neuropsychologique RAMI).",
+    "stance": {
+      "recommended": "Recommandée",
+      "neutral": "Neutre",
+      "avoid": "À éviter"
+    }
   }
 }

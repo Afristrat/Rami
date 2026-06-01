@@ -177,7 +177,8 @@
     "tenants": "Tenants",
     "video": "Video",
     "invoices": "Invoices",
-    "approvals": "Approvals"
+    "approvals": "Approvals",
+    "colorTrends": "Color Trends"
   },
   "theme": {
     "title": "Theme",
@@ -2565,5 +2566,37 @@
     "systemPromptMinLength": "Minimum 10 caractères",
     "providerRequired": "Requis",
     "modelRequired": "Requis"
+  },
+  "colorTrends": {
+    "title": "MENA Color Trends",
+    "description": "Color authority by sector and culture, grounded in the Causse matrix.",
+    "generate": "Generate report",
+    "regenerate": "Regenerate",
+    "generating": "Generating…",
+    "exportPdf": "Export to PDF",
+    "cadenceNote": "Report refreshed automatically every quarter. You can also regenerate it on demand.",
+    "emptyTitle": "No report yet",
+    "emptyDescription": "Generate your first color trends report for your sector and market.",
+    "sector": "Sector",
+    "culture": "Culture",
+    "period": "Period",
+    "generatedAt": "Generated on",
+    "dataCollective": "Collective data",
+    "dataAuthorityOnly": "Causse authority only",
+    "narrativeTitle": "Executive summary",
+    "culturalNote": "Cultural note",
+    "networks": "Optimal networks",
+    "benchmarks": "Platform benchmarks",
+    "noBenchmarks": "Insufficient collective data (k-anonymity < 5) — the report relies on Causse authority.",
+    "platform": "Platform",
+    "metric": "Metric",
+    "value": "Value",
+    "sampleSize": "Sample",
+    "sourceCausse": "Source: Causse matrix — Color & Emotion (RAMI neuropsychological reference).",
+    "stance": {
+      "recommended": "Recommended",
+      "neutral": "Neutral",
+      "avoid": "Avoid"
+    }
   }
 }

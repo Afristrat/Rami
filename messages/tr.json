@@ -177,7 +177,8 @@
     "tenants": "Tenants",
     "video": "Video",
     "invoices": "Faturalar",
-    "approvals": "Onaylar"
+    "approvals": "Onaylar",
+    "colorTrends": "Renk Trendleri"
   },
   "theme": {
     "title": "Tema",
@@ -2565,5 +2566,37 @@
     "systemPromptMinLength": "Minimum 10 caractères",
     "providerRequired": "Requis",
     "modelRequired": "Requis"
+  },
+  "colorTrends": {
+    "title": "MENA Renk Trendleri",
+    "description": "Causse matrisine dayalı, sektöre ve kültüre göre renk otoritesi.",
+    "generate": "Rapor oluştur",
+    "regenerate": "Yeniden oluştur",
+    "generating": "Oluşturuluyor…",
+    "exportPdf": "PDF olarak dışa aktar",
+    "cadenceNote": "Rapor her çeyrekte otomatik olarak yenilenir. İstediğiniz zaman yeniden oluşturabilirsiniz.",
+    "emptyTitle": "Henüz rapor yok",
+    "emptyDescription": "Sektörünüz ve pazarınız için ilk renk trendleri raporunuzu oluşturun.",
+    "sector": "Sektör",
+    "culture": "Kültür",
+    "period": "Dönem",
+    "generatedAt": "Oluşturulma tarihi",
+    "dataCollective": "Kolektif veriler",
+    "dataAuthorityOnly": "Yalnızca Causse otoritesi",
+    "narrativeTitle": "Yönetici özeti",
+    "culturalNote": "Kültürel not",
+    "networks": "Optimal ağlar",
+    "benchmarks": "Platform kıyaslamaları",
+    "noBenchmarks": "Yetersiz kolektif veri (k-anonimlik < 5) — rapor Causse otoritesine dayanır.",
+    "platform": "Platform",
+    "metric": "Metrik",
+    "value": "Değer",
+    "sampleSize": "Örneklem",
+    "sourceCausse": "Kaynak: Causse matrisi — Renk ve Duygu (RAMI nöropsikolojik referansı).",
+    "stance": {
+      "recommended": "Önerilen",
+      "neutral": "Nötr",
+      "avoid": "Kaçınılmalı"
+    }
   }
 }

@@ -177,7 +177,8 @@
     "tenants": "المستأجرون",
     "video": "فيديو",
     "invoices": "الفواتير",
-    "approvals": "الموافقات"
+    "approvals": "الموافقات",
+    "colorTrends": "اتجاهات الألوان"
   },
   "theme": {
     "title": "المظهر",
@@ -2565,5 +2566,37 @@
     "systemPromptMinLength": "10 أحرف كحد أدنى",
     "providerRequired": "مطلوب",
     "modelRequired": "مطلوب"
+  },
+  "colorTrends": {
+    "title": "اتجاهات الألوان لمنطقة الشرق الأوسط وشمال إفريقيا",
+    "description": "مرجعية الألوان حسب القطاع والثقافة، استنادًا إلى مصفوفة كوس.",
+    "generate": "إنشاء التقرير",
+    "regenerate": "إعادة الإنشاء",
+    "generating": "جارٍ الإنشاء…",
+    "exportPdf": "تصدير إلى PDF",
+    "cadenceNote": "يُحدَّث التقرير تلقائيًا كل ربع سنة. يمكنك أيضًا إعادة إنشائه عند الطلب.",
+    "emptyTitle": "لا يوجد تقرير بعد",
+    "emptyDescription": "أنشئ أول تقرير لاتجاهات الألوان لقطاعك وسوقك.",
+    "sector": "القطاع",
+    "culture": "الثقافة",
+    "period": "الفترة",
+    "generatedAt": "أُنشئ في",
+    "dataCollective": "بيانات جماعية",
+    "dataAuthorityOnly": "مرجعية كوس فقط",
+    "narrativeTitle": "ملخص تنفيذي",
+    "culturalNote": "ملاحظة ثقافية",
+    "networks": "الشبكات المثلى",
+    "benchmarks": "مقاييس المنصات",
+    "noBenchmarks": "بيانات جماعية غير كافية (إخفاء الهوية < 5) — يعتمد التقرير على مرجعية كوس.",
+    "platform": "المنصة",
+    "metric": "المقياس",
+    "value": "القيمة",
+    "sampleSize": "العينة",
+    "sourceCausse": "المصدر: مصفوفة كوس — اللون والعاطفة (المرجع النفسي العصبي لـ RAMI).",
+    "stance": {
+      "recommended": "موصى به",
+      "neutral": "محايد",
+      "avoid": "يُتجنب"
+    }
   }
 }

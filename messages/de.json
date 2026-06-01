@@ -177,7 +177,8 @@
     "tenants": "Tenants",
     "video": "Video",
     "invoices": "Rechnungen",
-    "approvals": "Freigaben"
+    "approvals": "Freigaben",
+    "colorTrends": "Farbtrends"
   },
   "theme": {
     "title": "Design",
@@ -2565,5 +2566,37 @@
     "systemPromptMinLength": "Minimum 10 caractères",
     "providerRequired": "Requis",
     "modelRequired": "Requis"
+  },
+  "colorTrends": {
+    "title": "MENA-Farbtrends",
+    "description": "Farbautorität nach Branche und Kultur, basierend auf der Causse-Matrix.",
+    "generate": "Bericht erstellen",
+    "regenerate": "Neu erstellen",
+    "generating": "Wird erstellt…",
+    "exportPdf": "Als PDF exportieren",
+    "cadenceNote": "Bericht wird automatisch jedes Quartal aktualisiert. Sie können ihn auch jederzeit neu erstellen.",
+    "emptyTitle": "Noch kein Bericht",
+    "emptyDescription": "Erstellen Sie Ihren ersten Farbtrend-Bericht für Ihre Branche und Ihren Markt.",
+    "sector": "Branche",
+    "culture": "Kultur",
+    "period": "Zeitraum",
+    "generatedAt": "Erstellt am",
+    "dataCollective": "Kollektive Daten",
+    "dataAuthorityOnly": "Nur Causse-Autorität",
+    "narrativeTitle": "Zusammenfassung",
+    "culturalNote": "Kulturelle Anmerkung",
+    "networks": "Optimale Netzwerke",
+    "benchmarks": "Plattform-Benchmarks",
+    "noBenchmarks": "Unzureichende kollektive Daten (k-Anonymität < 5) — der Bericht stützt sich auf die Causse-Autorität.",
+    "platform": "Plattform",
+    "metric": "Metrik",
+    "value": "Wert",
+    "sampleSize": "Stichprobe",
+    "sourceCausse": "Quelle: Causse-Matrix — Farbe & Emotion (neuropsychologische Referenz von RAMI).",
+    "stance": {
+      "recommended": "Empfohlen",
+      "neutral": "Neutral",
+      "avoid": "Vermeiden"
+    }
   }
 }

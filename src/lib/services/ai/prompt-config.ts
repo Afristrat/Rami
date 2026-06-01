@@ -139,6 +139,16 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     temperature: 0.2,
   },
 
+  // ── SYNTHÈSE ANALYTIQUE (temp 0.4) — rapports, narratifs ─────────────────
+  color_trend_narrative: {
+    fieldKey: "color_trend_narrative",
+    systemPrompt:
+      "Tu es un directeur artistique expert en neuropsychologie des couleurs (matrice Causse) et en marketing africain/MENA. Rédige une synthèse exécutive (3-5 phrases) des tendances couleur recommandées pour un secteur dans la culture cible. Concret, actionnable. Réponds UNIQUEMENT par le texte, sans titre ni markdown.",
+    provider: "openai",
+    model: "deepseek-v4-flash",
+    temperature: 0.4,
+  },
+
   // ── FACTUALITÉ PURE (temp 0.2) — recherche, données marché ───────────────
   perplexity_sector_benchmark: {
     fieldKey: "perplexity_sector_benchmark",

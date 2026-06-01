@@ -26,6 +26,7 @@ export async function register() {
     const { startCollectMetricsWorker } = await import("@/lib/queue/jobs/collect-metrics")
     const { startAttributionRefreshWorker } = await import("@/lib/queue/jobs/attribution-refresh")
     const { startCollectiveAggregateWorker } = await import("@/lib/queue/jobs/collective-aggregate")
+    const { startColorTrendRefreshWorker } = await import("@/lib/queue/jobs/color-trend-refresh")
     const { log } = await import("@/lib/utils/logger")
 
     try {
@@ -52,6 +53,12 @@ export async function register() {
       await startCollectiveAggregateWorker()
     } catch (err) {
       log({ level: "error", module: "instrumentation", action: "collective_aggregate_worker_start_failed", metadata: { error: err instanceof Error ? err.message : String(err) } })
+    }
+
+    try {
+      await startColorTrendRefreshWorker()
+    } catch (err) {
+      log({ level: "error", module: "instrumentation", action: "color_trend_refresh_worker_start_failed", metadata: { error: err instanceof Error ? err.message : String(err) } })
     }
   }
 }

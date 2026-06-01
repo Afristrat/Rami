@@ -14,6 +14,7 @@ import {
   Settings,
   Video,
   Palette,
+  Droplets,
 } from "lucide-react"
 
 export interface NavItem {
@@ -32,6 +33,7 @@ export const navMain: NavItem[] = [
   { href: "/dashboard/calendar", labelKey: "calendar", icon: CalendarDays },
   { href: "/dashboard/library", labelKey: "library", icon: Images },
   { href: "/dashboard/analytics", labelKey: "analytics", icon: BarChart3 },
+  { href: "/dashboard/color-trends", labelKey: "colorTrends", icon: Droplets, badgeKey: "pro" },
   { href: "/dashboard/approvals", labelKey: "approvals", icon: CheckSquare },
 ]
 

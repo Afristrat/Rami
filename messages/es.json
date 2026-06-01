@@ -177,7 +177,8 @@
     "tenants": "Tenants",
     "video": "Video",
     "invoices": "Facturas",
-    "approvals": "Aprobaciones"
+    "approvals": "Aprobaciones",
+    "colorTrends": "Tendencias de Color"
   },
   "theme": {
     "title": "Tema",
@@ -2565,5 +2566,37 @@
     "systemPromptMinLength": "Minimum 10 caractères",
     "providerRequired": "Requis",
     "modelRequired": "Requis"
+  },
+  "colorTrends": {
+    "title": "Tendencias de Color MENA",
+    "description": "Autoridad del color por sector y cultura, basada en la matriz Causse.",
+    "generate": "Generar informe",
+    "regenerate": "Regenerar",
+    "generating": "Generando…",
+    "exportPdf": "Exportar a PDF",
+    "cadenceNote": "Informe actualizado automáticamente cada trimestre. También puedes regenerarlo bajo demanda.",
+    "emptyTitle": "Aún no hay informe",
+    "emptyDescription": "Genera tu primer informe de tendencias de color para tu sector y mercado.",
+    "sector": "Sector",
+    "culture": "Cultura",
+    "period": "Período",
+    "generatedAt": "Generado el",
+    "dataCollective": "Datos colectivos",
+    "dataAuthorityOnly": "Solo autoridad Causse",
+    "narrativeTitle": "Resumen ejecutivo",
+    "culturalNote": "Nota cultural",
+    "networks": "Redes óptimas",
+    "benchmarks": "Benchmarks de plataformas",
+    "noBenchmarks": "Datos colectivos insuficientes (k-anonimato < 5) — el informe se basa en la autoridad Causse.",
+    "platform": "Plataforma",
+    "metric": "Métrica",
+    "value": "Valor",
+    "sampleSize": "Muestra",
+    "sourceCausse": "Fuente: matriz Causse — Color y Emoción (referencia neuropsicológica de RAMI).",
+    "stance": {
+      "recommended": "Recomendado",
+      "neutral": "Neutral",
+      "avoid": "Evitar"
+    }
   }
 }

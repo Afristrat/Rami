@@ -181,6 +181,26 @@ export type CollectiveBenchmark = typeof collectiveBenchmarks.$inferSelect
 export type NewCollectiveBenchmark = typeof collectiveBenchmarks.$inferInsert
 
 // ============================================================
+// COLOR TREND REPORTS (rapport « Tendances Couleur MENA » — US-014/015)
+// Un rapport par (tenant, période trimestrielle). RLS tenant.
+// ============================================================
+
+export const colorTrendReports = pgTable('color_trend_reports', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id')
+    .notNull()
+    .references(() => tenants.id, { onDelete: 'cascade' }),
+  sector: text('sector').notNull(),
+  culture: text('culture').notNull(),
+  period: text('period').notNull(), // ex. "2026-T2"
+  report: jsonb('report').notNull(), // ColorTrendReport sérialisé
+  generated_at: timestamp('generated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export type ColorTrendReportRow = typeof colorTrendReports.$inferSelect
+export type NewColorTrendReportRow = typeof colorTrendReports.$inferInsert
+
+// ============================================================
 // AUDIT LOG
 // ============================================================
 
