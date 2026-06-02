@@ -18,7 +18,7 @@ import { scoreImageWithVision } from '@/lib/services/brand-dna/vision-scorer'
 import { storeVisual } from '@/lib/services/storage/visual-storage'
 import { GenerateBriefSchema, GenerateBriefInput } from '@/lib/schemas/visual.schema'
 import { GeneratedVisual } from '@/lib/services/image-generation/types'
-import { checkGenerationQuota, getPlanConfig, hasFeatureAccess } from '@/lib/billing'
+import { checkGenerationQuota, getPlanConfig, hasFeatureAccess, incrementGenerationCount } from '@/lib/billing'
 import { resolveUserTenant } from '@/lib/services/tenant/resolve'
 import { log } from '@/lib/utils/logger'
 import { captureServerEvent } from '@/lib/utils/posthog-server'
@@ -371,12 +371,9 @@ export async function generateVisualsAction(
     performancePrior
   )
 
-  // Incrémenter compteur générations
+  // Incrémenter compteur générations (atomique + reset-aware, US-020)
   if (tenantData?.id) {
-    await supabase
-      .from('tenants')
-      .update({ generation_count: (tenantData.generation_count ?? 0) + 1 })
-      .eq('id', tenantData.id)
+    await incrementGenerationCount(tenantData.id)
   }
 
   // PostHog — visual_generated

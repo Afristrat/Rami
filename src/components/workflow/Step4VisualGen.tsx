@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition, useEffect } from "react"
+import Link from "next/link"
 import { generateVisualContentAction } from "@/lib/actions/workflow.actions"
 import type { Step1Data, Step2Data, GeneratedVisual, Step4Data } from "@/lib/schemas/workflow.schema"
 import { cn } from "@/lib/utils"
@@ -47,16 +48,20 @@ export function Step4VisualGen({ step1, step2, defaultValues, onBack, onNext }: 
   const [visuals, setVisuals] = useState<GeneratedVisual[]>(defaultValues?.visuals ?? [])
   const [selectedId, setSelectedId] = useState<string | null>(defaultValues?.selectedVisualId ?? null)
   const [error, setError] = useState<string | null>(null)
+  const [quotaBlocked, setQuotaBlocked] = useState<{ count: number; limit: number } | null>(null)
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null)
   const [activeObjective, setActiveObjective] = useState(OBJECTIVE_TABS[0])
 
   function generate() {
     setError(null)
+    setQuotaBlocked(null)
     startTransition(async () => {
       const result = await generateVisualContentAction(step1, step2)
       if (result.success) {
         setVisuals(result.visuals)
         setSelectedId(null)
+      } else if (result.quota_exceeded) {
+        setQuotaBlocked({ count: result.quota_exceeded.count, limit: result.quota_exceeded.limit })
       } else {
         setError(result.error)
       }
@@ -137,6 +142,24 @@ export function Step4VisualGen({ step1, step2, defaultValues, onBack, onNext }: 
       {error && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-500">
           {error}
+        </div>
+      )}
+
+      {/* Quota dépassé (US-020) */}
+      {quotaBlocked && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+          <p className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+            {t("visuals.quotaTitle")}
+          </p>
+          <p className="mt-1 text-sm text-amber-700/90 dark:text-amber-300/90">
+            {t("visuals.quotaDescription", { count: quotaBlocked.count, limit: quotaBlocked.limit })}
+          </p>
+          <Link
+            href="/pricing"
+            className="mt-3 inline-flex items-center justify-center h-9 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-blue-600 hover:opacity-90 transition-opacity"
+          >
+            {t("visuals.quotaUpgrade")}
+          </Link>
         </div>
       )}
 

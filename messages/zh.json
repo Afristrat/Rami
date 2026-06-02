@@ -1678,7 +1678,10 @@
       "totalAssets": "Total Assets",
       "images": "Images",
       "example": "Example",
-      "reviewAndSelection": "Review & selection"
+      "reviewAndSelection": "Review & selection",
+      "quotaTitle": "已达生成配额上限",
+      "quotaDescription": "本月您已使用 {count}/{limit} 次生成。升级套餐以继续。",
+      "quotaUpgrade": "升级套餐"
     },
     "export": {
       "title": "导出",

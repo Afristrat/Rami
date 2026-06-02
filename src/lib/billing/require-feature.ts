@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server'
 import { hasFeatureAccess, isGenerationQuotaExceeded } from './plans'
 import type { Feature, Plan } from './plans'
 import { resolveUserTenant } from '@/lib/services/tenant/resolve'
+import { effectiveGenerationCount } from './usage'
 
 interface TenantPlanData {
   plan: Plan
@@ -29,15 +30,20 @@ export async function getCurrentTenantPlan(): Promise<TenantPlanData | null> {
 
   const { data: tenant } = await supabase
     .from('tenants')
-    .select('plan, generation_count')
+    .select('plan, generation_count, generation_reset_at')
     .eq('id', tenantId)
-    .single<{ plan: string; generation_count: number }>()
+    .single<{ plan: string; generation_count: number; generation_reset_at: string | null }>()
 
   if (!tenant) return null
 
+  // Reset PARESSEUX : si la période est expirée, le compteur effectif est 0
+  // (matérialisé en DB à la prochaine consommation via incrementGenerationCount).
+  const resetAt = tenant.generation_reset_at ? new Date(tenant.generation_reset_at) : null
+  const effective = effectiveGenerationCount(tenant.generation_count ?? 0, resetAt, new Date())
+
   return {
     plan: tenant.plan as Plan,
-    generation_count: tenant.generation_count ?? 0,
+    generation_count: effective,
   }
 }
 

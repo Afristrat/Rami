@@ -8,6 +8,7 @@ import { sanitizePromptInput } from "@/lib/utils/sanitize"
 import { log } from "@/lib/utils/logger"
 import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { callTextLLM } from "@/lib/services/ai/text-llm"
+import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
 import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual } from "@/lib/schemas/workflow.schema"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import type { NewPostData } from "@/app/actions/scheduler"
@@ -194,7 +195,12 @@ Règles :
 
 export type GenerateVisualResult =
   | { success: true; visuals: GeneratedVisual[] }
-  | { success: false; error: string }
+  | {
+      success: false
+      error: string
+      /** Présent si le quota est dépassé — le client affiche l'invite d'upgrade. */
+      quota_exceeded?: { plan: string; count: number; limit: number }
+    }
 
 export async function generateVisualContentAction(
   step1: Step1Data,
@@ -202,6 +208,17 @@ export async function generateVisualContentAction(
 ): Promise<GenerateVisualResult> {
   const ctx = await getAuthContext()
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }
+
+  // Enforcement quota générations (US-020) — même garde-fou que /create.
+  const quotaCheck = await checkGenerationQuota()
+  if (!quotaCheck.allowed) {
+    const limit = getPlanConfig(quotaCheck.plan).generationsPerMonth
+    return {
+      success: false,
+      error: `Quota de générations atteint (${quotaCheck.count}/${limit} ce mois). Passez au plan supérieur pour continuer.`,
+      quota_exceeded: { plan: quotaCheck.plan, count: quotaCheck.count, limit },
+    }
+  }
 
   const tenant = await getTenantBrandDna(ctx.tenantId)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -265,6 +282,8 @@ export async function generateVisualContentAction(
             metadata: { count: visuals.length },
           })
 
+          // Génération réelle → consomme un quota (US-020).
+          await incrementGenerationCount(ctx.tenantId)
           return { success: true, visuals }
         }
       }
@@ -299,6 +318,8 @@ export async function generateVisualContentAction(
             brandDnaScore: 0.7 + Math.random() * 0.2,
             provider: "replicate" as const,
           }))
+          // Génération réelle → consomme un quota (US-020).
+          await incrementGenerationCount(ctx.tenantId)
           return { success: true, visuals }
         }
       }

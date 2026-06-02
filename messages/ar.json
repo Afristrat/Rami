@@ -1678,7 +1678,10 @@
       "totalAssets": "إجمالي الأصول",
       "images": "الصور",
       "example": "مثال",
-      "reviewAndSelection": "المراجعة والاختيار"
+      "reviewAndSelection": "المراجعة والاختيار",
+      "quotaTitle": "تم بلوغ حد التوليد",
+      "quotaDescription": "لقد استخدمت {count}/{limit} عملية توليد هذا الشهر. قم بترقية خطتك للمتابعة.",
+      "quotaUpgrade": "ترقية الخطة"
     },
     "export": {
       "title": "التصدير",

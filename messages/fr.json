@@ -1678,7 +1678,10 @@
       "totalAssets": "Total Assets",
       "images": "Images",
       "example": "Exemple",
-      "reviewAndSelection": "Review & sélection"
+      "reviewAndSelection": "Review & sélection",
+      "quotaTitle": "Quota de générations atteint",
+      "quotaDescription": "Vous avez utilisé {count}/{limit} générations ce mois. Passez au plan supérieur pour continuer.",
+      "quotaUpgrade": "Passer au plan supérieur"
     },
     "export": {
       "title": "Export",
