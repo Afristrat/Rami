@@ -2076,7 +2076,9 @@
     "copyText": "Copy text",
     "exportPdf": "Export PDF",
     "exportTxt": "Export TXT",
-    "share": "Share"
+    "share": "Share",
+    "emptyTitle": "Sem transcrições",
+    "emptyDesc": "Envie um arquivo de áudio para gerar sua primeira transcrição."
   },
   "presentations": {
     "title": "Apresentações",

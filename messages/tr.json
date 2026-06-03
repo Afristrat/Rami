@@ -2076,7 +2076,9 @@
     "copyText": "Copy text",
     "exportPdf": "Export PDF",
     "exportTxt": "Export TXT",
-    "share": "Share"
+    "share": "Share",
+    "emptyTitle": "Henüz transkripsiyon yok",
+    "emptyDesc": "İlk transkripsiyonunuzu oluşturmak için bir ses dosyası yükleyin."
   },
   "presentations": {
     "title": "Sunumlar",

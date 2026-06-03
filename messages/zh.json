@@ -2076,7 +2076,9 @@
     "copyText": "Copy text",
     "exportPdf": "Export PDF",
     "exportTxt": "Export TXT",
-    "share": "Share"
+    "share": "Share",
+    "emptyTitle": "暂无转录",
+    "emptyDesc": "上传音频文件以生成您的第一份转录。"
   },
   "presentations": {
     "title": "演示文稿",

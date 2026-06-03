@@ -2076,7 +2076,9 @@
     "copyText": "نسخ النص",
     "exportPdf": "تصدير PDF",
     "exportTxt": "تصدير TXT",
-    "share": "مشاركة"
+    "share": "مشاركة",
+    "emptyTitle": "لا توجد عمليات تفريغ",
+    "emptyDesc": "ارفع ملفًا صوتيًا لإنشاء أول تفريغ نصي لك."
   },
   "presentations": {
     "title": "العروض التقديمية",

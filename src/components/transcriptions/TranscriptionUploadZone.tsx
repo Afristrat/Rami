@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Upload, CloudUpload, Globe, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createTranscriptionAction } from '@/lib/actions/transcriptions.actions'
+import { transcribeUploadAction } from '@/lib/actions/transcriptions.actions'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -41,11 +42,11 @@ const FORMAT_BADGES = ['MP3', 'MP4', 'WAV', 'M4A'] as const
 export default function TranscriptionUploadZone({ onUploadComplete }: TranscriptionUploadZoneProps) {
   const t = useTranslations("transcriptions")
   const tCommon = useTranslations("common")
+  const router = useRouter()
   const [isDragging, setIsDragging] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [language, setLanguage] = useState<'fr' | 'ar' | 'darija' | 'en' | 'es'>('fr')
   const [uploading, setUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -111,56 +112,32 @@ export default function TranscriptionUploadZone({ onUploadComplete }: Transcript
     if (!selectedFile) return
 
     setUploading(true)
-    setProgress(0)
     setError(null)
 
-    // Simulate upload progress (real implementation would use MinIO presigned URL)
-    const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(progressInterval)
-          return 90
-        }
-        return prev + 10
-      })
-    }, 300)
-
     try {
-      const storagePath = `transcriptions/${Date.now()}_${selectedFile.name}`
+      const fd = new FormData()
+      fd.append('file', selectedFile)
+      fd.append('language', language)
 
-      const result = await createTranscriptionAction({
-        title: selectedFile.name.replace(/\.[^.]+$/, ''),
-        original_filename: selectedFile.name,
-        storage_path: storagePath,
-        mime_type: selectedFile.type,
-        file_size_bytes: selectedFile.size,
-        language,
-      })
+      // Upload réel (MinIO) + transcription Whisper côté serveur.
+      const result = await transcribeUploadAction(fd)
 
-      clearInterval(progressInterval)
-
-      if (result.error) {
-        setError(result.error)
-        setProgress(0)
-      } else if (result.id) {
-        setProgress(100)
+      if (!result.id) {
+        setError(result.error ?? tCommon('unexpectedError'))
+      } else {
+        // Une entrée a été créée (status completed ou failed). On rafraîchit la liste ;
+        // si la transcription a échoué (ex. clé absente), on remonte le message.
+        if (result.status === 'failed' && result.error) setError(result.error)
         onUploadComplete?.(result.id)
-        // Reset after short delay
-        setTimeout(() => {
-          setSelectedFile(null)
-          setProgress(0)
-          setUploading(false)
-        }, 1500)
-        return
+        setSelectedFile(null)
+        router.refresh() // rafraîchit la liste (RSC) avec la nouvelle transcription
       }
     } catch {
-      clearInterval(progressInterval)
       setError(tCommon('unexpectedError'))
-      setProgress(0)
+    } finally {
+      setUploading(false)
     }
-
-    setUploading(false)
-  }, [selectedFile, language, onUploadComplete, tCommon])
+  }, [selectedFile, language, onUploadComplete, tCommon, router])
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`
@@ -249,17 +226,14 @@ export default function TranscriptionUploadZone({ onUploadComplete }: Transcript
           <p className="text-xs text-muted-foreground mt-1">{t("maxSize")}</p>
         </div>
 
-        {/* Progress bar */}
+        {/* État de traitement (indéterminé : upload + transcription Whisper côté serveur) */}
         {uploading && (
           <div className="absolute bottom-0 left-0 right-0 px-6 pb-4">
             <div className="h-1.5 w-full rounded-full bg-muted/30 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-violet-600 to-blue-600 transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
+              <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-violet-600 to-blue-600 animate-pulse" />
             </div>
             <p className="mt-1.5 text-xs text-muted-foreground text-center">
-              {progress < 100 ? t("uploadProgress", { percent: progress }) : t("uploadDone")}
+              {t("processing")}
             </p>
           </div>
         )}
