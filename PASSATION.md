@@ -29,8 +29,9 @@
 > Avancement : **21/50** (US-001→016, US-020, US-021, US-027, US-028, US-029 ✓). **Epic A, B, E COMPLETS**. OPS US-020/021.
 > **Session Ralph #5 (2026-06-03)** : tous les gaps & alertes actionnables résolus (providers enrichissement PDL/Dropcontact/Enrich.so, cosmétique Apollo, branche mergée+déployée) + US-028/014/015/020 — tous browser-verified. cf. [FAIT] session #5.
 > **✅ GAP providers enrichissement FERMÉ** : 5 providers (apollo/hunter/pdl/dropcontact/enrich) implémentés + routables + rows db-rami.
-> **Prochaine story Ralph** : **US-022** (Whisper transcriptions, Epic C, deps [], P1). Puis US-023/024 (Epic C), US-025/026 (Epic D documents PDF), US-030 (competitors Crawl4AI), US-031/032 (Ayrshare/approval), US-033/034/035 (OPS tests/audit/smoke), puis P2 (US-036→050).
-> ⚠️ **Reste hors-scope autonome (input Amine)** : US-017 (mdp super-admin), US-018/019 (Stripe live).
+> **US-022 (Whisper) = impl COMPLÈTE + pipeline browser-verified** (upload MinIO réel + entrée DB + appel Whisper + statut + mock supprimé). **passes=false** : happy-path (texte transcrit) bloqué sur un endpoint Whisper opérationnel — le proxy LiteLLM renvoie HTTP 400. ⚠️ **Input Amine/ops** : fournir une vraie clé OpenAI `WHISPER_API_KEY` (api.openai.com) OU configurer whisper-1 sur le proxy → US-022/023/024 débloquées.
+> **Prochaine story Ralph COMPLÉTABLE en autonomie** : **US-025** (offre commerciale PDF — LLM deepseek via proxy ✓ + PDF print-CSS, no key). Puis US-026 (rapport client PDF), US-030 (competitors Crawl4AI ✓), US-032 (approval workflow), US-033/034/035 (OPS tests/audit/smoke). US-023/024 bloquées (deps US-022 happy-path). P2 (US-036→050) ensuite.
+> ⚠️ **Hors-scope autonome (input Amine)** : US-017 (mdp super-admin), US-018/019 (Stripe live), **clé Whisper (US-022/023/024)**.
 > ✅ **Dettes-alertes RÉSOLUES (2026-06-04)** : `brand_dna` shape PLATE→nested via `normalizeBrandDNA` (couleurs réelles désormais utilisées, browser-verified) ; `AiRecommendations` câblées sur l'attribution réelle + état vide honnête (plus de stats inventées). **Zéro dette connue.**
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
 
