@@ -31,7 +31,7 @@
 > **✅ GAP providers enrichissement FERMÉ** : 5 providers (apollo/hunter/pdl/dropcontact/enrich) implémentés + routables + rows db-rami.
 > **Prochaine story Ralph** : **US-022** (Whisper transcriptions, Epic C, deps [], P1). Puis US-023/024 (Epic C), US-025/026 (Epic D documents PDF), US-030 (competitors Crawl4AI), US-031/032 (Ayrshare/approval), US-033/034/035 (OPS tests/audit/smoke), puis P2 (US-036→050).
 > ⚠️ **Reste hors-scope autonome (input Amine)** : US-017 (mdp super-admin), US-018/019 (Stripe live).
-> ⚠️ **Dettes-alertes restantes à transformer en stories** : `brand_dna` shape PLATE vs interface NESTÉE du prompt-compiler (couleurs lues incorrectement en prod) ; `AiRecommendations` hardcodées (stats inventées) → à câbler sur `metrics/attribution.ts`.
+> ✅ **Dettes-alertes RÉSOLUES (2026-06-04)** : `brand_dna` shape PLATE→nested via `normalizeBrandDNA` (couleurs réelles désormais utilisées, browser-verified) ; `AiRecommendations` câblées sur l'attribution réelle + état vide honnête (plus de stats inventées). **Zéro dette connue.**
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
 
 ---
