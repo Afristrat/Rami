@@ -10,9 +10,9 @@ import { createClient } from '@/lib/supabase/server'
 import { generateBatch } from '@/lib/services/image-generation'
 import {
   compileBrandDNAToPrompts,
-  BrandDNA,
   type PerformancePrior,
 } from '@/lib/services/brand-dna/prompt-compiler'
+import { normalizeBrandDNA } from '@/lib/services/brand-dna/normalize'
 import { buildPerformancePrior } from '@/lib/services/metrics/attribution'
 import { scoreImageWithVision } from '@/lib/services/brand-dna/vision-scorer'
 import { storeVisual } from '@/lib/services/storage/visual-storage'
@@ -199,7 +199,8 @@ export async function generateVisualsAction(
 
   const tenantId: string = tenantData?.id ?? user.id
   const tenantPlan = (tenantData?.plan as string) ?? 'free'
-  const brandDNA: BrandDNA = (tenantData?.brand_dna as BrandDNA) ?? {}
+  // Normalise la shape PLATE réelle → interface nestée du compiler (résout IDs Causse → HEX).
+  const brandDNA = normalizeBrandDNA(tenantData?.brand_dna)
 
   // Watermark si plan FREE (pas de feature visual_engine_no_watermark)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -535,7 +536,7 @@ export async function getTenantBrandDNAAction(): Promise<{
 
   if (!data?.brand_dna) return { hasDNA: false }
 
-  const dna = data.brand_dna as BrandDNA
+  const dna = normalizeBrandDNA(data.brand_dna)
   const activePlatforms = dna.active_platforms ?? []
 
   const colorPalette = (dna.color_palette ?? [])

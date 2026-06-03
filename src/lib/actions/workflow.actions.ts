@@ -9,6 +9,7 @@ import { log } from "@/lib/utils/logger"
 import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
+import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
 import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual } from "@/lib/schemas/workflow.schema"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import type { NewPostData } from "@/app/actions/scheduler"
@@ -71,20 +72,21 @@ export async function generateTextContentAction(
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }
 
   const tenant = await getTenantBrandDna(ctx.tenantId)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const brandDna = tenant?.brand_dna as any
+  // Normalise la shape PLATE réelle → lecture fiable du secteur/ton/objectif/marché.
+  const dna = normalizeBrandDNA(tenant?.brand_dna)
+  const hasDna = Boolean(dna.identity?.name || dna.identity?.sector)
 
   const safeDescription = sanitizePromptInput(step1.description)
   const safeCible = sanitizePromptInput(step1.cible ?? "")
 
-  const brandContext = brandDna
+  const brandContext = hasDna
     ? `
 Brand DNA :
-- Entreprise : ${brandDna.nomEntreprise || tenant?.name || "Non défini"}
-- Secteur : ${brandDna.secteur || "Non défini"}
-- Ton éditorial : ${brandDna.tonEditorial || "professionnel"}
-- Objectif cognitif : ${brandDna.objectifCognitif || step1.objectif}
-- Marché primaire : ${brandDna.marchePrimaire || "Non défini"}
+- Entreprise : ${dna.identity?.name || tenant?.name || "Non défini"}
+- Secteur : ${dna.identity?.sector || "Non défini"}
+- Ton éditorial : ${dna.editorial_tone?.register || "professionnel"}
+- Objectif cognitif : ${dna.cognitive_objective || step1.objectif}
+- Marché primaire : ${dna.culture_markets?.primary_culture || "Non défini"}
 `
     : `Objectif cognitif : ${step1.objectif}\nCible : ${safeCible || "audience professionnelle"}`
 
@@ -221,14 +223,14 @@ export async function generateVisualContentAction(
   }
 
   const tenant = await getTenantBrandDna(ctx.tenantId)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const brandDna = tenant?.brand_dna as any
+  // Normalise la shape PLATE réelle → couleurs/secteur/objectif fiables (résout IDs Causse → HEX).
+  const dna = normalizeBrandDNA(tenant?.brand_dna)
 
   // Construction du prompt visuel basé sur Brand DNA
-  const primaryColor = brandDna?.couleursPrimaires?.[0]?.hex || "#1D4ED8"
-  const sector = brandDna?.secteur || "professionnel"
-  const cognitiveObjective = brandDna?.objectifCognitif || step1.objectif
-  const visualStyle = brandDna?.styleVisuel || "moderne et épuré"
+  const primaryColor = dna.color_palette?.[0]?.hex || "#1D4ED8"
+  const sector = dna.identity?.sector || "professionnel"
+  const cognitiveObjective = dna.cognitive_objective || step1.objectif
+  const visualStyle = "moderne et épuré"
 
   const falApiKey = process.env.FAL_API_KEY
   const replicateToken = process.env.REPLICATE_API_TOKEN
