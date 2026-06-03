@@ -1098,7 +1098,15 @@
     "engagementSubScore": "Engagement",
     "reachSubScore": "Reach Growth",
     "consistencySubScore": "Consistency",
-    "scoreColumn": "Score"
+    "scoreColumn": "Score",
+    "recoBestHour": "您在 {value} 点的帖子获得最佳互动（{pct}%）",
+    "recoBestColor": "{value} 视觉素材获得最佳互动（{pct}%）",
+    "recoBestFormat": "{value} 格式带来最佳互动（{pct}%）",
+    "recoBestPlatform": "{value} 是您表现最佳的平台（{pct}%）",
+    "recoBestObjective": "目标「{value}」表现最佳（{pct}%）",
+    "recoEmptyTitle": "暂无推荐",
+    "recoEmptyDesc": "发布内容并让 RAMI 收集足够的指标（每项标准 ≥3 篇帖子），以基于您的真实数据提供推荐。",
+    "recoSampleSize": "基于 {count} 篇已测帖子"
   },
   "leads": {
     "title": "Leads & CRM",

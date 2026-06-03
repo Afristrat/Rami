@@ -1098,7 +1098,15 @@
     "engagementSubScore": "Engagement",
     "reachSubScore": "Reach Growth",
     "consistencySubScore": "Consistency",
-    "scoreColumn": "Score"
+    "scoreColumn": "Score",
+    "recoBestHour": "Suas publicações às {value}h têm o melhor engajamento ({pct}%)",
+    "recoBestColor": "Os visuais {value} têm o melhor engajamento ({pct}%)",
+    "recoBestFormat": "O formato {value} gera o melhor engajamento ({pct}%)",
+    "recoBestPlatform": "{value} é sua plataforma de melhor desempenho ({pct}%)",
+    "recoBestObjective": "O objetivo «{value}» tem o melhor desempenho ({pct}%)",
+    "recoEmptyTitle": "Ainda sem recomendações",
+    "recoEmptyDesc": "Publique e deixe a RAMI coletar métricas suficientes (≥3 posts por critério) para recomendações baseadas nos seus dados reais.",
+    "recoSampleSize": "em {count} posts medidos"
   },
   "leads": {
     "title": "Leads & CRM",

@@ -1098,7 +1098,15 @@
     "engagementSubScore": "التفاعل",
     "reachSubScore": "نمو الوصول",
     "consistencySubScore": "الاتساق",
-    "scoreColumn": "النتيجة"
+    "scoreColumn": "النتيجة",
+    "recoBestHour": "منشوراتك في الساعة {value} تحقق أفضل تفاعل ({pct}%)",
+    "recoBestColor": "التصاميم {value} تحقق أفضل تفاعل ({pct}%)",
+    "recoBestFormat": "صيغة {value} تحقق أفضل تفاعل ({pct}%)",
+    "recoBestPlatform": "{value} هي منصتك الأفضل أداءً ({pct}%)",
+    "recoBestObjective": "الهدف «{value}» يحقق الأداء الأفضل ({pct}%)",
+    "recoEmptyTitle": "لا توجد توصيات بعد",
+    "recoEmptyDesc": "انشر ودع RAMI يجمع مقاييس كافية (≥3 منشورات لكل معيار) للحصول على توصيات مبنية على بياناتك الحقيقية.",
+    "recoSampleSize": "من {count} منشورات مُقاسة"
   },
   "leads": {
     "title": "Leads & CRM",

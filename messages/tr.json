@@ -1098,7 +1098,15 @@
     "engagementSubScore": "Engagement",
     "reachSubScore": "Reach Growth",
     "consistencySubScore": "Consistency",
-    "scoreColumn": "Score"
+    "scoreColumn": "Score",
+    "recoBestHour": "{value} saatindeki gönderileriniz en iyi etkileşimi alıyor (%{pct})",
+    "recoBestColor": "{value} görselleri en iyi etkileşimi alıyor (%{pct})",
+    "recoBestFormat": "{value} formatı en iyi etkileşimi sağlıyor (%{pct})",
+    "recoBestPlatform": "{value} en iyi performans gösteren platformunuz (%{pct})",
+    "recoBestObjective": "«{value}» hedefi en iyi performansı gösteriyor (%{pct})",
+    "recoEmptyTitle": "Henüz öneri yok",
+    "recoEmptyDesc": "Yayınlayın ve RAMI'nin gerçek verilerinize dayalı öneriler için yeterli metrik toplamasına izin verin (kriter başına ≥3 gönderi).",
+    "recoSampleSize": "{count} ölçülen gönderi üzerinden"
   },
   "leads": {
     "title": "Leads & CRM",

@@ -10,13 +10,14 @@ import { TopPostsTable } from "./top-posts-table"
 import { AnalyticsFilters } from "./analytics-filters"
 import { AiRecommendations } from "./ai-recommendations"
 import { PerformanceScoreGauge } from "./performance-score-gauge"
-import type { AnalyticsData, PeriodOption } from "@/app/actions/analytics"
+import type { AnalyticsData, PeriodOption, AiRecommendation } from "@/app/actions/analytics"
 import type { Platform } from "@/lib/scheduler/platform-config"
 
 interface AnalyticsDashboardProps {
   data: AnalyticsData
   period: PeriodOption
   platforms: Platform[]
+  recommendations: AiRecommendation[]
 }
 
 /**
@@ -69,7 +70,7 @@ export function computePostEngagementScore(engagementScore: number): number {
   return Math.min(100, Math.round((engagementScore / 500) * 100))
 }
 
-export function AnalyticsDashboard({ data, period, platforms }: AnalyticsDashboardProps) {
+export function AnalyticsDashboard({ data, period, platforms, recommendations }: AnalyticsDashboardProps) {
   const t = useTranslations("analytics")
   const perfScore = useMemo(() => computePerformanceScore(data), [data])
 
@@ -141,8 +142,8 @@ export function AnalyticsDashboard({ data, period, platforms }: AnalyticsDashboa
         <TopPostsTable posts={data.topPosts} />
       </div>
 
-      {/* Row 4 : AI Recommendations */}
-      <AiRecommendations />
+      {/* Row 4 : AI Recommendations (attribution réelle) */}
+      <AiRecommendations recommendations={recommendations} />
     </div>
   )
 }

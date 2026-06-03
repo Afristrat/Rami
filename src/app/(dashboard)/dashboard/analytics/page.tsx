@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { BarChart3 } from "lucide-react"
 import { getTranslations } from "next-intl/server"
-import { getAnalyticsData } from "@/app/actions/analytics"
+import { getAnalyticsData, getAiRecommendationsAction } from "@/app/actions/analytics"
 import { AnalyticsEmptyState } from "./empty-state"
 import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard"
 import type { PeriodOption } from "@/app/actions/analytics"
@@ -52,11 +52,15 @@ async function AnalyticsContent({ searchParams }: PageProps) {
     return <AnalyticsEmptyState />
   }
 
+  // Recommandations IA fondées sur l'attribution réelle (US-007).
+  const recommendations = await getAiRecommendationsAction()
+
   return (
     <AnalyticsDashboard
       data={result.data}
       period={period}
       platforms={platforms}
+      recommendations={recommendations}
     />
   )
 }

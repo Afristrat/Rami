@@ -13,6 +13,10 @@ import {
   type LatestMetric,
   type PeriodOption,
 } from "@/lib/services/analytics/aggregate"
+import { topFeatures, type AttributionDimension } from "@/lib/services/metrics/attribution"
+import { buildAiRecommendations, type AiRecommendation } from "@/lib/services/analytics/recommendations"
+
+export type { AiRecommendation } from "@/lib/services/analytics/recommendations"
 
 // Ré-exports : les composants importent ces types depuis cette action.
 export type {
@@ -39,6 +43,34 @@ async function getTenantId(): Promise<string | null> {
   } catch {
     // DB direct (Drizzle) indisponible — l'isolation tenant via RLS Supabase reste le filet.
     return null
+  }
+}
+
+/** Dimensions d'attribution exploitées pour les recommandations IA. */
+const RECO_DIMENSIONS: AttributionDimension[] = [
+  "scheduled_hour",
+  "dominant_color_hex",
+  "format",
+  "platform",
+  "cognitive_objective",
+]
+
+/**
+ * Recommandations IA fondées sur l'attribution RÉELLE du tenant (US-007).
+ * Retourne [] si aucune dimension n'a assez d'échantillon (état vide honnête).
+ */
+export async function getAiRecommendationsAction(): Promise<AiRecommendation[]> {
+  const tenantId = await getTenantId()
+  if (!tenantId) return []
+  try {
+    const results = await Promise.all(
+      RECO_DIMENSIONS.map((d) =>
+        topFeatures(tenantId, null, d).catch(() => null)
+      )
+    )
+    return buildAiRecommendations(results)
+  } catch {
+    return []
   }
 }
 
