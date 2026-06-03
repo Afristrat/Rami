@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-01T23:59:00Z (session #4) ==
+# == PASSATION RAMI 2026-06-03T22:40:00Z (session #5) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -9,9 +9,10 @@
 
 ## [ETAT] — État global du projet
 
-**Branche active** : `ralph/rami-completion` (~31 commits, **NON mergée** dans main). `main` = à jour, poussée.
+**Branche active** : `ralph/rami-completion` **MERGÉE dans `main` + DÉPLOYÉE en PROD** (session #5, fast-forward 42 commits, push `c18ad58→e66824d`). `main` = origin synchronisé. Branche conservée sur origin.
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
-**Avancement Ralph** : **17/50** stories `passes=true` (US-001→013, US-016, US-021, US-027, US-029). **Epic A (MOAT-1) = 12/12 COMPLET**. **Epic B (MOAT-2) = 2/4** (US-013, US-016 ✓ ; reste US-014/015). **Epic E (Leads) = 2/3** (US-027, US-029 ✓ ; reste US-028). **OPS = US-021 ✓**.
+**Déploiement session #5** : ✅ Coolify auto-deploy déclenché sur push main, **terminé**. Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307 (route présente, redirect auth attendu).
+**Avancement Ralph** : **21/50** stories `passes=true` (US-001→016, US-020, US-021, US-027, US-028, US-029). **Epic A (MOAT-1) = 12/12 COMPLET**. **Epic B (MOAT-2) = 4/4 COMPLET** (US-013→016 ✓). **Epic E (Leads) = 3/3 COMPLET** (US-027/028/029 ✓). **OPS = US-020, US-021 ✓** (reste US-017/018/019 = input Amine).
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
 **TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **tout vert** (dette `brand-dna-score` CORRIGÉE en US-016 ; +cultural-scorer 24, +apollo-leads 10, +hunter-enrich 15).
 **Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE** (login testé en réel, dashboard OK).
@@ -24,13 +25,28 @@
 
 ## [ENCOURS] — Tâches actives
 
-> **MODE RALPH ACTIF** sur la branche `ralph/rami-completion`. État dans `.ralph/prd.json` (50 US).
-> Avancement : **17/50** (US-001→013, US-016, US-021, US-027, US-029 ✓). Epic A COMPLET, Epic B 2/4, Epic E 2/3, OPS US-021.
-> **Session Ralph #4 (2026-06-01)** : US-016 (score culturel), US-021 (Sentry/PostHog), US-027 (enrichissement leads + BYOK Hunter), US-029 (suppression leads démo) — tous browser-verified. + **migration CRM `leads`** (gap prod corrigé) + **système BYOK enrichissement** + **abstraction `EnrichmentProvider`** + **doc création clés providers**.
-> **🔴 GAP OUVERT (demande Amine)** : « Hunter + une 2ᵉ plateforme + tous les autres en BYOK ». Actuellement **seuls Apollo + Hunter** sont implémentés/sélectionnables. Reste à implémenter **Enrich.so (2ᵉ plateforme gratuite validable) + PDL + Dropcontact** (mapper + router + lignes `ai_provider_keys` + tests, recherche API par provider). cf. `docs/ENRICHMENT_PROVIDERS_BYOK.md`.
-> **Prochaine story Ralph** : **US-028** (scoring Brand DNA match leads, deps US-027 ✓, débloqué). Puis US-014/015 (rapport MENA, Epic B), puis OPS/P1/P2.
-> ⚠️ OPS P0 input Amine : **US-017** (mot de passe super-admin), **US-018/019** (Stripe live). **US-020** (quotas) autonome.
+> **MODE RALPH ACTIF** sur `main` (branche mergée). État dans `.ralph/prd.json` (50 US).
+> Avancement : **21/50** (US-001→016, US-020, US-021, US-027, US-028, US-029 ✓). **Epic A, B, E COMPLETS**. OPS US-020/021.
+> **Session Ralph #5 (2026-06-03)** : tous les gaps & alertes actionnables résolus (providers enrichissement PDL/Dropcontact/Enrich.so, cosmétique Apollo, branche mergée+déployée) + US-028/014/015/020 — tous browser-verified. cf. [FAIT] session #5.
+> **✅ GAP providers enrichissement FERMÉ** : 5 providers (apollo/hunter/pdl/dropcontact/enrich) implémentés + routables + rows db-rami.
+> **Prochaine story Ralph** : **US-022** (Whisper transcriptions, Epic C, deps [], P1). Puis US-023/024 (Epic C), US-025/026 (Epic D documents PDF), US-030 (competitors Crawl4AI), US-031/032 (Ayrshare/approval), US-033/034/035 (OPS tests/audit/smoke), puis P2 (US-036→050).
+> ⚠️ **Reste hors-scope autonome (input Amine)** : US-017 (mdp super-admin), US-018/019 (Stripe live).
+> ⚠️ **Dettes-alertes restantes à transformer en stories** : `brand_dna` shape PLATE vs interface NESTÉE du prompt-compiler (couleurs lues incorrectement en prod) ; `AiRecommendations` hardcodées (stats inventées) → à câbler sur `metrics/attribution.ts`.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session Ralph #5 (2026-06-03) — gaps & alertes + Epic B/E complétés + DEPLOY PROD
+
+> **Goal Amine** : « résous tous les gaps & alertes sauf password/Stripe + toutes les actions dans l'ordre suggéré, puis reprends Ralph ». **+4 stories `passes=true`** (US-014/015/020/028) → **21/50**. 6 commits logiques + merge+deploy prod. Tout browser-verified on-LAN. Gates TS0/lint0/build/jest 239 à chaque étape. Zéro dette laissée.
+
+- **GAP providers enrichissement (demande Amine) — RÉSOLU** : `src/lib/services/leads/{pdl,dropcontact,enrich}.ts` (PDL, Dropcontact 100% RGPD asynchrone, Enrich.so) + routeur `index.ts` étendu (5 providers via `LEADS_ENRICHMENT_PROVIDER`). Migration `20260315000008` (rows ai_provider_keys, **appliquée db-rami** : 5 providers). 27 tests. Contrats API vérifiés docs officielles. Commit `780dc3f`.
+- **Cosmétique Apollo — RÉSOLU** : libellés enrichissement provider-neutres × 8 locales + messages action + faux horodatage retiré (DEFCON 1). Browser-verified (« Enrichissement »/« Enrichir le lead »). Commit `84e9ee3`.
+- **US-028 — Scoring Brand DNA match leads BROWSER-VERIFIED** : `scorer.ts` (PUR + 14 tests) + `text-llm.ts` (`callTextLLM` extrait, zéro dup) + `scoreLeadAction` (deepseek + repli heuristique) + UI « Scorer le match » + tri par score. Vérifié : lead finance_islamique/Maroc → **97/100**. Commits `5e33ba0`+verified.
+- **US-014/015 — Rapport Couleur MENA BROWSER-VERIFIED** : `reports/color-trends.ts` (PUR + 8 tests) + générateur (benchmarks + Crawl4AI + deepseek) + table `color_trend_reports` + RLS (migration `20260315000009` **db-rami**, cross-tenant testée) + page gatée Pro+ + export PDF (print-CSS) + worker cron trimestriel + nav. Vérifié (synthèse deepseek + cartes Causse). Commit `5ee2f34`.
+- **US-020 — Enforcement quotas BROWSER-VERIFIED** : `billing/usage.ts` (incrément atomique reset-aware + PURES + 6 tests), reset paresseux `getCurrentTenantPlan`, **gap workflow Step4 comblé** (bypass quota fermé), UI carte quota. Vérifié : count=2000 → /create bloqué + UpgradeModal. Commit `044d309`.
+- **GAP branche non mergée — RÉSOLU** : ralph/rami-completion → main (ff 42 commits) + push → **deploy Coolify PROD OK** (confirmé Amine). LEADS_ENRICHMENT_PROVIDER=hunter (déjà Coolify) désormais actif.
+- État Ralph MAJ (`e66824d`) : prd.json 21/50 + progress.md (méthode browser-verify on-LAN documentée).
 
 ---
 

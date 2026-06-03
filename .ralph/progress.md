@@ -121,6 +121,18 @@ ssh -i $key -o BatchMode=yes "$u@$h" "echo '$blob' | base64 -d | docker exec -i 
 - ⚠️ Dollar-quoting (`$$ ... $$`) cassé par l'échappement PowerShell→ssh : éviter les blocs `DO $$`, préférer des INSERT directs pour tester WITH CHECK.
 - `service_role`/Supabase : les grants anon/authenticated/service_role sont **hérités automatiquement** sur les nouvelles tables (ALTER DEFAULT PRIVILEGES Supabase) → pas de GRANT à ajouter.
 
+## CHECKPOINT — Prochaine story : US-022 (Whisper transcriptions, Epic C, P1, deps [])
+*Posé 2026-06-03 (fin session #5). 21/50. Epic A/B/E complets. Contexte session #5 important (gaps + 4 stories + deploy prod + browser-verify) → **session fraîche recommandée** pour US-022 (feature lourde : upload audio + storage + Whisper API + persistance + UI), conformément à la règle de sécurité Ralph (contexte dégradé → checkpoint + nouvelle session).*
+
+**Plan US-022** : transcription Whisper réelle (le module Transcriptions est factice, `requireFeature('transcription')` Pro+).
+1. Vérifier l'existant : page `/dashboard/transcriptions` (factice ?), schéma DB (table `transcriptions` ? sinon migration), `OPENAI_API_KEY` (Whisper = OpenAI direct, PAS le proxy LiteLLM/deepseek — Whisper exige l'API OpenAI ou un endpoint compatible ; vérifier la dispo de la clé sur Coolify).
+2. Upload audio (MP3/MP4/WAV, max 500MB cf. CLAUDE.md §1.2) → storage MinIO/R2 (cf. `src/lib/services/storage/`), validation MIME + taille serveur.
+3. Service `transcribeAudio` → POST `https://api.openai.com/v1/audio/transcriptions` (model `whisper-1`, multipart) ; dégradation propre si clé absente.
+4. Persistance transcription (texte + métadonnées) RLS tenant. Action server + UI (état réel, pas de mock).
+5. Gates TS0/lint0/build/jest + browser-verify on-LAN (méthode documentée ci-dessous). Puis US-023 (verbatims/speakers/résumé) → US-024 (transcription→brief).
+
+**Méthode browser-verify on-LAN (session #5, validée, réutilisable)** : tunnel SSH conteneur PG `172.24.0.6:5432` (Git Bash, secrets via `docker exec <db|app> printenv`, jamais affichés ; conteneur app = `ry8ytnene4czxdhsoes0z56y-105027232246`) + `npm run dev` override SUPABASE_DB_URL(tunnel)+NEXT_PUBLIC db-rami+anon+service-role+OAUTH+OPENAI. Login déjà actif (cookies test-ralph) OU `test-ralph@rami.local`/`TestRalph2026!`. Playwright MCP (plugin `mcp__plugin_playwright_playwright__*`). Cleanup systématique (fixtures restaurées, dev+tunnel tués).
+
 ## Log itérations
 <!-- (date | story | fichiers | learnings) -->
 - **2026-06-02 | GAP enrichissement | Providers PDL + Dropcontact + Enrich.so (BYOK)** — `src/lib/services/leads/{pdl,dropcontact,enrich}.ts` (mapper PUR + `enrichViaX(input,key)`), `types.ts` `EnrichmentProviderId` étendu, `index.ts` routeur `enrichLead` switch + ENV_KEY + `getActiveEnrichmentProvider` validé sur KNOWN_PROVIDERS. Migration `20260315000008` (rows ai_provider_keys, **appliquée db-rami** : 5 providers enrichment). `.env.example` + doc. Tests `tests/unit/enrichment-providers.test.ts` (27). Contrats API vérifiés docs officielles (PDL GET /v5/person/enrich X-Api-Key ; Dropcontact POST async + poll X-Access-Token ; Enrich.so GET /v1/api/person Bearer, mapper défensif car shape non publiée). Gates TS0/lint0/build/jest. *Learning* : Dropcontact = API ASYNCHRONE (submit→request_id→poll) ; `enrichViaDropcontact(input,key,{maxPolls,pollDelayMs})` injectable pour tests rapides.
