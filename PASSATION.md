@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-03T22:40:00Z (session #5) ==
+# == PASSATION RAMI 2026-06-04T00:10:00Z (session #5, étendue 06-03→06-04) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -9,15 +9,15 @@
 
 ## [ETAT] — État global du projet
 
-**Branche active** : `ralph/rami-completion` **MERGÉE dans `main` + DÉPLOYÉE en PROD** (session #5, fast-forward 42 commits, push `c18ad58→e66824d`). `main` = origin synchronisé. Branche conservée sur origin.
+**Branche active** : `main` (ralph/rami-completion **MERGÉE** session #5, ff 42 commits). `main` = origin synchronisé, **HEAD `37ee844`**. Branche ralph conservée sur origin. **Travailler désormais sur main** (ou re-créer une branche feature).
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
-**Déploiement session #5** : ✅ Coolify auto-deploy déclenché sur push main, **terminé**. Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307 (route présente, redirect auth attendu).
-**Avancement Ralph** : **21/50** stories `passes=true` (US-001→016, US-020, US-021, US-027, US-028, US-029). **Epic A (MOAT-1) = 12/12 COMPLET**. **Epic B (MOAT-2) = 4/4 COMPLET** (US-013→016 ✓). **Epic E (Leads) = 3/3 COMPLET** (US-027/028/029 ✓). **OPS = US-020, US-021 ✓** (reste US-017/018/019 = input Amine).
+**Déploiement** : ✅ Coolify **auto-deploy sur push main**. Plusieurs déploiements session #5 (merge initial `e66824d` puis dettes + US-022). Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec` (cf. browser-verify).
+**Avancement Ralph** : **21/50** stories `passes=true` (US-001→016, US-020, US-021, US-027, US-028, US-029). **Epic A (MOAT-1) = 12/12**. **Epic B (MOAT-2) = 4/4** (US-013→016). **Epic E (Leads) = 3/3** (US-027/028/029). **OPS = US-020/021**. **US-022 = impl+pipeline OK mais passes=false** (happy-path bloqué clé Whisper). **Zéro dette connue.**
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
-**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **tout vert** (dette `brand-dna-score` CORRIGÉE en US-016 ; +cultural-scorer 24, +apollo-leads 10, +hunter-enrich 15).
-**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE** (login testé en réel, dashboard OK).
+**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **261/261 vert** (14 suites ; +enrichment-providers 27, +lead-scorer 14, +color-trends 8, +billing-usage 6, +ai-recommendations 5, +brand-dna-normalize 12, +whisper 6).
+**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**.
 **Hébergement** : **Coolify** (serveur Ubuntu `serveurai` 192.168.100.8) + **cloudflared tunnel** (PAS Vercel).
-**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). Migrations 24/24 appliquées, RLS 100%.
+**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **27 migrations appliquées** (jusqu'à `20260315000010_transcriptions`), RLS 100%.
 **LLM** : via **proxy LiteLLM** `proxy.ai-mpower.com` — texte `deepseek-v4-flash`, vision `moonshot-v1-8k-vision-preview`. Plus de clés directes Anthropic/OpenAI nécessaires.
 **pg-boss** : ✅ connecté (schéma `pgboss`, 8 tables) — app `rami` sur réseau `coolify` partagé avec `supabase-db`.
 
@@ -48,6 +48,14 @@
 - **US-020 — Enforcement quotas BROWSER-VERIFIED** : `billing/usage.ts` (incrément atomique reset-aware + PURES + 6 tests), reset paresseux `getCurrentTenantPlan`, **gap workflow Step4 comblé** (bypass quota fermé), UI carte quota. Vérifié : count=2000 → /create bloqué + UpgradeModal. Commit `044d309`.
 - **GAP branche non mergée — RÉSOLU** : ralph/rami-completion → main (ff 42 commits) + push → **deploy Coolify PROD OK** (confirmé Amine). LEADS_ENRICHMENT_PROVIDER=hunter (déjà Coolify) désormais actif.
 - État Ralph MAJ (`e66824d`) : prd.json 21/50 + progress.md (méthode browser-verify on-LAN documentée).
+
+### Suite session #5 (2026-06-04) — « zéro dette » + reprise Ralph (US-022)
+
+> Demande Amine : « ne laisse aucune dette, puis reprends Ralph dans l'ordre ». **2 dettes-alertes résolues** + **US-022** (next-in-order) implémentée. Gates TS0/lint0/build/jest **261**. 4 commits poussés (déployés). HEAD `37ee844`.
+
+- **DETTE 1 — `brand_dna` shape PLATE vs NESTÉE RÉSOLUE (browser-verified)** : `src/lib/services/brand-dna/normalize.ts` (`normalizeBrandDNA` PLAT→nested + `causseColorToHex` ID Causse→HEX via `CAUSSE_COLORS`). Branché dans `visual.actions` (génération `compileBrandDNAToPrompts` + résumé `getTenantBrandDNAAction`) et `workflow.actions` (texte + visuels). 12 tests. **Vérifié** : `/create` affichait « Brand DNA non configuré » (bug shape) → « **Brand DNA activé pour Banque Test Ralph** » + vraies couleurs résolues. *Les vraies couleurs de marque étaient ignorées en prod (fallback Causse) — corrigé.* Commit `~02e45e5`.
+- **DETTE 2 — `AiRecommendations` hardcodées RÉSOLUE** : `src/lib/services/analytics/recommendations.ts` (`buildAiRecommendations` PUR, imports TYPE-only → client-safe) + `getAiRecommendationsAction` (`topFeatures` sur 5 dimensions réelles) ; composant refait (props + i18n interpolé + **état vide honnête** si <3 posts/critère). Plus aucune stat inventée (« +40% mardi » supprimé, DEFCON 1). i18n recoBest*/recoEmpty* × 8. 5 tests. Commit `~02e45e5`.
+- **US-022 — Whisper transcriptions : pipeline RÉEL (impl + pipeline browser-verified ; passes=false)** : `src/lib/services/transcription/whisper.ts` (`transcribeAudio` endpoint `/audio/transcriptions` whisper-1, clé+base configurables `WHISPER_API_KEY`/`WHISPER_BASE_URL`, garde 25 Mo, `toWhisperLanguage` darija→ar ; 6 tests) ; `transcribeUploadAction` (upload **MinIO réel** bucket `audios` + entrée DB processing + Whisper + statut completed/failed) ; `TranscriptionUploadZone` (vrai FormData, état honnête, router.refresh) ; `TranscriptionList` **mock supprimé → état vide honnête**. Migration `20260315000010` (enum+table+RLS, **db-rami**, RLS testée). i18n + .env WHISPER_*. **Pipeline browser-verified** (WAV 31 Ko → MinIO → entrée réelle → Whisper appelé → statut **Échec** « Whisper HTTP 400 » → liste rafraîchie, mock disparu). **passes=false** : le proxy LiteLLM ne route pas whisper (HTTP 400) → happy-path = **input Amine** (vraie clé OpenAI `WHISPER_API_KEY` ou whisper-1 sur le proxy). Commit `37ee844`(état)/précédent(impl).
 
 ---
 
@@ -128,17 +136,19 @@
 ## [ALERTE] — Avertissements / risques
 
 - **!! Mot de passe super-admin COMPROMIS** (exposé en clair lors d'une session antérieure — valeur rédigée ici par anti-leak) → **US-017 À FAIRE en priorité** : régénérer via l'API admin Supabase + révoquer les sessions. Nécessite l'input d'Amine (nouveau mot de passe).
-- **! Modules FACTICES restants en prod** (affichés mais non câblés) : Vidéo, Présentations, Competitors (hardcodés), 🟡 Transcriptions (Whisper absent), Documents (PDF absent). ✅ **Analytics RÉEL** (US-012), ✅ **Leads RÉELS** (US-029, démo supprimée), ✅ **Enrichissement câblé** (US-027, Hunter/Apollo via BYOK). Détail : `docs/PRD_RAMI_L99.md` §0.2.
-- **!! Apollo API = plan PAYANT uniquement** : la clé Apollo gratuite (120 crédits) renvoie **403 `API_INACCESSIBLE`** sur TOUS les endpoints REST (people/match, mixed_people/search, organizations/enrich…). L'enrichissement live nécessite un plan Apollo payant. → **Hunter.io (gratuit) configuré comme provider par défaut** (`LEADS_ENRICHMENT_PROVIDER=hunter`).
-- **🔴 GAP providers enrichissement (demande Amine)** : seuls Apollo + Hunter implémentés. Reste **Enrich.so (2ᵉ plateforme) + PDL + Dropcontact** en BYOK (mapper+router+rows+tests par provider). cf. `docs/ENRICHMENT_PROVIDERS_BYOK.md`.
+- **!! Clé Whisper requise (US-022/023/024)** : la transcription est implémentée + pipeline vérifié, mais le proxy LiteLLM **ne route pas whisper** (HTTP 400). Pour le happy-path : poser `WHISPER_API_KEY` = **vraie clé OpenAI** (api.openai.com) sur Coolify, OU configurer un modèle `whisper-1` sur le proxy + `WHISPER_BASE_URL`=proxy. Input Amine/ops.
+- **! Modules FACTICES restants en prod** : Vidéo (US-036+), Présentations (US-041+), Competitors hardcodés (US-030), Documents PDF (US-025/026). ✅ **RÉELS désormais** : Analytics (US-012), Leads (US-029), Enrichissement (US-027 + 5 providers), **Recommandations IA** (dette résolue), **Transcriptions** (US-022 pipeline réel, texte bloqué clé). Détail : `docs/PRD_RAMI_L99.md` §0.2.
+- **!! Apollo API = plan PAYANT** : free → **403 `API_INACCESSIBLE`**. → **Hunter.io (gratuit) provider par défaut** (`LEADS_ENRICHMENT_PROVIDER=hunter`).
+- **✅ GAP providers enrichissement FERMÉ (session #5)** : 5 providers (apollo/hunter/**pdl/dropcontact/enrich**) implémentés + routables + rows db-rami (migration `…008`).
 - **! Stripe encore en TEST** — Price IDs live + webhook live non configurés (US-018, input Amine requis).
-- **! Cosmétique mineur** : libellé section panneau lead « Enrichissement Apollo » + descriptions mentionnent encore Apollo (multi-provider) — le bouton/log ont été neutralisés ; le titre/descriptions restent à neutraliser (`apolloEnrichment`/`apollo*Desc`).
-- **! IP publique serveur dynamique** (DHCP) — re-vérifier après reboot ; le tunnel cloudflared (cfargotunnel) est IP-indépendant donc OK.
-- **! Branche ralph/rami-completion non mergée** dans main — ~31 commits (US-001→013, US-016/021/027/029 + migrations CRM/BYOK + checkpoints). ⚠️ Les **migrations DB sont déjà live** sur db-rami (leads, enrichment) mais le **CODE n'est pas déployé** (prod = ancien main) → l'env Coolify `LEADS_ENRICHMENT_PROVIDER=hunter` est dormant jusqu'au merge+deploy.
-- **!! Instance cloud `.env.local` SUPPRIMÉE** (découvert session #3) : `rfndjbrwpdltfzvyreyv.supabase.co` ne résout plus (NXDOMAIN API+DB) — `SUPABASE_DB_URL` ET `NEXT_PUBLIC_SUPABASE_URL` du `.env.local` pointent vers un projet mort. **Conséquence** : `npm run dev` brut échoue. **Toujours** override vers db-rami (cf. méthode tunnel en [CTX]). Prod = db-rami (source de vérité unique).
-- **! `brand_dna` shape RÉELLE = PLATE** (`brand_dna->>'sector'`, `->>'primaryCulture'`, `colorPrimary`…), alors que l'interface `BrandDNA` du `prompt-compiler` suppose une shape NESTÉE (`identity.sector`, `color_palette[]`). Divergence = dette pré-existante (le compiler lit mal les couleurs en prod). Story dédiée à créer.
-- **✓ Dette test rouge `brand-dna-score` RÉSOLUE** (US-016) : `SECTOR_COLOR_RULES.pharmacie_parapharmacie.avoidReasonKey = "sante_medical"` ajoutée → suite Jest tout vert.
-- **! Dette `AiRecommendations`** (dashboard analytics) : recommandations hardcodées avec statistiques inventées (« +40% le mardi »…) — à câbler sur l'attribution réelle (`metrics/attribution.ts topFeatures`, US-007). Story dédiée.
+- **✅ Cosmétique Apollo NEUTRALISÉE (session #5)** : libellés enrichissement provider-neutres × 8 locales.
+- **! IP publique serveur dynamique** (DHCP) — re-vérifier après reboot ; tunnel cloudflared IP-indépendant donc OK. ⚠️ **Le nom du conteneur app Coolify change à chaque deploy** → `docker ps | grep ry8yt`.
+- **✅ Branche mergée + déployée (session #5)** : ralph/rami-completion → main (ff). Prod = main `37ee844`.
+- **!! Instance cloud `.env.local` SUPPRIMÉE** : `rfndjbrwpdltfzvyreyv.supabase.co` ne résout plus (NXDOMAIN). **Toujours** override vers db-rami (cf. [CTX]). Prod = db-rami (source de vérité unique).
+- **✅ Dette `brand_dna` shape PLATE→NESTÉE RÉSOLUE (session #5)** : `normalizeBrandDNA` (`src/lib/services/brand-dna/normalize.ts`) résout PLAT→nested + IDs Causse→HEX. Branché génération+résumé+texte. Browser-verified. **Les vraies couleurs de marque sont désormais utilisées.**
+- **✅ Dette test `brand-dna-score` RÉSOLUE** (US-016).
+- **✅ Dette `AiRecommendations` RÉSOLUE (session #5)** : câblée sur l'attribution réelle (`buildAiRecommendations` + `getAiRecommendationsAction`) + état vide honnête. Plus de stats inventées.
+- **→ ZÉRO dette technique connue à ce jour.**
 
 ---
 
@@ -146,7 +156,8 @@
 
 | Item | Cause |
 |------|-------|
-| Production réelle de benchmarks collectifs (US-010 runtime) | ✗ Nécessite ≥5 tenants opt-in distincts par bucket (k-anonymity) — le job est correct & testé, mais ne produira 0 ligne tant que <5 tenants en prod |
+| US-022/023/024 happy-path Whisper (texte transcrit) | ✗ Le proxy LiteLLM renvoie HTTP 400 (pas de modèle whisper). Code complet + pipeline vérifié → nécessite `WHISPER_API_KEY` (vraie clé OpenAI) ou whisper-1 sur le proxy. Input Amine/ops. |
+| Production réelle de benchmarks collectifs (US-010 runtime) | ✗ Nécessite ≥5 tenants opt-in distincts par bucket (k-anonymity) — job correct & testé, 0 ligne tant que <5 tenants |
 | US-017 rotation mot de passe super-admin | ✗ Nécessite le nouveau mot de passe d'Amine |
 | US-018 Stripe live | ✗ Price IDs live + webhook à créer côté Stripe dashboard (Amine) |
 | Envoi WhatsApp programmatique | ✗ Pas d'Evolution API dans le coffre (Hermès gère côté user) |
@@ -155,18 +166,22 @@
 
 ## [NEXT] — Prochaines actions prioritaires
 
-1. **🔴 Compléter providers enrichissement (demande Amine, contexte frais conseillé)** : Enrich.so (2ᵉ plateforme gratuite validable) + PDL + Dropcontact en BYOK. Par provider : recherche API exacte (cf. `docs/ENRICHMENT_PROVIDERS_BYOK.md`) + `enrichVia{X}` + mapper pur + case router `enrichLead` + `EnrichmentProviderId` + row `ai_provider_keys` + `.env.example` + tests Jest. Modèle : `src/lib/services/leads/hunter.ts`.
-2. **US-028** — Scoring Brand DNA match leads (Epic E, deps US-027 ✓ débloqué) : score deepseek `leads.score`/`brand_dna_match`, tri UI, browser-verify.
-3. **US-014/015** — Rapport « Couleur MENA » (Epic B, deps US-009 ✓) : Crawl4AI + `collective_benchmarks` + deepseek → PDF + web, gating Pro+ + cadence trimestrielle.
-4. **US-020** — Enforcement quotas génération par plan (OPS, autonome ; `checkGenerationQuota` existe déjà dans `visual.actions.ts`).
-5. **OPS input Amine** : US-017 (mot de passe super-admin, urgent), US-018/019 (Stripe live).
-6. **Cosmétique** : neutraliser le titre/descriptions « Enrichissement Apollo » (multi-provider).
-7. Suivre `.ralph/prd.json` (Epic B → OPS → P1 cœur factice → P2 surface).
+1. **US-025** — Offre commerciale PDF (Epic D, deps [], **autonome**) : LLM deepseek via proxy + Brand DNA (`normalizeBrandDNA`) → contenu offre ; rendu page web style Gamma + export PDF `window.print()` (pattern color-trends). Vérifier table `documents` (migration ?) + gating `document_engine` (Agency+). cf. checkpoint détaillé dans `.ralph/progress.md`.
+2. **US-026** — Rapport client PDF (Epic D, deps US-001 ✓) : agrège `post_metrics` + deepseek → PDF brandé (même pattern PDF).
+3. **US-030** — Analyse concurrents via Crawl4AI (Epic F, deps []) : remplacer les competitors hardcodés par du réel Crawl4AI + deepseek.
+4. **US-032** — Workflow approbation client (Epic H, deps []) ; **US-033/034/035** — OPS (E2E Playwright, audit trail, smoke/monitoring).
+5. **Déblocage clé** : fournir `WHISPER_API_KEY` → débloque US-022 happy-path + US-023 (verbatims/speakers/résumé deepseek) + US-024 (transcription→brief).
+6. **OPS input Amine (exclus du périmètre autonome)** : US-017 (mdp super-admin, urgent), US-018/019 (Stripe live).
+7. P2 ensuite : US-036→050 (vidéo, présentations, Mastodon/YouTube/TikTok, emails/notifications/team).
+8. Suivre `.ralph/prd.json` + `.ralph/progress.md` (checkpoint US-025).
 
 ---
 
 ## [CTX] — Contexte session
 
+- **Session #5 (06-03→06-04)** = goal Amine « gaps & alertes (sauf password/Stripe) + actions dans l'ordre + reprends Ralph » → US-028/014/015/020 + 5 providers enrichissement + cosmétique + **merge+deploy prod** ; puis « zéro dette » → 2 dettes résolues (brand_dna normalize, AiRecommendations réel) ; puis Ralph → US-022 (pipeline réel). 3 migrations db-rami (`…008/009/010`), toutes RLS-testées. Tout browser-verified on-LAN.
+  - ⚠️ **GOTCHA conteneur app (session #5)** : le nom du conteneur `rami` change à CHAQUE deploy → pour `docker exec <app> printenv` (anon/service-role/OAUTH/OPENAI), récupérer le nom courant : `docker ps --format '{{.Names}}' | grep ry8yt`. Le conteneur DB `supabase-db-szn6...` est stable, lui.
+  - Pour browser-verify une page avec LLM/Whisper : ajouter `WHISPER_API_KEY`/`WHISPER_BASE_URL`, `OPENAI_API_KEY`/`OPENAI_BASE_URL` aux overrides du `npm run dev` (cf. méthode tunnel). Upload Playwright : le fichier doit être SOUS le repo (`.playwright-mcp/`), pas dans `Temp/`.
 - Session #4 = US-016 (Epic B), US-021 (OPS), US-027+US-029 (Epic E Leads) + migration CRM + BYOK enrichissement + provisioning clés Apollo/Hunter. Tout on-LAN (SSH OK après reconnexion réseau). 2 migrations appliquées db-rami (CRM + enrichment).
 - Session #3 = fin Epic A (US-010/011/012) + début Epic B (US-013). Browser-verify via tunnel SSH ; migrations inchangées (réutilise tables session #2).
 - **BYOK chiffrement hors-app (session #4, validé)** : récupérer `OAUTH_TOKEN_ENCRYPTION_KEY` via `docker exec <rami> printenv` (jamais affiché) → node `crypto` aes-256-gcm (`key=padEnd(64,'0').slice(0,64)` hex, `iv:tag:ct`) → UPDATE `ai_provider_keys.api_key_encrypted`. Vérif round-trip par hash sha256 (la valeur n'est jamais imprimée).
@@ -185,12 +200,17 @@
 - **Tables Performance Loop** : `post_metrics`, `attribution_facts` (vue), `attribution_rankings`, `collective_benchmarks`, `tenants.collective_optin`, `visual_session_images.performance_prior`. Helpers RLS : `get_current_tenant_id()`, `get_current_tenant_sector()` (= `brand_dna->>'sector'`), `current_tenant_is_collective_optin()`.
 - **Module metrics** : `src/lib/services/metrics/{types,engagement,twitter,linkedin,meta,pinterest,attribution,collective,index}.ts`. Workers : `src/lib/queue/jobs/{collect-metrics,attribution-refresh,collective-aggregate}.ts` + `token-refresh.ts`, enregistrés dans `src/instrumentation.ts`.
 - **Module analytics** : logique PURE `src/lib/services/analytics/aggregate.ts` (`assembleAnalytics`) ; action I/O `src/app/actions/analytics.ts` (Drizzle `post_metrics`).
-- **Compte test db-rami** : `test-ralph@rami.local` / `TestRalph2026!` — user id `f73ccdad-5b6b-4f40-a905-ab3737fe2c18`, tenant id `12fe935c-55c2-4864-aced-e18eb6235f9d`. ⚠️ **fixtures modifiées session #4** : `brand_dna.sector=finance_islamique` (+ palette vert/rouge/bleu, pour US-016) et `plan=agency` (pour atteindre la page Leads gated AGENCY+). **Réutilisable pour toutes les stories UI.**
+- **Compte test db-rami** : `test-ralph@rami.local` / `TestRalph2026!` — user id `f73ccdad-5b6b-4f40-a905-ab3737fe2c18`, tenant id `12fe935c-55c2-4864-aced-e18eb6235f9d` (nom tenant « Agence Alpha »). ⚠️ **fixtures** : `brand_dna` PLAT complet (`brandName`, `sector=finance_islamique`, `colorPrimary/Secondary/Accent`=IDs Causse vert/rouge/bleu, `objectifsCognitifs`, `primaryCulture`, `positioning`, `voiceTone`, `audienceDescription`), `plan=agency`. **Réutilisable pour toutes les stories UI** (cookies de session souvent encore valides → /create, /leads, /analytics, /transcriptions accessibles direct). `generation_count` remis à 0 après tests quota.
 - **Enrichissement leads (session #4)** : module `src/lib/services/leads/{types,apollo,hunter,index}.ts`. Router `enrichLead` + `resolveEnrichmentKey` (BYOK `ai_provider_keys` cat=`enrichment` déchiffré `decryptToken` → fallback env). Provider via `LEADS_ENRICHMENT_PROVIDER` (apollo|hunter, défaut apollo). **Clés** : `HUNTER_API_KEY` (coffre + chiffrée en DB), `APOLLO_API_KEY` (coffre/Coolify/Hermes). Doc création clés : `docs/ENRICHMENT_PROVIDERS_BYOK.md`.
 - **BYOK** : table `ai_provider_keys` (clé globale plateforme par provider, chiffrée AES-256 via `encryptToken`/`decryptToken` de `oauth/state.ts`, clé = `OAUTH_TOKEN_ENCRYPTION_KEY` paddée 64 hex, format `iv:tag:ct`). Catégories : text/image/video/audio/infographic/**enrichment**. Pour chiffrer hors-app : node `crypto` aes-256-gcm avec la même clé (cf. méthode session #4).
 - **Vault Hermes** (credential-vault) : `vault.js` conteneur `hermes-oagpd60vuec2zhokge4tf93v` `/opt/data/home/.hermes-vault/`, passphrase coffre `HERMES_VAULT_PASSPHRASE`, `HOME=/opt/data/home`. Set anti-leak : passphrase+valeur en base64 décodées côté conteneur, vérif par hash (jamais `get` brut). cf. memory `reference_vault_hermes_credentialstore.md`.
-- **Tables CRM** (migrées session #4) : `leads`, `lead_activities` (enums `lead_stage`/`lead_activity_type`, RLS `get_current_tenant_id()`). Migration `20260315000006_crm_leads.sql`.
-- **US-028 (prochaine Ralph)** : scoring Brand DNA match leads (deps US-027 ✓).
+- **Tables CRM** (session #4) : `leads`, `lead_activities`. Migration `…006`.
+- **Modules/migrations session #5** : enrichissement étendu `src/lib/services/leads/{pdl,dropcontact,enrich}.ts` (migration `…008`) ; **scorer leads** `src/lib/services/leads/scorer.ts` + `scoreLeadAction` (US-028) ; **rapport couleur** `src/lib/services/reports/color-trends{,-generator}.ts` + table `color_trend_reports` (migration `…009`) + worker cron trimestriel `color-trend-refresh.ts` ; **quotas** `src/lib/billing/usage.ts` (incrément atomique reset-aware) ; **transcriptions** `src/lib/services/transcription/whisper.ts` + `transcribeUploadAction` + table `transcriptions` (migration `…010`).
+- **`callTextLLM` partagé** : `src/lib/services/ai/text-llm.ts` (extrait de workflow.actions) + `getPromptConfig` fallbacks ajoutés : `leads_brand_dna_scoring`, `color_trend_narrative`.
+- **`normalizeBrandDNA`** : `src/lib/services/brand-dna/normalize.ts` — TOUJOURS l'utiliser pour lire un `brand_dna` (shape PLAT réelle : `sector`, `colorPrimary`=ID Causse, `objectifsCognitifs[0]`, `primaryCulture`, `brandName`, `positioning`, `voiceTone`). Résout IDs Causse→HEX. `CAUSSE_COLORS` (id→hex) dans `brand-dna.schema.ts`.
+- **Recommandations IA** : `src/lib/services/analytics/recommendations.ts` (`buildAiRecommendations` PUR) + `getAiRecommendationsAction` (analytics.ts).
+- **PDF (pattern)** : page web + `window.print()` + bloc `<style>@media print{...}` (impression du seul rapport). PAS de puppeteer/chromium (incompatibles Nixpacks). cf. `ColorTrendsClient.tsx`.
+- **US-025 (prochaine Ralph)** : offre commerciale PDF (deps [], autonome). cf. checkpoint `.ralph/progress.md`.
 - **RLS** : `get_current_tenant_id()` lit `public.users.tenant_id`. Tout compte hors-onboarding doit avoir une ligne `tenants` (owner_id) + `users` (tenant_id) sinon 404.
 - **LLM** : `OPENAI_BASE_URL=https://proxy.ai-mpower.com/v1`, `OPENAI_API_KEY`=clé rami. deepseek PAS via /v1/messages. moonshot vision = base64 inline only.
 - **Crawl4AI** : `https://crawl4ai.ai-mpower.com` `POST /md {url, filter:"fit"}`.
