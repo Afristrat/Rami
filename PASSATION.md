@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-04T00:10:00Z (session #5, étendue 06-03→06-04) ==
+# == PASSATION RAMI 2026-06-10T23:45:00Z (session #6 — déblocage login + audit câblage L99) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -12,7 +12,7 @@
 **Branche active** : `main` (ralph/rami-completion **MERGÉE** session #5, ff 42 commits). `main` = origin synchronisé, **HEAD `37ee844`**. Branche ralph conservée sur origin. **Travailler désormais sur main** (ou re-créer une branche feature).
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. Plusieurs déploiements session #5 (merge initial `e66824d` puis dettes + US-022). Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec` (cf. browser-verify).
-**Avancement Ralph** : **21/50** stories `passes=true` (US-001→016, US-020, US-021, US-027, US-028, US-029). **Epic A (MOAT-1) = 12/12**. **Epic B (MOAT-2) = 4/4** (US-013→016). **Epic E (Leads) = 3/3** (US-027/028/029). **OPS = US-020/021**. **US-022 = impl+pipeline OK mais passes=false** (happy-path bloqué clé Whisper). **Zéro dette connue.**
+**Avancement Ralph** : **22/58** stories `passes=true` (US-001→017, US-020, US-021, US-027, US-028, US-029 ; US-017 soldée 2026-06-10). **Epic A = 12/12 · Epic B = 4/4 · Epic E = 3/3 · OPS = US-017/020/021**. **US-022 = impl+pipeline OK mais passes=false** (happy-path bloqué clé Whisper). ⚠️ **+8 stories Epic Z** (audit câblage 2026-06-10 : factice résiduel hors-prd, dont 2 DEFCON 1 — cf. `docs/AUDIT_CABLAGE_2026-06-10.md` §3) : « zéro dette » ne tient QUE hors Epic Z.
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
 **TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **261/261 vert** (14 suites ; +enrichment-providers 27, +lead-scorer 14, +color-trends 8, +billing-usage 6, +ai-recommendations 5, +brand-dna-normalize 12, +whisper 6).
 **Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**.
@@ -34,6 +34,20 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-017 (mdp super-admin), US-018/019 (Stripe live), **clé Whisper (US-022/023/024)**.
 > ✅ **Dettes-alertes RÉSOLUES (2026-06-04)** : `brand_dna` shape PLATE→nested via `normalizeBrandDNA` (couleurs réelles désormais utilisées, browser-verified) ; `AiRecommendations` câblées sur l'attribution réelle + état vide honnête (plus de stats inventées). **Zéro dette connue.**
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #6 (2026-06-10) — déblocage login + audit câblage L99 + Epic Z
+
+> Goal Amine : « plateforme pleinement fonctionnelle, zéro dette, check tous les câblages, requirements API pour le proxy ». Deep explore 3 agents (câblage src/, Social Engine Pro PHP, gap 50 US) + vérifs runtime live. Gates revérifiées : TS 0 · lint 0/0 · Jest 261/261 · audit 0.
+
+- **✓ Incident login résolu (cause = mot de passe)** : prod OK depuis le début ; mdp super-admin régénéré (SQL bcrypt direct db-rami — l'API admin GoTrue est inutilisable : Cloudflare strip le Bearer) + login vérifié HTTP 200. **US-017 SOLDÉE** : + 4 sessions et refresh tokens révoqués (ancien mdp compromis inerte).
+- **⚠ Incidents collatéraux session, tous réparés** : (1) tables RAMI créées par erreur sur l'instance Supabase **Taqwim** (coffre `SRV_SUPABASE_*` ≠ RAMI !) → 7 tables + 5 enums supprimés, Taqwim vérifié intact ; (2) env Coolify app `rami` vidée sur la foi de l'API (GET /envs **masque les valeurs** → ne JAMAIS conclure « vide ») → restaurée à l'identique depuis `docker exec env` (33 clés, doublons + miroirs preview purgés). Champ API correct : `is_buildtime`.
+- **✓ Audit câblage L99** → `docs/AUDIT_CABLAGE_2026-06-10.md` : code largement RÉEL mais chaînes mortes en prod (OAuth social : AUCUNE app dev → 0 connexion possible ; Stripe absent du conteneur ; Sentry/PostHog éteints ; fallbacks image 4-5 sans clés) + **13 poches de factice hors prd.json** (dont DEFCON 1 : `Math.random` brandDnaScore workflow.actions:275,320 ; picsum fallback ; route `/api/replicate/poll` inexistante) + `.env.example` désync (4 vars consommées non documentées, 10+ fantômes). Usage prod = 0 posts/0 OAuth/0 sessions (plateforme jamais exercée).
+- **✓ Proxy inventorié** (clé rami-app) : texte/vision/embeddings OK ; **PAS de whisper-1 ni TTS** (blocage US-022/037 confirmé). Crawl4AI UP (health 200, v0.8.6) → US-030 autonome.
+- **✓ PRD finition** → `docs/PRD_RAMI_FINITION_L99.md` : Epic Z (8 stories câblage, ajoutées à `.ralph/prd.json` → **22/58**), phases autonome → P0 → P1/P2, durcissement publishing issu de l'analyse SE Pro (escaping LinkedIn, x-linkedin-id header, carousel IG, retry catégorisé, refresh J-7).
+- **✓ Requirements API Amine** → `docs/API_REQUIREMENTS_AMINE.md` : P0 = route whisper-1 proxy OU clé OpenAI + Stripe live (4 prices + webhook) + 4 apps OAuth (X/LinkedIn/Meta/Pinterest) ; P1 = Replicate/Together + Sentry/PostHog + Resend ; P2 = TTS (décision ElevenLabs vs proxy) + Runway/Kling/Luma + YouTube/Mastodon/TikTok.
+- **Analyse SE Pro** (social-engine + pro, PHP) : flows OAuth/publishing complets extraits par plateforme + 12 pièges + top-10 améliorations — intégrés au PRD §Phase 2.
 
 ---
 
@@ -135,7 +149,7 @@
 
 ## [ALERTE] — Avertissements / risques
 
-- **!! Mot de passe super-admin COMPROMIS** (exposé en clair lors d'une session antérieure — valeur rédigée ici par anti-leak) → **US-017 À FAIRE en priorité** : régénérer via l'API admin Supabase + révoquer les sessions. Nécessite l'input d'Amine (nouveau mot de passe).
+- **✅ Mot de passe super-admin RÉGÉNÉRÉ (2026-06-10, US-017 soldée)** : rotation bcrypt SQL + révocation des 4 sessions + refresh tokens. ⚠️ Méthode : SQL direct dans `supabase-db-szn6...` — l'API admin GoTrue via `db-rami.ai-mpower.com` est inutilisable (Cloudflare strip `Authorization: Bearer` ; et `http://` → 301 qui casse les POST : **toujours https**).
 - **!! Clé Whisper requise (US-022/023/024)** : la transcription est implémentée + pipeline vérifié, mais le proxy LiteLLM **ne route pas whisper** (HTTP 400). Pour le happy-path : poser `WHISPER_API_KEY` = **vraie clé OpenAI** (api.openai.com) sur Coolify, OU configurer un modèle `whisper-1` sur le proxy + `WHISPER_BASE_URL`=proxy. Input Amine/ops.
 - **! Modules FACTICES restants en prod** : Vidéo (US-036+), Présentations (US-041+), Competitors hardcodés (US-030), Documents PDF (US-025/026). ✅ **RÉELS désormais** : Analytics (US-012), Leads (US-029), Enrichissement (US-027 + 5 providers), **Recommandations IA** (dette résolue), **Transcriptions** (US-022 pipeline réel, texte bloqué clé). Détail : `docs/PRD_RAMI_L99.md` §0.2.
 - **!! Apollo API = plan PAYANT** : free → **403 `API_INACCESSIBLE`**. → **Hunter.io (gratuit) provider par défaut** (`LEADS_ENRICHMENT_PROVIDER=hunter`).
@@ -158,8 +172,8 @@
 |------|-------|
 | US-022/023/024 happy-path Whisper (texte transcrit) | ✗ Le proxy LiteLLM renvoie HTTP 400 (pas de modèle whisper). Code complet + pipeline vérifié → nécessite `WHISPER_API_KEY` (vraie clé OpenAI) ou whisper-1 sur le proxy. Input Amine/ops. |
 | Production réelle de benchmarks collectifs (US-010 runtime) | ✗ Nécessite ≥5 tenants opt-in distincts par bucket (k-anonymity) — job correct & testé, 0 ligne tant que <5 tenants |
-| US-017 rotation mot de passe super-admin | ✗ Nécessite le nouveau mot de passe d'Amine |
-| US-018 Stripe live | ✗ Price IDs live + webhook à créer côté Stripe dashboard (Amine) |
+| US-018 Stripe live | ✗ Price IDs live + webhook à créer côté Stripe dashboard (Amine) — cf. `docs/API_REQUIREMENTS_AMINE.md` P0.2 |
+| Publishing en conditions réelles | ✗ AUCUNE app développeur OAuth créée (X/LinkedIn/Meta/Pinterest) — cf. `docs/API_REQUIREMENTS_AMINE.md` P0.3 |
 | Envoi WhatsApp programmatique | ✗ Pas d'Evolution API dans le coffre (Hermès gère côté user) |
 
 ---
