@@ -65,16 +65,13 @@ function MediaPreview({ asset }: { asset: MediaAsset }) {
   )
 }
 
-// Simulated DNA score for design purposes
-function getDnaScore(): number {
-  return Math.round((0.7 + Math.random() * 0.28) * 100) / 100
-}
-
 export function MediaCard({ asset, onDelete, onUseInPost, onClick, viewMode = "grid" }: MediaCardProps) {
   const t = useTranslations("library")
   const [showActions, setShowActions] = useState(false)
-  const dnaScore = getDnaScore()
-  const isHighScore = dnaScore >= 0.85
+  // brandDnaScore est un entier 0-100 (Vision AI Claude Haiku) ou null si non évalué.
+  // La valeur est stockée dans metadata.brand_dna_score et exposée par library.actions.ts.
+  const dnaScore = asset.brandDnaScore
+  const isHighScore = dnaScore !== null && dnaScore >= 85
 
   if (viewMode === "list") {
     return (
@@ -93,14 +90,20 @@ export function MediaCard({ asset, onDelete, onUseInPost, onClick, viewMode = "g
           <p className="truncate text-sm font-medium text-foreground">{asset.originalFilename}</p>
           <p className="text-xs text-muted-foreground">{formatBytes(asset.fileSizeBytes)}</p>
         </div>
-        <span className={cn(
-          "rounded-full px-2 py-0.5 text-[10px] font-bold",
-          isHighScore
-            ? "bg-emerald-500/10 text-emerald-500"
-            : "bg-amber-500/10 text-amber-500"
-        )}>
-          {dnaScore.toFixed(2)} DNA
-        </span>
+        {dnaScore !== null ? (
+          <span className={cn(
+            "rounded-full px-2 py-0.5 text-[10px] font-bold",
+            isHighScore
+              ? "bg-emerald-500/10 text-emerald-500"
+              : "bg-amber-500/10 text-amber-500"
+          )}>
+            {dnaScore} DNA
+          </span>
+        ) : (
+          <span className="rounded-full px-2 py-0.5 text-[10px] font-medium bg-gray-100 dark:bg-white/[0.06] text-muted-foreground">
+            {t("dnaScoreNotEvaluated")}
+          </span>
+        )}
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
           <button
             title={t("use")}
@@ -150,13 +153,19 @@ export function MediaCard({ asset, onDelete, onUseInPost, onClick, viewMode = "g
       )}>
         {/* Top row */}
         <div className="flex justify-between items-start">
-          <span className={cn(
-            "flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold text-white",
-            isHighScore ? "bg-emerald-500" : "bg-amber-500"
-          )}>
-            <CheckCircle className="size-3" />
-            {dnaScore.toFixed(2)} DNA
-          </span>
+          {dnaScore !== null ? (
+            <span className={cn(
+              "flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold text-white",
+              isHighScore ? "bg-emerald-500" : "bg-amber-500"
+            )}>
+              <CheckCircle className="size-3" />
+              {dnaScore} DNA
+            </span>
+          ) : (
+            <span className="flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-medium bg-black/30 backdrop-blur-sm text-white/80">
+              {t("dnaScoreNotEvaluated")}
+            </span>
+          )}
           <button
             className="flex size-7 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white"
             onClick={(e) => { e.stopPropagation() }}
@@ -189,7 +198,7 @@ export function MediaCard({ asset, onDelete, onUseInPost, onClick, viewMode = "g
             className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-white bg-primary/90 hover:bg-primary transition-colors"
           >
             <Send className="size-3" />
-            Utiliser
+            {t("useInPostShort")}
           </button>
         </div>
       )}

@@ -321,7 +321,11 @@
     "monthSeptember": "Septembre",
     "monthOctober": "Octobre",
     "monthNovember": "Novembre",
-    "monthDecember": "Décembre"
+    "monthDecember": "Décembre",
+    "noScheduledPosts": "Aucun post planifié cette semaine.",
+    "emptyActivityTitle": "Aucune activité",
+    "emptyActivityDesc": "Créez votre premier contenu pour commencer.",
+    "emptyActivityCta": "Créer un contenu"
   },
   "brandDna": {
     "title": "Brand DNA",
@@ -1032,7 +1036,10 @@
     "video": "Vidéo",
     "image": "Image",
     "document": "Document",
-    "close": "Fermer"
+    "close": "Fermer",
+    "dnaScoreNotEvaluated": "Non évalué",
+    "dnaScoreLabel": "Score DNA",
+    "uploadDone": "Upload terminé — prêt à l’emploi"
   },
   "analytics": {
     "title": "Analytics",
@@ -1689,7 +1696,9 @@
       "reviewAndSelection": "Review & sélection",
       "quotaTitle": "Quota de générations atteint",
       "quotaDescription": "Vous avez utilisé {count}/{limit} générations ce mois. Passez au plan supérieur pour continuer.",
-      "quotaUpgrade": "Passer au plan supérieur"
+      "quotaUpgrade": "Passer au plan supérieur",
+      "scoreEstimated": "Score estimé",
+      "imageUnavailable": "Image indisponible"
     },
     "export": {
       "title": "Export",
@@ -2163,7 +2172,15 @@
     "actionsColumn": "Actions",
     "displayingBrands": "Affichage de {shown} sur {total} marques",
     "previousPage": "Précédent",
-    "nextPage": "Suivant"
+    "nextPage": "Suivant",
+    "switchUnavailable": "Le changement de tenant actif sera disponible dans une prochaine version.",
+    "adminTitle": "Administration — Tous les tenants",
+    "adminSubtitle": "{total} tenant(s) enregistré(s) sur la plateforme.",
+    "allTime": "Depuis le début",
+    "slugColumn": "Slug",
+    "generationsColumn": "Générations",
+    "noTenantsYet": "Aucun tenant enregistré pour le moment.",
+    "paginationNote": "Affichage limité à 20 résultats — utilisez la console admin pour voir tout."
   },
   "competitors": {
     "title": "Veille concurrentielle",

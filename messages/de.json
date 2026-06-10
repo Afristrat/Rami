@@ -321,7 +321,11 @@
     "monthSeptember": "September",
     "monthOctober": "Oktober",
     "monthNovember": "November",
-    "monthDecember": "Dezember"
+    "monthDecember": "Dezember",
+    "noScheduledPosts": "Keine geplanten Beiträge diese Woche.",
+    "emptyActivityTitle": "Keine Aktivität",
+    "emptyActivityDesc": "Erstellen Sie Ihren ersten Inhalt, um loszulegen.",
+    "emptyActivityCta": "Inhalt erstellen"
   },
   "brandDna": {
     "title": "Brand DNA",
@@ -1032,7 +1036,10 @@
     "video": "Video",
     "image": "Image",
     "document": "Document",
-    "close": "Close"
+    "close": "Close",
+    "dnaScoreNotEvaluated": "Nicht bewertet",
+    "dnaScoreLabel": "DNA-Score",
+    "uploadDone": "Upload abgeschlossen — einsatzbereit"
   },
   "analytics": {
     "title": "Analytics",
@@ -1689,7 +1696,9 @@
       "reviewAndSelection": "Review & selection",
       "quotaTitle": "Generierungskontingent erreicht",
       "quotaDescription": "Sie haben diesen Monat {count}/{limit} Generierungen verwendet. Upgraden Sie Ihren Tarif, um fortzufahren.",
-      "quotaUpgrade": "Tarif upgraden"
+      "quotaUpgrade": "Tarif upgraden",
+      "scoreEstimated": "Geschätzte Bewertung",
+      "imageUnavailable": "Bild nicht verfügbar"
     },
     "export": {
       "title": "Export",
@@ -2163,7 +2172,15 @@
     "actionsColumn": "Actions",
     "displayingBrands": "Displaying {shown} of {total} brands",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "switchUnavailable": "Das Wechseln des aktiven Tenants wird in einer zukünftigen Version verfügbar sein.",
+    "adminTitle": "Administration — Alle Tenants",
+    "adminSubtitle": "{total} Tenant(s) auf der Plattform registriert.",
+    "allTime": "Gesamtzeitraum",
+    "slugColumn": "Slug",
+    "generationsColumn": "Generierungen",
+    "noTenantsYet": "Noch keine Tenants registriert.",
+    "paginationNote": "Anzeige auf 20 Ergebnisse begrenzt — nutze die Admin-Konsole für alle."
   },
   "competitors": {
     "title": "Wettbewerbsanalyse",

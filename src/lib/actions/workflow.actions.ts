@@ -10,6 +10,8 @@ import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
 import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
+import { generateImage } from "@/lib/services/image-generation"
+import { scoreImageWithVision } from "@/lib/services/brand-dna/vision-scorer"
 import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual } from "@/lib/schemas/workflow.schema"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import type { NewPostData } from "@/app/actions/scheduler"
@@ -193,7 +195,16 @@ Règles :
   }
 }
 
-// ── Action : Génération visuelle (Fal.ai avec fallback) ──────────────────────
+// ── Action : Génération visuelle ─────────────────────────────────────────────
+// Z-03 : tout le chemin de génération passe par le service unifié
+//        src/lib/services/image-generation/index.ts (NanaBanana→Fal→Imagen→Replicate→Together).
+//        L'ancien code direct Fal + Replicate (routes mortes /api/replicate/poll) a été supprimé.
+//
+// Z-01 : le score Brand DNA est calculé via scoreImageWithVision (Vision AI ou heuristique
+//        de secours). Math.random() supprimé — interdit DEFCON 1.
+//
+// Z-02 : quand tous les providers échouent, l'action retourne une erreur structurée honnête
+//        au lieu de placeholders picsum.photos.
 
 export type GenerateVisualResult =
   | { success: true; visuals: GeneratedVisual[] }
@@ -226,128 +237,84 @@ export async function generateVisualContentAction(
   // Normalise la shape PLATE réelle → couleurs/secteur/objectif fiables (résout IDs Causse → HEX).
   const dna = normalizeBrandDNA(tenant?.brand_dna)
 
-  // Construction du prompt visuel basé sur Brand DNA
+  // Construction du prompt visuel basé sur Brand DNA + Causse
   const primaryColor = dna.color_palette?.[0]?.hex || "#1D4ED8"
   const sector = dna.identity?.sector || "professionnel"
   const cognitiveObjective = dna.cognitive_objective || step1.objectif
-  const visualStyle = "moderne et épuré"
+  const targetColors: string[] =
+    dna.color_palette
+      ?.map((c) => c.hex)
+      .filter((h): h is string => typeof h === "string" && h.length > 0)
+      ?? [primaryColor]
 
-  const falApiKey = process.env.FAL_API_KEY
-  const replicateToken = process.env.REPLICATE_API_TOKEN
-
-  // Prompt positif basé sur Brand DNA + Causse
-  const positivePrompt = `${step1.titre}, ${visualStyle} design, ${cognitiveObjective} emotion, professional ${sector} brand, dominant color ${primaryColor}, clean composition, high quality marketing visual, modern, premium`
+  const positivePrompt = `${step1.titre}, moderne et épuré design, ${cognitiveObjective} emotion, professional ${sector} brand, dominant color ${primaryColor}, clean composition, high quality marketing visual, modern, premium`
   const negativePrompt = "text, watermark, blur, low quality, generic, stock photo, pixelated, distorted"
-
   const safePrompt = sanitizePromptInput(positivePrompt)
 
-  // Essai Fal.ai
-  if (falApiKey) {
-    try {
-      const falResponse = await fetch("https://fal.run/fal-ai/flux/schnell", {
-        method: "POST",
-        headers: {
-          Authorization: `Key ${falApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+  try {
+    // Z-03 : appel unique au service unifié — gère la chaîne de fallback complète.
+    const result = await generateImage({
+      positive_prompt: safePrompt,
+      negative_prompt: negativePrompt,
+      width: 1024,
+      height: 1024,
+      guidance_scale: 7.5,
+      num_inference_steps: 28,
+      num_images: 4,
+    })
+
+    // Z-01 : scorer chaque image via Vision AI (ou heuristique si OPENAI_API_KEY absent).
+    // Les appels sont en parallèle pour limiter la latence totale.
+    const scored = await Promise.all(
+      result.images.map(async (img, idx) => {
+        const visionResult = await scoreImageWithVision({
+          imageUrl: img.url,
+          targetColors,
+          targetEmotion: cognitiveObjective,
+          promptUsed: safePrompt,
+        }).catch(() => ({ score: 70, vision_scored: false as const }))
+
+        const visual: GeneratedVisual = {
+          id: `${result.provider}-${Date.now()}-${idx}`,
+          url: img.url,
           prompt: safePrompt,
-          negative_prompt: negativePrompt,
-          num_images: 4,
-          image_size: "square_hd",
-          num_inference_steps: 4,
-          enable_safety_checker: true,
-        }),
-        signal: AbortSignal.timeout(30000),
+          // score Vision AI retourné sur 100 → normalisé sur 1 pour l'UI
+          brandDnaScore: Math.min(1, Math.max(0, visionResult.score / 100)),
+          visionScored: visionResult.vision_scored,
+          provider: result.provider,
+        }
+        return visual
       })
+    )
 
-      if (falResponse.ok) {
-        const falData = (await falResponse.json()) as {
-          images?: Array<{ url: string }>
-        }
-        const images = falData.images || []
+    // Génération réelle → consomme un quota (US-020).
+    await incrementGenerationCount(ctx.tenantId)
 
-        if (images.length > 0) {
-          const visuals: GeneratedVisual[] = images.map((img, idx) => ({
-            id: `fal-${Date.now()}-${idx}`,
-            url: img.url,
-            prompt: safePrompt,
-            brandDnaScore: 0.75 + Math.random() * 0.2,
-            provider: "fal" as const,
-          }))
+    log({
+      level: "info",
+      module: "workflow",
+      action: "visuals_generated",
+      tenant_id: ctx.tenantId,
+      metadata: { count: scored.length, provider: result.provider, duration_ms: result.duration_ms },
+    })
 
-          log({
-            level: "info",
-            module: "workflow",
-            action: "visuals_generated_fal",
-            tenant_id: ctx.tenantId,
-            metadata: { count: visuals.length },
-          })
+    return { success: true, visuals: scored }
+  } catch (err) {
+    // Z-02 : tous les providers ont échoué → erreur honnête, pas de placeholder.
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    log({
+      level: "error",
+      module: "workflow",
+      action: "visual_generation_all_providers_failed",
+      tenant_id: ctx.tenantId,
+      metadata: { error: errorMessage },
+    })
 
-          // Génération réelle → consomme un quota (US-020).
-          await incrementGenerationCount(ctx.tenantId)
-          return { success: true, visuals }
-        }
-      }
-    } catch {
-      log({ level: "warn", module: "workflow", action: "fal_failed_trying_replicate", tenant_id: ctx.tenantId })
+    return {
+      success: false,
+      error: "La génération d'images a échoué (tous les providers sont indisponibles). Veuillez réessayer dans quelques instants.",
     }
   }
-
-  // Fallback Replicate
-  if (replicateToken) {
-    try {
-      const repResponse = await fetch("https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${replicateToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          input: { prompt: safePrompt, num_outputs: 4 },
-        }),
-        signal: AbortSignal.timeout(5000),
-      })
-
-      if (repResponse.ok) {
-        const repData = (await repResponse.json()) as { urls?: { get?: string }; id?: string }
-        if (repData.urls?.get) {
-          // Replicate est async — on génère des placeholders pour l'UX
-          const visuals: GeneratedVisual[] = Array.from({ length: 4 }, (_, idx) => ({
-            id: `rep-${Date.now()}-${idx}`,
-            url: `/api/replicate/poll?id=${repData.id}&idx=${idx}`,
-            prompt: safePrompt,
-            brandDnaScore: 0.7 + Math.random() * 0.2,
-            provider: "replicate" as const,
-          }))
-          // Génération réelle → consomme un quota (US-020).
-          await incrementGenerationCount(ctx.tenantId)
-          return { success: true, visuals }
-        }
-      }
-    } catch {
-      log({ level: "warn", module: "workflow", action: "replicate_failed", tenant_id: ctx.tenantId })
-    }
-  }
-
-  // Fallback : visuels placeholder pour continuer le workflow
-  log({
-    level: "warn",
-    module: "workflow",
-    action: "visual_generation_fallback_placeholder",
-    tenant_id: ctx.tenantId,
-    metadata: { hasFal: !!falApiKey, hasReplicate: !!replicateToken },
-  })
-
-  const placeholders: GeneratedVisual[] = Array.from({ length: 4 }, (_, idx) => ({
-    id: `placeholder-${Date.now()}-${idx}`,
-    url: `https://picsum.photos/seed/${Date.now() + idx}/800/800`,
-    prompt: safePrompt,
-    brandDnaScore: 0.5,
-    provider: "placeholder" as const,
-  }))
-
-  return { success: true, visuals: placeholders }
 }
 
 // ── Action : Sauvegarder le post finalisé ─────────────────────────────────────

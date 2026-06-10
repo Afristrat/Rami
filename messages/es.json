@@ -321,7 +321,11 @@
     "monthSeptember": "Septiembre",
     "monthOctober": "Octubre",
     "monthNovember": "Noviembre",
-    "monthDecember": "Diciembre"
+    "monthDecember": "Diciembre",
+    "noScheduledPosts": "No hay publicaciones programadas esta semana.",
+    "emptyActivityTitle": "Sin actividad",
+    "emptyActivityDesc": "Crea tu primer contenido para empezar.",
+    "emptyActivityCta": "Crear contenido"
   },
   "brandDna": {
     "title": "Brand DNA",
@@ -1032,7 +1036,10 @@
     "video": "Video",
     "image": "Image",
     "document": "Document",
-    "close": "Close"
+    "close": "Close",
+    "dnaScoreNotEvaluated": "No evaluado",
+    "dnaScoreLabel": "Puntuación DNA",
+    "uploadDone": "Subida completada — listo para usar"
   },
   "analytics": {
     "title": "Analytics",
@@ -1689,7 +1696,9 @@
       "reviewAndSelection": "Review & selection",
       "quotaTitle": "Cuota de generaciones alcanzada",
       "quotaDescription": "Has usado {count}/{limit} generaciones este mes. Actualiza tu plan para continuar.",
-      "quotaUpgrade": "Mejorar plan"
+      "quotaUpgrade": "Mejorar plan",
+      "scoreEstimated": "Puntuación estimada",
+      "imageUnavailable": "Imagen no disponible"
     },
     "export": {
       "title": "Exportar",
@@ -2163,7 +2172,15 @@
     "actionsColumn": "Actions",
     "displayingBrands": "Displaying {shown} of {total} brands",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "switchUnavailable": "El cambio de tenant activo estará disponible en una próxima versión.",
+    "adminTitle": "Administración — Todos los tenants",
+    "adminSubtitle": "{total} tenant(s) registrado(s) en la plataforma.",
+    "allTime": "Desde el inicio",
+    "slugColumn": "Slug",
+    "generationsColumn": "Generaciones",
+    "noTenantsYet": "No hay tenants registrados aún.",
+    "paginationNote": "Visualización limitada a 20 resultados — usa la consola admin para ver todos."
   },
   "competitors": {
     "title": "Monitoreo competitivo",

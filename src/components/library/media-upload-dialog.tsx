@@ -16,8 +16,7 @@ interface UploadItem {
   id: string
   file: File
   progress: number
-  status: "uploading" | "analyzing" | "done" | "error"
-  dnaScore?: number
+  status: "uploading" | "done" | "error"
   error?: string
 }
 
@@ -54,19 +53,13 @@ export function MediaUploadDialog({ open, onClose, onUpload }: MediaUploadDialog
     }, 300)
 
     try {
-      // Change to analyzing
-      setTimeout(() => {
-        setUploads((prev) =>
-          prev.map((u) => (u.id === id ? { ...u, status: "analyzing", progress: 100 } : u))
-        )
-      }, 1500)
-
       await onUpload(file)
 
       clearInterval(interval)
-      const dnaScore = Math.round((0.8 + Math.random() * 0.19) * 100) / 100
+      // Pas de score inventé : un upload manuel n'est pas évalué par la Vision AI
+      // (la bibliothèque affiche « Non évalué » — cf. media-card Z-04)
       setUploads((prev) =>
-        prev.map((u) => (u.id === id ? { ...u, status: "done", progress: 100, dnaScore } : u))
+        prev.map((u) => (u.id === id ? { ...u, status: "done", progress: 100 } : u))
       )
     } catch {
       clearInterval(interval)
@@ -202,11 +195,7 @@ export function MediaUploadDialog({ open, onClose, onUpload }: MediaUploadDialog
                           <p className="text-sm font-medium text-foreground truncate">
                             {item.file.name}
                           </p>
-                          {item.status === "done" && item.dnaScore ? (
-                            <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0 ml-2">
-                              Score {item.dnaScore.toFixed(2)}
-                            </span>
-                          ) : item.status === "uploading" ? (
+                          {item.status === "uploading" ? (
                             <span className="text-xs text-muted-foreground shrink-0 ml-2">
                               {Math.round(item.progress)}%
                             </span>
@@ -220,18 +209,8 @@ export function MediaUploadDialog({ open, onClose, onUpload }: MediaUploadDialog
                             />
                           </div>
                         )}
-                        {item.status === "analyzing" && (
-                          <div className="flex items-center gap-2">
-                            <span className="size-2 rounded-full bg-primary animate-pulse" />
-                            <span className="text-[11px] font-medium text-muted-foreground">
-                              Analyse Vision AI en cours...
-                            </span>
-                          </div>
-                        )}
                         {item.status === "done" && (
-                          <p className="text-xs text-muted-foreground">
-                            Analyse terminée &bull; Prêt pour diffusion
-                          </p>
+                          <p className="text-xs text-muted-foreground">{t("uploadDone")}</p>
                         )}
                         {item.status === "error" && (
                           <p className="text-xs text-destructive">{item.error}</p>

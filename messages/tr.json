@@ -321,7 +321,11 @@
     "monthSeptember": "Eylül",
     "monthOctober": "Ekim",
     "monthNovember": "Kasım",
-    "monthDecember": "Aralık"
+    "monthDecember": "Aralık",
+    "noScheduledPosts": "Bu hafta planlanmış gönderi yok.",
+    "emptyActivityTitle": "Aktivite yok",
+    "emptyActivityDesc": "Başlamak için ilk içeriğinizi oluşturun.",
+    "emptyActivityCta": "İçerik oluştur"
   },
   "brandDna": {
     "title": "Brand DNA",
@@ -1032,7 +1036,10 @@
     "video": "Video",
     "image": "Image",
     "document": "Document",
-    "close": "Close"
+    "close": "Close",
+    "dnaScoreNotEvaluated": "Değerlendirilmedi",
+    "dnaScoreLabel": "DNA Puanı",
+    "uploadDone": "Yükleme tamamlandı — kullanıma hazır"
   },
   "analytics": {
     "title": "Analytics",
@@ -1689,7 +1696,9 @@
       "reviewAndSelection": "Review & selection",
       "quotaTitle": "Üretim kotası doldu",
       "quotaDescription": "Bu ay {count}/{limit} üretim kullandınız. Devam etmek için planınızı yükseltin.",
-      "quotaUpgrade": "Planı yükselt"
+      "quotaUpgrade": "Planı yükselt",
+      "scoreEstimated": "Tahmini puan",
+      "imageUnavailable": "Görsel kullanılamıyor"
     },
     "export": {
       "title": "Dışa Aktar",
@@ -2163,7 +2172,15 @@
     "actionsColumn": "Actions",
     "displayingBrands": "Displaying {shown} of {total} brands",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "switchUnavailable": "Aktif kiracı değiştirme özelliği gelecek bir sürümde kullanılabilecek.",
+    "adminTitle": "Yönetim — Tüm kiracılar",
+    "adminSubtitle": "Platformda {total} kiracı kayıtlı.",
+    "allTime": "Tüm zamanlar",
+    "slugColumn": "Slug",
+    "generationsColumn": "Üretimler",
+    "noTenantsYet": "Henüz kayıtlı kiracı yok.",
+    "paginationNote": "Görüntüleme 20 sonuçla sınırlı — tümünü görmek için admin konsolunu kullanın."
   },
   "competitors": {
     "title": "Rakip Analizi",

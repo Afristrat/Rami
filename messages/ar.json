@@ -321,7 +321,11 @@
     "monthSeptember": "سبتمبر",
     "monthOctober": "أكتوبر",
     "monthNovember": "نوفمبر",
-    "monthDecember": "ديسمبر"
+    "monthDecember": "ديسمبر",
+    "noScheduledPosts": "لا توجد منشورات مجدولة هذا الأسبوع.",
+    "emptyActivityTitle": "لا يوجد نشاط",
+    "emptyActivityDesc": "أنشئ أول محتوى لك للبدء.",
+    "emptyActivityCta": "إنشاء محتوى"
   },
   "brandDna": {
     "title": "Brand DNA",
@@ -1032,7 +1036,10 @@
     "video": "فيديو",
     "image": "صورة",
     "document": "مستند",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "dnaScoreNotEvaluated": "غير مقيّم",
+    "dnaScoreLabel": "نقاط DNA",
+    "uploadDone": "اكتمل الرفع — جاهز للاستخدام"
   },
   "analytics": {
     "title": "Analytics",
@@ -1689,7 +1696,9 @@
       "reviewAndSelection": "المراجعة والاختيار",
       "quotaTitle": "تم بلوغ حد التوليد",
       "quotaDescription": "لقد استخدمت {count}/{limit} عملية توليد هذا الشهر. قم بترقية خطتك للمتابعة.",
-      "quotaUpgrade": "ترقية الخطة"
+      "quotaUpgrade": "ترقية الخطة",
+      "scoreEstimated": "نتيجة تقديرية",
+      "imageUnavailable": "الصورة غير متاحة"
     },
     "export": {
       "title": "التصدير",
@@ -2163,7 +2172,15 @@
     "actionsColumn": "الإجراءات",
     "displayingBrands": "عرض {shown} من {total} علامة تجارية",
     "previousPage": "السابق",
-    "nextPage": "التالي"
+    "nextPage": "التالي",
+    "switchUnavailable": "سيكون تبديل المستأجر النشط متاحاً في إصدار قادم.",
+    "adminTitle": "الإدارة — جميع المستأجرين",
+    "adminSubtitle": "{total} مستأجر(ون) مسجل(ون) على المنصة.",
+    "allTime": "منذ البداية",
+    "slugColumn": "المعرّف",
+    "generationsColumn": "التوليدات",
+    "noTenantsYet": "لا يوجد مستأجر مسجّل حتى الآن.",
+    "paginationNote": "العرض محدود بـ 20 نتيجة — استخدم لوحة الإدارة لعرض الكل."
   },
   "competitors": {
     "title": "الرصد التنافسي",

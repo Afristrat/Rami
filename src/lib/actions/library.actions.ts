@@ -18,6 +18,9 @@ export interface MediaAsset {
   thumbnailUrl: string | null
   metadata: Record<string, unknown>
   createdAt: string
+  /** Score Brand DNA Vision AI (0-100) — présent uniquement pour les visuels générés par RAMI.
+   * Null si l'asset n'a pas été évalué (upload manuel, pas de scoring Vision AI). */
+  brandDnaScore: number | null
 }
 
 export type GetMediaResult =
@@ -105,19 +108,30 @@ export async function getMediaAssetsAction(options?: {
     return { error: "Erreur lors du chargement des médias." }
   }
 
-  const assets: MediaAsset[] = (data ?? []).map((row) => ({
-    id: row.id,
-    filename: row.filename,
-    originalFilename: row.original_filename,
-    fileType: row.file_type as MediaFileType,
-    mimeType: row.mime_type,
-    fileSizeBytes: row.file_size_bytes,
-    storagePath: row.storage_path,
-    publicUrl: row.public_url,
-    thumbnailUrl: row.thumbnail_url,
-    metadata: (row.metadata as Record<string, unknown>) ?? {},
-    createdAt: row.created_at,
-  }))
+  const assets: MediaAsset[] = (data ?? []).map((row) => {
+    const meta = (row.metadata as Record<string, unknown>) ?? {}
+    // brand_dna_score est stocké dans metadata.brand_dna_score par saveVisualToLibraryAction
+    // (valeur 0-100 issue du scoring Vision AI Claude Haiku)
+    const rawScore = meta.brand_dna_score
+    const brandDnaScore: number | null =
+      typeof rawScore === "number" && isFinite(rawScore)
+        ? Math.round(rawScore)
+        : null
+    return {
+      id: row.id,
+      filename: row.filename,
+      originalFilename: row.original_filename,
+      fileType: row.file_type as MediaFileType,
+      mimeType: row.mime_type,
+      fileSizeBytes: row.file_size_bytes,
+      storagePath: row.storage_path,
+      publicUrl: row.public_url,
+      thumbnailUrl: row.thumbnail_url,
+      metadata: meta,
+      createdAt: row.created_at,
+      brandDnaScore,
+    }
+  })
 
   return { data: assets, total: count ?? 0 }
 }
@@ -213,6 +227,8 @@ export async function uploadMediaAssetAction(
       thumbnailUrl: inserted.thumbnail_url,
       metadata: (inserted.metadata as Record<string, unknown>) ?? {},
       createdAt: inserted.created_at,
+      // Les uploads manuels n'ont pas de scoring Vision AI
+      brandDnaScore: null,
     },
   }
 }

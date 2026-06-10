@@ -4,8 +4,10 @@ import { useTranslations } from "next-intl"
 import { Clock } from "lucide-react"
 
 interface NextScheduledCardProps {
-  dateLabel: string
-  projectName: string
+  /** Date/heure formatée du prochain post — null si aucun post planifié */
+  dateLabel: string | null
+  /** Titre du prochain post — null si aucun post planifié */
+  projectName: string | null
 }
 
 export function NextScheduledCard({
@@ -13,6 +15,7 @@ export function NextScheduledCard({
   projectName,
 }: NextScheduledCardProps) {
   const t = useTranslations("dashboard")
+  const hasPost = dateLabel !== null && projectName !== null
 
   return (
     <div className="glass-card group relative overflow-hidden rounded-2xl p-6">
@@ -22,8 +25,16 @@ export function NextScheduledCard({
         </div>
       </div>
       <p className="text-sm text-muted-foreground">{t("nextPublication")}</p>
-      <h3 className="mt-1 text-lg font-bold text-foreground">{dateLabel}</h3>
-      <p className="mt-1 text-xs text-muted-foreground">{projectName}</p>
+      {hasPost ? (
+        <>
+          <h3 className="mt-1 text-lg font-bold text-foreground">{dateLabel}</h3>
+          <p className="mt-1 text-xs text-muted-foreground">{projectName}</p>
+        </>
+      ) : (
+        <p className="mt-1 text-sm text-muted-foreground/60 italic">
+          {t("noScheduledPosts")}
+        </p>
+      )}
     </div>
   )
 }

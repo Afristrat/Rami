@@ -12,6 +12,7 @@ import {
   Pin,
   Youtube,
   MessageCircle,
+  Plus,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 
@@ -164,11 +165,22 @@ export function ActivityTable({ rows }: ActivityTableProps) {
           <tbody className="divide-y divide-border text-sm">
             {rows.length === 0 && (
               <tr>
-                <td
-                  colSpan={4}
-                  className="px-6 py-8 text-center text-muted-foreground"
-                >
-                  {t("noActivity")}
+                <td colSpan={4} className="px-6 py-10">
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <p className="text-sm font-medium text-foreground">
+                      {t("emptyActivityTitle")}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("emptyActivityDesc")}
+                    </p>
+                    <Link
+                      href="/dashboard/create"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+                    >
+                      <Plus className="size-3.5" />
+                      {t("emptyActivityCta")}
+                    </Link>
+                  </div>
                 </td>
               </tr>
             )}

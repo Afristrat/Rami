@@ -5,7 +5,7 @@ import Link from "next/link"
 import { generateVisualContentAction } from "@/lib/actions/workflow.actions"
 import type { Step1Data, Step2Data, GeneratedVisual, Step4Data } from "@/lib/schemas/workflow.schema"
 import { cn } from "@/lib/utils"
-import { ArrowLeft, ArrowRight, Image as ImageIcon, RefreshCw, CheckCircle2, Star } from "lucide-react"
+import { ArrowLeft, ArrowRight, Image as ImageIcon, ImageOff, RefreshCw, CheckCircle2, Star } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 /** Visual style presets matching design screenshot */
@@ -207,10 +207,23 @@ export function Step4VisualGen({ step1, step2, defaultValues, onBack, onNext }: 
                     className="size-full object-cover transition-transform group-hover:scale-105"
                     loading="lazy"
                     onError={(e) => {
+                      // Image source indisponible → état cassé honnête (jamais de fausse photo)
                       const target = e.target as HTMLImageElement
-                      target.src = `https://picsum.photos/seed/${visual.id}/400/400`
+                      target.style.display = "none"
+                      const fallback = target.parentElement?.querySelector("[data-img-fallback]")
+                      if (fallback instanceof HTMLElement) fallback.style.display = "flex"
                     }}
                   />
+
+                  {/* État image indisponible (honnête — affiché via onError) */}
+                  <div
+                    data-img-fallback
+                    style={{ display: "none" }}
+                    className="absolute inset-0 flex-col items-center justify-center gap-1 bg-slate-100 text-slate-400"
+                  >
+                    <ImageOff className="size-6" />
+                    <span className="text-[10px]">{t("visuals.imageUnavailable")}</span>
+                  </div>
 
                   {/* Overlay selectionne */}
                   {isSelected && (
@@ -219,17 +232,21 @@ export function Step4VisualGen({ step1, step2, defaultValues, onBack, onNext }: 
                     </div>
                   )}
 
-                  {/* Score Brand DNA */}
-                  <div className={cn(
-                    "absolute bottom-2 right-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm",
-                    visual.brandDnaScore >= 0.8
-                      ? "bg-green-500/90 text-white"
-                      : visual.brandDnaScore >= 0.6
-                      ? "bg-amber-500/90 text-white"
-                      : "bg-slate-500/90 text-white"
-                  )}>
+                  {/* Score Brand DNA — badge « estimé » si score heuristique (Vision AI indisponible) */}
+                  <div
+                    className={cn(
+                      "absolute bottom-2 right-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur-sm",
+                      visual.brandDnaScore >= 0.8
+                        ? "bg-green-500/90 text-white"
+                        : visual.brandDnaScore >= 0.6
+                        ? "bg-amber-500/90 text-white"
+                        : "bg-slate-500/90 text-white"
+                    )}
+                    title={visual.visionScored === false ? t("visuals.scoreEstimated") : undefined}
+                  >
                     <Star className="size-2.5" />
                     {Math.round(visual.brandDnaScore * 100)}%
+                    {visual.visionScored === false && <span className="font-normal opacity-80">≈</span>}
                   </div>
 
                   {/* Provider badge */}

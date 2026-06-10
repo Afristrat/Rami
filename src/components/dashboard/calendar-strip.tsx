@@ -1,23 +1,30 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { useState, useMemo, useEffect, useTransition } from "react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
+import { getWeekPostsAction, type CalendarPost } from "@/lib/actions/calendar.actions"
 
-interface CalendarEvent {
-  label: string
-  time?: string
-  colorClass: string
-  borderClass: string
+// ── Couleurs par plateforme ────────────────────────────────────────────────────
+
+const PLATFORM_COLORS: Record<string, { colorClass: string; borderClass: string }> = {
+  linkedin:  { colorClass: "bg-blue-500/10 dark:bg-blue-600/10",     borderClass: "border-blue-600" },
+  instagram: { colorClass: "bg-pink-500/10",                          borderClass: "border-pink-500" },
+  facebook:  { colorClass: "bg-blue-500/10",                          borderClass: "border-blue-500" },
+  twitter:   { colorClass: "bg-sky-500/10",                           borderClass: "border-sky-500" },
+  youtube:   { colorClass: "bg-red-500/10",                           borderClass: "border-red-500" },
+  tiktok:    { colorClass: "bg-zinc-500/10 dark:bg-zinc-500/10",      borderClass: "border-zinc-400" },
+  pinterest: { colorClass: "bg-rose-500/10",                          borderClass: "border-rose-500" },
+  mastodon:  { colorClass: "bg-violet-500/10 dark:bg-violet-500/10",  borderClass: "border-violet-500" },
+  default:   { colorClass: "bg-emerald-500/10",                       borderClass: "border-emerald-500" },
 }
 
-interface CalendarStripDay {
-  labelKey: string
-  dayNum: number
-  isToday: boolean
-  events: CalendarEvent[]
+function platformColors(platform: string) {
+  return PLATFORM_COLORS[platform] ?? PLATFORM_COLORS.default
 }
+
+// ── Helpers calendrier ────────────────────────────────────────────────────────
 
 const DAY_KEYS = ["dayMon", "dayTue", "dayWed", "dayThu", "dayFri", "daySat", "daySun"] as const
 
@@ -26,71 +33,79 @@ const MONTH_KEYS = [
   "monthJuly", "monthAugust", "monthSeptember", "monthOctober", "monthNovember", "monthDecember",
 ] as const
 
-function getWeekDays(baseDate: Date): CalendarStripDay[] {
-  const startOfWeek = new Date(baseDate)
-  const dayOfWeek = startOfWeek.getDay()
-  // Monday = 0
+interface WeekBounds {
+  monday: Date
+  sunday: Date
+}
+
+function getWeekBounds(baseDate: Date, weekOffset: number): WeekBounds {
+  const d = new Date(baseDate)
+  d.setDate(d.getDate() + weekOffset * 7)
+  const dayOfWeek = d.getDay()
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-  startOfWeek.setDate(startOfWeek.getDate() + mondayOffset)
-
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  return DAY_KEYS.map((key, i) => {
-    const d = new Date(startOfWeek)
-    d.setDate(startOfWeek.getDate() + i)
-    d.setHours(0, 0, 0, 0)
-    return {
-      labelKey: key,
-      dayNum: d.getDate(),
-      isToday: d.getTime() === today.getTime(),
-      events: [],
-    }
-  })
+  const monday = new Date(d)
+  monday.setDate(d.getDate() + mondayOffset)
+  monday.setHours(0, 0, 0, 0)
+  const sunday = new Date(monday)
+  sunday.setDate(monday.getDate() + 6)
+  sunday.setHours(23, 59, 59, 999)
+  return { monday, sunday }
 }
 
-const MOCK_EVENTS: Record<number, CalendarEvent[]> = {
-  0: [{ label: "Reel IG #1", colorClass: "bg-violet-500/10 dark:bg-violet-500/10", borderClass: "border-violet-500" }],
-  1: [
-    { label: "Article Blog", colorClass: "bg-blue-500/10 dark:bg-blue-600/10", borderClass: "border-blue-600" },
-    { label: "Email Blast", colorClass: "bg-emerald-500/10", borderClass: "border-emerald-500" },
-  ],
-  2: [{ label: "Webinar Live", time: "16:00", colorClass: "bg-violet-500/20 dark:bg-violet-500/20", borderClass: "border-violet-500" }],
-  4: [{ label: "IG Story X3", colorClass: "bg-pink-500/10", borderClass: "border-pink-500" }],
-}
+// ── Composant ─────────────────────────────────────────────────────────────────
 
 export function CalendarStrip() {
   const t = useTranslations("dashboard")
-  const [weekOffset, setWeekOffset] = useState(0)
 
-  const baseDate = useMemo(() => {
+  const [weekOffset, setWeekOffset] = useState(0)
+  const [posts, setPosts] = useState<CalendarPost[]>([])
+  const [isPending, startTransition] = useTransition()
+
+  const { monday, sunday } = useMemo(
+    () => getWeekBounds(new Date(), weekOffset),
+    [weekOffset]
+  )
+
+  // Charger les posts à chaque changement de semaine
+  useEffect(() => {
+    startTransition(async () => {
+      const result = await getWeekPostsAction(
+        monday.toISOString(),
+        sunday.toISOString()
+      )
+      if ("data" in result) {
+        setPosts(result.data)
+      } else {
+        setPosts([])
+      }
+    })
+  }, [monday, sunday])
+
+  // todayMs est stable pour la journée (ne change pas dans la session)
+  const todayMs = useMemo(() => {
     const d = new Date()
-    d.setDate(d.getDate() + weekOffset * 7)
-    return d
-  }, [weekOffset])
+    d.setHours(0, 0, 0, 0)
+    return d.getTime()
+  }, [])
 
   const days = useMemo(() => {
-    const week = getWeekDays(baseDate)
-    // Inject mock events for the current week (offset 0 only)
-    if (weekOffset === 0) {
-      for (const [idx, evts] of Object.entries(MOCK_EVENTS)) {
-        const dayIndex = Number(idx)
-        if (week[dayIndex]) {
-          week[dayIndex].events = evts
-        }
+    return DAY_KEYS.map((key, i) => {
+      const d = new Date(monday)
+      d.setDate(monday.getDate() + i)
+      d.setHours(0, 0, 0, 0)
+      const dayPosts = posts.filter((p) => p.weekDayIndex === i)
+      return {
+        labelKey: key,
+        dayNum: d.getDate(),
+        isToday: d.getTime() === todayMs,
+        posts: dayPosts,
       }
-    }
-    return week
-  }, [baseDate, weekOffset])
+    })
+  }, [monday, posts, todayMs])
 
-  const firstDay = new Date(baseDate)
-  const dayOfWeek = firstDay.getDay()
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-  firstDay.setDate(firstDay.getDate() + mondayOffset)
-
-  const monthKey = MONTH_KEYS[firstDay.getMonth()]
+  const monthKey = MONTH_KEYS[monday.getMonth()]
   const monthName = t(monthKey)
-  const weekLabel = t("weekOf", { date: `${firstDay.getDate()} ${monthName}` })
+  const weekLabel = t("weekOf", { date: `${monday.getDate()} ${monthName}` })
 
   return (
     <div className="glass-card overflow-hidden rounded-2xl">
@@ -100,18 +115,23 @@ export function CalendarStrip() {
           <button
             onClick={() => setWeekOffset((p) => p - 1)}
             className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted dark:hover:bg-white/5"
+            aria-label={t("dayMon")}
           >
             <ChevronLeft className="size-4" />
           </button>
-          <span className="text-sm font-medium text-foreground">{weekLabel}</span>
+          <span className="text-sm font-medium text-foreground">
+            {isPending ? "…" : weekLabel}
+          </span>
           <button
             onClick={() => setWeekOffset((p) => p + 1)}
             className="flex size-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted dark:hover:bg-white/5"
+            aria-label={t("dayTue")}
           >
             <ChevronRight className="size-4" />
           </button>
         </div>
       </div>
+
       <div className="grid grid-cols-7">
         {days.map((day, i) => (
           <div
@@ -133,29 +153,44 @@ export function CalendarStrip() {
               {t(day.labelKey as Parameters<typeof t>[0])} {day.dayNum}
               {day.isToday && ` (${t("todayShort")})`}
             </p>
+
             <div className="space-y-2">
-              {day.events.length > 0 ? (
-                day.events.map((evt) => (
-                  <div
-                    key={evt.label}
-                    className={cn(
-                      "rounded-lg border-l-2 p-2",
-                      evt.colorClass,
-                      evt.borderClass,
-                      day.isToday && "shadow-lg shadow-violet-500/10"
-                    )}
-                  >
-                    <p className={cn("truncate text-[10px] font-medium text-foreground", day.isToday && "font-bold")}>
-                      {evt.label}
-                    </p>
-                    {evt.time && (
-                      <p className="mt-1 text-[9px] text-violet-500">{evt.time}</p>
-                    )}
-                  </div>
-                ))
+              {day.posts.length > 0 ? (
+                day.posts.map((post) => {
+                  const platform = post.platforms[0] ?? "default"
+                  const { colorClass, borderClass } = platformColors(platform)
+                  const label = post.title ?? post.content.slice(0, 30)
+                  return (
+                    <div
+                      key={post.id}
+                      className={cn(
+                        "rounded-lg border-l-2 p-2",
+                        colorClass,
+                        borderClass,
+                        day.isToday && "shadow-lg shadow-violet-500/10"
+                      )}
+                    >
+                      <p className={cn(
+                        "truncate text-[10px] font-medium text-foreground",
+                        day.isToday && "font-bold"
+                      )}>
+                        {label}
+                      </p>
+                      <p className="mt-1 text-[9px] text-muted-foreground">
+                        {post.timeLabel}
+                      </p>
+                    </div>
+                  )
+                })
               ) : (
                 <div className="flex h-12 items-center justify-center rounded-lg border border-dashed border-border">
-                  <Plus className="size-3.5 text-muted-foreground/40" />
+                  {isPending ? (
+                    <span className="text-[9px] text-muted-foreground/40">…</span>
+                  ) : (
+                    <span className="text-[9px] text-muted-foreground/30 text-center px-1">
+                      {t("noScheduledPosts")}
+                    </span>
+                  )}
                 </div>
               )}
             </div>

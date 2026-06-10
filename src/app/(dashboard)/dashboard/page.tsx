@@ -136,36 +136,9 @@ export default async function DashboardPage() {
     }
   }
 
-  /* ── Fallback mock data if no real posts ── */
-  if (activityRows.length === 0) {
-    activityRows = [
-      {
-        id: "mock-1",
-        project: t("mockProject1"),
-        platform: "instagram",
-        status: "published",
-        updatedAt: tTime("hoursAgo", { count: 2 }),
-      },
-      {
-        id: "mock-2",
-        project: t("mockProject2"),
-        platform: "linkedin",
-        status: "review",
-        updatedAt: tTime("hoursAgo", { count: 5 }),
-      },
-      {
-        id: "mock-3",
-        project: t("mockProject3"),
-        platform: "tiktok",
-        status: "draft",
-        updatedAt: `${tTime("yesterday")}, 18:30`,
-      },
-    ]
-  }
-
   /* ── Next scheduled post ── */
-  let nextPostLabel = `${tTime("tomorrow")}, 10:00`
-  let nextPostProject = t("mockNextProject")
+  let nextPostLabel: string | null = null
+  let nextPostProject: string | null = null
 
   if (stats?.nextScheduledPost) {
     const scheduledDate = new Date(stats.nextScheduledPost.scheduledAt)

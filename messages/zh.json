@@ -321,7 +321,11 @@
     "monthSeptember": "九月",
     "monthOctober": "十月",
     "monthNovember": "十一月",
-    "monthDecember": "十二月"
+    "monthDecember": "十二月",
+    "noScheduledPosts": "本周无已排期的帖子。",
+    "emptyActivityTitle": "暂无活动",
+    "emptyActivityDesc": "创建您的第一条内容以开始使用。",
+    "emptyActivityCta": "创建内容"
   },
   "brandDna": {
     "title": "Brand DNA",
@@ -1032,7 +1036,10 @@
     "video": "Video",
     "image": "Image",
     "document": "Document",
-    "close": "Close"
+    "close": "Close",
+    "dnaScoreNotEvaluated": "未评估",
+    "dnaScoreLabel": "DNA 评分",
+    "uploadDone": "上传完成 — 即可使用"
   },
   "analytics": {
     "title": "Analytics",
@@ -1689,7 +1696,9 @@
       "reviewAndSelection": "Review & selection",
       "quotaTitle": "已达生成配额上限",
       "quotaDescription": "本月您已使用 {count}/{limit} 次生成。升级套餐以继续。",
-      "quotaUpgrade": "升级套餐"
+      "quotaUpgrade": "升级套餐",
+      "scoreEstimated": "估算评分",
+      "imageUnavailable": "图片不可用"
     },
     "export": {
       "title": "导出",
@@ -2163,7 +2172,15 @@
     "actionsColumn": "Actions",
     "displayingBrands": "Displaying {shown} of {total} brands",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "switchUnavailable": "切换当前租户功能将在未来版本中提供。",
+    "adminTitle": "管理 — 所有租户",
+    "adminSubtitle": "平台共注册了 {total} 个租户。",
+    "allTime": "全部时间",
+    "slugColumn": "标识符",
+    "generationsColumn": "生成次数",
+    "noTenantsYet": "暂无注册租户。",
+    "paginationNote": "最多显示 20 条结果 — 如需查看全部请使用管理控制台。"
   },
   "competitors": {
     "title": "竞争情报",

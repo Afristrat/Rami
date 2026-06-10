@@ -321,7 +321,11 @@
     "monthSeptember": "September",
     "monthOctober": "October",
     "monthNovember": "November",
-    "monthDecember": "December"
+    "monthDecember": "December",
+    "noScheduledPosts": "No posts scheduled this week.",
+    "emptyActivityTitle": "No activity",
+    "emptyActivityDesc": "Create your first content to get started.",
+    "emptyActivityCta": "Create content"
   },
   "brandDna": {
     "title": "Brand DNA",
@@ -1032,7 +1036,10 @@
     "video": "Video",
     "image": "Image",
     "document": "Document",
-    "close": "Close"
+    "close": "Close",
+    "dnaScoreNotEvaluated": "Not evaluated",
+    "dnaScoreLabel": "DNA Score",
+    "uploadDone": "Upload complete — ready to use"
   },
   "analytics": {
     "title": "Analytics",
@@ -1689,7 +1696,9 @@
       "reviewAndSelection": "Review & selection",
       "quotaTitle": "Generation quota reached",
       "quotaDescription": "You have used {count}/{limit} generations this month. Upgrade your plan to continue.",
-      "quotaUpgrade": "Upgrade plan"
+      "quotaUpgrade": "Upgrade plan",
+      "scoreEstimated": "Estimated score",
+      "imageUnavailable": "Image unavailable"
     },
     "export": {
       "title": "Export",
@@ -2163,7 +2172,15 @@
     "actionsColumn": "Actions",
     "displayingBrands": "Displaying {shown} of {total} brands",
     "previousPage": "Previous",
-    "nextPage": "Next"
+    "nextPage": "Next",
+    "switchUnavailable": "Switching the active tenant will be available in a future version.",
+    "adminTitle": "Administration — All tenants",
+    "adminSubtitle": "{total} tenant(s) registered on the platform.",
+    "allTime": "All time",
+    "slugColumn": "Slug",
+    "generationsColumn": "Generations",
+    "noTenantsYet": "No tenants registered yet.",
+    "paginationNote": "Display limited to 20 results — use the admin console to view all."
   },
   "competitors": {
     "title": "Competitive Intelligence",

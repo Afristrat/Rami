@@ -49,7 +49,9 @@ export interface GeneratedVisual {
   url: string
   prompt: string
   brandDnaScore: number
-  provider: "fal" | "replicate" | "placeholder"
+  /** false = score heuristique de secours (Vision AI indisponible) — l'UI doit le signaler */
+  visionScored?: boolean
+  provider: "fal" | "replicate" | "placeholder" | "nano_banana" | "fal_ai" | "google_imagen" | "together_ai"
 }
 
 export interface Step4Data {
