@@ -1985,6 +1985,10 @@
     }
   },
   "documents": {
+    "downloadPdf": "Baixar PDF",
+    "pdfConfidential": "Documento confidencial",
+    "pdfPage": "Página",
+    "pdfPoweredBy": "Desenvolvido com RAMI",
     "reportPeriodLabel": "Período",
     "reportPeriod7d": "Últimos 7 dias (semanal)",
     "reportPeriod30d": "Últimos 30 dias (mensal)",

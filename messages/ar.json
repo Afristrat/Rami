@@ -1985,6 +1985,10 @@
     }
   },
   "documents": {
+    "downloadPdf": "تنزيل PDF",
+    "pdfConfidential": "وثيقة سرية",
+    "pdfPage": "صفحة",
+    "pdfPoweredBy": "مدعوم من RAMI",
     "reportPeriodLabel": "الفترة",
     "reportPeriod7d": "آخر 7 أيام (أسبوعي)",
     "reportPeriod30d": "آخر 30 يومًا (شهري)",

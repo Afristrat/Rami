@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { useIntlLocale } from "@/lib/utils/format-locale"
-import { ArrowLeft, CheckCircle2, FileText, Printer, Target } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Download, FileText, Target } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DocumentStatusBadge } from "./DocumentStatusBadge"
 import type { CommercialOfferContent } from "@/lib/services/documents/commercial-offer"
@@ -33,16 +33,8 @@ export function CommercialOfferView({ document, content }: CommercialOfferViewPr
 
   return (
     <div className="space-y-6">
-      {/* Style impression : n'imprimer que le document (PDF propre, sans sidebar). */}
-      <style>{`@media print {
-        body * { visibility: hidden !important; }
-        #offer-doc, #offer-doc * { visibility: visible !important; }
-        #offer-doc { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
-        .no-print { display: none !important; }
-      }`}</style>
-
       {/* Barre d'actions */}
-      <div className="flex flex-wrap items-center justify-between gap-3 no-print">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/dashboard/documents"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors"
@@ -51,14 +43,13 @@ export function CommercialOfferView({ document, content }: CommercialOfferViewPr
           {t("backToDocuments")}
         </Link>
         {content && (
-          <button
-            type="button"
-            onClick={() => window.print()}
+          <a
+            href={`/dashboard/documents/${document.id}/pdf`}
             className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-blue-600 hover:opacity-90 transition-opacity"
           >
-            <Printer className="size-4" />
-            {t("exportPdf")}
-          </button>
+            <Download className="size-4" />
+            {t("downloadPdf")}
+          </a>
         )}
       </div>
 
@@ -70,7 +61,7 @@ export function CommercialOfferView({ document, content }: CommercialOfferViewPr
           <p className="mt-1 text-sm text-muted-foreground">{t("noContentDesc")}</p>
         </div>
       ) : (
-        <div id="offer-doc" className="space-y-6">
+        <div className="space-y-6">
           {/* En-tête de l'offre */}
           <div className="glass-card rounded-2xl p-8">
             <div className="flex items-start justify-between gap-4">
@@ -98,7 +89,7 @@ export function CommercialOfferView({ document, content }: CommercialOfferViewPr
                   </span>
                 </div>
               </div>
-              <DocumentStatusBadge status={document.status} className="no-print" />
+              <DocumentStatusBadge status={document.status} />
             </div>
           </div>
 

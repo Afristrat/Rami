@@ -136,6 +136,10 @@ const nextConfig: NextConfig = {
   // Nixpacks utilise `next start`, incompatible avec output:standalone → conditionnel.
   output: process.env.BUILD_STANDALONE === "1" ? "standalone" : undefined,
 
+  // @react-pdf/renderer (génération PDF serveur) embarque des dépendances natives
+  // (fontkit, yoga) qui ne doivent pas passer dans le bundler → externalisées.
+  serverExternalPackages: ["@react-pdf/renderer"],
+
   // ─── Headers de sécurité sur toutes les routes ────────────────────────────
   async headers() {
     return [

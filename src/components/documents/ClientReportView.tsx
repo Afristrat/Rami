@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { useIntlLocale } from "@/lib/utils/format-locale"
-import { ArrowLeft, BarChart3, Printer, TrendingDown, TrendingUp } from "lucide-react"
+import { ArrowLeft, BarChart3, Download, TrendingDown, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DocumentStatusBadge } from "./DocumentStatusBadge"
 import type { ClientReportContent } from "@/lib/services/documents/client-report"
@@ -62,16 +62,8 @@ export function ClientReportView({ document, content }: ClientReportViewProps) {
 
   return (
     <div className="space-y-6">
-      {/* Style impression : n'imprimer que le rapport (PDF propre, sans sidebar). */}
-      <style>{`@media print {
-        body * { visibility: hidden !important; }
-        #report-doc, #report-doc * { visibility: visible !important; }
-        #report-doc { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
-        .no-print { display: none !important; }
-      }`}</style>
-
       {/* Barre d'actions */}
-      <div className="flex flex-wrap items-center justify-between gap-3 no-print">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href="/dashboard/documents"
           className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors"
@@ -79,17 +71,16 @@ export function ClientReportView({ document, content }: ClientReportViewProps) {
           <ArrowLeft className="size-4" />
           {t("backToDocuments")}
         </Link>
-        <button
-          type="button"
-          onClick={() => window.print()}
+        <a
+          href={`/dashboard/documents/${document.id}/pdf`}
           className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-blue-600 hover:opacity-90 transition-opacity"
         >
-          <Printer className="size-4" />
-          {t("exportPdf")}
-        </button>
+          <Download className="size-4" />
+          {t("downloadPdf")}
+        </a>
       </div>
 
-      <div id="report-doc" className="space-y-6">
+      <div className="space-y-6">
         {/* En-tête brandé */}
         <div className="glass-card rounded-2xl p-8">
           <div className="flex items-start justify-between gap-4">
@@ -125,7 +116,7 @@ export function ClientReportView({ document, content }: ClientReportViewProps) {
                 </span>
               </div>
             </div>
-            <DocumentStatusBadge status={document.status} className="no-print" />
+            <DocumentStatusBadge status={document.status} />
           </div>
         </div>
 

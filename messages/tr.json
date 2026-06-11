@@ -1985,6 +1985,10 @@
     }
   },
   "documents": {
+    "downloadPdf": "PDF indir",
+    "pdfConfidential": "Gizli belge",
+    "pdfPage": "Sayfa",
+    "pdfPoweredBy": "RAMI ile güçlendirildi",
     "reportPeriodLabel": "Dönem",
     "reportPeriod7d": "Son 7 gün (haftalık)",
     "reportPeriod30d": "Son 30 gün (aylık)",

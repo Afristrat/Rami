@@ -1985,6 +1985,10 @@
     }
   },
   "documents": {
+    "downloadPdf": "下载 PDF",
+    "pdfConfidential": "机密文件",
+    "pdfPage": "页",
+    "pdfPoweredBy": "由 RAMI 提供支持",
     "reportPeriodLabel": "周期",
     "reportPeriod7d": "最近 7 天（每周）",
     "reportPeriod30d": "最近 30 天（每月）",
