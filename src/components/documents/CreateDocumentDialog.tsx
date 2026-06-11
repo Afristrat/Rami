@@ -16,8 +16,12 @@ import {
 import {
   createDocumentAction,
   createCommercialOfferAction,
+  createClientReportAction,
 } from "@/lib/actions/documents.actions"
+import { ReportPeriodValues } from "@/lib/schemas/document.schema"
 import type { DocumentType } from "@/lib/schemas/document.schema"
+
+type ReportPeriod = (typeof ReportPeriodValues)[number]
 
 const TYPE_LABEL_KEYS: Record<DocumentType, string> = {
   offre_commerciale: "typeProposal",
@@ -43,6 +47,7 @@ export function CreateDocumentDialog({
   const [title, setTitle] = useState("")
   const [clientName, setClientName] = useState("")
   const [brief, setBrief] = useState("")
+  const [period, setPeriod] = useState<ReportPeriod>("30d")
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -53,6 +58,7 @@ export function CreateDocumentDialog({
       setTitle("")
       setClientName("")
       setBrief("")
+      setPeriod("30d")
       setError(null)
     }
     onOpenChange(nextOpen)
@@ -75,18 +81,24 @@ export function CreateDocumentDialog({
         brief: brief.trim() || undefined,
       }
 
-      // Offre commerciale → génération IA réelle (US-025) puis ouverture du document.
-      // Autres types → brouillon honnête (génération à venir : US-026, US-041+).
+      // Offre commerciale (US-025) et rapport client (US-026) → génération réelle
+      // puis ouverture du document. Présentation → brouillon honnête (US-041+).
       const result =
         type === "offre_commerciale"
           ? await createCommercialOfferAction(input)
-          : await createDocumentAction(input)
+          : type === "rapport_client"
+            ? await createClientReportAction({
+                title: input.title,
+                client_name: input.client_name,
+                period,
+              })
+            : await createDocumentAction(input)
 
       if ("error" in result) {
         setError(result.error)
       } else {
         onOpenChange(false)
-        if (type === "offre_commerciale") {
+        if (type !== "presentation") {
           router.push(`/dashboard/documents/${result.data.id}`)
         }
       }
@@ -160,20 +172,39 @@ export function CreateDocumentDialog({
             />
           </div>
 
-          {/* Brief */}
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground dark:text-white">
-              {t("briefLabel")}
-            </label>
-            <textarea
-              value={brief}
-              onChange={(e) => setBrief(e.target.value)}
-              placeholder={t("briefPlaceholder")}
-              rows={4}
-              className={cn(inputClasses, "resize-none")}
-              maxLength={5000}
-            />
-          </div>
+          {/* Période (rapport client uniquement — chiffres réels post_metrics) */}
+          {type === "rapport_client" && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground dark:text-white">
+                {t("reportPeriodLabel")}
+              </label>
+              <select
+                value={period}
+                onChange={(e) => setPeriod(e.target.value as ReportPeriod)}
+                className={inputClasses}
+              >
+                <option value="7d">{t("reportPeriod7d")}</option>
+                <option value="30d">{t("reportPeriod30d")}</option>
+              </select>
+            </div>
+          )}
+
+          {/* Brief (sans objet pour un rapport : les chiffres viennent de la DB) */}
+          {type !== "rapport_client" && (
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-foreground dark:text-white">
+                {t("briefLabel")}
+              </label>
+              <textarea
+                value={brief}
+                onChange={(e) => setBrief(e.target.value)}
+                placeholder={t("briefPlaceholder")}
+                rows={4}
+                className={cn(inputClasses, "resize-none")}
+                maxLength={5000}
+              />
+            </div>
+          )}
 
           {error && (
             <p className="text-sm text-red-500 dark:text-red-400">{error}</p>

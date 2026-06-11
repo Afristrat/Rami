@@ -30,6 +30,27 @@ export const CreateDocumentSchema = z.object({
 
 export type CreateDocumentInput = z.infer<typeof CreateDocumentSchema>
 
+/** Périodes couvertes par un rapport client (hebdo / mensuel). */
+export const ReportPeriodValues = ['7d', '30d'] as const
+
+export const CreateClientReportSchema = z.object({
+  title: z
+    .string()
+    .min(3, V.docTitleMinLength)
+    .max(500, V.docTitleMaxLength)
+    .trim(),
+  client_name: z
+    .string()
+    .max(255, V.docClientNameMaxLength)
+    .trim()
+    .optional(),
+  period: z.enum(ReportPeriodValues, {
+    error: V.docTypeInvalid,
+  }),
+})
+
+export type CreateClientReportInput = z.infer<typeof CreateClientReportSchema>
+
 export const DocumentSchema = z.object({
   id: z.string().uuid(),
   tenant_id: z.string().uuid(),

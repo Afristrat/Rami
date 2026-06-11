@@ -13,8 +13,16 @@ import {
   parseOfferContent,
 } from "@/lib/services/documents/commercial-offer"
 import {
+  buildClientReportContent,
+  buildReportNarrativeSystemPrompt,
+  buildReportNarrativeUserPrompt,
+} from "@/lib/services/documents/client-report"
+import { fetchAnalyticsBundle } from "@/lib/services/analytics/fetch"
+import {
   CreateDocumentSchema,
+  CreateClientReportSchema,
   type CreateDocumentInput,
+  type CreateClientReportInput,
   type DocumentType,
   type DocumentStatus,
 } from "@/lib/schemas/document.schema"
@@ -296,6 +304,124 @@ export async function createCommercialOfferAction(
   if (error) {
     if (error.code === "42P01") return { error: "La table documents n'existe pas encore. Appliquez la migration." }
     return { error: "Erreur lors de l'enregistrement de l'offre." }
+  }
+
+  revalidatePath("/dashboard/documents")
+
+  return {
+    data: {
+      id: doc.id,
+      title: doc.title,
+      type: doc.type as DocumentType,
+      client_name: doc.client_name,
+      status: doc.status as DocumentStatus,
+      storage_path: doc.storage_path,
+      public_url: doc.public_url,
+      file_size_bytes: doc.file_size_bytes,
+      created_at: doc.created_at,
+      updated_at: doc.updated_at,
+    },
+  }
+}
+
+/**
+ * Crée un rapport client de performance (US-026).
+ * Chiffres 100 % RÉELS (post_metrics via fetchAnalyticsBundle) ; le LLM ne
+ * fait que COMMENTER ces chiffres — s'il est indisponible, le rapport est
+ * produit sans narrative (repli honnête, jamais de chiffre inventé).
+ */
+export async function createClientReportAction(
+  input: CreateClientReportInput
+): Promise<CreateDocumentResult> {
+  const parsed = CreateClientReportSchema.safeParse(input)
+  if (!parsed.success) {
+    return { error: parsed.error.issues.map((i) => i.message).join(", ") }
+  }
+
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { error: "Tenant introuvable." }
+
+  // Brand DNA pour le branding du rapport (nom de marque).
+  const { data: tenantRow } = await supabase
+    .from("tenants")
+    .select("brand_dna")
+    .eq("id", tenantId)
+    .single()
+
+  const rawDna: unknown = tenantRow?.brand_dna ?? null
+  const brandDNA = normalizeBrandDNA(rawDna)
+
+  // Analytics réelles de la période (Drizzle, tenantId issu de la session).
+  let report: ReturnType<typeof buildClientReportContent>
+  try {
+    const bundle = await fetchAnalyticsBundle(tenantId, parsed.data.period)
+    report = buildClientReportContent({
+      period: parsed.data.period,
+      start: bundle.start,
+      end: bundle.end,
+      brandName: brandDNA.identity?.name ?? null,
+      analytics: bundle.data,
+      currentMetrics: bundle.currentMetrics,
+    })
+  } catch (err) {
+    log({
+      level: "error",
+      module: "documents",
+      action: "report_metrics_failed",
+      tenant_id: tenantId,
+      message: "Échec du chargement des metrics pour le rapport client",
+      metadata: { error: String(err) },
+    })
+    return { error: "Impossible de charger les données de performance. Réessayez." }
+  }
+
+  // Narrative LLM (commentaire des chiffres réels) — repli silencieux si échec.
+  try {
+    const config = await getPromptConfig("document_client_report")
+    const raw = await callTextLLM({
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey,
+      systemPrompt: config.systemPrompt || buildReportNarrativeSystemPrompt(),
+      userPrompt: buildReportNarrativeUserPrompt(report),
+      maxTokens: 500,
+      temperature: config.temperature,
+    })
+    report = { ...report, narrative: raw.trim() }
+  } catch (err) {
+    log({
+      level: "warn",
+      module: "documents",
+      action: "report_narrative_fallback",
+      tenant_id: tenantId,
+      message: "Narrative LLM indisponible — rapport produit sans synthèse",
+      metadata: { error: String(err) },
+    })
+  }
+
+  const { data: doc, error } = await supabase
+    .from("documents")
+    .insert({
+      tenant_id: tenantId,
+      title: parsed.data.title,
+      type: "rapport_client",
+      client_name: parsed.data.client_name ?? null,
+      status: "completed",
+      content_json: report,
+      brand_dna_snapshot: rawDna,
+      created_by: user.id,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    if (error.code === "42P01") return { error: "La table documents n'existe pas encore. Appliquez la migration." }
+    return { error: "Erreur lors de l'enregistrement du rapport." }
   }
 
   revalidatePath("/dashboard/documents")

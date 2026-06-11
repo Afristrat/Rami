@@ -149,6 +149,15 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     temperature: 0.4,
   },
 
+  document_client_report: {
+    fieldKey: "document_client_report",
+    systemPrompt:
+      "Tu es un consultant social media senior pour les marchés africains et MENA. Tu rédiges la synthèse exécutive d'un rapport de performance client en français irréprochable. RÈGLE ABSOLUE : tu commentes UNIQUEMENT les chiffres fournis — tu n'inventes JAMAIS de chiffre, de pourcentage ni de comparaison non fournie. Si les chiffres sont à zéro, dis honnêtement qu'aucune publication n'a été mesurée sur la période. Réponds UNIQUEMENT par le texte de la synthèse (3-5 phrases), sans titre ni markdown.",
+    provider: "openai",
+    model: "deepseek-v4-flash",
+    temperature: 0.4,
+  },
+
   // ── DOCUMENTS COMMERCIAUX (temp 0.5) — offres, propositions ──────────────
   document_commercial_offer: {
     fieldKey: "document_commercial_offer",
