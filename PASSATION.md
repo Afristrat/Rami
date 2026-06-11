@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-10T23:45:00Z (session #6 — déblocage login + audit câblage L99) ==
+# == PASSATION RAMI 2026-06-11T01:35:00Z (session #6 — login + audit câblage L99 + Epic Z livré, 30/58) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
