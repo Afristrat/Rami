@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { useIntlLocale } from "@/lib/utils/format-locale"
 import {
@@ -17,14 +18,18 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { DocumentStatusBadge } from "./DocumentStatusBadge"
-import { deleteDocumentAction, type DocumentItem } from "@/lib/actions/documents.actions"
+import {
+  deleteDocumentAction,
+  duplicateDocumentAction,
+  type DocumentItem,
+} from "@/lib/actions/documents.actions"
 import type { DocumentType } from "@/lib/schemas/document.schema"
 import type { LucideIcon } from "lucide-react"
 
-// ── Config par type ────────────────────────────────────────
+// ── Config par type (libellés via i18n) ────────────────────
 
 interface TypeConfig {
-  label: string
+  labelKey: string
   icon: LucideIcon
   iconColor: string
   iconBg: string
@@ -33,21 +38,21 @@ interface TypeConfig {
 
 const TYPE_CONFIG: Record<DocumentType, TypeConfig> = {
   offre_commerciale: {
-    label: "Offre commerciale",
+    labelKey: "typeProposal",
     icon: FileText,
     iconColor: "text-violet-500 dark:text-violet-400",
     iconBg: "bg-violet-500/10",
     badgeClass: "bg-violet-500/10 text-violet-600 border-violet-500/20 dark:text-violet-400",
   },
   rapport_client: {
-    label: "Rapport client",
+    labelKey: "typeReport",
     icon: BarChart3,
     iconColor: "text-blue-500 dark:text-blue-400",
     iconBg: "bg-blue-500/10",
     badgeClass: "bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400",
   },
   presentation: {
-    label: "Présentation",
+    labelKey: "typePresentation",
     icon: Presentation,
     iconColor: "text-emerald-500 dark:text-emerald-400",
     iconBg: "bg-emerald-500/10",
@@ -81,6 +86,7 @@ interface DocumentsTableProps {
 export function DocumentsTable({ documents, total }: DocumentsTableProps) {
   const t = useTranslations("documents")
   const intlLocale = useIntlLocale()
+  const router = useRouter()
   const [viewMode, setViewMode] = useState<"list" | "grid">("list")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -90,6 +96,17 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
     startTransition(async () => {
       await deleteDocumentAction(id)
       setDeletingId(null)
+    })
+  }
+
+  const handleView = (id: string) => {
+    router.push(`/dashboard/documents/${id}`)
+  }
+
+  const handleDuplicate = (id: string) => {
+    startTransition(async () => {
+      await duplicateDocumentAction(id)
+      router.refresh()
     })
   }
 
@@ -231,7 +248,7 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
                             typeConfig.badgeClass
                           )}
                         >
-                          {typeConfig.label}
+                          {t(typeConfig.labelKey)}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">
@@ -247,22 +264,26 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             type="button"
+                            onClick={() => handleView(doc.id)}
                             className={actionButtonClasses}
-                            title="Voir"
+                            title={t("viewAction")}
                           >
                             <Eye className="size-4" />
                           </button>
                           <button
                             type="button"
+                            onClick={() => handleView(doc.id)}
                             className={actionButtonClasses}
-                            title="Télécharger"
+                            title={t("downloadAction")}
                           >
                             <Download className="size-4" />
                           </button>
                           <button
                             type="button"
+                            onClick={() => handleDuplicate(doc.id)}
+                            disabled={isPending}
                             className={actionButtonClasses}
-                            title="Dupliquer"
+                            title={t("duplicateAction")}
                           >
                             <Copy className="size-4" />
                           </button>
@@ -275,7 +296,7 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
                               "hover:bg-red-50 dark:hover:bg-red-500/10",
                               "text-muted-foreground hover:text-red-500 dark:hover:text-red-400"
                             )}
-                            title="Supprimer"
+                            title={t("deleteAction")}
                           >
                             <Trash2 className="size-4" />
                           </button>
@@ -331,13 +352,29 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
 
                 {/* Actions */}
                 <div className="flex items-center justify-end gap-1 mt-3 pt-3 border-t border-border">
-                  <button type="button" className={actionButtonClasses} title="Voir">
+                  <button
+                    type="button"
+                    onClick={() => handleView(doc.id)}
+                    className={actionButtonClasses}
+                    title={t("viewAction")}
+                  >
                     <Eye className="size-4" />
                   </button>
-                  <button type="button" className={actionButtonClasses} title="Télécharger">
+                  <button
+                    type="button"
+                    onClick={() => handleView(doc.id)}
+                    className={actionButtonClasses}
+                    title={t("downloadAction")}
+                  >
                     <Download className="size-4" />
                   </button>
-                  <button type="button" className={actionButtonClasses} title="Dupliquer">
+                  <button
+                    type="button"
+                    onClick={() => handleDuplicate(doc.id)}
+                    disabled={isPending}
+                    className={actionButtonClasses}
+                    title={t("duplicateAction")}
+                  >
                     <Copy className="size-4" />
                   </button>
                   <button
@@ -349,7 +386,7 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
                       "hover:bg-red-50 dark:hover:bg-red-500/10",
                       "text-muted-foreground hover:text-red-500 dark:hover:text-red-400"
                     )}
-                    title="Supprimer"
+                    title={t("deleteAction")}
                   >
                     <Trash2 className="size-4" />
                   </button>

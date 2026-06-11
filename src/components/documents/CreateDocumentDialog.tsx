@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -12,7 +13,10 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { createDocumentAction } from "@/lib/actions/documents.actions"
+import {
+  createDocumentAction,
+  createCommercialOfferAction,
+} from "@/lib/actions/documents.actions"
 import type { DocumentType } from "@/lib/schemas/document.schema"
 
 const TYPE_LABEL_KEYS: Record<DocumentType, string> = {
@@ -34,6 +38,7 @@ export function CreateDocumentDialog({
 }: CreateDocumentDialogProps) {
   const t = useTranslations("documents")
   const tCommon = useTranslations("common")
+  const router = useRouter()
   const [type, setType] = useState<DocumentType>(defaultType)
   const [title, setTitle] = useState("")
   const [clientName, setClientName] = useState("")
@@ -63,17 +68,27 @@ export function CreateDocumentDialog({
     }
 
     startTransition(async () => {
-      const result = await createDocumentAction({
+      const input = {
         title: title.trim(),
         type,
         client_name: clientName.trim() || undefined,
         brief: brief.trim() || undefined,
-      })
+      }
+
+      // Offre commerciale → génération IA réelle (US-025) puis ouverture du document.
+      // Autres types → brouillon honnête (génération à venir : US-026, US-041+).
+      const result =
+        type === "offre_commerciale"
+          ? await createCommercialOfferAction(input)
+          : await createDocumentAction(input)
 
       if ("error" in result) {
         setError(result.error)
       } else {
         onOpenChange(false)
+        if (type === "offre_commerciale") {
+          router.push(`/dashboard/documents/${result.data.id}`)
+        }
       }
     })
   }

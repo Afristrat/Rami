@@ -3,6 +3,15 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import { log } from "@/lib/utils/logger"
+import { getPromptConfig } from "@/lib/services/ai/prompt-config"
+import { callTextLLM } from "@/lib/services/ai/text-llm"
+import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
+import {
+  buildOfferSystemPrompt,
+  buildOfferUserPrompt,
+  parseOfferContent,
+} from "@/lib/services/documents/commercial-offer"
 import {
   CreateDocumentSchema,
   type CreateDocumentInput,
@@ -174,6 +183,177 @@ export async function createDocumentAction(
     if (error.code === "42P01") return { error: "La table documents n'existe pas encore. Appliquez la migration." }
     return { error: "Erreur lors de la création du document." }
   }
+
+  revalidatePath("/dashboard/documents")
+
+  return {
+    data: {
+      id: doc.id,
+      title: doc.title,
+      type: doc.type as DocumentType,
+      client_name: doc.client_name,
+      status: doc.status as DocumentStatus,
+      storage_path: doc.storage_path,
+      public_url: doc.public_url,
+      file_size_bytes: doc.file_size_bytes,
+      created_at: doc.created_at,
+      updated_at: doc.updated_at,
+    },
+  }
+}
+
+/**
+ * Crée une offre commerciale GÉNÉRÉE par IA (US-025).
+ * Brand DNA du tenant + brief → contenu structuré persisté dans content_json.
+ * Échec LLM/parsing → erreur honnête, aucun document fabriqué.
+ */
+export async function createCommercialOfferAction(
+  input: CreateDocumentInput
+): Promise<CreateDocumentResult> {
+  const parsed = CreateDocumentSchema.safeParse(input)
+  if (!parsed.success) {
+    return { error: parsed.error.issues.map((i) => i.message).join(", ") }
+  }
+  if (parsed.data.type !== "offre_commerciale") {
+    return { error: "Type de document non pris en charge par la génération d'offre." }
+  }
+
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { error: "Tenant introuvable." }
+
+  // Brand DNA du tenant (shape PLATE réelle → normalisation obligatoire).
+  const { data: tenantRow } = await supabase
+    .from("tenants")
+    .select("brand_dna")
+    .eq("id", tenantId)
+    .single()
+
+  const rawDna: unknown = tenantRow?.brand_dna ?? null
+  const brandDNA = normalizeBrandDNA(rawDna)
+
+  // Génération LLM (deepseek via proxy). Échec → erreur honnête, pas de repli inventé.
+  let content: ReturnType<typeof parseOfferContent>
+  try {
+    const config = await getPromptConfig("document_commercial_offer")
+    const raw = await callTextLLM({
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey,
+      systemPrompt: config.systemPrompt || buildOfferSystemPrompt(),
+      userPrompt: buildOfferUserPrompt({
+        title: parsed.data.title,
+        clientName: parsed.data.client_name ?? null,
+        brief: parsed.data.brief ?? null,
+        brandDNA,
+      }),
+      maxTokens: 3000,
+      temperature: config.temperature,
+    })
+    content = parseOfferContent(raw)
+  } catch (err) {
+    log({
+      level: "error",
+      module: "documents",
+      action: "offer_generation_failed",
+      tenant_id: tenantId,
+      message: "Échec de l'appel LLM pour la génération d'offre commerciale",
+      metadata: { error: String(err) },
+    })
+    return { error: "La génération de l'offre a échoué. Réessayez dans quelques instants." }
+  }
+
+  if (!content) {
+    log({
+      level: "error",
+      module: "documents",
+      action: "offer_parse_failed",
+      tenant_id: tenantId,
+      message: "Réponse LLM non conforme au schéma d'offre commerciale",
+    })
+    return { error: "La génération de l'offre a produit un contenu invalide. Réessayez." }
+  }
+
+  const { data: doc, error } = await supabase
+    .from("documents")
+    .insert({
+      tenant_id: tenantId,
+      title: parsed.data.title,
+      type: "offre_commerciale",
+      client_name: parsed.data.client_name ?? null,
+      status: "completed",
+      content_json: content,
+      brand_dna_snapshot: rawDna,
+      created_by: user.id,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    if (error.code === "42P01") return { error: "La table documents n'existe pas encore. Appliquez la migration." }
+    return { error: "Erreur lors de l'enregistrement de l'offre." }
+  }
+
+  revalidatePath("/dashboard/documents")
+
+  return {
+    data: {
+      id: doc.id,
+      title: doc.title,
+      type: doc.type as DocumentType,
+      client_name: doc.client_name,
+      status: doc.status as DocumentStatus,
+      storage_path: doc.storage_path,
+      public_url: doc.public_url,
+      file_size_bytes: doc.file_size_bytes,
+      created_at: doc.created_at,
+      updated_at: doc.updated_at,
+    },
+  }
+}
+
+/**
+ * Duplique un document (copie du contenu, statut conservé).
+ */
+export async function duplicateDocumentAction(
+  id: string
+): Promise<CreateDocumentResult> {
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { error: "Tenant introuvable." }
+
+  const { data: source, error: sourceError } = await supabase
+    .from("documents")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (sourceError || !source) return { error: "Document introuvable." }
+
+  const { data: doc, error } = await supabase
+    .from("documents")
+    .insert({
+      tenant_id: tenantId,
+      title: `${source.title} (copie)`.slice(0, 500),
+      type: source.type,
+      client_name: source.client_name,
+      status: source.status,
+      content_json: source.content_json,
+      brand_dna_snapshot: source.brand_dna_snapshot,
+      created_by: user.id,
+    })
+    .select()
+    .single()
+
+  if (error || !doc) return { error: "Erreur lors de la duplication du document." }
 
   revalidatePath("/dashboard/documents")
 

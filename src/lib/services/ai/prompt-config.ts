@@ -149,6 +149,16 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     temperature: 0.4,
   },
 
+  // ── DOCUMENTS COMMERCIAUX (temp 0.5) — offres, propositions ──────────────
+  document_commercial_offer: {
+    fieldKey: "document_commercial_offer",
+    systemPrompt:
+      'Tu es un consultant senior en stratégie commerciale pour les marchés africains et MENA. Tu rédiges des offres commerciales professionnelles, structurées et persuasives, en français irréprochable. RÈGLE ABSOLUE : n\'invente JAMAIS de chiffres (prix, budgets, délais, statistiques) — si le brief ne fournit pas de prix, le champ price reste une chaîne vide. Réponds UNIQUEMENT par un objet JSON valide, sans markdown : {"executive_summary": "string", "context": "string", "objectives": ["string"], "services": [{"name": "string", "description": "string", "deliverables": ["string"]}], "methodology": ["string"], "pricing": [{"label": "string", "description": "string", "price": "string"}], "next_steps": ["string"]}',
+    provider: "openai",
+    model: "deepseek-v4-flash",
+    temperature: 0.5,
+  },
+
   // ── FACTUALITÉ PURE (temp 0.2) — recherche, données marché ───────────────
   perplexity_sector_benchmark: {
     fieldKey: "perplexity_sector_benchmark",
