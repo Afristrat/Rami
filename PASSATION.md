@@ -12,7 +12,7 @@
 **Branche active** : `main` (ralph/rami-completion **MERGÉE** session #5, ff 42 commits). `main` = origin synchronisé, **HEAD `37ee844`**. Branche ralph conservée sur origin. **Travailler désormais sur main** (ou re-créer une branche feature).
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. Plusieurs déploiements session #5 (merge initial `e66824d` puis dettes + US-022). Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec` (cf. browser-verify).
-**Avancement Ralph** : **22/58** stories `passes=true` (US-001→017, US-020, US-021, US-027, US-028, US-029 ; US-017 soldée 2026-06-10). **Epic A = 12/12 · Epic B = 4/4 · Epic E = 3/3 · OPS = US-017/020/021**. **US-022 = impl+pipeline OK mais passes=false** (happy-path bloqué clé Whisper). ⚠️ **+8 stories Epic Z** (audit câblage 2026-06-10 : factice résiduel hors-prd, dont 2 DEFCON 1 — cf. `docs/AUDIT_CABLAGE_2026-06-10.md` §3) : « zéro dette » ne tient QUE hors Epic Z.
+**Avancement Ralph** : **30/58** stories `passes=true` (US-001→017, US-020/021, US-027/028/029, **Z-01→Z-08 ✓ 2026-06-11**). **Epic A = 12/12 · Epic B = 4/4 · Epic E = 3/3 · Epic Z = 8/8 · OPS = US-017/020/021**. **US-022 = impl+pipeline OK mais passes=false** (happy-path bloqué clé Whisper). **Zéro dette connue** (Epic Z purgé + 3 violations supplémentaires éliminées en review).
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
 **TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **261/261 vert** (14 suites ; +enrichment-providers 27, +lead-scorer 14, +color-trends 8, +billing-usage 6, +ai-recommendations 5, +brand-dna-normalize 12, +whisper 6).
 **Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**.
@@ -34,6 +34,16 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-017 (mdp super-admin), US-018/019 (Stripe live), **clé Whisper (US-022/023/024)**.
 > ✅ **Dettes-alertes RÉSOLUES (2026-06-04)** : `brand_dna` shape PLATE→nested via `normalizeBrandDNA` (couleurs réelles désormais utilisées, browser-verified) ; `AiRecommendations` câblées sur l'attribution réelle + état vide honnête (plus de stats inventées). **Zéro dette connue.**
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #6 (suite 2026-06-11) — Epic Z LIVRÉ + incident WAN + purge worktrees
+
+- **✓ Epic Z livré (Z-01→Z-08, 30/58)** : 3 agents supervisés (sonnet) + review expert. Commit `c2c1c7d` (23 fichiers). Scoring Vision AI réel dans le workflow (fin `Math.random`), erreur honnête si tous providers échouent (fin picsum), purge path image legacy + route morte, media-card/calendar/dashboard/tenant-switcher/page admin tenants sur données réelles, `.env.example` sync (zéro Vercel). **Review expert a purgé 3 violations DE PLUS non vues par l'audit** : score ADN inventé à l'upload (media-upload-dialog), fausse étape « Analyse Vision AI » simulée par setTimeout, textes FR en dur → i18n ×8 (+ `visionScored` propagé jusqu'au badge UI « ≈ estimé », + fallback image cassée honnête dans Step4). Gates finales : TS 0 · lint 0/0 · Jest 261/261.
+- **⚠ INCIDENT WAN (2026-06-10 ~23h40 → ~01h05)** : le routeur passerelle du serveur (`192.168.100.1`) a perdu son lien WAN → serveur sans Internet → tunnel cloudflared déconnecté → **tous les sites tunnelés 530** (rami, proxy, taqwim, erp…) + déploiements Coolify impossibles (git clone KO). Diagnostic : TCP 443 direct vers 1.1.1.1/8.8.8.8 en échec, passerelle joignable, `network unreachable` retourné par elle. **Rétabli seul** ; cloudflared s'est reconnecté automatiquement (retries QUIC). Leçon : un 530 Cloudflare sur les domaines = vérifier d'abord la connectivité Internet du serveur (`timeout 6 bash -c "</dev/tcp/1.1.1.1/443"`), pas le tunnel lui-même.
+- **✓ Purge worktrees marathon : 22/22 supprimés** (~20+ Go libérés, OneDrive soulagé). Toutes les branches conservées (j1-*→v11-*, récupérables par checkout). Vérification préalable : seuls des commits obsolètes (supersédés par main) et des package.json sans valeur.
+- **✓ Règle Amine enregistrée (memory)** : JAMAIS de dev local (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. Méthode browser-verify on-LAN (dev server + tunnel) = OBSOLÈTE → vérifier en prod (compte test-ralph) ou créer une app staging Coolify (proposé à Amine).
+- Redeploy déclenché via API après l'incident (`btubtfel5y2o0yn0xkt53g69`).
 
 ---
 

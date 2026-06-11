@@ -499,7 +499,9 @@
       "priority": "P0",
       "title": "Score Brand DNA reel dans workflow.actions — brancher VisionScorer, supprimer Math.random (2 sites)",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     },
     {
       "id": "Z-02",
@@ -507,7 +509,9 @@
       "priority": "P0",
       "title": "Supprimer fallback picsum.photos — erreur honnete + retry UI",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     },
     {
       "id": "Z-03",
@@ -515,7 +519,9 @@
       "priority": "P0",
       "title": "Supprimer path image legacy duplique et references /api/replicate/poll mortes — unifier sur image-generation/index",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     },
     {
       "id": "Z-04",
@@ -523,7 +529,9 @@
       "priority": "P0",
       "title": "Score reel dans media-card — lire visual_session_images.brand_dna_score",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     },
     {
       "id": "Z-05",
@@ -531,7 +539,9 @@
       "priority": "P0",
       "title": "Tenant-switcher et page admin tenants — donnees reelles",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     },
     {
       "id": "Z-06",
@@ -539,7 +549,9 @@
       "priority": "P0",
       "title": "Calendar-strip — evenements reels depuis posts.scheduled_at, etat vide honnete",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     },
     {
       "id": "Z-07",
@@ -547,7 +559,9 @@
       "priority": "P0",
       "title": "Dashboard — retirer lignes activite mock, etat vide honnete",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     },
     {
       "id": "Z-08",
@@ -555,7 +569,9 @@
       "priority": "P0",
       "title": "Sync .env.example — ajouter OPENAI_BASE_URL VISION_MODEL LLM_TEXT_MODEL SUPABASE_DB_POOLER_URL, purger vars fantomes",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
     }
   ]
 }
