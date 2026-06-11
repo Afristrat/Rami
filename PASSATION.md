@@ -25,14 +25,13 @@
 
 ## [ENCOURS] — Tâches actives
 
-> **MODE RALPH ACTIF** sur `main` (branche mergée). État dans `.ralph/prd.json` (50 US).
-> Avancement : **21/50** (US-001→016, US-020, US-021, US-027, US-028, US-029 ✓). **Epic A, B, E COMPLETS**. OPS US-020/021.
-> **Session Ralph #5 (2026-06-03)** : tous les gaps & alertes actionnables résolus (providers enrichissement PDL/Dropcontact/Enrich.so, cosmétique Apollo, branche mergée+déployée) + US-028/014/015/020 — tous browser-verified. cf. [FAIT] session #5.
-> **✅ GAP providers enrichissement FERMÉ** : 5 providers (apollo/hunter/pdl/dropcontact/enrich) implémentés + routables + rows db-rami.
-> **US-022 (Whisper) = impl COMPLÈTE + pipeline browser-verified** (upload MinIO réel + entrée DB + appel Whisper + statut + mock supprimé). **passes=false** : happy-path (texte transcrit) bloqué sur un endpoint Whisper opérationnel — le proxy LiteLLM renvoie HTTP 400. ⚠️ **Input Amine/ops** : fournir une vraie clé OpenAI `WHISPER_API_KEY` (api.openai.com) OU configurer whisper-1 sur le proxy → US-022/023/024 débloquées.
-> **Prochaine story Ralph COMPLÉTABLE en autonomie** : **US-025** (offre commerciale PDF — LLM deepseek via proxy ✓ + PDF print-CSS, no key). Puis US-026 (rapport client PDF), US-030 (competitors Crawl4AI ✓), US-032 (approval workflow), US-033/034/035 (OPS tests/audit/smoke). US-023/024 bloquées (deps US-022 happy-path). P2 (US-036→050) ensuite.
-> ⚠️ **Hors-scope autonome (input Amine)** : US-017 (mdp super-admin), US-018/019 (Stripe live), **clé Whisper (US-022/023/024)**.
-> ✅ **Dettes-alertes RÉSOLUES (2026-06-04)** : `brand_dna` shape PLATE→nested via `normalizeBrandDNA` (couleurs réelles désormais utilisées, browser-verified) ; `AiRecommendations` câblées sur l'attribution réelle + état vide honnête (plus de stats inventées). **Zéro dette connue.**
+> **MODE RALPH ACTIF** sur `main`. État dans `.ralph/prd.json` (**58 US** : 50 d'origine + 8 Epic Z).
+> Avancement : **30/58** (US-001→017, US-020/021, US-027/028/029, **Z-01→Z-08** ✓). **Epics A, B, E, Z COMPLETS**. OPS US-017/020/021. **Zéro dette connue.**
+> **Plan directeur = `docs/PRD_RAMI_FINITION_L99.md`** (phases) + provisioning Amine = `docs/API_REQUIREMENTS_AMINE.md` (P0/P1/P2) + état câblages = `docs/AUDIT_CABLAGE_2026-06-10.md`.
+> **PHASE 1 — prochaines stories 100 % AUTONOMES (aucune clé)** : **US-025** (offre commerciale PDF — checkpoint détaillé dans `.ralph/progress.md`), US-026 (rapport client PDF), US-030 (competitors Crawl4AI ✓ health 200), US-032 (approbation client), US-034 (audit trail), US-036 (script vidéo), US-038 (storyboard), US-041/042/043 (présentations), US-050 (danger zone RGPD), US-033 (E2E Playwright), US-035 (smoke/monitoring), US-031 (UI analytics + dégradation propre).
+> **PHASE 2 — dès provisioning P0 Amine** : Whisper routé → US-022 happy-path → 023 → 024 ; Stripe live → US-018/019 + invoices réelles ; 4 apps OAuth (X/LinkedIn/Meta/Pinterest) → 1ʳᵉ connexion sociale réelle + durcissement publishing (learnings SE Pro, cf. PRD §Phase 2).
+> ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
+> ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
 
 ---
@@ -190,19 +189,18 @@
 
 ## [NEXT] — Prochaines actions prioritaires
 
-1. **US-025** — Offre commerciale PDF (Epic D, deps [], **autonome**) : LLM deepseek via proxy + Brand DNA (`normalizeBrandDNA`) → contenu offre ; rendu page web style Gamma + export PDF `window.print()` (pattern color-trends). Vérifier table `documents` (migration ?) + gating `document_engine` (Agency+). cf. checkpoint détaillé dans `.ralph/progress.md`.
-2. **US-026** — Rapport client PDF (Epic D, deps US-001 ✓) : agrège `post_metrics` + deepseek → PDF brandé (même pattern PDF).
-3. **US-030** — Analyse concurrents via Crawl4AI (Epic F, deps []) : remplacer les competitors hardcodés par du réel Crawl4AI + deepseek.
-4. **US-032** — Workflow approbation client (Epic H, deps []) ; **US-033/034/035** — OPS (E2E Playwright, audit trail, smoke/monitoring).
-5. **Déblocage clé** : fournir `WHISPER_API_KEY` → débloque US-022 happy-path + US-023 (verbatims/speakers/résumé deepseek) + US-024 (transcription→brief).
-6. **OPS input Amine (exclus du périmètre autonome)** : US-017 (mdp super-admin, urgent), US-018/019 (Stripe live).
-7. P2 ensuite : US-036→050 (vidéo, présentations, Mastodon/YouTube/TikTok, emails/notifications/team).
-8. Suivre `.ralph/prd.json` + `.ralph/progress.md` (checkpoint US-025).
+1. **AMINE — provisioning P0** (cf. `docs/API_REQUIREMENTS_AMINE.md`, checklist Coolify incluse) : ① route `whisper-1` sur le proxy LiteLLM (ou vraie clé OpenAI) ; ② Stripe live (4 produits/prix + webhook `https://rami.ai-mpower.com/api/webhooks/stripe`) ; ③ 4 apps OAuth X/LinkedIn/Meta/Pinterest (redirect `https://rami.ai-mpower.com/api/oauth/<platform>/callback`) ; ④ lancer la demande TikTok Content Posting API (chemin critique, délai semaines). P1 ensuite : Replicate/Together (fallbacks image), Sentry+PostHog (monitoring éteint en prod !), Resend.
+2. **RALPH — Phase 1 autonome** (session fraîche, *« reprends en Ralph »*) : US-025 → US-026 → US-030 → US-032 → US-034 → US-041/042/043 → US-036/038 → US-050 → US-033/035 → US-031. Ordre indicatif ; checkpoint US-025 détaillé dans `.ralph/progress.md`.
+3. **Décision Amine en attente** : créer une app **staging Coolify** (`rami-staging`, branche staging) pour browser-verify sans toucher la prod ? (recommandé — remplace la méthode locale interdite).
+4. **Phase 2 dès P0 posé** : US-022→024 (Whisper), US-018/019 (Stripe), publishing réel + durcissement SE Pro (PRD §Phase 2), puis US-044/045/046 (Mastodon/YouTube/TikTok) et US-047/048/049 (Resend).
+5. Suivre `.ralph/prd.json` (58 US) + `.ralph/progress.md`.
 
 ---
 
 ## [CTX] — Contexte session
 
+- **Session #6 (06-10 soir → 06-11 ~01h30)** = entrée par un faux problème (« je n'arrive plus à me connecter » → cause réelle = mot de passe, la prod était saine) → goal Amine « plateforme pleinement fonctionnelle, zéro dette, check câblages, requirements API ». Déroulé : deep explore 3 agents Explore (câblage src/, Social Engine Pro PHP, gap 50 US) + vérifs runtime (proxy /v1/models, Crawl4AI health, env conteneur, données db-rami) → 3 docs livrés (`AUDIT_CABLAGE`, `PRD_RAMI_FINITION_L99`, `API_REQUIREMENTS_AMINE`) → Epic Z exécuté par 3 agents sonnet supervisés + review expert (3 violations DEFCON supplémentaires attrapées en review : upload-dialog score inventé + fausse étape « analyse » + FR en dur) → commit `c2c1c7d` déployé + smoke prod. **+ incidents gérés** : tables RAMI créées par erreur sur l'instance Taqwim (coffre SRV_SUPABASE_* trompeur) puis nettoyées-vérifiées ; env Coolify vidée à tort (l'API masque les valeurs !) puis restaurée depuis le conteneur ; panne WAN passerelle serveur ~1h25 (530 partout, auto-rétablie, cloudflared s'est reconnecté seul). Worktrees marathon purgés 22/22. Commits : `8983acc` (docs audit) → `c2c1c7d` (Epic Z) → `3631bab` (état).
+  - ⚠️ **GOTCHAS durables session #6** : (a) API Coolify GET /envs **masque les valeurs** → vérité terrain = `docker exec <conteneur> env` ; champ buildtime = `is_buildtime` ; chaque POST crée un miroir `is_preview` à purger. (b) GoTrue admin API inutilisable via `db-rami.ai-mpower.com` (Cloudflare strip le Bearer) → reset mdp = SQL bcrypt direct dans `supabase-db-szn6...`. (c) `http://` sur les domaines = 301 Cloudflare qui casse les POST → **toujours https**. (d) 530 Cloudflare = tester d'abord l'Internet du serveur (`timeout 6 bash -c "</dev/tcp/1.1.1.1/443"`). (e) Coffre `SRV_SUPABASE_*` = instance **Taqwim** (port 8200), PAS RAMI.
 - **Session #5 (06-03→06-04)** = goal Amine « gaps & alertes (sauf password/Stripe) + actions dans l'ordre + reprends Ralph » → US-028/014/015/020 + 5 providers enrichissement + cosmétique + **merge+deploy prod** ; puis « zéro dette » → 2 dettes résolues (brand_dna normalize, AiRecommendations réel) ; puis Ralph → US-022 (pipeline réel). 3 migrations db-rami (`…008/009/010`), toutes RLS-testées. Tout browser-verified on-LAN.
   - ⚠️ **GOTCHA conteneur app (session #5)** : le nom du conteneur `rami` change à CHAQUE deploy → pour `docker exec <app> printenv` (anon/service-role/OAUTH/OPENAI), récupérer le nom courant : `docker ps --format '{{.Names}}' | grep ry8yt`. Le conteneur DB `supabase-db-szn6...` est stable, lui.
   - Pour browser-verify une page avec LLM/Whisper : ajouter `WHISPER_API_KEY`/`WHISPER_BASE_URL`, `OPENAI_API_KEY`/`OPENAI_BASE_URL` aux overrides du `npm run dev` (cf. méthode tunnel). Upload Playwright : le fichier doit être SOUS le repo (`.playwright-mcp/`), pas dans `Temp/`.
@@ -219,6 +217,8 @@
 
 ## [MEMO] — À ne pas oublier inter-sessions
 
+- **Docs de pilotage (2026-06-10)** : `docs/PRD_RAMI_FINITION_L99.md` (plan directeur phases) · `docs/API_REQUIREMENTS_AMINE.md` (provisioning P0/P1/P2 + checklist Coolify) · `docs/AUDIT_CABLAGE_2026-06-10.md` (matrice câblages + env prod). Lire les trois avant toute reprise.
+- **RÈGLE AMINE — JAMAIS de dev local** : pas de `npm run dev`/localhost ; vérifications en PROD (test-ralph) ou app staging Coolify (à créer, décision en attente) ; jamais Vercel. Gates poste (tsc/eslint/jest) OK.
 - **Infra complète** : cf. memory projet `deploiement-coolify-infra.md` (Supabase dédié, proxy, cloudflared, gotchas).
 - **Schéma DB réel** : `src/lib/db/schema.ts` (pas packages/db) ; migrations `supabase/migrations/` appliquées sur `db-rami` via `docker exec -i supabase-db-szn6rjsrqig7n4oerw27egwr psql -U postgres` (méthode base64 cf. [CTX]).
 - **Tables Performance Loop** : `post_metrics`, `attribution_facts` (vue), `attribution_rankings`, `collective_benchmarks`, `tenants.collective_optin`, `visual_session_images.performance_prior`. Helpers RLS : `get_current_tenant_id()`, `get_current_tenant_sector()` (= `brand_dna->>'sector'`), `current_tenant_is_collective_optin()`.
