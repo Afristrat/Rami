@@ -265,7 +265,9 @@
       "priority": "P1",
       "title": "Génération offre commerciale PDF",
       "deps": [],
-      "passes": false
+      "passes": true,
+      "completedAt": "2026-06-11",
+      "note": "Browser-verified PROD (test-ralph) : generation deepseek reelle, rendu complet, PDF print-CSS, duplication, RLS SQL testee. Migration ...011 appliquee db-rami."
     },
     {
       "id": "US-026",

@@ -72,7 +72,7 @@ export async function createCheckoutSessionAction(
     customer: customerId,
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${origin}/dashboard/billing?success=1&plan=${plan}`,
+    success_url: `${origin}/billing?success=1&plan=${plan}`,
     cancel_url:  `${origin}/pricing?canceled=1`,
     metadata: {
       tenant_id: tenant.id,
@@ -113,7 +113,7 @@ export async function createBillingPortalAction(): Promise<{ url: string | null;
 
   const session = await stripe.billingPortal.sessions.create({
     customer: tenant.stripe_customer_id,
-    return_url: `${origin}/dashboard/billing`,
+    return_url: `${origin}/billing`,
   })
 
   return { url: session.url }

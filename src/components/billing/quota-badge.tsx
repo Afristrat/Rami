@@ -46,7 +46,7 @@ export async function QuotaBadge() {
 
   return (
     <Link
-      href="/dashboard/billing"
+      href="/billing"
       className="hidden sm:flex items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-1.5 text-xs transition-colors hover:border-border/80 hover:bg-accent"
       title={`${data.count}/${data.quota} ${t('generations')} — Plan ${data.planName}`}
     >
