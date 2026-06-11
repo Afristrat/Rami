@@ -51,9 +51,14 @@ export function CreateDocumentDialog({
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  // Synchroniser le type par défaut quand le dialog s'ouvre
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (nextOpen) {
+  // Réinitialiser le formulaire à CHAQUE ouverture, y compris contrôlée par le
+  // parent (clic carte template) — onOpenChange du Dialog ne couvre que les
+  // ouvertures internes. Pattern React « ajustement pendant le rendu »
+  // (https://react.dev/learn/you-might-not-need-an-effect) : pas d'effet.
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
+    if (open) {
       setType(defaultType)
       setTitle("")
       setClientName("")
@@ -61,6 +66,9 @@ export function CreateDocumentDialog({
       setPeriod("30d")
       setError(null)
     }
+  }
+
+  const handleOpenChange = (nextOpen: boolean) => {
     onOpenChange(nextOpen)
   }
 
