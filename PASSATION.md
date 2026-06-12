@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-12 (session #7 — US-025 SOLDÉE 31/58 + US-026 impl + socle PDF serveur brandé + OAuth LinkedIn/Twitter clés posées & flow corrigé) ==
+# == PASSATION RAMI 2026-06-12 (session #8 — OAuth LinkedIn+X RÉEL bouclé (connexion+test ✓) + refonte tenant_id oauth_connections + audit anti-factice (6 lots) + LOT 1 workflow Step1/Step3 câblés) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -14,11 +14,11 @@
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. Plusieurs déploiements session #5 (merge initial `e66824d` puis dettes + US-022). Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec` (cf. browser-verify).
 **Avancement Ralph** : **31/58** stories `passes=true` (US-001→017, US-020/021, **US-025 ✓ 2026-06-11**, US-027/028/029, Z-01→Z-08). **US-026 = impl + browser-verify rapport OK mais passes=false** (attend la vérif du *téléchargement* du nouveau PDF serveur). **US-022 = impl+pipeline OK passes=false** (clé Whisper). **Zéro dette connue.**
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
-**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **289/289 vert** (17 suites ; +commercial-offer 10, +client-report 8, +pdf-branding 10 cette session).
-**OAuth social (session #7)** : clés **LinkedIn** (`LINKEDIN_CLIENT_ID/SECRET`) + **Twitter** (`TWITTER_CLIENT_ID/SECRET`) **posées** (coffre DPAPI + Coolify runtime). Flow OAuth **corrigé** (commit `619e7c4`) mais **JAMAIS testé en réel**. Meta/Pinterest : pas encore. **Mdp super-admin roté** → coffre `RAMI_SUPERADMIN_PASSWORD`.
-**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**.
+**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **289/289 vert** (17 suites).
+**OAuth social (session #8 — RÉEL VALIDÉ)** : ✅ **LinkedIn + X (Twitter) CONNECTÉS pour de vrai en prod** (flow OAuth complet + bouton « Tester » concluant). Clés dans coffre DPAPI + Coolify. ⚠️ **Secret LinkedIn était TRONQUÉ** (parsing sur le `=`/`.` + copier mobile) → vraie valeur 33 car. (`WPL_AP1.…fR5YAg==`). Meta/Pinterest : pas encore (Meta = en manuel, anti-bot). **Mdp super-admin** → coffre `RAMI_SUPERADMIN_PASSWORD`. **Reste : publication réelle d'un post** (bouton Publier vers LinkedIn/X).
+**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**. **HEAD `4492beb`**.
 **Hébergement** : **Coolify** (serveur Ubuntu `serveurai` 192.168.100.8) + **cloudflared tunnel** (PAS Vercel).
-**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **27 migrations appliquées** (jusqu'à `20260315000010_transcriptions`), RLS 100%.
+**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **29 migrations appliquées** (jusqu'à `20260315000012_oauth_connections_tenant`), RLS 100%.
 **LLM** : via **proxy LiteLLM** `proxy.ai-mpower.com` — texte `deepseek-v4-flash`, vision `moonshot-v1-8k-vision-preview`. Plus de clés directes Anthropic/OpenAI nécessaires.
 **pg-boss** : ✅ connecté (schéma `pgboss`, 8 tables) — app `rami` sur réseau `coolify` partagé avec `supabase-db`.
 
@@ -34,6 +34,23 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #8 (2026-06-12) — OAuth LinkedIn+X RÉEL + refonte tenant_id + audit anti-factice + LOT 1
+
+> Copilotage navigateur (claude-in-chrome « Pc ») pour les tests OAuth en prod ; Amine sur app Claude mobile en fin de session (flow OAuth testé depuis SON navigateur mobile). Gates TS0/lint0/Jest289/build à chaque commit.
+
+- **✓✓ OAuth LinkedIn + X (Twitter) RÉELLEMENT CONNECTÉS EN PROD** (1ʳᵉ connexion sociale réelle de RAMI, le gros morceau). Débogué pas à pas (le code OAuth n'avait JAMAIS tourné) :
+  - **Bugs corrigés** (commits `619e7c4`, `0430dc9`) : LinkedIn scope legacy `r_basicprofile` → `openid/profile/email/w_member_social` ; Twitter **PKCE `code_verifier` manquant** + **HTTP Basic Auth** (client confidentiel) au token endpoint ; `account-info` LinkedIn `/v2/me` mort retiré ; ajout du **détail d'erreur** plateforme dans l'URL de callback (`&detail=…`) pour diagnostic.
+  - **!! Secret LinkedIn était TRONQUÉ** : mon parsing presse-papier (regex coupait sur `=`/`.`) ET le copier mobile coupaient le suffixe `.<…>==`. Vraie valeur **33 car.** au format `WPL_AP1.<16 car.>.<6 car.>==` (valeur réelle dans le coffre `LINKEDIN_CLIENT_SECRET`, JAMAIS en clair ici). ⚠️ **À ROTATER** (a transité par le chat). Diagnostic décisif : LinkedIn vérifie le code AVANT le secret → un code bidon renvoie « authorization code not found » (secret non testé) ; un vrai code renvoie « Client authentication failed » = secret faux. **Leçon : stocker un secret = prendre la valeur ENTIÈRE du presse-papier (trim only), jamais un run de regex.**
+  - **✓ Refonte cohérence `oauth_connections.tenant_id`** (commit `f3fdb7b`, migration `20260315000012` **appliquée db-rami, UPDATE 2**) : la table rattachait les connexions à `auth.users(id)` (MVP user_id=tenant_id) alors que posts/documents/leads utilisent `tenants(id)` → le test (« Connexion introuvable ») et la publication cherchaient au mauvais endroit. Basculé sur `tenants(id)` : conversion des 2 connexions existantes, FK `auth.users`→`tenants`, RLS `auth.uid()`→`get_current_tenant_id()`, callback `tenant_id = resolveUserTenant`, test/disconnect/refresh s'appuient sur la RLS. **Test « Tester » → concluant.** Le publish-worker (charge oauth par tenant.id du post) matche désormais.
+  - **App X** = OAuth 2.0 / confidential (a un secret). App LinkedIn id `238610050`, Page **AI-MPower** créée+vérifiée, products Sign In OIDC + Share (Added), Community Management (revue).
+- **✓ Audit anti-factice exhaustif** (5 agents Explore // par domaine) → **`docs/AUDIT_FACTICE_2026-06-12.md`** : 6 lots + LOT 7 (dette prompts). Gros points : page `/dashboard/video` = **démo entière** (≠ `/create/video` réelle), **Présentations** = mock total (zéro persistance, export PPTX mort), **Approbations** Kanban = MOCK_ITEMS, **workflow Créer un post** = 8 DEFCON1 (boutons creux, **score « A+ » inventé**, URL approbation fake, horaire bidon, **faux « Brouillon enregistré »**), distribution plateformes hardcodée 45/30/15/10, onboarding sans étape Connexions, page Connexions absente de la sidebar, export RGPD non câblé. ⚠️ **faux positifs à recouper** : « billing mocké » (il y a `/settings/billing` mock VS `/billing` réel câblé).
+- **✓ LOT 1 démarré — câblage workflow « Créer un post »** :
+  - **Step 1** (`fb31cfd`) : `enrichBriefAction` (vrai enrichissement deepseek du brief, Brand DNA, fallback `workflow_brief_enrich`) — le bouton « Enrichir avec l'IA » était CREUX. Angles éditoriaux **sélectionnables** + angle perso, champ `angle` ajouté au schema et **injecté dans la génération** de captions. Faux « Brouillon enregistré » **retiré**. i18n ×8.
+  - **Step 3** (`3caf9b5`) : vraies **variantes de hook** (le générateur produit 2 `hookVariants`, cliquer en promeut une et met à jour la caption) — avant = code mort (`slice(1)` vide). Badge « Expert ChatGPT » → **« Expert IA »** (`4492beb`, i18n ×8, label honnête non-cliquable).
+- **✓ DETTE notée** (demande Amine) — **LOT 7 / tâche** : auditer + améliorer **tous les system prompts de génération** (`prompt-config.ts` + table `ai_prompts_config`). **Amine va partager ses prompts « GoP »** (jeu validé qui colle à la plateforme) → à intégrer comme nouvelle baseline.
 
 ---
 
@@ -202,18 +219,20 @@
 
 ---
 
-## [NEXT] — Prochaines actions prioritaires (session #8)
+## [NEXT] — Prochaines actions prioritaires (session #9)
 
-1. **⭐ CAS D'USAGE OAUTH RÉEL — connexion + publication LinkedIn & Twitter** (commencé session #7, code corrigé `619e7c4`, JAMAIS testé). Étapes :
-   - Confirmer que le **deploy `619e7c4`** est passé (vars OAuth actives runtime).
-   - **Côté plateformes** : LinkedIn redirect déjà posé ; **Twitter** → vérifier que le redirect `https://rami.ai-mpower.com/api/oauth/twitter/callback` + scopes `tweet.read tweet.write users.read offline.access` sont bien enregistrés côté X (sinon `authorize` échoue) ; **app X = OAuth 2.0 / Web App (confidential)**.
-   - **Connexion réelle** : Amine se connecte en prod (super-admin `medamine.mansouriidrissi@gmail.com`, mdp coffre `RAMI_SUPERADMIN_PASSWORD`) → `/settings/connections` → « Connecter LinkedIn » puis « Connecter X » → autorise avec SON compte (l'autorisation finale = Amine, je ne saisis pas ses identifiants). Vérifier que la connexion s'enregistre (`oauth_connections`, `success=connected`). **Débugger les erreurs** (`?error=…` : `unauthorized_scope_error`, `token_exchange_failed`, etc.) — le flow n'a jamais tourné.
-   - **Publication** : créer un post via le workflow → publier sur LinkedIn (UGC `urn:li:person:{sub}`) + Twitter (POST /2/tweets) → vérifier qu'il apparaît réellement. Services : `src/lib/services/publishing/{twitter,linkedin}.ts`. ⚠️ `tenant_id = auth.uid()` dans `oauth_connections` (design MVP).
-2. **US-026 → passes=true** : browser-verifier le **téléchargement du PDF serveur** (route `/dashboard/documents/[id]/pdf`) sur une offre + un rapport en prod (header/footer brandés, pagination). Le socle PDF est déployé (`1e1e20b`) mais le download réel n'a pas encore été vérifié. Puis `.ralph/prd.json` US-026 passes=true (→ 32/58) + log progress.md.
-3. **Meta (FB+IG)** — EN MANUEL (anti-bot bloque le copilotage) : créer l'app Meta **Business** + **Facebook Login for Business**, Business Verification + App Review, puis stocker `META_APP_ID/SECRET` (coffre + Coolify). cf. [FAIT] session #7 pour la reco détaillée.
-4. **RALPH — Phase 1 autonome** (*« reprends en Ralph »*) : US-030 (competitors Crawl4AI) → US-032 → US-034 → US-041/042/043 → US-036/038 → US-050 → US-033/035 → US-031. ⚠️ **Tous les exports PDF futurs** (US-043 présentations, factures…) doivent passer par le **socle PDF serveur** (`src/lib/services/documents/pdf/`), PLUS de `window.print()`.
-5. **Pinterest** : app + `PINTEREST_APP_ID/SECRET` quand Amine veut. **Whisper/Stripe** : toujours en attente provisioning (cf. `docs/API_REQUIREMENTS_AMINE.md`).
-6. Suivre `.ralph/prd.json` (58 US) + `.ralph/progress.md`.
+1. **⭐ LOT 1 — finir le câblage du workflow « Créer un post »** (anti-factice, `docs/AUDIT_FACTICE_2026-06-12.md`). Step1 ✓ + Step3 ✓ faits. **Reste** :
+   - **Step 4** : injecter réellement le **style preset** dans la génération visuelle (`generateVisualContentAction` + prompt) ; retirer le code mort (`provider === "placeholder"`, tabs « objectif »/boutons « Presets/Custom » décoratifs).
+   - **Step 5** : remplacer le **score qualité « A+ » inventé** (`Step5Review.tsx:34,223`, jauges 85/60% en dur) par un **calcul réel** (longueur vs limite plateforme, score Brand DNA réel du visuel, nb hashtags, détection CTA) + câbler bouton « Enregistrer comme brouillon ».
+   - **Step 6** : URL d'approbation **réelle** (token + route `/approve/[token]`) + bouton **Copy** (clipboard) — `Step6Approval.tsx:147`.
+   - **Step 7** : suggestion d'**horaire optimal réelle** (heuristique par plateforme/objectif) + bouton « appliquer » — `Step7Schedule.tsx:251`.
+   - Gates + **browser-verify prod** du workflow (Amine, compte super-admin) avant de clore.
+2. **⭐ PUBLICATION RÉELLE** : terminer le cas d'usage social — câbler/vérifier le bouton **Publier** (workflow Step6/7 → publish-worker pg-boss → `publishToLinkedIn` UGC `urn:li:person:{sub}` + `publishToTwitter` POST /2/tweets) et **publier un vrai post de test** sur les comptes connectés. La connexion + le test sont OK ; vérifier que la publication aboutit réellement.
+3. **DETTE prompts système (LOT 7, tâche)** : dès qu'**Amine partage ses prompts « GoP »** → auditer + remplacer la baseline des system prompts de génération (`prompt-config.ts` `FALLBACK_CONFIGS` + table `ai_prompts_config`).
+4. **LOTS 2→6 anti-factice** (cf. doc) : Documents download + Transcriptions badge démo · Dashboard distribution/trend + Approbations réelles · Onboarding Connexions + sidebar + RGPD export · Vidéo pipeline (câbler ou retirer) · Présentations (US-041/042/043).
+5. **US-026 → passes=true** : browser-verifier le **téléchargement du PDF serveur** (`/dashboard/documents/[id]/pdf`) en prod, puis prd.json passes=true (→ 32/58).
+6. **Meta (FB+IG)** en MANUEL (anti-bot) + **Pinterest** quand Amine veut. **Whisper/Stripe** : provisioning en attente.
+7. Suivre `.ralph/prd.json` (58 US) + `.ralph/progress.md` + `docs/AUDIT_FACTICE_2026-06-12.md`.
 
 ---
 
@@ -237,7 +256,10 @@
 
 ## [MEMO] — À ne pas oublier inter-sessions
 
-- **OAuth (session #7)** : config `src/lib/services/oauth/config.ts` (scopes/env par plateforme) ; flow `src/app/api/oauth/[platform]/{authorize,callback,refresh,disconnect}/route.ts` ; `state.ts` (state base64url + AES-256 `encryptToken`/`decryptToken` clé `OAUTH_TOKEN_ENCRYPTION_KEY`) ; `account-info.ts` (`/userinfo` LinkedIn, `/2/users/me` Twitter) ; publishing `src/lib/services/publishing/{twitter,linkedin,…}.ts`. **Twitter** = PKCE plain (`code_verifier = state.slice(0,43)`) + **Basic Auth** au token endpoint. **LinkedIn** = OIDC scopes `openid profile email w_member_social` (PAS `r_basicprofile`), author URN `urn:li:person:{sub}`. `oauth_connections.tenant_id = auth.users(id)` (RLS `= auth.uid()`, MVP user_id=tenant_id).
+- **OAuth (session #8 — RÉEL VALIDÉ)** : config `src/lib/services/oauth/config.ts` ; flow `src/app/api/oauth/[platform]/{authorize,callback,refresh,disconnect}/route.ts` ; `state.ts` (state base64url + AES-256 `encryptToken`/`decryptToken` clé `OAUTH_TOKEN_ENCRYPTION_KEY`) ; `account-info.ts` (`/userinfo` LinkedIn OIDC, `/2/users/me` Twitter). **Twitter** = PKCE plain (`code_verifier = state.slice(0,43)`) + **Basic Auth** au token endpoint (client confidentiel). **LinkedIn** = OIDC scopes `openid profile email w_member_social`, author URN `urn:li:person:{sub}`, app id `238610050`. ⚠️ **`oauth_connections.tenant_id = tenants(id)` désormais** (migration `…012`, RLS `get_current_tenant_id()`) — le callback résout via `resolveUserTenant` ; test/disconnect/refresh s'appuient sur la RLS (plus de `.eq(tenant_id, user.id)`).
+- **Stockage d'un secret depuis le presse-papier (leçon dure session #8)** : prendre la valeur **ENTIÈRE** trimée, **jamais** un run de regex `[A-Za-z0-9...]+` (coupe sur `=`/`+`/`/` → secret tronqué silencieusement). Valider la longueur attendue. Diag « Client authentication failed » LinkedIn = secret faux ; « authorization code not found » = secret pas encore testé (code vérifié d'abord).
+- **Audit anti-factice** : `docs/AUDIT_FACTICE_2026-06-12.md` (6 lots + LOT 7 dette prompts). Workflow `src/components/workflow/Step{1..7}*.tsx` + `src/lib/actions/workflow.actions.ts`. Câblage anti-factice = privilégier le **branchement réel** ; si trop lourd, **retrait honnête** (ne jamais laisser un élément qui « fait semblant »).
+- **Prompts de génération** : `src/lib/services/ai/prompt-config.ts` (`FALLBACK_CONFIGS`) + table DB `ai_prompts_config`. Fallbacks ajoutés cette session : `workflow_brief_enrich`. **Amine doit fournir ses prompts « GoP »** → nouvelle baseline (tâche dette).
 - **Socle PDF serveur (session #7)** : `src/lib/services/documents/pdf/` (`branding.ts` white-label 3 niveaux, `PdfShell/OfferPdf/ReportPdf`, `fonts.ts` Noto, `labels.ts` i18n serveur, `render.tsx`). Polices `public/fonts/`. Route `/dashboard/documents/[id]/pdf`. `serverExternalPackages:["@react-pdf/renderer"]`. **TOUT export PDF futur passe par là** (zéro `window.print()`).
 - **Coffre — nouvelles clés (session #7)** : `RAMI_SUPERADMIN_PASSWORD`, `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `TWITTER_CLIENT_ID`, `TWITTER_CLIENT_SECRET` (toutes coffre DPAPI + Coolify runtime `is_buildtime=false`). **Méthode stockage clé OAuth** : parser le presse-papier (jamais afficher la valeur, seulement longueur/format ; ⚠️ piège PowerShell `(scalar)[0]` indexe un char → forcer `@(...)`) → `Set-VaultKey` (module `HermesVaultSync.psm1`) + POST `…/api/v1/applications/{uuid}/envs`.
 - **⛔ Meta bloque le copilotage navigateur** (claude-in-chrome) : boucle login anti-bot dans l'onglet piloté → config Meta **en manuel** uniquement. LinkedIn/prod RAMI = copilotables.
