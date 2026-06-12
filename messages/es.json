@@ -1824,17 +1824,12 @@
       "saveDraftDesc": "Save for later review",
       "timeConfig": "Time configuration",
       "date": "Date",
-      "timeUtc": "Time (UTC)",
-      "bestTimeAI": "Best time AI",
-      "linkedinBestTime": "LinkedIn: Monday and Wednesday 8:30 AM — optimal engagement +14%",
       "useSuggestion": "Use this suggestion",
       "scheduledFor": "Publication scheduled for",
       "publicationRecap": "Publication summary",
       "platform": "Platform",
       "dateTime": "Date & Time",
       "now": "Now",
-      "syncBroadcast": "Synchronized broadcast",
-      "syncBroadcastDesc": "Publish everything at the same time on all channels",
       "selectDateError": "Please select a publication date and time.",
       "contentScheduled": "Content scheduled!",
       "postScheduled": "Your post has been scheduled in the calendar.",
@@ -1845,7 +1840,10 @@
       "createNewContent": "Create new content",
       "saving": "Saving...",
       "confirmPublication": "Confirm publication",
-      "backToPrevious": "Back to previous step"
+      "backToPrevious": "Back to previous step",
+      "time": "Hora",
+      "bestTimeHeuristic": "Franja recomendada",
+      "bestTimeDetail": "{platform}: {datetime} — ventana de interacción recomendada para esta plataforma."
     }
   },
   "visuals": {

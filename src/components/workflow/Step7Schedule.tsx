@@ -2,10 +2,11 @@
 
 import { useState, useTransition } from "react"
 import { saveWorkflowPostAction } from "@/lib/actions/workflow.actions"
+import { suggestOptimalTime, toDatetimeLocalValue } from "@/lib/services/workflow/optimal-time"
 import type { Step1Data, Step2Data, Step5Data, Step6Data, Step7Data } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
 import { cn } from "@/lib/utils"
-import { ArrowLeft, CalendarCheck, Zap, Save, CheckCircle2, ExternalLink, Sparkles, Globe, Calendar } from "lucide-react"
+import { ArrowLeft, CalendarCheck, Zap, Save, CheckCircle2, ExternalLink, Sparkles, Calendar } from "lucide-react"
 import {
   TwitterXIcon, LinkedInIcon, InstagramIcon, FacebookIcon,
   PinterestIcon, YouTubeIcon, MastodonIcon, TikTokIcon,
@@ -42,16 +43,21 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
   const [scheduledAt, setScheduledAt] = useState<string>(defaultValues?.scheduledAt ?? "")
   const [error, setError] = useState<string | null>(null)
   const [savedPostId, setSavedPostId] = useState<string | null>(null)
-  const [syncAllPlatforms, setSyncAllPlatforms] = useState(true)
   // Date minimum calculee une fois au montage du composant
   const [minDate] = useState(() =>
     new Date(Date.now() + 5 * 60 * 1000).toISOString().slice(0, 16)
   )
+  // Référence stable pour la suggestion d'horaire (heuristique réelle, déterministe)
+  const [suggestionFrom] = useState(() => new Date())
+  const primaryPlatform = step2.platforms[0]
+  const suggestedTime = primaryPlatform
+    ? suggestOptimalTime({ platform: primaryPlatform, objective: step1.objectif, from: suggestionFrom })
+    : null
 
   function handleSave() {
     setError(null)
 
-    if (publishMode === "scheduled" && !scheduledAt) {
+    if (publishMode === "scheduled" && (!scheduledAt || Number.isNaN(new Date(scheduledAt).getTime()))) {
       setError(t("selectDateError"))
       return
     }
@@ -63,7 +69,8 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
         finalCaption: step5.finalCaption,
         finalHashtags: step5.finalHashtags,
         finalVisualUrl: step5.finalVisualUrl,
-        scheduledAt: publishMode === "scheduled" ? scheduledAt : null,
+        // datetime-local (heure locale, sans offset) → ISO complet attendu par le schéma serveur
+        scheduledAt: publishMode === "scheduled" ? new Date(scheduledAt).toISOString() : null,
         status: publishMode === "draft" ? "draft" : publishMode === "scheduled" ? "scheduled" : "approved",
         // Post déjà créé au Step 6 (lien d'approbation) → mise à jour, pas de doublon.
         existingPostId: step6?.approvalPostId ?? null,
@@ -231,7 +238,7 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">{t("timeUtc")}</label>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">{t("time")}</label>
               <input
                 type="time"
                 value={scheduledAt?.split("T")[1] ?? "09:15"}
@@ -248,22 +255,34 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
             </div>
           </div>
 
-          {/* AI suggestion */}
-          <div className="mt-4 p-3 rounded-xl bg-violet-500/5 border border-violet-500/10">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="size-3.5 text-violet-500" />
-              <span className="text-xs font-bold text-violet-600 dark:text-violet-400">{t("bestTimeAI")}</span>
+          {/* Suggestion d'horaire RÉELLE — heuristique fenêtres d'engagement par plateforme */}
+          {suggestedTime && primaryPlatform && (
+            <div className="mt-4 p-3 rounded-xl bg-violet-500/5 border border-violet-500/10">
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="size-3.5 text-violet-500" />
+                <span className="text-xs font-bold text-violet-600 dark:text-violet-400">{t("bestTimeHeuristic")}</span>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                {t("bestTimeDetail", {
+                  platform: PLATFORM_CONFIG[primaryPlatform].label,
+                  datetime: suggestedTime.toLocaleString(intlLocale, {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }),
+                })}
+              </p>
+              <button
+                type="button"
+                onClick={() => setScheduledAt(toDatetimeLocalValue(suggestedTime))}
+                className="mt-2 px-3 py-1 rounded-lg bg-violet-500/10 text-violet-500 text-[10px] font-bold hover:bg-violet-500/20 transition-colors"
+              >
+                {t("useSuggestion")}
+              </button>
             </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300">
-              {t("linkedinBestTime")}
-            </p>
-            <button
-              type="button"
-              className="mt-2 px-3 py-1 rounded-lg bg-violet-500/10 text-violet-500 text-[10px] font-bold hover:bg-violet-500/20 transition-colors"
-            >
-              {t("useSuggestion")}
-            </button>
-          </div>
+          )}
 
           {scheduledAt && (
             <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
@@ -329,30 +348,6 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
             )
           })}
         </div>
-      </div>
-
-      {/* Sync toggle */}
-      <div className="flex items-center justify-between bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/[0.05] rounded-2xl p-4 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <Globe className="size-4 text-violet-500" />
-          <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t("syncBroadcast")}</p>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500">{t("syncBroadcastDesc")}</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setSyncAllPlatforms(!syncAllPlatforms)}
-          className={cn(
-            "relative w-11 h-6 rounded-full transition-colors",
-            syncAllPlatforms ? "bg-violet-600" : "bg-slate-300 dark:bg-slate-600"
-          )}
-        >
-          <div className={cn(
-            "absolute top-0.5 size-5 rounded-full bg-white shadow transition-transform",
-            syncAllPlatforms ? "translate-x-[22px]" : "translate-x-0.5"
-          )} />
-        </button>
       </div>
 
       {/* Error */}

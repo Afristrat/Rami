@@ -1824,17 +1824,12 @@
       "saveDraftDesc": "حفظ للمراجعة لاحقاً",
       "timeConfig": "ضبط الوقت",
       "date": "التاريخ",
-      "timeUtc": "الوقت (UTC)",
-      "bestTimeAI": "أفضل وقت بالذكاء الاصطناعي",
-      "linkedinBestTime": "LinkedIn: الاثنين والأربعاء 8:30 صباحاً — تفاعل أمثل +14%",
       "useSuggestion": "استخدام هذا الاقتراح",
       "scheduledFor": "منشور مجدول لـ",
       "publicationRecap": "ملخص النشر",
       "platform": "المنصة",
       "dateTime": "التاريخ والوقت",
       "now": "الآن",
-      "syncBroadcast": "بث متزامن",
-      "syncBroadcastDesc": "نشر كل شيء في نفس الوقت على جميع القنوات",
       "selectDateError": "يُرجى تحديد تاريخ ووقت النشر.",
       "contentScheduled": "تمت جدولة المحتوى!",
       "postScheduled": "تم جدولة منشورك في التقويم.",
@@ -1845,7 +1840,10 @@
       "createNewContent": "إنشاء محتوى جديد",
       "saving": "جارٍ الحفظ…",
       "confirmPublication": "تأكيد النشر",
-      "backToPrevious": "العودة إلى الخطوة السابقة"
+      "backToPrevious": "العودة إلى الخطوة السابقة",
+      "time": "الساعة",
+      "bestTimeHeuristic": "الفترة المقترحة",
+      "bestTimeDetail": "{platform}: {datetime} — نافذة التفاعل الموصى بها لهذه المنصة."
     }
   },
   "visuals": {
