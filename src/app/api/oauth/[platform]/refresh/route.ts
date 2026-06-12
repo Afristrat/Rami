@@ -57,10 +57,10 @@ export async function POST(
 
   if (!connectionId) {
     // Lookup de la connexion active du tenant pour cette plateforme
+    // (RLS isole par get_current_tenant_id()).
     const { data: conn, error: fetchError } = await supabase
       .from("oauth_connections")
       .select("id")
-      .eq("tenant_id", user.id)
       .eq("platform", platformResult.data)
       .eq("is_active", true)
       .single()

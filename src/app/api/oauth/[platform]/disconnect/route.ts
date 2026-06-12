@@ -46,7 +46,6 @@ export async function POST(
   const { data: conn, error: fetchError } = await supabase
     .from("oauth_connections")
     .select("id, access_token_encrypted, refresh_token_encrypted")
-    .eq("tenant_id", user.id)
     .eq("platform", platform)
     .eq("is_active", true)
     .single()

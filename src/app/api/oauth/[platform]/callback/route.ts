@@ -9,6 +9,7 @@ import {
   encryptToken,
 } from "@/lib/services/oauth/state"
 import { fetchAccountInfo } from "@/lib/services/oauth/account-info"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 
 const VALID_PLATFORMS: OAuthPlatform[] = [
   "twitter",
@@ -63,6 +64,14 @@ export async function GET(
   if (authError || !user || user.id !== stateData.userId) {
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL}${REDIRECT_ERROR}auth_mismatch`
+    )
+  }
+
+  // oauth_connections.tenant_id référence tenants(id) (aligné avec posts/documents).
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) {
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL}${REDIRECT_ERROR}no_tenant`
     )
   }
 
@@ -152,7 +161,7 @@ export async function GET(
   // Upsert connexion OAuth en DB
   const { error: dbError } = await supabase.from("oauth_connections").upsert(
     {
-      tenant_id: user.id,
+      tenant_id: tenantId,
       platform,
       account_id: accountId,
       account_name: accountName,

@@ -89,25 +89,13 @@ export async function testConnectionAction(
     return { success: false, error: "Non authentifié." }
   }
 
-  // Resolve tenant_id from user for defense in depth
-  const { data: userProfile } = await supabase
-    .from("users")
-    .select("tenant_id")
-    .eq("id", user.id)
-    .single()
-
-  const tenantId = (userProfile as Record<string, unknown> | null)?.tenant_id as string | null
-
-  const query = supabase
+  // L'isolation tenant est garantie par la RLS (tenant_id = get_current_tenant_id()).
+  // On filtre uniquement par id ; la RLS écarte les connexions d'un autre tenant.
+  const { data, error } = await supabase
     .from("oauth_connections")
     .select("id, platform, access_token_encrypted")
     .eq("id", connectionId)
-
-  if (tenantId) {
-    query.eq("tenant_id", tenantId)
-  }
-
-  const { data, error } = await query.single()
+    .single()
 
   if (error || !data) {
     return { success: false, error: "Connexion introuvable." }
