@@ -1,10 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
+import { computeQualityScore, HASHTAG_RANGES, type QualityMetricId } from "@/lib/services/workflow/quality-score"
+import { saveWorkflowPostAction } from "@/lib/actions/workflow.actions"
 import { cn } from "@/lib/utils"
-import { ArrowLeft, ArrowRight, Image as ImageIcon, Hash, Link2, CheckCircle2, BarChart3, Type, Eye, RefreshCw, Shield } from "lucide-react"
+import { ArrowLeft, ArrowRight, Image as ImageIcon, Hash, CheckCircle2, BarChart3, Type, RefreshCw, Shield, Loader2 } from "lucide-react"
 import {
   TwitterXIcon, LinkedInIcon, InstagramIcon, FacebookIcon,
   PinterestIcon, YouTubeIcon, MastodonIcon, TikTokIcon,
@@ -17,6 +19,13 @@ const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: stri
   mastodon: MastodonIcon, tiktok: TikTokIcon,
 }
 
+const METRIC_ICONS: Record<QualityMetricId, React.ComponentType<{ className?: string }>> = {
+  charCount: Type,
+  brandDnaScore: Shield,
+  hashtagVolume: Hash,
+  ctaDetection: CheckCircle2,
+}
+
 interface Step5ReviewProps {
   step1: Step1Data
   step2: Step2Data
@@ -27,18 +36,9 @@ interface Step5ReviewProps {
   onNext: (data: Step5Data) => void
 }
 
-export function Step5Review({ step1: _step1, step2, step3, step4, defaultValues, onBack, onNext }: Step5ReviewProps) {
+export function Step5Review({ step1, step2, step3, step4, defaultValues, onBack, onNext }: Step5ReviewProps) {
   const t = useTranslations("workflow")
   const tc = useTranslations("common")
-
-  const QUALITY_METRICS = [
-    { label: t("review.charCount"), icon: Type, status: "good" as const },
-    { label: t("review.brandDnaScore"), icon: Shield, status: "good" as const },
-    { label: t("review.hashtagVolume"), icon: Hash, status: "good" as const },
-    { label: t("review.ctaDetection"), icon: CheckCircle2, status: "good" as const },
-    { label: t("review.imageResolution"), icon: ImageIcon, status: "good" as const },
-    { label: t("review.colorContrast"), icon: Eye, status: "warn" as const },
-  ]
 
   const firstCaption = step3.captions[step3.selectedCaptionIndex] ?? step3.captions[0]
   const selectedVisual = step4.visuals.find((v) => v.id === step4.selectedVisualId)
@@ -55,11 +55,76 @@ export function Step5Review({ step1: _step1, step2, step3, step4, defaultValues,
   const [notes, _setNotes] = useState(defaultValues?.notes ?? "")
   const [activePlatform, setActivePlatform] = useState(step2.platforms[0])
 
+  // Ajout de hashtag (bouton « + Ajouter » réellement câblé)
+  const [addingTag, setAddingTag] = useState(false)
+  const [tagInput, setTagInput] = useState("")
+
+  // Enregistrement réel en brouillon (saveWorkflowPostAction status=draft)
+  const [isSavingDraft, startSavingDraft] = useTransition()
+  const [draftState, setDraftState] = useState<"idle" | "saved" | "error">("idle")
+
   function handleNext() {
     onNext({ finalCaption, finalHashtags, finalVisualUrl, notes })
   }
 
+  function commitTagInput() {
+    const cleaned = tagInput.trim().replace(/^#/, "")
+    if (cleaned.length > 0 && !finalHashtags.includes(cleaned)) {
+      setFinalHashtags((prev) => [...prev, cleaned])
+    }
+    setTagInput("")
+    setAddingTag(false)
+  }
+
+  function handleSaveDraft() {
+    setDraftState("idle")
+    startSavingDraft(async () => {
+      const result = await saveWorkflowPostAction({
+        step1,
+        step2,
+        finalCaption,
+        finalHashtags,
+        finalVisualUrl,
+        scheduledAt: null,
+        status: "draft",
+      })
+      setDraftState(result.success ? "saved" : "error")
+    })
+  }
+
   const activePlatformConfig = PLATFORM_CONFIG[activePlatform]
+  const charLimit = activePlatformConfig?.charLimit ?? 9999
+
+  // Score qualité RÉEL — calculé sur le contenu en cours (fin du « A+ » inventé)
+  const visualForScore = finalVisualUrl
+    ? step4.visuals.find((v) => v.url === finalVisualUrl) ?? null
+    : null
+  const quality = computeQualityScore({
+    caption: finalCaption,
+    hashtags: finalHashtags,
+    charLimit,
+    platform: activePlatform,
+    visualBrandDnaScore: visualForScore ? visualForScore.brandDnaScore : null,
+  })
+  const [tagMin, tagMax] = HASHTAG_RANGES[activePlatform]
+
+  const metricDetails: Record<QualityMetricId, string> = {
+    charCount: `${finalCaption.trim().length}/${charLimit.toLocaleString()}`,
+    brandDnaScore: visualForScore
+      ? `${Math.round(visualForScore.brandDnaScore * 100)}%${visualForScore.visionScored === false ? " ≈" : ""}`
+      : t("review.noVisualMetric"),
+    hashtagVolume: `${finalHashtags.length} (${tagMin}–${tagMax})`,
+    ctaDetection: quality.metrics.find((m) => m.id === "ctaDetection")?.ratio === 1
+      ? t("review.ctaFound")
+      : t("review.ctaMissing"),
+  }
+
+  const metricLabels: Record<QualityMetricId, string> = {
+    charCount: t("review.charCount"),
+    brandDnaScore: t("review.brandDnaScore"),
+    hashtagVolume: t("review.hashtagVolume"),
+    ctaDetection: t("review.ctaDetection"),
+  }
 
   return (
     <div className="space-y-6">
@@ -151,11 +216,11 @@ export function Step5Review({ step1: _step1, step2, step3, step4, defaultValues,
                 </span>
                 <span className={cn(
                   "text-[10px] font-mono",
-                  finalCaption.length > (activePlatformConfig?.charLimit ?? 9999)
+                  quality.overLimit
                     ? "text-red-500"
                     : "text-slate-400 dark:text-slate-500"
                 )}>
-                  {finalCaption.length} / {activePlatformConfig?.charLimit?.toLocaleString()}
+                  {finalCaption.length} / {charLimit.toLocaleString()}
                 </span>
               </div>
               <textarea
@@ -188,24 +253,34 @@ export function Step5Review({ step1: _step1, step2, step3, step4, defaultValues,
                       #{tag.replace(/^#/, "")}
                     </button>
                   ))}
-                  <button
-                    type="button"
-                    className="rounded-full px-2.5 py-0.5 text-xs text-violet-500 border border-dashed border-violet-500/30 hover:bg-violet-500/10 transition-colors"
-                  >
-                    {t("review.addHashtag")}
-                  </button>
+                  {addingTag ? (
+                    <input
+                      autoFocus
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onBlur={commitTagInput}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          commitTagInput()
+                        } else if (e.key === "Escape") {
+                          setTagInput("")
+                          setAddingTag(false)
+                        }
+                      }}
+                      placeholder={t("review.hashtagPlaceholder")}
+                      className="w-28 rounded-full px-2.5 py-0.5 text-xs bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/30 outline-none focus:ring-1 focus:ring-violet-500/40"
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setAddingTag(true)}
+                      className="rounded-full px-2.5 py-0.5 text-xs text-violet-500 border border-dashed border-violet-500/30 hover:bg-violet-500/10 transition-colors"
+                    >
+                      {t("review.addHashtag")}
+                    </button>
+                  )}
                 </div>
-              </div>
-
-              {/* UTM params */}
-              <div className="pt-3 border-t border-slate-100 dark:border-white/[0.05]">
-                <button
-                  type="button"
-                  className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-                >
-                  <Link2 className="size-3.5" />
-                  {t("review.utmParams")}
-                </button>
               </div>
             </div>
           </div>
@@ -218,11 +293,11 @@ export function Step5Review({ step1: _step1, step2, step3, step4, defaultValues,
               <BarChart3 className="size-4 text-violet-500" />
               <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{t("review.contentQuality")}</h4>
             </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">{t("review.aiAnalysis")}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">{t("review.qualityChecks")}</p>
 
-            {/* AI Score */}
+            {/* Score qualité RÉEL (longueur, Brand DNA visuel, hashtags, CTA) */}
             <div className="flex items-center justify-center mb-6">
-              <div className="relative size-20">
+              <div className="relative size-20" title={`${quality.score}/100`}>
                 <svg className="size-full -rotate-90" viewBox="0 0 36 36">
                   <path
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -236,33 +311,59 @@ export function Step5Review({ step1: _step1, step2, step3, step4, defaultValues,
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="3"
-                    strokeDasharray="85, 100"
-                    className="text-violet-500"
+                    strokeDasharray={`${quality.score}, 100`}
+                    className={cn(
+                      quality.score >= 75
+                        ? "text-violet-500"
+                        : quality.score >= 45
+                        ? "text-amber-500"
+                        : "text-red-500"
+                    )}
                   />
                 </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-lg font-bold text-slate-900 dark:text-slate-100">A+</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{quality.grade}</span>
+                  <span className="text-[9px] text-slate-400 dark:text-slate-500">{quality.score}/100</span>
                 </div>
               </div>
             </div>
 
-            {/* Metrics list */}
+            {/* Avertissement limite dépassée */}
+            {quality.overLimit && (
+              <p className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-500">
+                {t("review.overLimit", { limit: charLimit.toLocaleString() })}
+              </p>
+            )}
+
+            {/* Metrics list — jauges réelles */}
             <div className="space-y-3">
-              {QUALITY_METRICS.map((metric) => {
-                const Icon = metric.icon
+              {quality.metrics.map((metric) => {
+                const Icon = METRIC_ICONS[metric.id]
                 return (
-                  <div key={metric.label} className="flex items-center gap-3">
+                  <div key={metric.id} className="flex items-center gap-3">
                     <div className={cn(
                       "size-2 rounded-full",
-                      metric.status === "good" ? "bg-green-500" : "bg-amber-500"
+                      metric.status === "good"
+                        ? "bg-green-500"
+                        : metric.status === "warn"
+                        ? "bg-amber-500"
+                        : "bg-red-500"
                     )} />
                     <Icon className="size-3.5 text-slate-400 dark:text-slate-500" />
-                    <span className="text-xs text-slate-600 dark:text-slate-300 flex-1">{metric.label}</span>
+                    <span className="text-xs text-slate-600 dark:text-slate-300 flex-1">{metricLabels[metric.id]}</span>
+                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{metricDetails[metric.id]}</span>
                     <div className="h-1.5 w-16 rounded-full bg-slate-100 dark:bg-white/[0.05] overflow-hidden">
-                      <div className={cn(
-                        "h-full rounded-full",
-                        metric.status === "good" ? "bg-green-500 w-[85%]" : "bg-amber-500 w-[60%]"
-                      )} />
+                      <div
+                        className={cn(
+                          "h-full rounded-full",
+                          metric.status === "good"
+                            ? "bg-green-500"
+                            : metric.status === "warn"
+                            ? "bg-amber-500"
+                            : "bg-red-500"
+                        )}
+                        style={{ width: `${Math.round(metric.ratio * 100)}%` }}
+                      />
                     </div>
                   </div>
                 )
@@ -287,12 +388,30 @@ export function Step5Review({ step1: _step1, step2, step3, step4, defaultValues,
             <ArrowRight className="size-4" />
           </button>
 
+          {/* Enregistrement réel en brouillon */}
           <button
             type="button"
-            className="w-full text-center text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors py-2"
+            onClick={handleSaveDraft}
+            disabled={isSavingDraft || finalCaption.trim().length === 0}
+            className={cn(
+              "w-full flex items-center justify-center gap-2 text-center text-xs py-2 transition-colors",
+              "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
           >
+            {isSavingDraft && <Loader2 className="size-3 animate-spin" />}
             {t("review.saveDraft")}
           </button>
+          {draftState === "saved" && (
+            <p className="text-center text-xs text-green-600 dark:text-green-400">
+              {t("review.draftSaved")}
+            </p>
+          )}
+          {draftState === "error" && (
+            <p className="text-center text-xs text-red-500">
+              {t("review.draftSaveError")}
+            </p>
+          )}
         </div>
       </div>
 
