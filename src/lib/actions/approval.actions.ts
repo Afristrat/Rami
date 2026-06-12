@@ -221,6 +221,8 @@ export async function decideApprovalAction(
     return { success: false, error: tokenError ? "failed" : "already_decided" }
   }
 
+  // Garde d'état : ne jamais écraser un post déjà parti en publication
+  // (publishing/published/failed) — la décision du token reste enregistrée.
   const { error: postError } = await service
     .from("posts")
     .update({
@@ -228,6 +230,7 @@ export async function decideApprovalAction(
       updated_at: new Date().toISOString(),
     })
     .eq("id", row.post_id as string)
+    .in("status", ["draft", "review", "approved", "scheduled"])
 
   if (postError) {
     log({

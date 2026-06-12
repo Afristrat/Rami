@@ -4,7 +4,7 @@ import { useState } from "react"
 import { step2Schema, type Step2Data, CONTENT_FORMATS } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
 import { cn } from "@/lib/utils"
-import { ArrowLeft, ArrowRight, Save, Check } from "lucide-react"
+import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import {
   TwitterXIcon,
   LinkedInIcon,
@@ -232,11 +232,7 @@ export function Step2Platforms({ defaultValues, onBack, onNext }: Step2Platforms
       )}
 
       {/* Bottom Actions */}
-      <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/10">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500">
-          <Save className="size-3.5" />
-          {t("brief.draftSaved")}
-        </div>
+      <div className="flex items-center justify-end pt-6 border-t border-slate-200 dark:border-white/10">
         <div className="flex gap-4">
           <button
             type="button"
