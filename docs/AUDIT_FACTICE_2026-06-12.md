@@ -28,7 +28,23 @@ et câbler proprement (règle DEFCON 1 — zéro élément qui « fait semblant 
 | Boutons hashtag/UTM/angle custom/Expert | Step5/Step1/Step3 | sans handler | MINEUR |
 | Bouton « Enregistrer comme brouillon » | Step5Review.tsx:290 | sans onClick | MINEUR |
 
-## LOT 2 — Vidéo IA (page pipeline = démo entière)
+### État LOT 1 (2026-06-12, session #9) — ✅ TERMINÉ (browser-verified prod)
+
+Steps 1/3 (session #8) + Steps 4/5/6/7 (session #9, commits `ead863c`/`d5ce51c`/`58e0ec2`/`6bc6254`/`3bef1f8`).
+Tout vérifié en prod (test-ralph) : preset Blueprint appliqué aux visuels, score qualité réel
+96→86 réactif, brouillon DB, lien `/approve/[token]` + décision externe, horaire heuristique
++ post planifié sans doublon. Bonus : fix planification datée (datetime-local rejeté par Zod),
+faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orphelin supprimé.
+
+### ⚠️ Découvertes session #9 — reliquats NON couverts par l'audit initial
+
+| Élément | Fichier:ligne | Nature | Sévérité |
+|---|---|---|---|
+| Sidebar workflow : score alignement 0.87 + « Historique » (3 posts inventés, « Il y a 2h ») | WorkflowSidebar.tsx:39-50 | mock affiché sur TOUTES les étapes du workflow | DEFCON1 |
+| Sous-titre Step 3 « Claude Haiku génère vos captions » | i18n workflow.step3.desc | provider erroné (réel = deepseek via proxy) | DEFCON2 |
+| Erreur format Step 2 brute « Invalid option: expected one of… » | step2Schema (zod) | message non i18n, anglais technique | MINEUR |
+
+
 
 - `/dashboard/video/page.tsx` : **page entièrement mock** (PIPELINE_STEPS, SCRIPT_SECTIONS,
   VOICE_ACTORS, STORYBOARD_FRAMES, waveform simulée, 3 boutons majeurs sans onClick :

@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-12 (session #8 — OAuth LinkedIn+X RÉEL bouclé (connexion+test ✓) + refonte tenant_id oauth_connections + audit anti-factice (6 lots) + LOT 1 workflow Step1/Step3 câblés) ==
+# == PASSATION RAMI 2026-06-12 (session #9 — LOT 1 anti-factice TERMINÉ : workflow Steps 4→7 câblés + approbation externe réelle /approve/[token] + browser-verify PROD complet) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -14,11 +14,11 @@
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. Plusieurs déploiements session #5 (merge initial `e66824d` puis dettes + US-022). Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec` (cf. browser-verify).
 **Avancement Ralph** : **31/58** stories `passes=true` (US-001→017, US-020/021, **US-025 ✓ 2026-06-11**, US-027/028/029, Z-01→Z-08). **US-026 = impl + browser-verify rapport OK mais passes=false** (attend la vérif du *téléchargement* du nouveau PDF serveur). **US-022 = impl+pipeline OK passes=false** (clé Whisper). **Zéro dette connue.**
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
-**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **289/289 vert** (17 suites).
+**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **329/329 vert** (21 suites).
 **OAuth social (session #8 — RÉEL VALIDÉ)** : ✅ **LinkedIn + X (Twitter) CONNECTÉS pour de vrai en prod** (flow OAuth complet + bouton « Tester » concluant). Clés dans coffre DPAPI + Coolify. ⚠️ **Secret LinkedIn était TRONQUÉ** (parsing sur le `=`/`.` + copier mobile) → vraie valeur 33 car. (format `WPL_AP1.<…>==`, dans le coffre, **à rotater**). Meta/Pinterest : pas encore (Meta = en manuel, anti-bot). **Mdp super-admin** → coffre `RAMI_SUPERADMIN_PASSWORD`. **Reste : publication réelle d'un post** (bouton Publier vers LinkedIn/X).
-**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**. **HEAD `4492beb`**.
+**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**. **HEAD `3bef1f8`** (5 commits session #9 déployés + browser-vérifiés).
 **Hébergement** : **Coolify** (serveur Ubuntu `serveurai` 192.168.100.8) + **cloudflared tunnel** (PAS Vercel).
-**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **29 migrations appliquées** (jusqu'à `20260315000012_oauth_connections_tenant`), RLS 100%.
+**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **30 migrations appliquées** (jusqu'à `20260315000013_approval_tokens`), RLS 100%.
 **LLM** : via **proxy LiteLLM** `proxy.ai-mpower.com` — texte `deepseek-v4-flash`, vision `moonshot-v1-8k-vision-preview`. Plus de clés directes Anthropic/OpenAI nécessaires.
 **pg-boss** : ✅ connecté (schéma `pgboss`, 8 tables) — app `rami` sur réseau `coolify` partagé avec `supabase-db`.
 
@@ -34,6 +34,21 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #9 (2026-06-12) — LOT 1 anti-factice TERMINÉ (workflow Steps 4→7) + approbation externe réelle + browser-verify PROD
+
+> Mode Ralph CAS B. 5 commits (`ead863c`→`3bef1f8`) poussés + déployés Coolify. Gates à CHAQUE commit : TS 0 · lint 0/0 · Jest 329/329 (40 tests ajoutés) · build OK · audit 0. Browser-verify PROD complet (Playwright MCP sur rami.ai-mpower.com, compte test-ralph), cleanup DB vérifié (0 posts / 0 tokens / quota remis à 0).
+
+- **✓ Step 4 — style preset RÉELLEMENT injecté** (`ead863c`) : module partagé `src/lib/services/image-generation/style-presets.ts` (12 presets id→fragment de prompt, résolution côté serveur, id forgé ignoré) ; `generateVisualContentAction(…, {stylePresetId})` l'injecte dans le positive prompt (+ log `style_preset`) ; chips sélectionnables (défaut « Auto (Brand DNA) ») + hint honnête « Régénérer pour appliquer » ; `Step4Data.stylePresetId` persisté. Code mort purgé : boutons Presets/Custom, tabs objectif, badge/type provider `placeholder`, libellé « via Fal.ai » mensonger. **Vérifié prod : régénération en style Blueprint → 4 visuels fal_ai clairement blueprint (screenshot), hint exact.**
+- **✓ Step 5 — score qualité RÉEL** (`d5ce51c`) : module PUR `workflow/quality-score.ts` — 4 métriques calculées (longueur vs limite plateforme, brandDnaScore réel du visuel sélectionné, hashtags vs fourchette par plateforme, détection CTA FR/EN) → score 0-100 pondéré + grade, dépassement de limite plafonné à D. Fin du « A+ »/jauges 85-60 % inventés. « Enregistrer en brouillon » câblé (vrai post draft) ; « + Ajouter » hashtag réel ; retraits honnêtes (bouton UTM sans logique, métriques imageResolution/colorContrast non calculables, « Analyse IA » → « Contrôles automatiques »). **Vérifié prod : 96/100 A+ = calcul exact du module ; 6ᵉ hashtag → 86 A (réactivité) ; brouillon en DB avec media_urls.**
+- **✓ Step 6 — approbation externe RÉELLE** (`58e0ec2`) : table `approval_tokens` (migration `…013` **appliquée db-rami, RLS cross-tenant testée** : SELECT 0 ligne + INSERT intrusif rejeté) ; `createApprovalLinkAction` = post en `review` + token capability 32 octets base64url TTL 14 j ; **page publique `/approve/[token]`** (noindex, service-role par token validé en forme) avec décision Approuver/Demander révision + commentaire → maj token ET post (approved / retour draft), idempotent ; bouton **Copy réel** ; faux « Approbateur désigné — Équipe Client » retiré ; **media_urls enfin persisté** (createPost/updatePost/saveWorkflowPostAction) ; **Step 7 met à JOUR le post du Step 6** (`existingPostId`) au lieu de dupliquer. **Vérifié prod : lien généré, page publique complète (tenant+visuel+caption), approbation externe avec commentaire → post `approved` en DB, re-visite = « déjà approuvé ».**
+- **✓ Step 7 — horaire optimal RÉEL + FIX planification cassée** (`6bc6254`) : module PUR `workflow/optimal-time.ts` (fenêtres d'engagement par plateforme — heuristique bonnes pratiques, JAMAIS présentée comme stat du tenant — modulées par objectif cognitif matin/soir, délai min 30 min, déterministe) ; fausse suggestion « LinkedIn lundi 8h30 +14 % » supprimée ; « Utiliser cette suggestion » câblé. **!! FIX DEFCON découvert : la planification datée était CASSÉE** (datetime-local rejeté par `z.string().datetime({offset:true})` → « Données invalides ») → conversion ISO + validation ; label « Heure (UTC) » erroné → « Heure » (locale) ; toggle « Multidiffusion synchronisée » sans effet retiré. **Vérifié prod : suggestion « LinkedIn : mardi 16 juin à 08:00 » (= heuristique exacte depuis vendredi), appliquée au picker, post `scheduled` à `2026-06-16 07:00Z` (08:00 locale) SANS doublon.**
+- **✓ Finitions** (`3bef1f8`) : garde d'état dans `decideApprovalAction` (une décision externe tardive ne touche plus un post publishing/published/failed) ; faux badge « Brouillon sauvegardé » résiduel du Step 2 purgé + composant orphelin `WorkflowActions.tsx` supprimé + clé i18n ×8 retirée.
+- **✓ Quota vérifié en passant** : 2 générations parcours 1 + 1 parcours 2 → badge header 0→2→3/2000 (incrément réel), remis à 0 au cleanup.
+- **⚠ Reliquats découverts (consignés dans `docs/AUDIT_FACTICE_2026-06-12.md`)** : `WorkflowSidebar.tsx:39-50` = **mock complet visible sur toutes les étapes** (score alignement 0.87 + « Historique » 3 posts inventés « Il y a 2h ») — DEFCON1, raté par l'audit initial ; sous-titre Step 3 « Claude Haiku » (réel = deepseek) ; message d'erreur format Step 2 brut anglais (Zod non i18n).
+- i18n session : ~60 clés ajoutées / ~17 retirées × 8 locales (scripts node temporaires, diff minimal).
 
 ---
 
@@ -219,18 +234,13 @@
 
 ---
 
-## [NEXT] — Prochaines actions prioritaires (session #9)
+## [NEXT] — Prochaines actions prioritaires (session #10)
 
-1. **⭐ LOT 1 — finir le câblage du workflow « Créer un post »** (anti-factice, `docs/AUDIT_FACTICE_2026-06-12.md`). Step1 ✓ + Step3 ✓ faits. **Reste** :
-   - **Step 4** : injecter réellement le **style preset** dans la génération visuelle (`generateVisualContentAction` + prompt) ; retirer le code mort (`provider === "placeholder"`, tabs « objectif »/boutons « Presets/Custom » décoratifs).
-   - **Step 5** : remplacer le **score qualité « A+ » inventé** (`Step5Review.tsx:34,223`, jauges 85/60% en dur) par un **calcul réel** (longueur vs limite plateforme, score Brand DNA réel du visuel, nb hashtags, détection CTA) + câbler bouton « Enregistrer comme brouillon ».
-   - **Step 6** : URL d'approbation **réelle** (token + route `/approve/[token]`) + bouton **Copy** (clipboard) — `Step6Approval.tsx:147`.
-   - **Step 7** : suggestion d'**horaire optimal réelle** (heuristique par plateforme/objectif) + bouton « appliquer » — `Step7Schedule.tsx:251`.
-   - Gates + **browser-verify prod** du workflow (Amine, compte super-admin) avant de clore.
-2. **⭐ PUBLICATION RÉELLE** : terminer le cas d'usage social — câbler/vérifier le bouton **Publier** (workflow Step6/7 → publish-worker pg-boss → `publishToLinkedIn` UGC `urn:li:person:{sub}` + `publishToTwitter` POST /2/tweets) et **publier un vrai post de test** sur les comptes connectés. La connexion + le test sont OK ; vérifier que la publication aboutit réellement.
+1. **⭐ PUBLICATION RÉELLE** : terminer le cas d'usage social — câbler/vérifier le bouton **Publier** (workflow Step7 « Publier maintenant » → publish-worker pg-boss → `publishToLinkedIn` UGC `urn:li:person:{sub}` + `publishToTwitter` POST /2/tweets) et **publier un vrai post de test** sur les comptes connectés. La connexion + le test sont OK ; vérifier que la publication aboutit réellement. ⚠️ Note : le tenant des connexions OAuth = AI-MPower (super-admin), pas test-ralph.
+2. **⭐ LOT 1bis — `WorkflowSidebar.tsx` mock** (découvert session #9, DEFCON1 visible sur toutes les étapes) : câbler le vrai Brand DNA (réutiliser `getTenantBrandDNAAction`/`normalizeBrandDNA`) + le vrai historique (posts récents du tenant, état vide honnête) ; au passage corriger le sous-titre Step 3 « Claude Haiku » → libellé provider-neutre (i18n ×8) et i18n du message d'erreur format Step 2.
 3. **DETTE prompts système (LOT 7, tâche)** : dès qu'**Amine partage ses prompts « GoP »** → auditer + remplacer la baseline des system prompts de génération (`prompt-config.ts` `FALLBACK_CONFIGS` + table `ai_prompts_config`).
-4. **LOTS 2→6 anti-factice** (cf. doc) : Documents download + Transcriptions badge démo · Dashboard distribution/trend + Approbations réelles · Onboarding Connexions + sidebar + RGPD export · Vidéo pipeline (câbler ou retirer) · Présentations (US-041/042/043).
-5. **US-026 → passes=true** : browser-verifier le **téléchargement du PDF serveur** (`/dashboard/documents/[id]/pdf`) en prod, puis prd.json passes=true (→ 32/58).
+4. **LOTS 2→6 anti-factice** (cf. doc) : Documents download + Transcriptions badge démo · Dashboard distribution/trend + Approbations réelles (le Kanban `/dashboard/approvals` pourra s'appuyer sur la vraie table `approval_tokens` désormais) · Onboarding Connexions + sidebar + RGPD export · Vidéo pipeline (câbler ou retirer) · Présentations (US-041/042/043).
+5. **US-026 → passes=true** : browser-verifier le **téléchargement du PDF serveur** (`/dashboard/documents/[id]/pdf`) en prod, puis prd.json passes=true (→ 32/58). **US-032 (workflow approbation client)** : une grande partie est maintenant livrée par le LOT 1 Step 6 — vérifier les critères prd.json avant de la solder.
 6. **Meta (FB+IG)** en MANUEL (anti-bot) + **Pinterest** quand Amine veut. **Whisper/Stripe** : provisioning en attente.
 7. Suivre `.ralph/prd.json` (58 US) + `.ralph/progress.md` + `docs/AUDIT_FACTICE_2026-06-12.md`.
 
@@ -255,6 +265,8 @@
 ---
 
 ## [MEMO] — À ne pas oublier inter-sessions
+
+- **Workflow « Créer un post » (session #9)** : modules PURS `src/lib/services/workflow/{quality-score,approval-link,optimal-time}.ts` + `image-generation/style-presets.ts` (tous testés Jest). Approbation externe : `src/lib/actions/approval.actions.ts` + page `src/app/(public)/approve/[token]/page.tsx` + `approval-decision-panel.tsx` (labels i18n passés en props depuis le Server Component — la page publique est hors provider client). Table `approval_tokens` (migration `…013`). `saveWorkflowPostAction` accepte `existingPostId` (update) + persiste `media_urls`. ⚠️ `z.string().datetime({offset:true})` REJETTE la valeur brute d'un `<input datetime-local>` → toujours convertir en ISO.
 
 - **OAuth (session #8 — RÉEL VALIDÉ)** : config `src/lib/services/oauth/config.ts` ; flow `src/app/api/oauth/[platform]/{authorize,callback,refresh,disconnect}/route.ts` ; `state.ts` (state base64url + AES-256 `encryptToken`/`decryptToken` clé `OAUTH_TOKEN_ENCRYPTION_KEY`) ; `account-info.ts` (`/userinfo` LinkedIn OIDC, `/2/users/me` Twitter). **Twitter** = PKCE plain (`code_verifier = state.slice(0,43)`) + **Basic Auth** au token endpoint (client confidentiel). **LinkedIn** = OIDC scopes `openid profile email w_member_social`, author URN `urn:li:person:{sub}`, app id `238610050`. ⚠️ **`oauth_connections.tenant_id = tenants(id)` désormais** (migration `…012`, RLS `get_current_tenant_id()`) — le callback résout via `resolveUserTenant` ; test/disconnect/refresh s'appuient sur la RLS (plus de `.eq(tenant_id, user.id)`).
 - **Stockage d'un secret depuis le presse-papier (leçon dure session #8)** : prendre la valeur **ENTIÈRE** trimée, **jamais** un run de regex `[A-Za-z0-9...]+` (coupe sur `=`/`+`/`/` → secret tronqué silencieusement). Valider la longueur attendue. Diag « Client authentication failed » LinkedIn = secret faux ; « authorization code not found » = secret pas encore testé (code vérifié d'abord).
