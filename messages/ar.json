@@ -1754,7 +1754,7 @@
     "textGen": {
       "generatingCaptions": "Claude Haiku يُنتج تعليقاتك التوضيحية…",
       "postCaption": "تعليق المنشور",
-      "expertChatGPT": "خبير ChatGPT",
+      "expertAI": "خبير الذكاء الاصطناعي",
       "hookVariants": "متغيرات الافتتاحية",
       "selected": "محدد",
       "recommendedHashtags": "الوسوم الموصى بها",

@@ -1754,7 +1754,7 @@
     "textGen": {
       "generatingCaptions": "Claude Haiku is generating your captions...",
       "postCaption": "Post caption",
-      "expertChatGPT": "Expert ChatGPT",
+      "expertAI": "Experto IA",
       "hookVariants": "Hook variants",
       "selected": "SELECTED",
       "recommendedHashtags": "Recommended hashtags",

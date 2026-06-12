@@ -80,6 +80,24 @@ et câbler proprement (règle DEFCON 1 — zéro élément qui « fait semblant 
 
 ---
 
+## LOT 7 — Qualité des prompts système de génération (DETTE, demande Amine 2026-06-12)
+
+⚠️ **Dette à auditer + améliorer** : passer en revue **TOUS les system prompts qui
+génèrent du contenu** (`src/lib/services/ai/prompt-config.ts` — `workflow_caption_generation`,
+`workflow_brief_enrich`, `visual_prompt_compiler`, `brand_dna_*`, `document_*`,
+`color_trend_narrative`, `leads_brand_dna_scoring`, etc. + la table DB `ai_prompts_config`)
+et les **renforcer**.
+
+- **Dépendance** : Amine doit **partager ses prompts « GoP »** (jeu de prompts validés
+  qui collent à la plateforme) → les intégrer/adapter comme nouvelle baseline des
+  system prompts de génération.
+- Objectif : contenu plus calibré (neuropsychologie Causse, ton/marché MENA, format
+  par plateforme), zéro mention de modèle concurrent dans l'UI (ex. ancien badge
+  « Expert ChatGPT » → corrigé en « Expert IA »).
+- Vérifier la cohérence DB (`ai_prompts_config`) vs fallbacks code (`FALLBACK_CONFIGS`).
+
+---
+
 ## Ordre d'exécution proposé
 
 1. **LOT 1** (workflow Créer un post) — le plus visible, là où l'utilisateur bute.

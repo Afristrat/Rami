@@ -157,6 +157,9 @@ export function Step3TextGen({ step1, step2, defaultValues, onBack, onNext }: St
               <h4 className="text-xs font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
                 {t("textGen.postCaption")}
               </h4>
+              <span className="px-3 py-1 rounded-full bg-violet-500/20 text-violet-500 text-[10px] font-bold uppercase tracking-wider">
+                {t("textGen.expertAI")}
+              </span>
             </div>
 
             <div className="rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05] p-4 space-y-2">
