@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-11T01:35:00Z (session #6 — login + audit câblage L99 + Epic Z livré, 30/58) ==
+# == PASSATION RAMI 2026-06-12 (session #7 — US-025 SOLDÉE 31/58 + US-026 impl + socle PDF serveur brandé + OAuth LinkedIn/Twitter clés posées & flow corrigé) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -12,9 +12,10 @@
 **Branche active** : `main` (ralph/rami-completion **MERGÉE** session #5, ff 42 commits). `main` = origin synchronisé, **HEAD `37ee844`**. Branche ralph conservée sur origin. **Travailler désormais sur main** (ou re-créer une branche feature).
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. Plusieurs déploiements session #5 (merge initial `e66824d` puis dettes + US-022). Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec` (cf. browser-verify).
-**Avancement Ralph** : **30/58** stories `passes=true` (US-001→017, US-020/021, US-027/028/029, **Z-01→Z-08 ✓ 2026-06-11**). **Epic A = 12/12 · Epic B = 4/4 · Epic E = 3/3 · Epic Z = 8/8 · OPS = US-017/020/021**. **US-022 = impl+pipeline OK mais passes=false** (happy-path bloqué clé Whisper). **Zéro dette connue** (Epic Z purgé + 3 violations supplémentaires éliminées en review).
+**Avancement Ralph** : **31/58** stories `passes=true` (US-001→017, US-020/021, **US-025 ✓ 2026-06-11**, US-027/028/029, Z-01→Z-08). **US-026 = impl + browser-verify rapport OK mais passes=false** (attend la vérif du *téléchargement* du nouveau PDF serveur). **US-022 = impl+pipeline OK passes=false** (clé Whisper). **Zéro dette connue.**
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
-**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **261/261 vert** (14 suites ; +enrichment-providers 27, +lead-scorer 14, +color-trends 8, +billing-usage 6, +ai-recommendations 5, +brand-dna-normalize 12, +whisper 6).
+**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **289/289 vert** (17 suites ; +commercial-offer 10, +client-report 8, +pdf-branding 10 cette session).
+**OAuth social (session #7)** : clés **LinkedIn** (`LINKEDIN_CLIENT_ID/SECRET`) + **Twitter** (`TWITTER_CLIENT_ID/SECRET`) **posées** (coffre DPAPI + Coolify runtime). Flow OAuth **corrigé** (commit `619e7c4`) mais **JAMAIS testé en réel**. Meta/Pinterest : pas encore. **Mdp super-admin roté** → coffre `RAMI_SUPERADMIN_PASSWORD`.
 **Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**.
 **Hébergement** : **Coolify** (serveur Ubuntu `serveurai` 192.168.100.8) + **cloudflared tunnel** (PAS Vercel).
 **Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **27 migrations appliquées** (jusqu'à `20260315000010_transcriptions`), RLS 100%.
@@ -33,6 +34,20 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #7 (2026-06-11 → 06-12) — US-025 soldée + US-026 + socle PDF serveur + OAuth LinkedIn/Twitter
+
+- **✓ US-025 SOLDÉE (31/58)** — Offre commerciale PDF. Module PUR `src/lib/services/documents/commercial-offer.ts` (prompts anti-chiffres-inventés + `parseOfferContent` Zod ; 10 tests) + `createCommercialOfferAction` (Brand DNA `normalizeBrandDNA` → deepseek proxy → `documents.content_json`) + `duplicateDocumentAction`. Page `/dashboard/documents/[id]` + `CommercialOfferView`. **MOCK_DOCUMENTS purgé** (état vide honnête). Migration `20260315000011_documents.sql` (enums+table+RLS 4 policies) **appliquée db-rami + RLS cross-tenant testée**. i18n 15 clés × 8. **Browser-verified PROD** (Playwright sur rami.ai-mpower.com, test-ralph) : génération deepseek réelle (offre Banque Al Yusr, prix du brief jamais inventé), duplication, suppression, vide honnête. Commits `201f762` + `53a83af`. **+ fix dette** : 3 liens `/dashboard/billing` (404) → `/billing` (quota-badge + success_url/return_url Stripe).
+- **✓ US-026 implémentée** (passes=false) — Rapport client PDF. Module PUR `client-report.ts` (chiffres 100% RÉELS `post_metrics` via `fetchAnalyticsBundle` extrait de analytics.ts ; narrative deepseek = COMMENTE sans inventer, repli sans synthèse si LLM KO ; 8 tests). `createClientReportAction` + `ClientReportView` + sélecteur période 7j/30j + routage page détail par type. **Browser-verified PROD** (seed 3 posts + 3 post_metrics db-rami, chiffres exacts 18000 impr/1280 inter/7,1% ; cleanup vérifié 0 lignes). Commit `ade7f97` (+ fix `cbb06fe` synchro type dialog via carte template). **passes reste false** : reste à browser-verifier le *téléchargement* du nouveau PDF serveur (cf. ci-dessous).
+- **✓ Socle PDF serveur brandé** (commit `1e1e20b`) — Amine a refusé l'export `window.print()` (capture, pas un vrai PDF). Remplacé par **@react-pdf/renderer** (pur JS, compatible Coolify). `src/lib/services/documents/pdf/` : `branding.ts` (PUR, `resolvePdfBranding` 3 niveaux — **agency** = forfait `white_label`+logo / **cobrand** = logo seul + « Propulsé par RAMI » / **rami** = sans logo ; 10 tests) + `PdfShell.tsx` (header+footer FIXES, pagination) + `OfferPdf.tsx` + `ReportPdf.tsx` + `labels.ts` (i18n résolu serveur) + `fonts.ts` (Noto Sans latin-ext + Noto Sans Arabic RTL ; zh→labels EN) + `render.tsx`. Polices dans `public/fonts/`. Route `/dashboard/documents/[id]/pdf` (auth+RLS+plan/brand_dna → renderToBuffer → application/pdf). Bouton « Exporter » → vrai téléchargement, print-CSS retiré. i18n 4 clés × 8. `serverExternalPackages` dans next.config. Gates TS0/lint0/Jest289/build/audit0. **Déployé, PAS encore browser-vérifié le téléchargement** (interrompu).
+- **✓ OAuth LinkedIn + Twitter — clés posées + flow corrigé** (NON testé en réel) :
+  - **LinkedIn** : Page **AI-MPower** créée + **vérifiée** (Developer Portal). App créée. Products **Sign In OIDC + Share on LinkedIn = Added** ; **Community Management API = en revue** (use case soumis ; revue manuelle LinkedIn, pas une dette de notre fait). Redirect `https://rami.ai-mpower.com/api/oauth/linkedin/callback` posé. `LINKEDIN_CLIENT_ID/SECRET` stockés (coffre + Coolify).
+  - **Twitter** : `TWITTER_CLIENT_ID/SECRET` (OAuth 2.0, 34/50 car.) stockés. Redirect `…/api/oauth/twitter/callback` + scopes `tweet.read/write users.read offline.access` à confirmer côté X. App = **confidential** (a un secret).
+  - **Bugs OAuth corrigés** (commit `619e7c4`, le code n'avait JAMAIS tourné) : (1) LinkedIn scope legacy `r_basicprofile` → `unauthorized_scope_error` → remplacé par `openid/profile/email/w_member_social` ; (2) Twitter callback : `code_verifier` PKCE **manquant** (échec garanti) ajouté + **HTTP Basic Auth** (client confidentiel) au lieu de client_secret en body ; (3) `account-info` LinkedIn : appel `/v2/me` mort retiré (garde `/userinfo` OIDC). ⚠️ `oauth_connections.tenant_id` = **auth.users(id)** (RLS `= auth.uid()`, commentaire « MVP user_id=tenant_id ») → le callback stocke `tenant_id: user.id` (CORRECT par design, pas un bug).
+  - **Meta (FB+IG)** : ⛔ **copilotage navigateur impossible** (Meta boucle le login dans l'onglet piloté = anti-bot). À faire **en manuel** côté Amine. App pas créée. Reco : **Facebook Login for Business** (le « Facebook Login » classique se déprécie) + permissions `pages_show_list/pages_read_engagement/pages_manage_posts` (FB) + `instagram_basic/instagram_content_publish` (IG) ; 1 seule app Meta → `META_APP_ID/SECRET` ; redirects `…/api/oauth/facebook/callback` ET `…/api/oauth/instagram/callback` ; Business Verification + App Review (délai).
+- **✓ Rotation mdp super-admin** : nouveau mdp fort (bcrypt $2a$10 SQL db-rami + sessions/refresh révoqués, login HTTP 200 vérifié) → **coffre `RAMI_SUPERADMIN_PASSWORD`** (récupérable, plus de rotation nécessaire). Compte : `medamine.mansouriidrissi@gmail.com`.
 
 ---
 
@@ -187,13 +202,18 @@
 
 ---
 
-## [NEXT] — Prochaines actions prioritaires
+## [NEXT] — Prochaines actions prioritaires (session #8)
 
-1. **AMINE — provisioning P0** (cf. `docs/API_REQUIREMENTS_AMINE.md`, checklist Coolify incluse) : ① route `whisper-1` sur le proxy LiteLLM (ou vraie clé OpenAI) ; ② Stripe live (4 produits/prix + webhook `https://rami.ai-mpower.com/api/webhooks/stripe`) ; ③ 4 apps OAuth X/LinkedIn/Meta/Pinterest (redirect `https://rami.ai-mpower.com/api/oauth/<platform>/callback`) ; ④ lancer la demande TikTok Content Posting API (chemin critique, délai semaines). P1 ensuite : Replicate/Together (fallbacks image), Sentry+PostHog (monitoring éteint en prod !), Resend.
-2. **RALPH — Phase 1 autonome** (session fraîche, *« reprends en Ralph »*) : US-025 → US-026 → US-030 → US-032 → US-034 → US-041/042/043 → US-036/038 → US-050 → US-033/035 → US-031. Ordre indicatif ; checkpoint US-025 détaillé dans `.ralph/progress.md`.
-3. **Décision Amine en attente** : créer une app **staging Coolify** (`rami-staging`, branche staging) pour browser-verify sans toucher la prod ? (recommandé — remplace la méthode locale interdite).
-4. **Phase 2 dès P0 posé** : US-022→024 (Whisper), US-018/019 (Stripe), publishing réel + durcissement SE Pro (PRD §Phase 2), puis US-044/045/046 (Mastodon/YouTube/TikTok) et US-047/048/049 (Resend).
-5. Suivre `.ralph/prd.json` (58 US) + `.ralph/progress.md`.
+1. **⭐ CAS D'USAGE OAUTH RÉEL — connexion + publication LinkedIn & Twitter** (commencé session #7, code corrigé `619e7c4`, JAMAIS testé). Étapes :
+   - Confirmer que le **deploy `619e7c4`** est passé (vars OAuth actives runtime).
+   - **Côté plateformes** : LinkedIn redirect déjà posé ; **Twitter** → vérifier que le redirect `https://rami.ai-mpower.com/api/oauth/twitter/callback` + scopes `tweet.read tweet.write users.read offline.access` sont bien enregistrés côté X (sinon `authorize` échoue) ; **app X = OAuth 2.0 / Web App (confidential)**.
+   - **Connexion réelle** : Amine se connecte en prod (super-admin `medamine.mansouriidrissi@gmail.com`, mdp coffre `RAMI_SUPERADMIN_PASSWORD`) → `/settings/connections` → « Connecter LinkedIn » puis « Connecter X » → autorise avec SON compte (l'autorisation finale = Amine, je ne saisis pas ses identifiants). Vérifier que la connexion s'enregistre (`oauth_connections`, `success=connected`). **Débugger les erreurs** (`?error=…` : `unauthorized_scope_error`, `token_exchange_failed`, etc.) — le flow n'a jamais tourné.
+   - **Publication** : créer un post via le workflow → publier sur LinkedIn (UGC `urn:li:person:{sub}`) + Twitter (POST /2/tweets) → vérifier qu'il apparaît réellement. Services : `src/lib/services/publishing/{twitter,linkedin}.ts`. ⚠️ `tenant_id = auth.uid()` dans `oauth_connections` (design MVP).
+2. **US-026 → passes=true** : browser-verifier le **téléchargement du PDF serveur** (route `/dashboard/documents/[id]/pdf`) sur une offre + un rapport en prod (header/footer brandés, pagination). Le socle PDF est déployé (`1e1e20b`) mais le download réel n'a pas encore été vérifié. Puis `.ralph/prd.json` US-026 passes=true (→ 32/58) + log progress.md.
+3. **Meta (FB+IG)** — EN MANUEL (anti-bot bloque le copilotage) : créer l'app Meta **Business** + **Facebook Login for Business**, Business Verification + App Review, puis stocker `META_APP_ID/SECRET` (coffre + Coolify). cf. [FAIT] session #7 pour la reco détaillée.
+4. **RALPH — Phase 1 autonome** (*« reprends en Ralph »*) : US-030 (competitors Crawl4AI) → US-032 → US-034 → US-041/042/043 → US-036/038 → US-050 → US-033/035 → US-031. ⚠️ **Tous les exports PDF futurs** (US-043 présentations, factures…) doivent passer par le **socle PDF serveur** (`src/lib/services/documents/pdf/`), PLUS de `window.print()`.
+5. **Pinterest** : app + `PINTEREST_APP_ID/SECRET` quand Amine veut. **Whisper/Stripe** : toujours en attente provisioning (cf. `docs/API_REQUIREMENTS_AMINE.md`).
+6. Suivre `.ralph/prd.json` (58 US) + `.ralph/progress.md`.
 
 ---
 
@@ -217,6 +237,10 @@
 
 ## [MEMO] — À ne pas oublier inter-sessions
 
+- **OAuth (session #7)** : config `src/lib/services/oauth/config.ts` (scopes/env par plateforme) ; flow `src/app/api/oauth/[platform]/{authorize,callback,refresh,disconnect}/route.ts` ; `state.ts` (state base64url + AES-256 `encryptToken`/`decryptToken` clé `OAUTH_TOKEN_ENCRYPTION_KEY`) ; `account-info.ts` (`/userinfo` LinkedIn, `/2/users/me` Twitter) ; publishing `src/lib/services/publishing/{twitter,linkedin,…}.ts`. **Twitter** = PKCE plain (`code_verifier = state.slice(0,43)`) + **Basic Auth** au token endpoint. **LinkedIn** = OIDC scopes `openid profile email w_member_social` (PAS `r_basicprofile`), author URN `urn:li:person:{sub}`. `oauth_connections.tenant_id = auth.users(id)` (RLS `= auth.uid()`, MVP user_id=tenant_id).
+- **Socle PDF serveur (session #7)** : `src/lib/services/documents/pdf/` (`branding.ts` white-label 3 niveaux, `PdfShell/OfferPdf/ReportPdf`, `fonts.ts` Noto, `labels.ts` i18n serveur, `render.tsx`). Polices `public/fonts/`. Route `/dashboard/documents/[id]/pdf`. `serverExternalPackages:["@react-pdf/renderer"]`. **TOUT export PDF futur passe par là** (zéro `window.print()`).
+- **Coffre — nouvelles clés (session #7)** : `RAMI_SUPERADMIN_PASSWORD`, `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `TWITTER_CLIENT_ID`, `TWITTER_CLIENT_SECRET` (toutes coffre DPAPI + Coolify runtime `is_buildtime=false`). **Méthode stockage clé OAuth** : parser le presse-papier (jamais afficher la valeur, seulement longueur/format ; ⚠️ piège PowerShell `(scalar)[0]` indexe un char → forcer `@(...)`) → `Set-VaultKey` (module `HermesVaultSync.psm1`) + POST `…/api/v1/applications/{uuid}/envs`.
+- **⛔ Meta bloque le copilotage navigateur** (claude-in-chrome) : boucle login anti-bot dans l'onglet piloté → config Meta **en manuel** uniquement. LinkedIn/prod RAMI = copilotables.
 - **Docs de pilotage (2026-06-10)** : `docs/PRD_RAMI_FINITION_L99.md` (plan directeur phases) · `docs/API_REQUIREMENTS_AMINE.md` (provisioning P0/P1/P2 + checklist Coolify) · `docs/AUDIT_CABLAGE_2026-06-10.md` (matrice câblages + env prod). Lire les trois avant toute reprise.
 - **RÈGLE AMINE — JAMAIS de dev local** : pas de `npm run dev`/localhost ; vérifications en PROD (test-ralph) ou app staging Coolify (à créer, décision en attente) ; jamais Vercel. Gates poste (tsc/eslint/jest) OK.
 - **Infra complète** : cf. memory projet `deploiement-coolify-infra.md` (Supabase dédié, proxy, cloudflared, gotchas).
