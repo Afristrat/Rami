@@ -1800,8 +1800,6 @@
       "contentPreview": "Aperçu des contenus",
       "ready": "Prêt",
       "approvalParams": "Paramètres d’approbation",
-      "approverTeam": "par Équipe Client — Marketing",
-      "designatedApprover": "Approbateur désigné",
       "externalApprovalLink": "Lien d’approbation externe",
       "copy": "Copier",
       "sendForApproval": "Envoyer pour approbation",
@@ -1809,7 +1807,13 @@
       "reviseContent": "Réviser le contenu",
       "noSubmission": "Aucune soumission en cours",
       "securedLink": "Lien sécurisé SSL",
-      "approvalNote": "En approuvant, le contenu passera à l’étape de planification."
+      "approvalNote": "En approuvant, le contenu passera à l’étape de planification.",
+      "generateLink": "Générer le lien d’approbation",
+      "generatingLink": "Génération du lien…",
+      "linkReady": "Lien actif — valable {days} jours",
+      "copied": "Copié !",
+      "linkError": "Échec de la génération du lien. Réessayez.",
+      "linkPending": "Post envoyé en revue — en attente de décision via le lien"
     },
     "schedule": {
       "publishNow": "Publier maintenant",
@@ -2685,5 +2689,25 @@
       "neutral": "Neutre",
       "avoid": "À éviter"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "Approbation de contenu",
+    "subtitle": "Vérifiez le contenu ci-dessous puis donnez votre décision.",
+    "platforms": "Plateformes de publication",
+    "approve": "Approuver",
+    "reject": "Demander une révision",
+    "commentLabel": "Commentaire (optionnel)",
+    "commentPlaceholder": "Une remarque pour l’équipe ?",
+    "approvedTitle": "Contenu approuvé",
+    "approvedDesc": "Merci ! L’équipe peut maintenant planifier la publication.",
+    "rejectedTitle": "Révision demandée",
+    "rejectedDesc": "Votre demande de révision a été transmise à l’équipe.",
+    "alreadyApproved": "Ce contenu a déjà été approuvé.",
+    "alreadyRejected": "Une révision a déjà été demandée pour ce contenu.",
+    "expired": "Ce lien d’approbation a expiré. Demandez un nouveau lien à l’équipe.",
+    "notFound": "Lien d’approbation introuvable ou invalide.",
+    "decisionError": "Échec de l’enregistrement de la décision. Réessayez.",
+    "submitting": "Enregistrement…"
   }
 }

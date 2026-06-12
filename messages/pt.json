@@ -1800,8 +1800,6 @@
       "contentPreview": "Content preview",
       "ready": "Ready",
       "approvalParams": "Approval settings",
-      "approverTeam": "by Client Team — Marketing",
-      "designatedApprover": "Designated approver",
       "externalApprovalLink": "External approval link",
       "copy": "Copy",
       "sendForApproval": "Send for approval",
@@ -1809,7 +1807,13 @@
       "reviseContent": "Revise content",
       "noSubmission": "No current submission",
       "securedLink": "SSL-secured link",
-      "approvalNote": "By approving, the content will proceed to the scheduling step."
+      "approvalNote": "By approving, the content will proceed to the scheduling step.",
+      "generateLink": "Gerar link de aprovação",
+      "generatingLink": "Gerando link…",
+      "linkReady": "Link ativo — válido por {days} dias",
+      "copied": "Copiado!",
+      "linkError": "Falha ao gerar o link. Tente novamente.",
+      "linkPending": "Post enviado para revisão — aguardando decisão pelo link"
     },
     "schedule": {
       "publishNow": "Publish now",
@@ -2685,5 +2689,25 @@
       "neutral": "Neutro",
       "avoid": "Evitar"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "Aprovação de conteúdo",
+    "subtitle": "Revise o conteúdo abaixo e dê sua decisão.",
+    "platforms": "Plataformas de publicação",
+    "approve": "Aprovar",
+    "reject": "Solicitar alterações",
+    "commentLabel": "Comentário (opcional)",
+    "commentPlaceholder": "Uma observação para a equipe?",
+    "approvedTitle": "Conteúdo aprovado",
+    "approvedDesc": "Obrigado! A equipe já pode agendar a publicação.",
+    "rejectedTitle": "Alterações solicitadas",
+    "rejectedDesc": "Sua solicitação de alterações foi enviada à equipe.",
+    "alreadyApproved": "Este conteúdo já foi aprovado.",
+    "alreadyRejected": "Já foram solicitadas alterações para este conteúdo.",
+    "expired": "Este link de aprovação expirou. Peça um novo link à equipe.",
+    "notFound": "Link de aprovação não encontrado ou inválido.",
+    "decisionError": "Falha ao registrar a decisão. Tente novamente.",
+    "submitting": "Salvando…"
   }
 }

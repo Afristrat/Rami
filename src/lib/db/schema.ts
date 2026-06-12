@@ -103,6 +103,23 @@ export const posts = pgTable('posts', {
 })
 
 // ============================================================
+// APPROVAL TOKENS (approbation externe par lien — LOT 1 Step 6)
+// ============================================================
+
+export const approvalTokens = pgTable('approval_tokens', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  post_id: uuid('post_id').notNull().references(() => posts.id, { onDelete: 'cascade' }),
+  token: varchar('token', { length: 64 }).notNull().unique(),
+  status: text('status').notNull().default('pending'), // pending | approved | rejected
+  comment: text('comment'),
+  decided_at: timestamp('decided_at', { withTimezone: true }),
+  expires_at: timestamp('expires_at', { withTimezone: true }).notNull(),
+  created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================
 // MEDIA (assets stockés MinIO/R2)
 // ============================================================
 

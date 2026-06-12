@@ -1800,8 +1800,6 @@
       "contentPreview": "Content preview",
       "ready": "Ready",
       "approvalParams": "Approval settings",
-      "approverTeam": "by Client Team — Marketing",
-      "designatedApprover": "Designated approver",
       "externalApprovalLink": "External approval link",
       "copy": "Copy",
       "sendForApproval": "Send for approval",
@@ -1809,7 +1807,13 @@
       "reviseContent": "Revise content",
       "noSubmission": "No current submission",
       "securedLink": "SSL-secured link",
-      "approvalNote": "By approving, the content will proceed to the scheduling step."
+      "approvalNote": "By approving, the content will proceed to the scheduling step.",
+      "generateLink": "Onay bağlantısı oluştur",
+      "generatingLink": "Bağlantı oluşturuluyor…",
+      "linkReady": "Bağlantı etkin — {days} gün geçerli",
+      "copied": "Kopyalandı!",
+      "linkError": "Bağlantı oluşturulamadı. Tekrar deneyin.",
+      "linkPending": "Gönderi incelemeye gönderildi — bağlantı üzerinden karar bekleniyor"
     },
     "schedule": {
       "publishNow": "Publish now",
@@ -2685,5 +2689,25 @@
       "neutral": "Nötr",
       "avoid": "Kaçınılmalı"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "İçerik onayı",
+    "subtitle": "Aşağıdaki içeriği inceleyin ve kararınızı verin.",
+    "platforms": "Yayın platformları",
+    "approve": "Onayla",
+    "reject": "Değişiklik iste",
+    "commentLabel": "Yorum (isteğe bağlı)",
+    "commentPlaceholder": "Ekip için bir not?",
+    "approvedTitle": "İçerik onaylandı",
+    "approvedDesc": "Teşekkürler! Ekip artık yayını planlayabilir.",
+    "rejectedTitle": "Değişiklik istendi",
+    "rejectedDesc": "Değişiklik talebiniz ekibe iletildi.",
+    "alreadyApproved": "Bu içerik zaten onaylandı.",
+    "alreadyRejected": "Bu içerik için zaten değişiklik istendi.",
+    "expired": "Bu onay bağlantısının süresi doldu. Ekipten yeni bir bağlantı isteyin.",
+    "notFound": "Onay bağlantısı bulunamadı veya geçersiz.",
+    "decisionError": "Karar kaydedilemedi. Tekrar deneyin.",
+    "submitting": "Kaydediliyor…"
   }
 }

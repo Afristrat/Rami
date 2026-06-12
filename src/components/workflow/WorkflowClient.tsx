@@ -365,6 +365,7 @@ export function WorkflowClient() {
                   step1={state.step1}
                   step2={state.step2}
                   step5={state.step5}
+                  step6={state.step6}
                   defaultValues={state.step7}
                   onBack={() => {}}
                 />
@@ -497,6 +498,7 @@ export function WorkflowClient() {
                 step1={state.step1}
                 step2={state.step2}
                 step5={state.step5}
+                step6={state.step6}
                 defaultValues={state.step7}
                 onBack={() => goTo(6)}
               />

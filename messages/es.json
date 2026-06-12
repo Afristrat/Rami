@@ -1800,8 +1800,6 @@
       "contentPreview": "Content preview",
       "ready": "Ready",
       "approvalParams": "Approval settings",
-      "approverTeam": "by Client Team — Marketing",
-      "designatedApprover": "Designated approver",
       "externalApprovalLink": "External approval link",
       "copy": "Copy",
       "sendForApproval": "Send for approval",
@@ -1809,7 +1807,13 @@
       "reviseContent": "Revise content",
       "noSubmission": "No current submission",
       "securedLink": "SSL-secured link",
-      "approvalNote": "By approving, the content will proceed to the scheduling step."
+      "approvalNote": "By approving, the content will proceed to the scheduling step.",
+      "generateLink": "Generar enlace de aprobación",
+      "generatingLink": "Generando enlace…",
+      "linkReady": "Enlace activo — válido {days} días",
+      "copied": "¡Copiado!",
+      "linkError": "No se pudo generar el enlace. Inténtalo de nuevo.",
+      "linkPending": "Post enviado a revisión — a la espera de decisión vía el enlace"
     },
     "schedule": {
       "publishNow": "Publish now",
@@ -2685,5 +2689,25 @@
       "neutral": "Neutral",
       "avoid": "Evitar"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "Aprobación de contenido",
+    "subtitle": "Revisa el contenido a continuación y da tu decisión.",
+    "platforms": "Plataformas de publicación",
+    "approve": "Aprobar",
+    "reject": "Solicitar cambios",
+    "commentLabel": "Comentario (opcional)",
+    "commentPlaceholder": "¿Una nota para el equipo?",
+    "approvedTitle": "Contenido aprobado",
+    "approvedDesc": "¡Gracias! El equipo ya puede programar la publicación.",
+    "rejectedTitle": "Cambios solicitados",
+    "rejectedDesc": "Tu solicitud de cambios se ha enviado al equipo.",
+    "alreadyApproved": "Este contenido ya ha sido aprobado.",
+    "alreadyRejected": "Ya se han solicitado cambios para este contenido.",
+    "expired": "Este enlace de aprobación ha caducado. Pide un nuevo enlace al equipo.",
+    "notFound": "Enlace de aprobación no encontrado o inválido.",
+    "decisionError": "No se pudo registrar la decisión. Inténtalo de nuevo.",
+    "submitting": "Guardando…"
   }
 }

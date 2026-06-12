@@ -1800,8 +1800,6 @@
       "contentPreview": "Content preview",
       "ready": "Ready",
       "approvalParams": "Approval settings",
-      "approverTeam": "by Client Team — Marketing",
-      "designatedApprover": "Designated approver",
       "externalApprovalLink": "External approval link",
       "copy": "Copy",
       "sendForApproval": "Send for approval",
@@ -1809,7 +1807,13 @@
       "reviseContent": "Revise content",
       "noSubmission": "No current submission",
       "securedLink": "SSL-secured link",
-      "approvalNote": "By approving, the content will proceed to the scheduling step."
+      "approvalNote": "By approving, the content will proceed to the scheduling step.",
+      "generateLink": "Generate approval link",
+      "generatingLink": "Generating link…",
+      "linkReady": "Link active — valid for {days} days",
+      "copied": "Copied!",
+      "linkError": "Failed to generate the link. Please try again.",
+      "linkPending": "Post sent for review — awaiting decision via the link"
     },
     "schedule": {
       "publishNow": "Publish now",
@@ -2685,5 +2689,25 @@
       "neutral": "Neutral",
       "avoid": "Avoid"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "Content approval",
+    "subtitle": "Review the content below and give your decision.",
+    "platforms": "Publishing platforms",
+    "approve": "Approve",
+    "reject": "Request changes",
+    "commentLabel": "Comment (optional)",
+    "commentPlaceholder": "A note for the team?",
+    "approvedTitle": "Content approved",
+    "approvedDesc": "Thank you! The team can now schedule the publication.",
+    "rejectedTitle": "Changes requested",
+    "rejectedDesc": "Your change request has been sent to the team.",
+    "alreadyApproved": "This content has already been approved.",
+    "alreadyRejected": "Changes have already been requested for this content.",
+    "expired": "This approval link has expired. Ask the team for a new link.",
+    "notFound": "Approval link not found or invalid.",
+    "decisionError": "Failed to record the decision. Please try again.",
+    "submitting": "Saving…"
   }
 }

@@ -25,6 +25,7 @@ const NewPostSchema = z.object({
     .min(1, V.platformRequired),
   scheduled_at: z.string().datetime({ offset: true }).optional().nullable(),
   status: z.enum(["draft", "review", "approved", "scheduled"]).default("draft"),
+  media_urls: z.array(z.string().url()).max(10).optional(),
 })
 
 export type NewPostData = z.infer<typeof NewPostSchema>
@@ -155,7 +156,7 @@ export async function createPost(
     return { success: false, error: firstError }
   }
 
-  const { title, content, platforms, scheduled_at, status } = parsed.data
+  const { title, content, platforms, scheduled_at, status, media_urls } = parsed.data
   const finalStatus = scheduled_at ? "scheduled" : status
 
   const { data: created, error } = await supabase
@@ -168,6 +169,7 @@ export async function createPost(
       platforms,
       status: finalStatus,
       scheduled_at: scheduled_at ?? null,
+      media_urls: media_urls ?? [],
     })
     .select()
     .single()
@@ -223,6 +225,7 @@ export async function updatePost(
       .optional(),
     scheduled_at: z.string().datetime({ offset: true }).optional().nullable(),
     status: z.enum(["draft", "review", "approved", "scheduled"]).optional(),
+    media_urls: z.array(z.string().url()).max(10).optional(),
   })
 
   const parsed = UpdateSchema.safeParse(data)
@@ -230,7 +233,7 @@ export async function updatePost(
     return { success: false, error: parsed.error.issues[0]?.message ?? "Données invalides" }
   }
 
-  const { title, content, platforms, scheduled_at, status } = parsed.data
+  const { title, content, platforms, scheduled_at, status, media_urls } = parsed.data
 
   const finalStatus = scheduled_at
     ? "scheduled"
@@ -244,6 +247,7 @@ export async function updatePost(
   if (platforms) updatePayload.platforms = platforms
   if (scheduled_at !== undefined) updatePayload.scheduled_at = scheduled_at ?? null
   if (finalStatus) updatePayload.status = finalStatus
+  if (media_urls) updatePayload.media_urls = media_urls
 
   const { data: updated, error } = await supabase
     .from("posts")

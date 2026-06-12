@@ -1800,8 +1800,6 @@
       "contentPreview": "Content preview",
       "ready": "Ready",
       "approvalParams": "Approval settings",
-      "approverTeam": "by Client Team — Marketing",
-      "designatedApprover": "Designated approver",
       "externalApprovalLink": "External approval link",
       "copy": "Copy",
       "sendForApproval": "Send for approval",
@@ -1809,7 +1807,13 @@
       "reviseContent": "Revise content",
       "noSubmission": "No current submission",
       "securedLink": "SSL-secured link",
-      "approvalNote": "By approving, the content will proceed to the scheduling step."
+      "approvalNote": "By approving, the content will proceed to the scheduling step.",
+      "generateLink": "生成审批链接",
+      "generatingLink": "正在生成链接…",
+      "linkReady": "链接已生效——有效期 {days} 天",
+      "copied": "已复制！",
+      "linkError": "链接生成失败，请重试。",
+      "linkPending": "帖子已送审——等待通过链接做出决定"
     },
     "schedule": {
       "publishNow": "Publish now",
@@ -2685,5 +2689,25 @@
       "neutral": "中性",
       "avoid": "避免"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "内容审批",
+    "subtitle": "请查看以下内容并做出决定。",
+    "platforms": "发布平台",
+    "approve": "批准",
+    "reject": "请求修改",
+    "commentLabel": "备注（可选）",
+    "commentPlaceholder": "给团队的留言？",
+    "approvedTitle": "内容已批准",
+    "approvedDesc": "谢谢！团队现在可以安排发布。",
+    "rejectedTitle": "已请求修改",
+    "rejectedDesc": "您的修改请求已发送给团队。",
+    "alreadyApproved": "该内容已被批准。",
+    "alreadyRejected": "已对该内容请求过修改。",
+    "expired": "此审批链接已过期。请向团队索取新链接。",
+    "notFound": "审批链接不存在或无效。",
+    "decisionError": "决定保存失败，请重试。",
+    "submitting": "保存中…"
   }
 }

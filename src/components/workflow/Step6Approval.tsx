@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import type { Step1Data, Step2Data, Step5Data, Step6Data } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
+import { createApprovalLinkAction } from "@/lib/actions/approval.actions"
 import { cn } from "@/lib/utils"
-import { ArrowLeft, XCircle, Send, Users, Clock, Shield } from "lucide-react"
+import { ArrowLeft, XCircle, Send, Clock, Shield, Link2, Copy, Check, Loader2 } from "lucide-react"
 import {
   TwitterXIcon, LinkedInIcon, InstagramIcon, FacebookIcon,
   PinterestIcon, YouTubeIcon, MastodonIcon, TikTokIcon,
@@ -25,14 +26,51 @@ interface Step6ApprovalProps {
   onNext: (data: Step6Data) => void
 }
 
-export function Step6Approval({ step1: _step1, step2, step5, onBack, onNext }: Omit<Step6ApprovalProps, "defaultValues">) {
+export function Step6Approval({ step1, step2, step5, onBack, onNext }: Step6ApprovalProps) {
   const t = useTranslations("workflow")
   const tc = useTranslations("common")
   const [decision, setDecision] = useState<boolean | null>(null)
 
+  // Lien d'approbation externe RÉEL (post en review + token /approve/[token])
+  const [isGenerating, startGenerating] = useTransition()
+  const [approvalUrl, setApprovalUrl] = useState<string | null>(null)
+  const [approvalPostId, setApprovalPostId] = useState<string | null>(null)
+  const [linkError, setLinkError] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  function handleGenerateLink() {
+    setLinkError(false)
+    startGenerating(async () => {
+      const result = await createApprovalLinkAction({
+        step1,
+        step2,
+        finalCaption: step5.finalCaption,
+        finalHashtags: step5.finalHashtags,
+        finalVisualUrl: step5.finalVisualUrl,
+      })
+      if (result.success) {
+        setApprovalUrl(result.url)
+        setApprovalPostId(result.postId)
+      } else {
+        setLinkError(true)
+      }
+    })
+  }
+
+  async function handleCopy() {
+    if (!approvalUrl) return
+    try {
+      await navigator.clipboard.writeText(approvalUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard indisponible (permissions) — l'URL reste sélectionnable dans l'input.
+    }
+  }
+
   function handleApprove() {
     setDecision(true)
-    onNext({ approved: true, approvedAt: new Date().toISOString() })
+    onNext({ approved: true, approvedAt: new Date().toISOString(), approvalPostId })
   }
 
   function handleReject() {
@@ -122,38 +160,58 @@ export function Step6Approval({ step1: _step1, step2, step5, onBack, onNext }: O
               {t("approval.approvalParams")}
             </h4>
 
-            {/* Approver */}
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05]">
-                <div className="size-8 rounded-full bg-violet-500/20 flex items-center justify-center">
-                  <Users className="size-4 text-violet-500" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-900 dark:text-slate-100">{t("approval.approverTeam")}</p>
-                  <p className="text-[10px] text-slate-400 dark:text-slate-500">{t("approval.designatedApprover")}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Comment */}
+            {/* Lien d'approbation externe — généré à la demande, jamais factice */}
             <div className="mb-6">
               <p className="text-xs font-medium text-slate-600 dark:text-slate-300 mb-2">
                 {t("approval.externalApprovalLink")}
               </p>
-              <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05]">
-                <input
-                  type="text"
-                  readOnly
-                  value="rami.ai-mpower.com/approve/..."
-                  className="flex-1 bg-transparent text-[11px] text-slate-400 dark:text-slate-500 outline-none"
-                />
+              {approvalUrl ? (
+                <>
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05]">
+                    <input
+                      type="text"
+                      readOnly
+                      value={approvalUrl}
+                      onFocus={(e) => e.target.select()}
+                      className="flex-1 bg-transparent text-[11px] text-slate-600 dark:text-slate-300 outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCopy}
+                      className={cn(
+                        "flex items-center gap-1 px-2 py-1 rounded text-[10px] font-bold transition-colors",
+                        copied
+                          ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                          : "bg-violet-500/10 text-violet-500 hover:bg-violet-500/20"
+                      )}
+                    >
+                      {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+                      {copied ? t("approval.copied") : t("approval.copy")}
+                    </button>
+                  </div>
+                  <p className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
+                    {t("approval.linkReady", { days: 14 })}
+                  </p>
+                </>
+              ) : (
                 <button
                   type="button"
-                  className="px-2 py-1 rounded bg-violet-500/10 text-violet-500 text-[10px] font-bold"
+                  onClick={handleGenerateLink}
+                  disabled={isGenerating}
+                  className={cn(
+                    "flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5",
+                    "border border-violet-500/30 bg-violet-500/5 text-xs font-semibold text-violet-600 dark:text-violet-400",
+                    "hover:bg-violet-500/10 transition-colors",
+                    "disabled:opacity-50 disabled:cursor-not-allowed"
+                  )}
                 >
-                  {t("approval.copy")}
+                  {isGenerating ? <Loader2 className="size-3.5 animate-spin" /> : <Link2 className="size-3.5" />}
+                  {isGenerating ? t("approval.generatingLink") : t("approval.generateLink")}
                 </button>
-              </div>
+              )}
+              {linkError && (
+                <p className="mt-2 text-[10px] text-red-500">{t("approval.linkError")}</p>
+              )}
             </div>
 
             {/* Action buttons */}
@@ -197,7 +255,7 @@ export function Step6Approval({ step1: _step1, step2, step5, onBack, onNext }: O
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-white/[0.05] space-y-2">
               <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
                 <Clock className="size-3" />
-                <span>{t("approval.noSubmission")}</span>
+                <span>{approvalUrl ? t("approval.linkPending") : t("approval.noSubmission")}</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
                 <Shield className="size-3" />

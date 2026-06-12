@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { saveWorkflowPostAction } from "@/lib/actions/workflow.actions"
-import type { Step1Data, Step2Data, Step5Data, Step7Data } from "@/lib/schemas/workflow.schema"
+import type { Step1Data, Step2Data, Step5Data, Step6Data, Step7Data } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
 import { cn } from "@/lib/utils"
 import { ArrowLeft, CalendarCheck, Zap, Save, CheckCircle2, ExternalLink, Sparkles, Globe, Calendar } from "lucide-react"
@@ -24,11 +24,13 @@ interface Step7ScheduleProps {
   step1: Step1Data
   step2: Step2Data
   step5: Step5Data
+  /** Données du Step 6 — porte le post déjà créé via le lien d'approbation externe. */
+  step6?: Step6Data | null
   defaultValues?: Step7Data | null
   onBack: () => void
 }
 
-export function Step7Schedule({ step1, step2, step5, defaultValues, onBack }: Step7ScheduleProps) {
+export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBack }: Step7ScheduleProps) {
   const t = useTranslations("workflow.schedule")
   const tc = useTranslations("common")
   const intlLocale = useIntlLocale()
@@ -63,6 +65,8 @@ export function Step7Schedule({ step1, step2, step5, defaultValues, onBack }: St
         finalVisualUrl: step5.finalVisualUrl,
         scheduledAt: publishMode === "scheduled" ? scheduledAt : null,
         status: publishMode === "draft" ? "draft" : publishMode === "scheduled" ? "scheduled" : "approved",
+        // Post déjà créé au Step 6 (lien d'approbation) → mise à jour, pas de doublon.
+        existingPostId: step6?.approvalPostId ?? null,
       })
 
       if (result.success) {

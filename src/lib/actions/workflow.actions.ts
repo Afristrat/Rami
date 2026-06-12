@@ -420,14 +420,20 @@ export async function saveWorkflowPostAction(data: {
   finalVisualUrl: string | null
   scheduledAt: string | null
   status: "draft" | "review" | "approved" | "scheduled"
+  /** Post déjà créé en amont (ex. lien d'approbation Step 6) — mis à jour au lieu d'être dupliqué. */
+  existingPostId?: string | null
 }): Promise<SaveWorkflowPostResult> {
   const ctx = await getAuthContext()
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }
 
   try {
-    const { createPost } = await import("@/app/actions/scheduler")
+    const { createPost, updatePost } = await import("@/app/actions/scheduler")
 
     const content = data.finalCaption
+    // Le visuel sélectionné est persisté sur le post (aperçu, approbation, publication).
+    const mediaUrls = data.finalVisualUrl && /^https?:\/\//.test(data.finalVisualUrl)
+      ? [data.finalVisualUrl]
+      : undefined
 
     const postData: NewPostData = {
       title: data.step1.titre,
@@ -435,9 +441,12 @@ export async function saveWorkflowPostAction(data: {
       platforms: data.step2.platforms as NewPostData["platforms"],
       scheduled_at: data.scheduledAt,
       status: data.status,
+      media_urls: mediaUrls,
     }
 
-    const result = await createPost(postData)
+    const result = data.existingPostId
+      ? await updatePost(data.existingPostId, postData)
+      : await createPost(postData)
 
     if (!result.success) {
       return { success: false, error: result.error }

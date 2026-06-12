@@ -80,6 +80,8 @@ export interface Step5Data {
 export interface Step6Data {
   approved: boolean
   approvedAt: string | null
+  /** Post créé lors de la génération du lien d'approbation externe (statut review) — mis à jour au Step 7 au lieu d'être dupliqué. */
+  approvalPostId?: string | null
 }
 
 // ── Étape 7 — Planification ──────────────────────────────────────────────────

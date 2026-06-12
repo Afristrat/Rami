@@ -1800,8 +1800,6 @@
       "contentPreview": "Content preview",
       "ready": "Ready",
       "approvalParams": "Approval settings",
-      "approverTeam": "by Client Team — Marketing",
-      "designatedApprover": "Designated approver",
       "externalApprovalLink": "External approval link",
       "copy": "Copy",
       "sendForApproval": "Send for approval",
@@ -1809,7 +1807,13 @@
       "reviseContent": "Revise content",
       "noSubmission": "No current submission",
       "securedLink": "SSL-secured link",
-      "approvalNote": "By approving, the content will proceed to the scheduling step."
+      "approvalNote": "By approving, the content will proceed to the scheduling step.",
+      "generateLink": "Freigabe-Link erstellen",
+      "generatingLink": "Link wird erstellt…",
+      "linkReady": "Link aktiv — {days} Tage gültig",
+      "copied": "Kopiert!",
+      "linkError": "Link konnte nicht erstellt werden. Bitte erneut versuchen.",
+      "linkPending": "Post zur Prüfung gesendet — Entscheidung über den Link ausstehend"
     },
     "schedule": {
       "publishNow": "Publish now",
@@ -2685,5 +2689,25 @@
       "neutral": "Neutral",
       "avoid": "Vermeiden"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "Inhaltsfreigabe",
+    "subtitle": "Prüfen Sie den Inhalt unten und treffen Sie Ihre Entscheidung.",
+    "platforms": "Veröffentlichungsplattformen",
+    "approve": "Freigeben",
+    "reject": "Änderungen anfordern",
+    "commentLabel": "Kommentar (optional)",
+    "commentPlaceholder": "Eine Anmerkung für das Team?",
+    "approvedTitle": "Inhalt freigegeben",
+    "approvedDesc": "Danke! Das Team kann die Veröffentlichung jetzt planen.",
+    "rejectedTitle": "Änderungen angefordert",
+    "rejectedDesc": "Ihre Änderungsanfrage wurde an das Team übermittelt.",
+    "alreadyApproved": "Dieser Inhalt wurde bereits freigegeben.",
+    "alreadyRejected": "Für diesen Inhalt wurden bereits Änderungen angefordert.",
+    "expired": "Dieser Freigabe-Link ist abgelaufen. Fordern Sie beim Team einen neuen Link an.",
+    "notFound": "Freigabe-Link nicht gefunden oder ungültig.",
+    "decisionError": "Die Entscheidung konnte nicht gespeichert werden. Bitte erneut versuchen.",
+    "submitting": "Wird gespeichert…"
   }
 }

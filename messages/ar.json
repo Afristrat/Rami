@@ -1800,8 +1800,6 @@
       "contentPreview": "معاينة المحتوى",
       "ready": "جاهز",
       "approvalParams": "إعدادات الموافقة",
-      "approverTeam": "من فريق العميل — التسويق",
-      "designatedApprover": "المعتمِد المعيّن",
       "externalApprovalLink": "رابط الموافقة الخارجي",
       "copy": "نسخ",
       "sendForApproval": "إرسال للموافقة",
@@ -1809,7 +1807,13 @@
       "reviseContent": "مراجعة المحتوى",
       "noSubmission": "لا يوجد طلب حالي",
       "securedLink": "رابط مؤمّن بـ SSL",
-      "approvalNote": "بالموافقة، سينتقل المحتوى إلى مرحلة الجدولة."
+      "approvalNote": "بالموافقة، سينتقل المحتوى إلى مرحلة الجدولة.",
+      "generateLink": "إنشاء رابط الموافقة",
+      "generatingLink": "جارٍ إنشاء الرابط…",
+      "linkReady": "الرابط نشط — صالح لمدة {days} يومًا",
+      "copied": "تم النسخ!",
+      "linkError": "تعذّر إنشاء الرابط. حاول مجددًا.",
+      "linkPending": "أُرسل المنشور للمراجعة — في انتظار القرار عبر الرابط"
     },
     "schedule": {
       "publishNow": "نشر الآن",
@@ -2685,5 +2689,25 @@
       "neutral": "محايد",
       "avoid": "يُتجنب"
     }
+  },
+  "approvePage": {
+    "brandLine": "RAMI by AI-MPower",
+    "title": "الموافقة على المحتوى",
+    "subtitle": "راجع المحتوى أدناه ثم اتخذ قرارك.",
+    "platforms": "منصات النشر",
+    "approve": "موافقة",
+    "reject": "طلب تعديل",
+    "commentLabel": "تعليق (اختياري)",
+    "commentPlaceholder": "ملاحظة للفريق؟",
+    "approvedTitle": "تمت الموافقة على المحتوى",
+    "approvedDesc": "شكرًا! يمكن للفريق الآن جدولة النشر.",
+    "rejectedTitle": "تم طلب التعديل",
+    "rejectedDesc": "أُرسل طلب التعديل إلى الفريق.",
+    "alreadyApproved": "تمت الموافقة على هذا المحتوى من قبل.",
+    "alreadyRejected": "سبق طلب تعديل لهذا المحتوى.",
+    "expired": "انتهت صلاحية رابط الموافقة. اطلب رابطًا جديدًا من الفريق.",
+    "notFound": "رابط الموافقة غير موجود أو غير صالح.",
+    "decisionError": "تعذّر حفظ القرار. حاول مجددًا.",
+    "submitting": "جارٍ الحفظ…"
   }
 }
