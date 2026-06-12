@@ -1843,6 +1843,16 @@
       "time": "Heure",
       "bestTimeHeuristic": "Créneau conseillé",
       "bestTimeDetail": "{platform} : {datetime} — fenêtre d’engagement recommandée pour cette plateforme."
+    },
+    "autosave": {
+      "saving": "Enregistrement…",
+      "saved": "Brouillon enregistré",
+      "error": "Échec de l’enregistrement automatique",
+      "resumeTitle": "Reprendre votre brouillon ?",
+      "resumeDesc": "« {title} » — étape {step} sur 7, enregistré le {when}",
+      "untitled": "Sans titre",
+      "resume": "Reprendre",
+      "restart": "Recommencer à zéro"
     }
   },
   "visuals": {

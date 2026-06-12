@@ -29,9 +29,11 @@ interface Step7ScheduleProps {
   step6?: Step6Data | null
   defaultValues?: Step7Data | null
   onBack: () => void
+  /** Appelé quand le post final est sauvegardé — clôt la session de brouillon. */
+  onPublished?: () => void
 }
 
-export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBack }: Step7ScheduleProps) {
+export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBack, onPublished }: Step7ScheduleProps) {
   const t = useTranslations("workflow.schedule")
   const tc = useTranslations("common")
   const intlLocale = useIntlLocale()
@@ -78,6 +80,7 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
 
       if (result.success) {
         setSavedPostId(result.postId)
+        onPublished?.()
       } else {
         setError(result.error)
       }

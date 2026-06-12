@@ -1843,6 +1843,16 @@
       "time": "Saat",
       "bestTimeHeuristic": "Önerilen zaman dilimi",
       "bestTimeDetail": "{platform}: {datetime} — bu platform için önerilen etkileşim aralığı."
+    },
+    "autosave": {
+      "saving": "Kaydediliyor…",
+      "saved": "Taslak kaydedildi",
+      "error": "Otomatik kayıt başarısız",
+      "resumeTitle": "Taslağınıza devam edilsin mi?",
+      "resumeDesc": "“{title}” — 7 adımdan {step}. adım, {when} tarihinde kaydedildi",
+      "untitled": "Başlıksız",
+      "resume": "Devam et",
+      "restart": "Baştan başla"
     }
   },
   "visuals": {

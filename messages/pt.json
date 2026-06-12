@@ -1843,6 +1843,16 @@
       "time": "Hora",
       "bestTimeHeuristic": "Janela recomendada",
       "bestTimeDetail": "{platform}: {datetime} — janela de engajamento recomendada para esta plataforma."
+    },
+    "autosave": {
+      "saving": "Salvando…",
+      "saved": "Rascunho salvo",
+      "error": "Falha no salvamento automático",
+      "resumeTitle": "Retomar seu rascunho?",
+      "resumeDesc": "«{title}» — etapa {step} de 7, salvo em {when}",
+      "untitled": "Sem título",
+      "resume": "Retomar",
+      "restart": "Começar do zero"
     }
   },
   "visuals": {

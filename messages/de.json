@@ -1843,6 +1843,16 @@
       "time": "Uhrzeit",
       "bestTimeHeuristic": "Empfohlenes Zeitfenster",
       "bestTimeDetail": "{platform}: {datetime} — empfohlenes Engagement-Zeitfenster für diese Plattform."
+    },
+    "autosave": {
+      "saving": "Wird gespeichert…",
+      "saved": "Entwurf gespeichert",
+      "error": "Automatisches Speichern fehlgeschlagen",
+      "resumeTitle": "Entwurf fortsetzen?",
+      "resumeDesc": "„{title}“ — Schritt {step} von 7, gespeichert am {when}",
+      "untitled": "Ohne Titel",
+      "resume": "Fortsetzen",
+      "restart": "Neu beginnen"
     }
   },
   "visuals": {

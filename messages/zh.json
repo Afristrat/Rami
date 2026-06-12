@@ -1843,6 +1843,16 @@
       "time": "时间",
       "bestTimeHeuristic": "建议时段",
       "bestTimeDetail": "{platform}：{datetime}——该平台的推荐互动时段。"
+    },
+    "autosave": {
+      "saving": "保存中…",
+      "saved": "草稿已保存",
+      "error": "自动保存失败",
+      "resumeTitle": "继续您的草稿？",
+      "resumeDesc": "「{title}」——第 {step}/7 步，保存于 {when}",
+      "untitled": "无标题",
+      "resume": "继续",
+      "restart": "重新开始"
     }
   },
   "visuals": {

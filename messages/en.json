@@ -1843,6 +1843,16 @@
       "time": "Time",
       "bestTimeHeuristic": "Suggested slot",
       "bestTimeDetail": "{platform}: {datetime} — recommended engagement window for this platform."
+    },
+    "autosave": {
+      "saving": "Saving…",
+      "saved": "Draft saved",
+      "error": "Autosave failed",
+      "resumeTitle": "Resume your draft?",
+      "resumeDesc": "“{title}” — step {step} of 7, saved on {when}",
+      "untitled": "Untitled",
+      "resume": "Resume",
+      "restart": "Start over"
     }
   },
   "visuals": {

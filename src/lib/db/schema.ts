@@ -103,6 +103,22 @@ export const posts = pgTable('posts', {
 })
 
 // ============================================================
+// CONTENT SESSIONS (persistance du workflow « Créer un post »)
+// ============================================================
+
+export const contentSessions = pgTable('content_sessions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  created_by: uuid('created_by').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 200 }),
+  current_step: integer('current_step').notNull().default(1),
+  state: jsonb('state').notNull(), // WorkflowState sérialisé
+  status: text('status').notNull().default('active'), // active | completed | abandoned
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+// ============================================================
 // APPROVAL TOKENS (approbation externe par lien — LOT 1 Step 6)
 // ============================================================
 

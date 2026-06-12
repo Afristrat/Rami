@@ -1843,6 +1843,16 @@
       "time": "الساعة",
       "bestTimeHeuristic": "الفترة المقترحة",
       "bestTimeDetail": "{platform}: {datetime} — نافذة التفاعل الموصى بها لهذه المنصة."
+    },
+    "autosave": {
+      "saving": "جارٍ الحفظ…",
+      "saved": "تم حفظ المسودة",
+      "error": "فشل الحفظ التلقائي",
+      "resumeTitle": "هل تريد استئناف مسودتك؟",
+      "resumeDesc": "«{title}» — الخطوة {step} من 7، حُفظت في {when}",
+      "untitled": "بدون عنوان",
+      "resume": "استئناف",
+      "restart": "البدء من جديد"
     }
   },
   "visuals": {

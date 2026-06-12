@@ -1843,6 +1843,16 @@
       "time": "Hora",
       "bestTimeHeuristic": "Franja recomendada",
       "bestTimeDetail": "{platform}: {datetime} — ventana de interacción recomendada para esta plataforma."
+    },
+    "autosave": {
+      "saving": "Guardando…",
+      "saved": "Borrador guardado",
+      "error": "Error en el guardado automático",
+      "resumeTitle": "¿Reanudar tu borrador?",
+      "resumeDesc": "«{title}» — paso {step} de 7, guardado el {when}",
+      "untitled": "Sin título",
+      "resume": "Reanudar",
+      "restart": "Empezar de cero"
     }
   },
   "visuals": {

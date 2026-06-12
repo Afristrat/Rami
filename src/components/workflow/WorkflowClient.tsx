@@ -1,7 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import type { WorkflowState, Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, Step6Data } from "@/lib/schemas/workflow.schema"
+import {
+  saveWorkflowSessionAction,
+  loadLatestWorkflowSessionAction,
+  closeWorkflowSessionAction,
+  type LoadWorkflowSessionResult,
+} from "@/lib/actions/workflow-session.actions"
 import { WorkflowStepper } from "./WorkflowStepper"
 import { WorkflowSidebar } from "./WorkflowSidebar"
 import { Step1Brief } from "./Step1Brief"
@@ -12,12 +18,13 @@ import { Step5Review } from "./Step5Review"
 import { Step6Approval } from "./Step6Approval"
 import { Step7Schedule } from "./Step7Schedule"
 import {
-  AlertCircle, Shield, ChevronDown,
+  AlertCircle, Shield, ChevronDown, Save, Check, Loader2, History,
   FileText, Share2, Type, Image, Eye, CheckCircle2, CalendarClock,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "next-intl"
+import { useIntlLocale } from "@/lib/utils/format-locale"
 import { useExpertMode } from "@/lib/hooks/use-expert-mode"
 import { ExpertModeToggle } from "@/components/ui/expert-mode-toggle"
 
@@ -106,72 +113,107 @@ function WorkflowAccordionSection({
   )
 }
 
+const EMPTY_STATE: WorkflowState = {
+  currentStep: 1,
+  step1: null,
+  step2: null,
+  step3: null,
+  step4: null,
+  step5: null,
+  step6: null,
+  step7: null,
+}
+
 export function WorkflowClient() {
   const t = useTranslations("workflow")
+  const intlLocale = useIntlLocale()
   const { isExpert } = useExpertMode()
   // Keep local mode state in sync with global expert mode for the stepper
   const mode = isExpert ? 'expert' as const : 'guided' as const
-  const [state, setState] = useState<WorkflowState>({
-    currentStep: 1,
-    step1: null,
-    step2: null,
-    step3: null,
-    step4: null,
-    step5: null,
-    step6: null,
-    step7: null,
-  })
+  const [state, setState] = useState<WorkflowState>(EMPTY_STATE)
+
+  // ── Persistance (content_sessions) : autosave aux transitions + reprise ──
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const [resumeOffer, setResumeOffer] = useState<Extract<LoadWorkflowSessionResult, { found: true }> | null>(null)
+  const [autosave, setAutosave] = useState<"idle" | "saving" | "saved" | "error">("idle")
+
+  useEffect(() => {
+    let cancelled = false
+    loadLatestWorkflowSessionAction().then((result) => {
+      if (!cancelled && result.found) setResumeOffer(result)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  /** Sauvegarde l'état en DB (fire-and-forget, indicateur honnête). */
+  function persist(nextState: WorkflowState) {
+    if (!nextState.step1) return // rien à sauvegarder sans brief
+    setAutosave("saving")
+    void saveWorkflowSessionAction({ sessionId, state: nextState }).then((result) => {
+      if (result.success) {
+        setSessionId(result.sessionId)
+        setAutosave("saved")
+      } else {
+        setAutosave("error")
+      }
+    })
+  }
+
+  /** Applique une transition d'état + déclenche l'autosave sur le nouvel état. */
+  function transition(patch: Partial<WorkflowState>) {
+    const next = { ...state, ...patch }
+    setState(next)
+    persist(next)
+  }
+
+  function resumeSession() {
+    if (!resumeOffer) return
+    setState(resumeOffer.state)
+    setSessionId(resumeOffer.sessionId)
+    setAutosave("saved")
+    setResumeOffer(null)
+  }
+
+  function discardSession() {
+    if (!resumeOffer) return
+    void closeWorkflowSessionAction(resumeOffer.sessionId, "abandoned")
+    setResumeOffer(null)
+  }
+
+  function handleWorkflowCompleted() {
+    if (sessionId) void closeWorkflowSessionAction(sessionId, "completed")
+    setSessionId(null)
+    setAutosave("idle")
+  }
 
   function goTo(step: WorkflowState["currentStep"]) {
-    setState((prev) => ({ ...prev, currentStep: step }))
+    transition({ currentStep: step })
   }
 
   function handleStep1(data: Step1Data) {
-    setState((prev) => ({
-      ...prev,
-      step1: data,
-      ...(isExpert ? {} : { currentStep: 2 as const }),
-    }))
+    transition({ step1: data, ...(isExpert ? {} : { currentStep: 2 as const }) })
   }
 
   function handleStep2(data: Step2Data) {
-    setState((prev) => ({
-      ...prev,
-      step2: data,
-      ...(isExpert ? {} : { currentStep: 3 as const }),
-    }))
+    transition({ step2: data, ...(isExpert ? {} : { currentStep: 3 as const }) })
   }
 
   function handleStep3(data: Step3Data) {
-    setState((prev) => ({
-      ...prev,
-      step3: data,
-      ...(isExpert ? {} : { currentStep: 4 as const }),
-    }))
+    transition({ step3: data, ...(isExpert ? {} : { currentStep: 4 as const }) })
   }
 
   function handleStep4(data: Step4Data) {
-    setState((prev) => ({
-      ...prev,
-      step4: data,
-      ...(isExpert ? {} : { currentStep: 5 as const }),
-    }))
+    transition({ step4: data, ...(isExpert ? {} : { currentStep: 5 as const }) })
   }
 
   function handleStep5(data: Step5Data) {
-    setState((prev) => ({
-      ...prev,
-      step5: data,
-      ...(isExpert ? {} : { currentStep: 6 as const }),
-    }))
+    transition({ step5: data, ...(isExpert ? {} : { currentStep: 6 as const }) })
   }
 
   function handleStep6(data: Step6Data) {
-    setState((prev) => ({
-      ...prev,
-      step6: data,
-      ...(isExpert ? {} : { currentStep: 7 as const }),
-    }))
+    transition({ step6: data, ...(isExpert ? {} : { currentStep: 7 as const }) })
   }
 
   // Verifie si les donnees requises pour l'etape courante sont manquantes (mode Expert)
@@ -226,6 +268,8 @@ export function WorkflowClient() {
           </div>
 
           <div className="flex items-center gap-3">
+            <AutosaveIndicator status={autosave} />
+
             {/* Brand DNA badge */}
             <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 border border-violet-500/20 rounded-full">
               <Shield className="size-3.5 text-violet-500" />
@@ -237,6 +281,18 @@ export function WorkflowClient() {
             <ExpertModeToggle />
           </div>
         </div>
+
+        {/* Reprise d'un brouillon enregistré */}
+        {resumeOffer && !state.step1 && (
+          <ResumeBanner
+            title={resumeOffer.title}
+            currentStep={resumeOffer.currentStep}
+            updatedAt={resumeOffer.updatedAt}
+            intlLocale={intlLocale}
+            onResume={resumeSession}
+            onDiscard={discardSession}
+          />
+        )}
 
         {/* Main content grid */}
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -368,6 +424,7 @@ export function WorkflowClient() {
                   step6={state.step6}
                   defaultValues={state.step7}
                   onBack={() => {}}
+                  onPublished={handleWorkflowCompleted}
                 />
               ) : (
                 <MissingDataNotice
@@ -410,6 +467,8 @@ export function WorkflowClient() {
         </div>
 
         <div className="flex items-center gap-3">
+          <AutosaveIndicator status={autosave} />
+
           {/* Brand DNA badge */}
           <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 border border-violet-500/20 rounded-full">
             <Shield className="size-3.5 text-violet-500" />
@@ -421,6 +480,18 @@ export function WorkflowClient() {
           <ExpertModeToggle />
         </div>
       </div>
+
+      {/* Reprise d'un brouillon enregistré */}
+      {resumeOffer && !state.step1 && (
+        <ResumeBanner
+          title={resumeOffer.title}
+          currentStep={resumeOffer.currentStep}
+          updatedAt={resumeOffer.updatedAt}
+          intlLocale={intlLocale}
+          onResume={resumeSession}
+          onDiscard={discardSession}
+        />
+      )}
 
       {/* Avertissement donnees manquantes (mode Expert) */}
       {missingWarning && (
@@ -501,6 +572,7 @@ export function WorkflowClient() {
                 step6={state.step6}
                 defaultValues={state.step7}
                 onBack={() => goTo(6)}
+                onPublished={handleWorkflowCompleted}
               />
             )}
           </div>
@@ -529,6 +601,83 @@ function MissingDataNotice({ message }: { message: string }) {
     <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600 dark:text-amber-400">
       <AlertCircle className="size-3.5 shrink-0" />
       {message}
+    </div>
+  )
+}
+
+/* ─── Indicateur d'autosave (honnête : reflète l'état réel de la sauvegarde DB) ─── */
+
+function AutosaveIndicator({ status }: { status: "idle" | "saving" | "saved" | "error" }) {
+  const t = useTranslations("workflow.autosave")
+  if (status === "idle") return null
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-1.5 text-xs font-medium",
+        status === "error" ? "text-amber-600 dark:text-amber-400" : "text-slate-400 dark:text-slate-500"
+      )}
+    >
+      {status === "saving" && <Loader2 className="size-3 animate-spin" />}
+      {status === "saved" && <Check className="size-3 text-green-500" />}
+      {status === "error" && <Save className="size-3" />}
+      {status === "saving" ? t("saving") : status === "saved" ? t("saved") : t("error")}
+    </div>
+  )
+}
+
+/* ─── Bannière de reprise d'un brouillon de workflow (content_sessions) ─── */
+
+function ResumeBanner({
+  title,
+  currentStep,
+  updatedAt,
+  intlLocale,
+  onResume,
+  onDiscard,
+}: {
+  title: string | null
+  currentStep: number
+  updatedAt: string
+  intlLocale: string
+  onResume: () => void
+  onDiscard: () => void
+}) {
+  const t = useTranslations("workflow.autosave")
+  const when = new Date(updatedAt).toLocaleString(intlLocale, {
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+  return (
+    <div className="max-w-6xl mx-auto mb-6 flex flex-col gap-3 rounded-2xl border border-violet-500/30 bg-violet-500/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-3">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-violet-500/15">
+          <History className="size-4 text-violet-500" />
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t("resumeTitle")}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {t("resumeDesc", { title: title ?? t("untitled"), step: currentStep, when })}
+          </p>
+        </div>
+      </div>
+      <div className="flex shrink-0 gap-2">
+        <button
+          type="button"
+          onClick={onResume}
+          className="rounded-lg bg-gradient-to-r from-violet-600 to-blue-600 px-4 py-2 text-xs font-bold text-white transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          {t("resume")}
+        </button>
+        <button
+          type="button"
+          onClick={onDiscard}
+          className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/[0.05]"
+        >
+          {t("restart")}
+        </button>
+      </div>
     </div>
   )
 }
