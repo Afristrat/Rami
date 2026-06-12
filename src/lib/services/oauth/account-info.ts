@@ -50,27 +50,20 @@ async function fetchTwitterAccount(token: string): Promise<AccountInfo> {
 // ─── LinkedIn ─────────────────────────────────────────────────────────────────
 
 async function fetchLinkedInAccount(token: string): Promise<AccountInfo> {
-  const [profileRes] = await Promise.allSettled([
-    fetch("https://api.linkedin.com/v2/userinfo", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-    fetch("https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName,profilePicture(displayImage~:playableStreams))", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-  ])
+  // OpenID Connect : /userinfo renvoie sub (= member id), name, given_name,
+  // family_name, picture. L'ancien /v2/me (r_liteprofile) n'est plus accessible.
+  const res = await fetch("https://api.linkedin.com/v2/userinfo", {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  if (!res.ok) throw new Error("LinkedIn /userinfo échoué")
 
-  if (profileRes.status === "rejected" || !profileRes.value.ok) {
-    throw new Error("LinkedIn /userinfo échoué")
-  }
-
-  const profile = await profileRes.value.json()
+  const profile = await res.json()
   const name = [profile.given_name, profile.family_name].filter(Boolean).join(" ")
-  const avatar = (profile.picture as string | undefined) ?? null
 
   return {
     accountId: profile.sub as string,
     accountName: name || "Compte LinkedIn",
-    accountAvatar: avatar,
+    accountAvatar: (profile.picture as string | undefined) ?? null,
   }
 }
 

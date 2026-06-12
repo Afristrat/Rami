@@ -32,7 +32,9 @@ export const OAUTH_CONFIGS: Record<OAuthPlatform, OAuthConfig> = {
     platform: "linkedin",
     authorizeUrl: "https://www.linkedin.com/oauth/v2/authorization",
     tokenUrl: "https://www.linkedin.com/oauth/v2/accessToken",
-    scopes: ["openid", "profile", "w_member_social", "r_basicprofile"],
+    // OpenID Connect (Sign In) + partage (Share on LinkedIn). r_basicprofile est
+    // un scope legacy non disponible avec OIDC → remplacé par openid/profile/email.
+    scopes: ["openid", "profile", "email", "w_member_social"],
     clientIdEnv: "LINKEDIN_CLIENT_ID",
     clientSecretEnv: "LINKEDIN_CLIENT_SECRET",
   },

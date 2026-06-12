@@ -77,17 +77,31 @@ export async function GET(
     )
   }
 
-  // Échange code → token
+  // Échange code → token.
+  // Twitter : client confidentiel → HTTP Basic Auth + PKCE (code_verifier = les
+  // 43 premiers caractères du state, cf. le code_challenge "plain" de /authorize).
+  // Autres : client_secret dans le corps (form-urlencoded).
+  const isTwitter = platform === "twitter"
+  const tokenHeaders: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+  }
+  const tokenParams: Record<string, string> = {
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: callbackUrl,
+    client_id: clientId,
+  }
+  if (isTwitter) {
+    tokenParams.code_verifier = state.slice(0, 43)
+    tokenHeaders.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString("base64")}`
+  } else {
+    tokenParams.client_secret = clientSecret
+  }
+
   const tokenRes = await fetch(config.tokenUrl, {
     method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: callbackUrl,
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
+    headers: tokenHeaders,
+    body: new URLSearchParams(tokenParams),
   })
 
   if (!tokenRes.ok) {
