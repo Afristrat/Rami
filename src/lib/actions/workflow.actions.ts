@@ -189,7 +189,8 @@ Pour chaque plateforme dans [${platformsText}], génère :
     {
       "platform": "nom_plateforme",
       "hook": "accroche percutante (max 20 mots)",
-      "caption": "texte complet du post adapté à la plateforme",
+      "hookVariants": ["accroche alternative 1 (max 20 mots)", "accroche alternative 2 (max 20 mots)"],
+      "caption": "texte complet du post adapté à la plateforme, commençant par le hook",
       "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
     }
   ]
@@ -224,6 +225,7 @@ Règles :
       captions: Array<{
         platform: string
         hook: string
+        hookVariants?: string[]
         caption: string
         hashtags: string[]
       }>
@@ -236,6 +238,9 @@ Règles :
         caption: c.caption,
         hashtags: c.hashtags,
         hook: c.hook,
+        hookVariants: Array.isArray(c.hookVariants)
+          ? c.hookVariants.filter((h) => typeof h === "string" && h.trim().length > 0).slice(0, 3)
+          : [],
         charCount: c.caption.length,
       }))
 

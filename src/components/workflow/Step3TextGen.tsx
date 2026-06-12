@@ -65,6 +65,23 @@ export function Step3TextGen({ step1, step2, defaultValues, onBack, onNext }: St
     onNext({ captions, selectedCaptionIndex: selectedIdx })
   }
 
+  // Promeut une accroche alternative en hook actif. La caption est mise à jour
+  // (remplacement de l'ancien hook si présent) → effet réel sur le post final.
+  function swapHook(newHook: string) {
+    setCaptions((prev) =>
+      prev.map((c) => {
+        if (c.platform !== activePlatform) return c
+        const oldHook = c.hook
+        const newCaption =
+          oldHook && c.caption.includes(oldHook) ? c.caption.replace(oldHook, newHook) : c.caption
+        const variants = [oldHook, ...(c.hookVariants ?? [])].filter(
+          (h) => h && h.trim().length > 0 && h !== newHook
+        )
+        return { ...c, hook: newHook, caption: newCaption, charCount: newCaption.length, hookVariants: variants }
+      })
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Top tabs row — Platform + Content type tabs */}
@@ -140,12 +157,6 @@ export function Step3TextGen({ step1, step2, defaultValues, onBack, onNext }: St
               <h4 className="text-xs font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
                 {t("textGen.postCaption")}
               </h4>
-              <button
-                type="button"
-                className="px-3 py-1 rounded-full bg-violet-500/20 text-violet-500 text-[10px] font-bold uppercase tracking-wider"
-              >
-                {t("textGen.expertChatGPT")}
-              </button>
             </div>
 
             <div className="rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05] p-4 space-y-2">
@@ -182,20 +193,18 @@ export function Step3TextGen({ step1, step2, defaultValues, onBack, onNext }: St
                 </div>
               </div>
 
-              {/* Other hook variants (placeholder) */}
-              {captions.filter(c => c.platform === activePlatform).length > 1 && (
-                captions
-                  .filter(c => c.platform === activePlatform)
-                  .slice(1)
-                  .map((c, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-xl border border-slate-200 dark:border-white/10 hover:border-violet-500/50 cursor-pointer transition-all"
-                    >
-                      <p className="text-sm text-slate-600 dark:text-slate-400">&quot;{c.hook}&quot;</p>
-                    </div>
-                  ))
-              )}
+              {/* Accroches alternatives — cliquer promeut la variante en hook actif */}
+              {activeCaption.hookVariants && activeCaption.hookVariants.length > 0 &&
+                activeCaption.hookVariants.map((variant, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => swapHook(variant)}
+                    className="w-full text-left p-3 rounded-xl border border-slate-200 dark:border-white/10 hover:border-violet-500/50 hover:bg-violet-500/5 cursor-pointer transition-all"
+                  >
+                    <p className="text-sm text-slate-600 dark:text-slate-400">&quot;{variant}&quot;</p>
+                  </button>
+                ))}
             </div>
           </div>
 

@@ -37,6 +37,8 @@ export interface GeneratedCaption {
   caption: string
   hashtags: string[]
   hook: string
+  /** Accroches alternatives générées par le LLM — sélectionnables dans le Step 3. */
+  hookVariants?: string[]
   charCount: number
 }
 
