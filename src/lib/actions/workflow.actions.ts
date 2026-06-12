@@ -11,6 +11,7 @@ import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
 import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
 import { generateImage } from "@/lib/services/image-generation"
+import { getStylePreset } from "@/lib/services/image-generation/style-presets"
 import { scoreImageWithVision } from "@/lib/services/brand-dna/vision-scorer"
 import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual } from "@/lib/schemas/workflow.schema"
 import type { Platform } from "@/lib/scheduler/platform-config"
@@ -300,7 +301,8 @@ export type GenerateVisualResult =
 
 export async function generateVisualContentAction(
   step1: Step1Data,
-  _step2: Step2Data
+  _step2: Step2Data,
+  options?: { stylePresetId?: string | null }
 ): Promise<GenerateVisualResult> {
   const ctx = await getAuthContext()
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }
@@ -330,7 +332,11 @@ export async function generateVisualContentAction(
       .filter((h): h is string => typeof h === "string" && h.length > 0)
       ?? [primaryColor]
 
-  const positivePrompt = `${step1.titre}, moderne et épuré design, ${cognitiveObjective} emotion, professional ${sector} brand, dominant color ${primaryColor}, clean composition, high quality marketing visual, modern, premium`
+  // Preset de style sélectionné dans le Step 4 — résolu côté serveur (id inconnu → ignoré).
+  const stylePreset = getStylePreset(options?.stylePresetId)
+  const styleFragment = stylePreset ? `, ${stylePreset.prompt}` : ""
+
+  const positivePrompt = `${step1.titre}, moderne et épuré design, ${cognitiveObjective} emotion, professional ${sector} brand, dominant color ${primaryColor}${styleFragment}, clean composition, high quality marketing visual, modern, premium`
   const negativePrompt = "text, watermark, blur, low quality, generic, stock photo, pixelated, distorted"
   const safePrompt = sanitizePromptInput(positivePrompt)
 
@@ -378,7 +384,7 @@ export async function generateVisualContentAction(
       module: "workflow",
       action: "visuals_generated",
       tenant_id: ctx.tenantId,
-      metadata: { count: scored.length, provider: result.provider, duration_ms: result.duration_ms },
+      metadata: { count: scored.length, provider: result.provider, duration_ms: result.duration_ms, style_preset: stylePreset?.id ?? null },
     })
 
     return { success: true, visuals: scored }

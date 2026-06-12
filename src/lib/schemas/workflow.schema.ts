@@ -56,12 +56,14 @@ export interface GeneratedVisual {
   brandDnaScore: number
   /** false = score heuristique de secours (Vision AI indisponible) — l'UI doit le signaler */
   visionScored?: boolean
-  provider: "fal" | "replicate" | "placeholder" | "nano_banana" | "fal_ai" | "google_imagen" | "together_ai"
+  provider: "fal" | "replicate" | "nano_banana" | "fal_ai" | "google_imagen" | "together_ai"
 }
 
 export interface Step4Data {
   visuals: GeneratedVisual[]
   selectedVisualId: string | null
+  /** Preset de style visuel appliqué à la génération (cf. style-presets.ts) — null = Brand DNA pur. */
+  stylePresetId?: string | null
 }
 
 // ── Étape 5 — Review ─────────────────────────────────────────────────────────
