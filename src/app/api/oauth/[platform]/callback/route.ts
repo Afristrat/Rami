@@ -105,8 +105,19 @@ export async function GET(
   })
 
   if (!tokenRes.ok) {
+    // Surface la vraie cause renvoyée par la plateforme (invalid_grant,
+    // redirect_uri mismatch, invalid_client…) au lieu d'un message opaque.
+    const errBody = await tokenRes.text().catch(() => "")
+    let detail = `HTTP ${tokenRes.status}`
+    try {
+      const parsed = JSON.parse(errBody)
+      detail = parsed.error_description || parsed.error || parsed.detail || detail
+    } catch {
+      if (errBody) detail = errBody.slice(0, 200)
+    }
+    console.error(`[oauth:${platform}] token_exchange_failed:`, tokenRes.status, errBody.slice(0, 500))
     return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_APP_URL}${REDIRECT_ERROR}token_exchange_failed`
+      `${process.env.NEXT_PUBLIC_APP_URL}${REDIRECT_ERROR}token_exchange_failed&detail=${encodeURIComponent(detail.slice(0, 200))}`
     )
   }
 
