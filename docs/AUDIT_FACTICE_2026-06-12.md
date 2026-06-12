@@ -1,0 +1,92 @@
+# Audit anti-factice RAMI — 2026-06-12
+
+Audit exhaustif de la plateforme (5 agents Explore parallèles) pour recenser tout
+ce qui est **factice / non câblé** : boutons sans `onClick`, mock data affichée
+comme réelle, actions stub, scores/tendances inventés. Objectif : tout développer
+et câbler proprement (règle DEFCON 1 — zéro élément qui « fait semblant »).
+
+> ⚠️ **À vérifier avant de coder (faux positifs possibles)** : plusieurs items
+> « billing mocké » / « onboarding sans paiement » sont à recouper — `billing/actions.ts`
+> (Stripe checkout + portal) EST câblé ; il y a probablement une page `/settings/billing`
+> mock distincte de `/billing` réelle. Idem : vérifier si `/dashboard/video` (pipeline
+> mock) est volontairement séparée de `/create/video` (réelle et fonctionnelle).
+
+---
+
+## LOT 1 — Workflow « Créer un post » (le plus visible)
+
+| Élément | Fichier:ligne | Nature | Sévérité |
+|---|---|---|---|
+| Bouton « Enrichir avec l'IA » | Step1Brief.tsx:113 | aucun onClick → action manquante | DEFCON1 |
+| Angles éditoriaux (5 boutons) | Step1Brief.tsx:173 | non sélectionnables (pas dans le form) | DEFCON1 |
+| Variantes de hook cliquables | Step3TextGen.tsx:185 | `cursor-pointer` mais aucun effet | DEFCON1 |
+| Style presets visuels | Step4VisualGen.tsx:12 | sélection sans influence sur la génération | DEFCON1 |
+| Score qualité « A+ » + jauges 85/60% | Step5Review.tsx:34,223 | métriques hardcodées, score inventé | DEFCON1 |
+| URL d'approbation + bouton Copy | Step6Approval.tsx:147 | URL fake, Copy sans handler | DEFCON1 |
+| Suggestion d'horaire optimal | Step7Schedule.tsx:251 | « meilleur moment IA » sans calcul | DEFCON1 |
+| « Brouillon enregistré » | Step1-5 (badge Save) | faux statut, aucune sauvegarde réelle | DEFCON1 |
+| Boutons hashtag/UTM/angle custom/Expert | Step5/Step1/Step3 | sans handler | MINEUR |
+| Bouton « Enregistrer comme brouillon » | Step5Review.tsx:290 | sans onClick | MINEUR |
+
+## LOT 2 — Vidéo IA (page pipeline = démo entière)
+
+- `/dashboard/video/page.tsx` : **page entièrement mock** (PIPELINE_STEPS, SCRIPT_SECTIONS,
+  VOICE_ACTORS, STORYBOARD_FRAMES, waveform simulée, 3 boutons majeurs sans onClick :
+  voix, « Regenerate All », « Generate Pipeline »). **DEFCON1**.
+- ✅ `/create/video` (VideoGeneratorClient) + `services/video-generation/*` (Veo/Runway/Kling/Luma/Wan)
+  = **réels et câblés**. → Décision : soit câbler la page pipeline, soit la retirer/fusionner
+  avec `/create/video`.
+
+## LOT 3 — Présentations (module mock complet)
+
+- `presentation-wizard.tsx` : MOCK_SLIDES/MOCK_THEMES, **aucune persistance DB**, aucune action serveur.
+- `step-result.tsx:66` : boutons « Download PPTX » + « Edit in Canva » **sans handler**.
+- Pas dans la sidebar ; route `/presentations/new` douteuse.
+- → Story dédiée US-041/042/043 (génération plan + slides + export). **DEFCON1**.
+
+## LOT 4 — Dashboard & Analytics & Library (résiduel)
+
+| Élément | Fichier:ligne | Nature | Sévérité |
+|---|---|---|---|
+| Distribution plateformes 45/30/15/10 | platform-distribution.tsx:13 | pourcentages hardcodés | DEFCON1 |
+| « Tendance vs semaine dernière » | BrandDnaKpiCard.tsx:22 | texte trend sans données | DEFCON1 |
+| Approbations (Kanban) | approval-board.tsx:16 | MOCK_ITEMS, handlers locaux only | DEFCON1 |
+| Export PDF analytics | analytics-filters.tsx:122 | sans onClick | MINEUR |
+| Filtres avancés (sliders/search) | analytics-dashboard.tsx:128 | sans handler | MINEUR |
+| Lien « rapport complet » `href="#"` | analytics-dashboard.tsx:134 | lien mort | MINEUR |
+| Filtre Score DNA / Date | media-library-client.tsx:56,210 | toggle sans effet sur la requête | MINEUR |
+| Lignes top-posts `cursor-pointer` | top-posts-table.tsx:102 | sans onClick (fausse interactivité) | MINEUR |
+
+## LOT 5 — Documents / Transcriptions / Leads
+
+| Élément | Fichier:ligne | Nature | Sévérité |
+|---|---|---|---|
+| Bouton Download (liste docs) | DocumentsTable.tsx:259 | appelle handleView au lieu de la route /pdf | DEFCON1 |
+| Transcriptions : MOCK_SPEAKERS/SUMMARY/VERBATIMS | TranscriptionResult/AiSummaryPanel | mock affiché si Whisper absent, sans badge démo | DEFCON1 |
+| Leads : import Apollo / recherche | leads/client.tsx:24, LeadFilters.tsx | callbacks vides, inputs non bindés | MINEUR |
+
+## LOT 6 — Settings / Onboarding / Découvrabilité
+
+| Élément | Fichier:ligne | Nature | Sévérité |
+|---|---|---|---|
+| Onboarding sans étape « Connexions sociales » | OnboardingWizard.tsx:20 | parcours incomplet | DEFCON1 |
+| Page Connexions absente de la sidebar | nav-config.ts | non découvrable | DEFCON1 |
+| RGPD « Télécharger mes données » | general-settings-client.tsx:675 | sans handler (obligation légale) | DEFCON1 |
+| `/settings/billing` mock (plan/invoices/boutons) | billing-settings-client.tsx | **à recouper avec /billing réel** | À VÉRIFIER |
+| Timezone / langue / workspace | general-settings-client.tsx | sélecteurs sans sauvegarde | MINEUR |
+| Équipe : projet/message d'invitation | team-manager.tsx:113 | states non utilisés | MINEUR |
+| Présentations absentes de la sidebar | nav-config.ts | découvrabilité | MINEUR |
+| Brand DNA : exemples de posts | brand-dna/page.tsx:54 | templates en dur (pas IA) | MINEUR |
+
+---
+
+## Ordre d'exécution proposé
+
+1. **LOT 1** (workflow Créer un post) — le plus visible, là où l'utilisateur bute.
+2. **LOT 5** (Documents download + Transcriptions badge démo) — rapides.
+3. **LOT 4** (Dashboard distribution + trend + Approvals réelles).
+4. **LOT 6** (Onboarding connexions + sidebar Connexions + RGPD export).
+5. **LOT 2** (Vidéo pipeline : câbler ou retirer).
+6. **LOT 3** (Présentations : US-041/042/043).
+
+Chaque lot = une story Ralph, gates complets + browser-verify prod avant `passes=true`.

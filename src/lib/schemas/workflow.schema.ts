@@ -9,6 +9,9 @@ export const step1Schema = z.object({
   description: z.string().min(10, V.descriptionRequired).max(2000).trim(),
   objectif: z.enum(["confiance", "urgence", "aspiration", "expertise", "communauté", "joie", "sérénité"]),
   cible: z.string().max(300).trim().optional(),
+  // Angle éditorial (sélectionné parmi des suggestions ou saisi) — injecté dans
+  // la génération de texte pour orienter l'accroche et le traitement.
+  angle: z.string().max(120).trim().optional(),
 })
 
 export type Step1Data = z.infer<typeof step1Schema>

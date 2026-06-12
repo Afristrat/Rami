@@ -60,6 +60,80 @@ const PLATFORM_CHAR_LIMITS: Record<Platform, number> = {
 
 // callTextLLM est désormais partagé : src/lib/services/ai/text-llm.ts
 
+// ── Action : Enrichir le brief (Step 1) ───────────────────────────────────────
+
+export type EnrichBriefResult =
+  | { success: true; description: string }
+  | { success: false; error: string }
+
+/**
+ * Enrichit la description d'un brief de post via le LLM (deepseek), en tenant
+ * compte du Brand DNA du tenant. Renvoie une description prête à servir de base
+ * à la génération de contenu. Aucun texte inventé hors-sujet : on part du brief
+ * existant.
+ */
+export async function enrichBriefAction(input: {
+  titre: string
+  description: string
+  objectif?: string
+  angle?: string
+}): Promise<EnrichBriefResult> {
+  const ctx = await getAuthContext()
+  if (!ctx?.tenantId) return { success: false, error: "Non authentifié." }
+
+  const titre = sanitizePromptInput(input.titre ?? "")
+  const description = sanitizePromptInput(input.description ?? "")
+  if (description.trim().length < 10) {
+    return { success: false, error: "Décrivez d'abord votre contenu (10 caractères minimum)." }
+  }
+
+  const tenant = await getTenantBrandDna(ctx.tenantId)
+  const dna = normalizeBrandDNA(tenant?.brand_dna)
+  const hasDna = Boolean(dna.identity?.name || dna.identity?.sector)
+  const brandContext = hasDna
+    ? `Marque : ${dna.identity?.name || tenant?.name || "—"} · Secteur : ${dna.identity?.sector || "—"} · Ton : ${dna.editorial_tone?.register || "professionnel"} · Marché : ${dna.culture_markets?.primary_culture || "—"}`
+    : ""
+
+  const config = await getPromptConfig("workflow_brief_enrich")
+  const userPrompt = [
+    "Enrichis le brief suivant en une description claire et actionnable (100-220 mots, français), prête pour la génération de contenu. Garde l'intention, ajoute le contexte utile, une accroche et les points clés. Ne renvoie QUE la description enrichie.",
+    `Titre : ${titre}`,
+    `Objectif cognitif : ${input.objectif || "non défini"}`,
+    input.angle ? `Angle éditorial : ${sanitizePromptInput(input.angle)}` : "",
+    `Description actuelle : ${description}`,
+    brandContext,
+  ]
+    .filter(Boolean)
+    .join("\n")
+
+  try {
+    const raw = await callTextLLM({
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey,
+      systemPrompt: config.systemPrompt,
+      userPrompt,
+      maxTokens: 600,
+      temperature: config.temperature,
+    })
+    const enriched = raw.trim().replace(/^["']|["']$/g, "").slice(0, 2000)
+    if (enriched.length < 10) {
+      return { success: false, error: "L'enrichissement n'a rien renvoyé d'exploitable. Réessayez." }
+    }
+    return { success: true, description: enriched }
+  } catch (err) {
+    log({
+      level: "error",
+      module: "workflow",
+      action: "enrich_brief_failed",
+      tenant_id: ctx.tenantId,
+      message: "Échec de l'enrichissement du brief",
+      metadata: { error: String(err) },
+    })
+    return { success: false, error: "L'enrichissement IA a échoué. Réessayez dans un instant." }
+  }
+}
+
 // ── Action : Génération textes ────────────────────────────────────────────────
 
 export type GenerateTextResult =
@@ -97,11 +171,15 @@ Brand DNA :
 
   const captionConfig = await getPromptConfig("workflow_caption_generation")
 
+  const angleText = step1.angle
+    ? `Angle éditorial à privilégier : ${sanitizePromptInput(step1.angle)}\n`
+    : ""
+
   const userPrompt = `Génère des captions pour ce contenu :
 
 Titre : ${step1.titre}
 Description : ${safeDescription}
-${brandContext}
+${angleText}${brandContext}
 Plateformes cibles : ${platformsText}
 Format : ${format}
 

@@ -1,12 +1,14 @@
 "use client"
 
+import { useState, useTransition } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { step1Schema, type Step1Data } from "@/lib/schemas/workflow.schema"
 import { cn } from "@/lib/utils"
-import { ArrowRight, Sparkles, ShieldCheck, AlertTriangle, TrendingUp, Settings, Users, Smile, Heart, Save } from "lucide-react"
+import { ArrowRight, Sparkles, ShieldCheck, AlertTriangle, TrendingUp, Settings, Users, Smile, Heart, Loader2, Plus } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { TranslatedFieldError } from "@/components/ui/field-error-i18n"
+import { enrichBriefAction } from "@/lib/actions/workflow.actions"
 
 interface Step1BriefProps {
   defaultValues?: Step1Data | null
@@ -40,6 +42,7 @@ export function Step1Brief({ defaultValues, onNext }: Step1BriefProps) {
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm<Step1Data>({
     resolver: zodResolver(step1Schema),
@@ -48,11 +51,38 @@ export function Step1Brief({ defaultValues, onNext }: Step1BriefProps) {
       description: "",
       objectif: undefined,
       cible: "",
+      angle: "",
     },
   })
 
   const selectedObjectif = useWatch({ control, name: "objectif" })
   const description = useWatch({ control, name: "description", defaultValue: "" })
+  const selectedAngle = useWatch({ control, name: "angle", defaultValue: "" })
+
+  const [isEnriching, startEnrich] = useTransition()
+  const [enrichError, setEnrichError] = useState<string | null>(null)
+  const [showCustomAngle, setShowCustomAngle] = useState(false)
+
+  const handleEnrich = () => {
+    setEnrichError(null)
+    const { titre, description: desc, objectif, angle } = getValues()
+    if ((desc ?? "").trim().length < 10) {
+      setEnrichError(t("enrichNeedDescription"))
+      return
+    }
+    startEnrich(async () => {
+      const result = await enrichBriefAction({ titre: titre ?? "", description: desc ?? "", objectif, angle })
+      if (result.success) {
+        setValue("description", result.description, { shouldValidate: true })
+      } else {
+        setEnrichError(result.error)
+      }
+    })
+  }
+
+  // L'angle sélectionné peut être l'une des suggestions OU une saisie libre.
+  const isSuggestionSelected = (angle: string) => selectedAngle === angle
+  const isCustomAngle = Boolean(selectedAngle) && !ANGLES.includes(selectedAngle ?? "")
 
   return (
     <form onSubmit={handleSubmit(onNext)} className="space-y-10">
@@ -109,17 +139,32 @@ export function Step1Brief({ defaultValues, onNext }: Step1BriefProps) {
         )}
 
         {/* Enrichir avec l'IA button */}
-        <div className="mt-4 flex justify-end">
+        <div className="mt-4 flex flex-col items-end gap-2">
+          {enrichError && (
+            <p className="text-xs text-red-500 dark:text-red-400">{enrichError}</p>
+          )}
           <button
             type="button"
+            onClick={handleEnrich}
+            disabled={isEnriching}
             className={cn(
               "flex items-center gap-2 px-4 py-2",
               "bg-violet-500/20 hover:bg-violet-500/30 text-violet-500 dark:text-violet-400",
-              "border border-violet-500/30 rounded-lg text-sm font-semibold transition-all"
+              "border border-violet-500/30 rounded-lg text-sm font-semibold transition-all",
+              "disabled:opacity-60 disabled:cursor-not-allowed"
             )}
           >
-            <Sparkles className="size-4" />
-            {t("enrichWithAI")}
+            {isEnriching ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                {t("enriching")}
+              </>
+            ) : (
+              <>
+                <Sparkles className="size-4" />
+                {t("enrichWithAI")}
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -170,27 +215,57 @@ export function Step1Brief({ defaultValues, onNext }: Step1BriefProps) {
           {t("sectionC")}
         </h3>
         <div className="flex flex-wrap gap-3">
-          {ANGLES.map((angle) => (
-            <button
-              key={angle}
-              type="button"
-              className={cn(
-                "px-4 py-2 rounded-full border text-sm font-medium transition-all",
-                "border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.05]",
-                "text-slate-700 dark:text-slate-300",
-                "hover:bg-violet-600 hover:text-white hover:border-violet-600"
-              )}
-            >
-              {angle}
-            </button>
-          ))}
+          {ANGLES.map((angle) => {
+            const active = isSuggestionSelected(angle)
+            return (
+              <button
+                key={angle}
+                type="button"
+                onClick={() => {
+                  setShowCustomAngle(false)
+                  // Toggle : recliquer l'angle actif le désélectionne.
+                  setValue("angle", active ? "" : angle, { shouldValidate: true })
+                }}
+                aria-pressed={active}
+                className={cn(
+                  "px-4 py-2 rounded-full border text-sm font-medium transition-all",
+                  active
+                    ? "bg-violet-600 text-white border-violet-600"
+                    : "border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.05] text-slate-700 dark:text-slate-300 hover:bg-violet-600 hover:text-white hover:border-violet-600"
+                )}
+              >
+                {angle}
+              </button>
+            )
+          })}
           <button
             type="button"
-            className="px-3 py-2 rounded-full border border-dashed border-slate-300 dark:border-white/20 text-sm text-slate-400 dark:text-slate-500 flex items-center gap-1"
+            onClick={() => setShowCustomAngle((v) => !v)}
+            className={cn(
+              "px-3 py-2 rounded-full border border-dashed text-sm flex items-center gap-1 transition-all",
+              isCustomAngle || showCustomAngle
+                ? "border-violet-500 text-violet-500 dark:text-violet-400"
+                : "border-slate-300 dark:border-white/20 text-slate-400 dark:text-slate-500 hover:border-violet-500/60"
+            )}
           >
+            <Plus className="size-3.5" />
             {t("customAngle")}
           </button>
         </div>
+        {(showCustomAngle || isCustomAngle) && (
+          <input
+            type="text"
+            value={isCustomAngle ? selectedAngle ?? "" : (showCustomAngle ? selectedAngle ?? "" : "")}
+            onChange={(e) => setValue("angle", e.target.value.slice(0, 120), { shouldValidate: true })}
+            placeholder={t("customAnglePlaceholder")}
+            maxLength={120}
+            className={cn(
+              "mt-3 w-full bg-slate-100 dark:bg-white/[0.06] border-0 rounded-xl px-4 py-2.5 text-sm",
+              "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600",
+              "focus:ring-2 focus:ring-violet-500/40 outline-none transition-all"
+            )}
+          />
+        )}
       </div>
 
       {/* Audience cible */}
@@ -211,11 +286,7 @@ export function Step1Brief({ defaultValues, onNext }: Step1BriefProps) {
       </div>
 
       {/* Bottom Actions */}
-      <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-white/10">
-        <div className="flex items-center gap-2 text-xs font-medium text-slate-400 dark:text-slate-500">
-          <Save className="size-3.5" />
-          {t("draftSaved")}
-        </div>
+      <div className="flex items-center justify-end pt-6 border-t border-slate-200 dark:border-white/10">
         <button
           type="submit"
           className={cn(

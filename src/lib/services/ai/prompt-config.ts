@@ -158,6 +158,16 @@ const FALLBACK_CONFIGS: Record<string, Omit<PromptConfig, "apiKey" | "userMessag
     temperature: 0.4,
   },
 
+  // ── BRIEF (temp 0.6) — enrichissement du brief de post ───────────────────
+  workflow_brief_enrich: {
+    fieldKey: "workflow_brief_enrich",
+    systemPrompt:
+      "Tu es un stratège en contenu social media pour les marchés africains et MENA. Tu enrichis un brief de post en une description claire, contextualisée et actionnable, prête à servir de base à la génération de contenu. Garde l'intention initiale de l'auteur. Réponds UNIQUEMENT par la description enrichie (100-220 mots), sans titre, sans markdown, sans guillemets.",
+    provider: "openai",
+    model: "deepseek-v4-flash",
+    temperature: 0.6,
+  },
+
   // ── DOCUMENTS COMMERCIAUX (temp 0.5) — offres, propositions ──────────────
   document_commercial_offer: {
     fieldKey: "document_commercial_offer",
