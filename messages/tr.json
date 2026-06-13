@@ -1738,14 +1738,15 @@
       "missingConnection": "Eksik bağlantı"
     },
     "sidebar": {
-      "activeBrandDna": "Active Brand DNA",
-      "colorPalette": "Color Palette",
-      "platformsAndTone": "Platforms & Tone",
-      "alignmentScore": "Alignment score",
-      "history": "History",
-      "viewAllHistory": "View full history",
-      "defaultBrand": "Active brand",
-      "defaultTone": "Confident expert"
+      "activeBrandDna": "Aktif Marka DNA’sı",
+      "colorPalette": "Renk paleti",
+      "platformsAndTone": "Platformlar ve ton",
+      "alignmentScore": "Uyum puanı",
+      "history": "Geçmiş",
+      "viewAllHistory": "Tüm geçmişi görüntüle",
+      "noBrandDna": "Marka DNA’sı yapılandırılmadı",
+      "configureBrandDna": "Marka DNA’sını yapılandır",
+      "noHistory": "Yakın zamanda gönderi yok"
     },
     "platforms": {
       "selected": "{count} platform(s) selected",

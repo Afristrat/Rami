@@ -1744,8 +1744,9 @@
       "alignmentScore": "Alignment score",
       "history": "History",
       "viewAllHistory": "View full history",
-      "defaultBrand": "Active brand",
-      "defaultTone": "Confident expert"
+      "noBrandDna": "Brand DNA not configured",
+      "configureBrandDna": "Configure Brand DNA",
+      "noHistory": "No recent posts"
     },
     "platforms": {
       "selected": "{count} platform(s) selected",

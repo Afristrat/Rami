@@ -1738,14 +1738,15 @@
       "missingConnection": "Conexión faltante"
     },
     "sidebar": {
-      "activeBrandDna": "Active Brand DNA",
-      "colorPalette": "Color Palette",
-      "platformsAndTone": "Platforms & Tone",
-      "alignmentScore": "Alignment score",
-      "history": "History",
-      "viewAllHistory": "View full history",
-      "defaultBrand": "Active brand",
-      "defaultTone": "Confident expert"
+      "activeBrandDna": "Brand DNA activo",
+      "colorPalette": "Paleta de colores",
+      "platformsAndTone": "Plataformas y tono",
+      "alignmentScore": "Puntuación de alineación",
+      "history": "Historial",
+      "viewAllHistory": "Ver historial completo",
+      "noBrandDna": "Brand DNA no configurado",
+      "configureBrandDna": "Configurar Brand DNA",
+      "noHistory": "Sin publicaciones recientes"
     },
     "platforms": {
       "selected": "{count} platform(s) selected",

@@ -1738,14 +1738,15 @@
       "missingConnection": "缺少连接"
     },
     "sidebar": {
-      "activeBrandDna": "Active Brand DNA",
-      "colorPalette": "Color Palette",
-      "platformsAndTone": "Platforms & Tone",
-      "alignmentScore": "Alignment score",
-      "history": "History",
-      "viewAllHistory": "View full history",
-      "defaultBrand": "Active brand",
-      "defaultTone": "Confident expert"
+      "activeBrandDna": "活跃品牌 DNA",
+      "colorPalette": "调色板",
+      "platformsAndTone": "平台与语气",
+      "alignmentScore": "对齐评分",
+      "history": "历史记录",
+      "viewAllHistory": "查看完整历史",
+      "noBrandDna": "品牌 DNA 未配置",
+      "configureBrandDna": "配置品牌 DNA",
+      "noHistory": "暂无近期帖子"
     },
     "platforms": {
       "selected": "{count} platform(s) selected",

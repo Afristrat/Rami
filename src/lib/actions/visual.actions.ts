@@ -13,6 +13,7 @@ import {
   type PerformancePrior,
 } from '@/lib/services/brand-dna/prompt-compiler'
 import { normalizeBrandDNA } from '@/lib/services/brand-dna/normalize'
+import { scoreCulturalCoherenceFromHex, type CulturalLevel } from '@/lib/services/brand-dna/cultural-scorer'
 import { buildPerformancePrior } from '@/lib/services/metrics/attribution'
 import { scoreImageWithVision } from '@/lib/services/brand-dna/vision-scorer'
 import { storeVisual } from '@/lib/services/storage/visual-storage'
@@ -596,4 +597,108 @@ export async function getVisualSessionsAction(limit = 10): Promise<{
       created_at: s.created_at,
     })),
   }
+}
+
+// ============================================================
+// Données réelles du panneau latéral du workflow « Créer un post »
+// (remplace le mock WorkflowSidebar : score 0.87 + historique inventés)
+// ============================================================
+
+export interface WorkflowSidebarBrandDNA {
+  name: string
+  /** Couleurs HEX réelles de la palette de marque. */
+  colors: string[]
+  /** Plateformes actives réelles (identifiants). */
+  platforms: string[]
+  /** Ton éditorial réel (voiceTone), si renseigné. */
+  tone?: string
+  /** Score de cohérence culturelle RÉEL (palette × secteur) — absent si le secteur n'a pas de règle Causse. */
+  culturalScore?: { score: number; level: CulturalLevel }
+}
+
+export interface WorkflowSidebarHistoryItem {
+  id: string
+  title: string
+  platform: string
+  status: string
+  createdAt: string
+}
+
+/**
+ * Charge les données RÉELLES du panneau latéral : Brand DNA du tenant (couleurs,
+ * plateformes, ton, score de cohérence culturelle calculé) + historique des posts
+ * récents. Aucune donnée fabriquée : état vide honnête si rien à afficher.
+ */
+export async function getWorkflowSidebarDataAction(): Promise<{
+  brandDNA: WorkflowSidebarBrandDNA | null
+  history: WorkflowSidebarHistoryItem[]
+}> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { brandDNA: null, history: [] }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { brandDNA: null, history: [] }
+
+  // ── Brand DNA réel ──
+  const { data: tenant } = await supabase
+    .from('tenants')
+    .select('brand_dna')
+    .eq('id', tenantId)
+    .single()
+
+  let brandDNA: WorkflowSidebarBrandDNA | null = null
+  if (tenant?.brand_dna) {
+    const dna = normalizeBrandDNA(tenant.brand_dna)
+    const name = dna.identity?.name
+    if (name) {
+      const colors = (dna.color_palette ?? [])
+        .map((c) => c.hex)
+        .filter((h): h is string => typeof h === 'string' && h.length > 0)
+      const sector = dna.identity?.sector
+
+      let culturalScore: WorkflowSidebarBrandDNA['culturalScore']
+      if (sector && colors.length > 0) {
+        const result = scoreCulturalCoherenceFromHex({ sector, hexColors: colors })
+        // N'afficher un score que s'il repose sur de vraies règles Causse (sinon = neutre non significatif).
+        if (result.hasRules) {
+          culturalScore = { score: result.score, level: result.level }
+        }
+      }
+
+      brandDNA = {
+        name,
+        colors,
+        platforms: dna.active_platforms ?? [],
+        tone: dna.editorial_tone?.register,
+        culturalScore,
+      }
+    }
+  }
+
+  // ── Historique réel : posts récents du tenant ──
+  const { data: postsData } = await supabase
+    .from('posts')
+    .select('id, title, content, platforms, status, created_at')
+    .eq('tenant_id', tenantId)
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  const history: WorkflowSidebarHistoryItem[] = (postsData ?? []).map((p) => {
+    const platforms = Array.isArray(p.platforms) ? p.platforms : []
+    const title = (typeof p.title === 'string' && p.title.trim().length > 0)
+      ? p.title.trim()
+      : (typeof p.content === 'string' ? p.content.slice(0, 60) : '')
+    return {
+      id: p.id,
+      title,
+      platform: platforms.length > 0 ? String(platforms[0]) : '',
+      status: p.status,
+      createdAt: p.created_at,
+    }
+  })
+
+  return { brandDNA, history }
 }

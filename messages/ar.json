@@ -1744,8 +1744,9 @@
       "alignmentScore": "نتيجة التوافق",
       "history": "السجل",
       "viewAllHistory": "عرض السجل الكامل",
-      "defaultBrand": "العلامة النشطة",
-      "defaultTone": "خبير واثق"
+      "noBrandDna": "لم يتم إعداد الحمض النووي للعلامة التجارية",
+      "configureBrandDna": "إعداد الحمض النووي للعلامة التجارية",
+      "noHistory": "لا توجد منشورات حديثة"
     },
     "platforms": {
       "selected": "{count} منصة محددة",

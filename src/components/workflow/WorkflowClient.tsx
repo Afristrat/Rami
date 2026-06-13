@@ -8,6 +8,11 @@ import {
   closeWorkflowSessionAction,
   type LoadWorkflowSessionResult,
 } from "@/lib/actions/workflow-session.actions"
+import {
+  getWorkflowSidebarDataAction,
+  type WorkflowSidebarBrandDNA,
+  type WorkflowSidebarHistoryItem,
+} from "@/lib/actions/visual.actions"
 import { WorkflowStepper } from "./WorkflowStepper"
 import { WorkflowSidebar } from "./WorkflowSidebar"
 import { Step1Brief } from "./Step1Brief"
@@ -137,11 +142,26 @@ export function WorkflowClient() {
   const [resumeOffer, setResumeOffer] = useState<Extract<LoadWorkflowSessionResult, { found: true }> | null>(null)
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved" | "error">("idle")
 
+  // ── Données réelles du panneau latéral (Brand DNA + historique des posts) ──
+  const [sidebarBrandDNA, setSidebarBrandDNA] = useState<WorkflowSidebarBrandDNA | null>(null)
+  const [sidebarHistory, setSidebarHistory] = useState<WorkflowSidebarHistoryItem[]>([])
+  const [sidebarLoading, setSidebarLoading] = useState(true)
+
   useEffect(() => {
     let cancelled = false
     loadLatestWorkflowSessionAction().then((result) => {
       if (!cancelled && result.found) setResumeOffer(result)
     })
+    getWorkflowSidebarDataAction()
+      .then((data) => {
+        if (cancelled) return
+        setSidebarBrandDNA(data.brandDNA)
+        setSidebarHistory(data.history)
+        setSidebarLoading(false)
+      })
+      .catch(() => {
+        if (!cancelled) setSidebarLoading(false)
+      })
     return () => {
       cancelled = true
     }
@@ -436,7 +456,11 @@ export function WorkflowClient() {
 
           {/* Side Panels */}
           <div className="lg:col-span-4">
-            <WorkflowSidebar />
+            <WorkflowSidebar
+              brandDNA={sidebarBrandDNA}
+              history={sidebarHistory}
+              loading={sidebarLoading}
+            />
           </div>
         </div>
       </div>
@@ -580,7 +604,11 @@ export function WorkflowClient() {
 
         {/* Side Panels */}
         <div className="lg:col-span-4">
-          <WorkflowSidebar />
+          <WorkflowSidebar
+            brandDNA={sidebarBrandDNA}
+            history={sidebarHistory}
+            loading={sidebarLoading}
+          />
         </div>
       </div>
 
