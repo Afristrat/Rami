@@ -1762,7 +1762,9 @@
       "reel": "ريل",
       "reelDesc": "فيديو قصير عمودي",
       "article": "مقال",
-      "articleDesc": "محتوى طويل"
+      "articleDesc": "محتوى طويل",
+      "platformRequired": "اختر منصة واحدة على الأقل.",
+      "formatRequired": "اختر تنسيق المحتوى."
     },
     "textGen": {
       "generatingCaptions": "Claude Haiku يُنتج تعليقاتك التوضيحية…",

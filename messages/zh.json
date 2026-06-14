@@ -1762,7 +1762,9 @@
       "reel": "Reel",
       "reelDesc": "Short vertical video",
       "article": "Article",
-      "articleDesc": "Long-form content"
+      "articleDesc": "Long-form content",
+      "platformRequired": "请至少选择一个平台。",
+      "formatRequired": "请选择内容格式。"
     },
     "textGen": {
       "generatingCaptions": "Claude Haiku is generating your captions...",

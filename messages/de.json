@@ -1762,7 +1762,9 @@
       "reel": "Reel",
       "reelDesc": "Short vertical video",
       "article": "Article",
-      "articleDesc": "Long-form content"
+      "articleDesc": "Long-form content",
+      "platformRequired": "Wählen Sie mindestens eine Plattform.",
+      "formatRequired": "Wählen Sie ein Inhaltsformat."
     },
     "textGen": {
       "generatingCaptions": "Claude Haiku is generating your captions...",

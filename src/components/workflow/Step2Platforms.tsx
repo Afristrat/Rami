@@ -50,7 +50,9 @@ export function Step2Platforms({ defaultValues, onBack, onNext }: Step2Platforms
   }
 
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>(defaultValues?.platforms ?? [])
-  const [selectedFormat, setSelectedFormat] = useState<Step2Data["format"] | undefined>(defaultValues?.format)
+  // Le format est requis par le schéma → pré-sélectionner « post » (universel) pour ne
+  // jamais bloquer la progression avec une erreur cryptique ; l'utilisateur peut changer.
+  const [selectedFormat, setSelectedFormat] = useState<Step2Data["format"]>(defaultValues?.format ?? "post")
   const [errors, setErrors] = useState<{ platforms?: string; format?: string }>({})
 
   function togglePlatform(platform: Platform) {
@@ -65,7 +67,9 @@ export function Step2Platforms({ defaultValues, onBack, onNext }: Step2Platforms
       const fieldErrors: { platforms?: string; format?: string } = {}
       for (const issue of result.error.issues) {
         const path = issue.path[0] as "platforms" | "format"
-        if (path) fieldErrors[path] = issue.message
+        // Messages i18n lisibles (jamais le message Zod brut anglais).
+        if (path === "platforms") fieldErrors.platforms = t("platforms.platformRequired")
+        else if (path === "format") fieldErrors.format = t("platforms.formatRequired")
       }
       setErrors(fieldErrors)
       return
