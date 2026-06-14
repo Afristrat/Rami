@@ -418,12 +418,12 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
             <UserPlus className="size-7" />
           </div>
 
-          <h2 className="text-2xl font-extrabold mb-2 text-foreground dark:text-white">
+          <DialogTitle className="text-2xl font-extrabold mb-2 text-foreground dark:text-white">
             {t("inviteNewMember")}
-          </h2>
-          <p className="text-muted-foreground dark:text-slate-400 text-sm mb-8">
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground dark:text-slate-400 text-sm mb-8">
             {t("inviteSubtitle")}
-          </p>
+          </DialogDescription>
 
           <form onSubmit={handleInvite} className="space-y-6">
             <div>
