@@ -10,50 +10,57 @@ import { z } from "zod"
 export const DECK_LANGUAGES = ["fr", "ar", "en"] as const
 export type DeckLanguage = (typeof DECK_LANGUAGES)[number]
 
+// Contraintes volontairement généreuses : un LLM produit du contenu de longueur
+// variable. On préfère accepter et tronquer à l'affichage plutôt que rejeter un
+// deck entier sur un dépassement cosmétique.
+const TITLE = z.string().min(1).max(300)
+const LONG = z.string().min(1).max(800)
+const MED = z.string().min(1).max(400)
+
 export const deckSlideSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("cover"),
-    title: z.string().min(1).max(160),
-    subtitle: z.string().max(240).optional(),
+    title: TITLE,
+    subtitle: z.string().max(500).optional(),
   }),
   z.object({
     type: z.literal("agenda"),
-    title: z.string().min(1).max(160),
-    items: z.array(z.string().min(1).max(160)).min(2).max(10),
+    title: TITLE,
+    items: z.array(MED).min(2).max(20),
   }),
   z.object({
     type: z.literal("section"),
-    title: z.string().min(1).max(160),
-    subtitle: z.string().max(240).optional(),
+    title: TITLE,
+    subtitle: z.string().max(500).optional(),
   }),
   z.object({
     type: z.literal("content"),
-    title: z.string().min(1).max(160),
-    bullets: z.array(z.string().min(1).max(320)).min(1).max(8),
+    title: TITLE,
+    bullets: z.array(LONG).min(1).max(15),
   }),
   z.object({
     type: z.literal("twoColumn"),
-    title: z.string().min(1).max(160),
-    leftTitle: z.string().min(1).max(80),
-    left: z.array(z.string().min(1).max(240)).min(1).max(6),
-    rightTitle: z.string().min(1).max(80),
-    right: z.array(z.string().min(1).max(240)).min(1).max(6),
+    title: TITLE,
+    leftTitle: z.string().min(1).max(160),
+    left: z.array(MED).min(1).max(12),
+    rightTitle: z.string().min(1).max(160),
+    right: z.array(MED).min(1).max(12),
   }),
   z.object({
     type: z.literal("stat"),
-    title: z.string().min(1).max(160),
-    stat: z.string().min(1).max(40),
-    caption: z.string().max(240).optional(),
+    title: TITLE,
+    stat: z.string().min(1).max(120),
+    caption: z.string().max(400).optional(),
   }),
   z.object({
     type: z.literal("quote"),
-    quote: z.string().min(1).max(320),
-    author: z.string().max(120).optional(),
+    quote: z.string().min(1).max(600),
+    author: z.string().max(200).optional(),
   }),
   z.object({
     type: z.literal("conclusion"),
-    title: z.string().min(1).max(160),
-    bullets: z.array(z.string().min(1).max(320)).min(1).max(8),
+    title: TITLE,
+    bullets: z.array(LONG).min(1).max(15),
   }),
 ])
 
@@ -61,7 +68,7 @@ export type DeckSlide = z.infer<typeof deckSlideSchema>
 export type DeckSlideType = DeckSlide["type"]
 
 export const deckSchema = z.object({
-  slides: z.array(deckSlideSchema).min(3).max(20),
+  slides: z.array(deckSlideSchema).min(3).max(30),
 })
 
 export type Deck = z.infer<typeof deckSchema>

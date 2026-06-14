@@ -3,7 +3,7 @@
 // Construit les prompts LLM et valide/parse la réponse en un Deck typé.
 // ============================================================
 
-import { deckSchema, type Deck, type DeckLanguage } from "@/lib/schemas/presentation.schema"
+import { deckSchema, deckSlideSchema, type Deck, type DeckLanguage } from "@/lib/schemas/presentation.schema"
 import type { BrandDNA } from "@/lib/services/brand-dna/prompt-compiler"
 
 const LANGUAGE_LABELS: Record<DeckLanguage, string> = {
@@ -85,6 +85,19 @@ export function parseDeck(raw: string): Deck | null {
   } catch {
     return null
   }
+
   const result = deckSchema.safeParse(parsed)
-  return result.success ? result.data : null
+  if (result.success) return result.data
+
+  // Sauvetage : ne pas rejeter tout le deck si une seule slide est non conforme.
+  // On conserve les slides individuellement valides (et on exige toujours ≥ 3).
+  const rawSlides = (parsed as { slides?: unknown })?.slides
+  if (!Array.isArray(rawSlides)) return null
+  const valid = rawSlides
+    .map((s) => deckSlideSchema.safeParse(s))
+    .filter((r): r is ReturnType<typeof deckSlideSchema.safeParse> & { success: true } => r.success)
+    .map((r) => r.data)
+    .slice(0, 30)
+  if (valid.length < 3) return null
+  return { slides: valid }
 }

@@ -42,6 +42,21 @@ describe("presentation-deck — parseDeck", () => {
     expect(parseDeck(JSON.stringify(tooShort))).toBeNull()
   })
 
+  it("sauve un deck en filtrant une slide non conforme (≥ 3 valides restantes)", () => {
+    const mixed = {
+      slides: [
+        { type: "cover", title: "A" },
+        { type: "pyramid", title: "type inconnu" }, // invalide → filtrée
+        { type: "content", title: "B", bullets: ["x"] },
+        { type: "conclusion", title: "C", bullets: ["y"] },
+      ],
+    }
+    const deck = parseDeck(JSON.stringify(mixed))
+    expect(deck).not.toBeNull()
+    expect(deck?.slides).toHaveLength(3)
+    expect(deck?.slides.some((s) => (s as { type: string }).type === "pyramid")).toBe(false)
+  })
+
   it("valide un slide twoColumn complet", () => {
     const tc = {
       slides: [
