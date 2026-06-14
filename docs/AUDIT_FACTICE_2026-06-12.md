@@ -92,7 +92,7 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
 |---|---|---|---|
 | Onboarding sans étape « Connexions sociales » | OnboardingWizard.tsx:20 | parcours incomplet | DEFCON1 |
 | ✅ Page Connexions absente de la sidebar | nav-config.ts | RÉSOLU 2026-06-14 (`6d8f935`) → ajoutée à navMain | ~~DEFCON1~~ |
-| RGPD « Télécharger mes données » | general-settings-client.tsx:675 | sans handler (obligation légale) | DEFCON1 |
+| ✅ RGPD « Télécharger mes données » | general-settings-client.tsx | RÉSOLU 2026-06-14 (`64f9843`) → exportMyDataAction (JSON réel, sans tokens) | ~~DEFCON1~~ |
 | `/settings/billing` mock (plan/invoices/boutons) | billing-settings-client.tsx | **à recouper avec /billing réel** | À VÉRIFIER |
 | Timezone / langue / workspace | general-settings-client.tsx | sélecteurs sans sauvegarde | MINEUR |
 | Équipe : projet/message d'invitation | team-manager.tsx:113 | states non utilisés | MINEUR |
