@@ -59,7 +59,8 @@ export async function GET(
         "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
         // filename (ASCII) + filename* (RFC 5987) → extension .pptx garantie côté navigateur.
         "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
-        "Cache-Control": "private, no-store",
+        // no-transform : empêche Cloudflare de gzip-er le binaire (sinon fichier .pptx corrompu en téléchargement direct).
+        "Cache-Control": "private, no-store, no-transform",
       },
     })
   } catch {
