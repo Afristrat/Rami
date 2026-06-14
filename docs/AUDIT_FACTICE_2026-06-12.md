@@ -53,12 +53,23 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
   = **réels et câblés**. → Décision : soit câbler la page pipeline, soit la retirer/fusionner
   avec `/create/video`.
 
-## LOT 3 — Présentations (module mock complet)
+## LOT 3 — Présentations (module mock complet) — ✅ RÉSOLU 2026-06-14 (`0f04b3e`+`b713b69`)
 
-- `presentation-wizard.tsx` : MOCK_SLIDES/MOCK_THEMES, **aucune persistance DB**, aucune action serveur.
-- `step-result.tsx:66` : boutons « Download PPTX » + « Edit in Canva » **sans handler**.
-- Pas dans la sidebar ; route `/presentations/new` douteuse.
-- → Story dédiée US-041/042/043 (génération plan + slides + export). **DEFCON1**.
+- ~~`presentation-wizard.tsx` : MOCK_SLIDES/MOCK_THEMES, aucune persistance, aucune action.~~
+- ~~`step-result.tsx:66` : boutons « Download PPTX » + « Edit in Canva » sans handler.~~
+- → **Feature RÉELLE livrée** : génération deepseek (deck typé Zod) + persistance (documents
+  type=presentation) + viewer réel + **export PPTX réel via pptxgenjs** (style McKinsey).
+  Browser-verified prod (PPTX 17 slides / 184 Ko valide). Mock entièrement supprimé. ~~DEFCON1~~
+
+---
+
+## ✅ AUDIT FACTICE — TOUS LES DEFCON1 SOLDÉS (2026-06-14)
+
+Sidebar workflow, Dashboard (distribution+trend), Approbations, Documents download,
+Transcriptions, RGPD export, Onboarding/sidebar Connexions, Vidéo (redirect), Présentations,
++ sous-titres provider-neutres + **fix bug bloquant wizard étape 2→3**. Reste uniquement des
+MINEURS (filtres analytics/library sans effet, sélecteurs settings, étape Connexions dans
+l'onboarding) et le LOT 7 (prompts « GoP » — en attente d'Amine).
 
 ## LOT 4 — Dashboard & Analytics & Library (résiduel)
 

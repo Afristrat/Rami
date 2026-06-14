@@ -101,7 +101,7 @@ export function NewPresentationForm() {
               onChange={(e) => setSlideCount(Number(e.target.value))}
               className="w-full accent-primary"
             />
-            <p className="mt-1 text-xs text-muted-foreground">{t("slidesRange")}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("slidesRange", { min: 3, max: 20 })}</p>
           </div>
 
           <div>
