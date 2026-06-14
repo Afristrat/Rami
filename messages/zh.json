@@ -2224,7 +2224,8 @@
     "stepperDesign": "Design",
     "stepperGeneration": "Generation",
     "generating": "生成中…",
-    "genericError": "发生错误，请重试。"
+    "genericError": "发生错误，请重试。",
+    "downloadError": "下载失败，请重试。"
   },
   "tenants": {
     "title": "租户",

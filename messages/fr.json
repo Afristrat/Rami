@@ -2224,7 +2224,8 @@
     "stepperDesign": "Design",
     "stepperGeneration": "Génération",
     "generating": "Génération en cours…",
-    "genericError": "Une erreur est survenue. Réessayez."
+    "genericError": "Une erreur est survenue. Réessayez.",
+    "downloadError": "Le téléchargement a échoué. Réessayez."
   },
   "tenants": {
     "title": "Tenants",

@@ -2,11 +2,14 @@
 
 import { useState } from "react"
 import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 import Link from "next/link"
-import { Download, ChevronLeft, ChevronRight, ArrowLeft, Presentation } from "lucide-react"
+import { Download, ChevronLeft, ChevronRight, ArrowLeft, Presentation, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SlideRenderer } from "./SlideRenderer"
 import type { PresentationContent } from "@/lib/schemas/presentation.schema"
+
+const PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
 
 interface DeckViewerProps {
   id: string
@@ -37,10 +40,38 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
   const slides = content.deck.slides
   const accent = content.theme.accentColor
   const [current, setCurrent] = useState(0)
+  const [downloading, setDownloading] = useState(false)
   const total = slides.length
 
   function go(delta: number) {
     setCurrent((c) => Math.max(0, Math.min(total - 1, c + delta)))
+  }
+
+  // Téléchargement robuste : on ne sauvegarde QUE si la réponse est un vrai PPTX
+  // (res.ok + bytes décompressés via blob()). Jamais de fichier d'erreur déguisé en .pptx.
+  async function handleDownload() {
+    setDownloading(true)
+    try {
+      const res = await fetch(`/presentations/${id}/pptx`, { headers: { Accept: PPTX_MIME } })
+      if (!res.ok) {
+        toast.error(t("downloadError"))
+        return
+      }
+      const blob = await res.blob()
+      const pptxBlob = blob.type ? blob : new Blob([blob], { type: PPTX_MIME })
+      const url = URL.createObjectURL(pptxBlob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = pptxFilename(title)
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      toast.error(t("downloadError"))
+    } finally {
+      setDownloading(false)
+    }
   }
 
   return (
@@ -53,17 +84,19 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
           </Link>
           <h2 className="truncate text-base font-bold text-foreground">{title}</h2>
         </div>
-        <a
-          href={`/presentations/${id}/pptx`}
-          download={pptxFilename(title)}
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={downloading}
           className={cn(
             "flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all",
-            "bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg shadow-primary/20 hover:opacity-90"
+            "bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg shadow-primary/20 hover:opacity-90",
+            downloading && "opacity-60 cursor-not-allowed"
           )}
         >
-          <Download className="size-4" />
+          {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
           {t("downloadPptx")}
-        </a>
+        </button>
       </div>
 
       <div className="flex flex-1 overflow-hidden min-h-0">

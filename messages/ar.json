@@ -2224,7 +2224,8 @@
     "stepperDesign": "التصميم",
     "stepperGeneration": "التوليد",
     "generating": "جارٍ الإنشاء…",
-    "genericError": "حدث خطأ. حاول مرة أخرى."
+    "genericError": "حدث خطأ. حاول مرة أخرى.",
+    "downloadError": "فشل التنزيل. حاول مرة أخرى."
   },
   "tenants": {
     "title": "المستأجرون",

@@ -2224,7 +2224,8 @@
     "stepperDesign": "Design",
     "stepperGeneration": "Generation",
     "generating": "Oluşturuluyor…",
-    "genericError": "Bir hata oluştu. Tekrar deneyin."
+    "genericError": "Bir hata oluştu. Tekrar deneyin.",
+    "downloadError": "İndirme başarısız. Tekrar deneyin."
   },
   "tenants": {
     "title": "Tenants",

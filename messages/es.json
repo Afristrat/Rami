@@ -2224,7 +2224,8 @@
     "stepperDesign": "Design",
     "stepperGeneration": "Generation",
     "generating": "Generando…",
-    "genericError": "Se produjo un error. Inténtalo de nuevo."
+    "genericError": "Se produjo un error. Inténtalo de nuevo.",
+    "downloadError": "La descarga falló. Inténtalo de nuevo."
   },
   "tenants": {
     "title": "Tenants",
