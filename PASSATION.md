@@ -9,12 +9,12 @@
 
 ## [ETAT] — État global du projet
 
-**Branche active** : `main` = origin synchronisé, **HEAD `5c48e52`** (2026-06-14, 0 commit local en avance). **Travailler sur main.**
+**Branche active** : `main` = origin synchronisé, **HEAD `037e322`** (2026-06-14, 0 commit local en avance). **Travailler sur main.**
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. ~25 déploiements session #10. Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/create`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec`. **Surveiller la fin du deploy via l'API Coolify** : `GET /api/v1/deployments?uuid=ry8ytnene4czxdhsoes0z56y` (liste vide = terminé). ⚠️ **NE PAS supprimer de deck/données pendant qu'Amine teste** (un cleanup a cassé un download chez lui).
 **Avancement Ralph** : **31/58** stories `passes=true` formelles, MAIS **audit anti-factice = TOUS les DEFCON1 SOLDÉS** (cf. `docs/AUDIT_FACTICE_2026-06-12.md`). **Zéro dette connue.**
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
-**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ **0 vuln CRITIQUE** (6 high = tooling dev pré-existant : drizzle-kit/esbuild/tsx) · **Jest** : ✅ **346/346 vert** (23 suites — +10 presentation-deck).
+**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ **0 vuln CRITIQUE** (6 high = tooling dev pré-existant : drizzle-kit/esbuild/tsx) · **Jest** : ✅ **347/347 vert** (23 suites).
 **Nouvelle dépendance** : `pptxgenjs ^4.0.1` (export PPTX pur-JS, compatible Nixpacks).
 **OAuth social (session #8 — RÉEL VALIDÉ)** : ✅ **LinkedIn + X (Twitter) CONNECTÉS pour de vrai en prod** (flow OAuth complet + bouton « Tester » concluant). Clés dans coffre DPAPI + Coolify. ⚠️ **Secret LinkedIn était TRONQUÉ** (parsing sur le `=`/`.` + copier mobile) → vraie valeur 33 car. (format `WPL_AP1.<…>==`, dans le coffre, **à rotater**). Meta/Pinterest : pas encore (Meta = en manuel, anti-bot). **Mdp super-admin** → coffre `RAMI_SUPERADMIN_PASSWORD`. **Reste : publication réelle d'un post** (bouton Publier vers LinkedIn/X).
 **Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**, origin/main `5c48e52` synchro. Inclut TOUT le travail session #10 (anti-factice complet + feature Présentations + éditeur + prompt L99).
@@ -34,6 +34,29 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #11 (2026-06-14, reprise) — IMPORT FICHIER → PPTX + MINEURS ANTI-FACTICE (browser-verified prod)
+
+> Suite directe de #10. Instruction Amine : « Les 4 par ordre de quick win » (1. Mineurs anti-factice · 2. Publication réelle · 3. OCR PDF scannés · 4. Présentations Phase 2 canvas). Item #1 SOLDÉ. Commits `6d59bab` (mineurs) + `037e322` (a11y). Gates verts à chaque commit (TS0/lint0/Jest 347/build), tout browser-verified PROD compte test-ralph.
+
+### Import fichier → présentation (livré avant #1, cf. `createPresentationFromFileAction` + `file-extract.ts`)
+- **✓ Extraction** MD/TXT/PDF/DOCX/XLSX (`pdf-parse` v2 classe `PDFParse`, `mammoth`, `exceljs` — **PAS `xlsx`** : vuln HIGH prototype pollution). `MAX_IMPORT_BYTES`=20 Mo, `MAX_EXTRACTED_CHARS`=24000. PDF scanné détecté (texte<20 car. → `empty_or_image`).
+- **!! DETTE assumée** (validée Amine) : import **PDF (pdf-parse) et Word (mammoth) NON browser-vérifiés** avec de vrais fichiers. **OCR PDF scannés hors-scope v1** (= item #3 du quick-win).
+
+### #1 — Mineurs anti-factice (DEFCON1 résiduels) — `6d59bab` + a11y `037e322`
+- **✓ Analytics** (`analytics-dashboard.tsx`, `analytics-filters.tsx`) : retiré boutons **Filtres/Recherche/Export PDF** sans action + lien `viewFullReport` `href="#"` + imports morts (`Search`, `SlidersHorizontal`, `FileDown`). Prod = état vide réel « Pas encore de données » (compte test sans posts publiés → dashboard peuplé inatteignable, suppression validée code+gates).
+- **✓ top-posts-table.tsx** : retiré `cursor-pointer group` trompeur (ligne non cliquable).
+- **✓ Bibliothèque** (`media-library-client.tsx`) : **filtre Score DNA ≥ 90 câblé** côté client (`displayedAssets`, `brandDnaScore` est 0-100) + label corrigé « ≥ 0.9 »→« ≥ 90 » + bouton **Date** factice retiré. **Browser-verified** : bouton présent, Date absent.
+- **✓ Settings/Général** (`general-settings-client.tsx` + `getWorkspaceInfoAction`) : sélecteurs **timezone/langue** factices + **QuotaBars hardcodés** (storage 320/500, tenants 12.4/50, 7/10) → **infos RÉELLES** via `getWorkspaceInfoAction` (plan, prix, quota générations ; -1=illimité). **Browser-verified** : « Agency — $399 », espace « Banque Test Ralph », slug `test-ralph`, « 0 / 2000 » (cohérent header).
+- **✓ Settings/Équipe** (`team-manager.tsx`) : retiré **select projet** (option unique jamais envoyée), **message perso** (jamais envoyé), bouton **Renvoyer** sans `onClick`, **MoreVertical propriétaire** sans action. **Browser-verified** : modale = Email + Rôle seulement.
+- **✓ a11y `037e322`** : modale invitation utilisait `<h2>`/`<p>` bruts → erreur console Radix « DialogContent requires a DialogTitle ». Remplacé par `DialogTitle`/`DialogDescription` (règle zéro-dette : fichier touché = on corrige le pré-existant). **Browser-verified** : 0 erreur console.
+
+### [SUITE] quick-win restant
+- **#2 Publication réelle** : câbler workflow Step7 « Publier » → `publish-worker` → `publishToLinkedIn`/`publishToTwitter`. ⚠️ **Obtenir le GO d'Amine avant de publier un vrai post public** (irréversible).
+- **#3 OCR PDF scannés** (Tesseract.js ou service).
+- **#4 Présentations Phase 2** : éditeur canvas (gros, multi-session).
 
 ---
 
