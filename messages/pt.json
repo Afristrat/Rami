@@ -2255,7 +2255,14 @@
     "fieldStat": "Estatística",
     "fieldCaption": "Legenda",
     "fieldQuote": "Citação",
-    "fieldAuthor": "Autor"
+    "fieldAuthor": "Autor",
+    "modeBrief": "A partir de um brief",
+    "modeFile": "A partir de um ficheiro",
+    "fileLabel": "Ficheiro a converter",
+    "fileDrop": "Clique para escolher um ficheiro",
+    "fileFormats": "Markdown, PDF (texto), Word, Excel — máx 20 MB",
+    "fileTooLarge": "Ficheiro demasiado grande (máx 20 MB).",
+    "convertFile": "Converter em apresentação"
   },
   "tenants": {
     "title": "Tenants",

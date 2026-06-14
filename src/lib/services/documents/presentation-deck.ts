@@ -104,6 +104,34 @@ export function buildDeckRevisionPrompt(input: {
   ].join("\n")
 }
 
+/**
+ * Prompt utilisateur de CONVERSION d'un document importé en deck. Le prompt
+ * système (mode CONVERSION) impose déjà la fidélité aux faits/chiffres.
+ */
+export function buildDeckConversionPrompt(input: {
+  sourceText: string
+  truncated: boolean
+  audience: string
+  language: DeckLanguage
+  slideCount: number
+  brandDNA: BrandDNA
+}): string {
+  return [
+    "Convertis le DOCUMENT SOURCE ci-dessous en un deck de présentation au format JSON imposé.",
+    `Audience cible : ${input.audience || "non précisée"}`,
+    `Langue : ${LANGUAGE_LABELS[input.language]}`,
+    `Nombre de slides souhaité : environ ${input.slideCount} (entre 3 et 20).`,
+    `Contexte de marque : ${brandSummary(input.brandDNA)}`,
+    input.truncated ? "(Le document est long : il a été tronqué, travaille sur l'extrait fourni.)" : "",
+    "",
+    "RÈGLE DE CONVERSION : restructure FIDÈLEMENT le contenu de la source selon le principe de la pyramide. PRÉSERVE tous les faits et chiffres présents dans le document (jamais en inventer, jamais omettre un chiffre clé). N'AJOUTE aucune donnée absente de la source.",
+    "",
+    "=== DOCUMENT SOURCE ===",
+    input.sourceText,
+    "=== FIN DU DOCUMENT SOURCE ===",
+  ].join("\n")
+}
+
 /** Retire d'éventuelles fences Markdown et extrait le premier objet JSON. */
 function stripToJson(raw: string): string {
   let s = raw.trim()

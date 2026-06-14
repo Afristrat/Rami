@@ -2255,7 +2255,14 @@
     "fieldStat": "Statistic",
     "fieldCaption": "Caption",
     "fieldQuote": "Quote",
-    "fieldAuthor": "Author"
+    "fieldAuthor": "Author",
+    "modeBrief": "From a brief",
+    "modeFile": "From a file",
+    "fileLabel": "File to convert",
+    "fileDrop": "Click to choose a file",
+    "fileFormats": "Markdown, PDF (text), Word, Excel — max 20 MB",
+    "fileTooLarge": "File too large (max 20 MB).",
+    "convertFile": "Convert to presentation"
   },
   "tenants": {
     "title": "Tenants",

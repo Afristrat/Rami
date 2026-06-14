@@ -2255,7 +2255,14 @@
     "fieldStat": "إحصائية",
     "fieldCaption": "تسمية توضيحية",
     "fieldQuote": "اقتباس",
-    "fieldAuthor": "المؤلف"
+    "fieldAuthor": "المؤلف",
+    "modeBrief": "من ملخص",
+    "modeFile": "من ملف",
+    "fileLabel": "الملف المراد تحويله",
+    "fileDrop": "انقر لاختيار ملف",
+    "fileFormats": "Markdown، PDF (نص)، Word، Excel — بحد أقصى 20 ميغابايت",
+    "fileTooLarge": "الملف كبير جدًا (بحد أقصى 20 ميغابايت).",
+    "convertFile": "تحويل إلى عرض تقديمي"
   },
   "tenants": {
     "title": "المستأجرون",

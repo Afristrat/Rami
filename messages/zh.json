@@ -2255,7 +2255,14 @@
     "fieldStat": "统计数据",
     "fieldCaption": "说明",
     "fieldQuote": "引述",
-    "fieldAuthor": "作者"
+    "fieldAuthor": "作者",
+    "modeBrief": "从简报",
+    "modeFile": "从文件",
+    "fileLabel": "待转换文件",
+    "fileDrop": "点击选择文件",
+    "fileFormats": "Markdown、PDF（文本）、Word、Excel — 最大 20 MB",
+    "fileTooLarge": "文件过大（最大 20 MB）。",
+    "convertFile": "转换为演示文稿"
   },
   "tenants": {
     "title": "租户",

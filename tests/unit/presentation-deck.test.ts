@@ -1,4 +1,9 @@
-import { parseDeck, buildDeckSystemPrompt, buildDeckUserPrompt } from "@/lib/services/documents/presentation-deck"
+import {
+  parseDeck,
+  buildDeckSystemPrompt,
+  buildDeckUserPrompt,
+  buildDeckConversionPrompt,
+} from "@/lib/services/documents/presentation-deck"
 import { deckSchema } from "@/lib/schemas/presentation.schema"
 
 describe("presentation-deck — parseDeck", () => {
@@ -83,6 +88,21 @@ describe("presentation-deck — prompts", () => {
     expect(sys).toContain("cover")
     expect(sys).toContain("twoColumn")
     expect(sys).toMatch(/JSON/i)
+  })
+
+  it("le prompt de conversion intègre la source et la règle de fidélité", () => {
+    const p = buildDeckConversionPrompt({
+      sourceText: "Chiffre d'affaires 2024 : 12,5 M MAD. Croissance +18%.",
+      truncated: true,
+      audience: "investisseurs",
+      language: "fr",
+      slideCount: 8,
+      brandDNA: { identity: { name: "Banque Test" } },
+    })
+    expect(p).toContain("DOCUMENT SOURCE")
+    expect(p).toContain("12,5 M MAD")
+    expect(p).toMatch(/PRÉSERVE|fidèlement/i)
+    expect(p).toMatch(/tronqué/i)
   })
 
   it("le prompt utilisateur intègre le sujet et la langue", () => {

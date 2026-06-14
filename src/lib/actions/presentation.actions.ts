@@ -17,8 +17,10 @@ import {
   buildDeckSystemPrompt,
   buildDeckUserPrompt,
   buildDeckRevisionPrompt,
+  buildDeckConversionPrompt,
   parseDeck,
 } from "@/lib/services/documents/presentation-deck"
+import { extractTextFromFile, MAX_IMPORT_BYTES } from "@/lib/services/documents/file-extract"
 import {
   DECK_LANGUAGES,
   deckSchema,
@@ -191,6 +193,123 @@ export async function getPresentationDetailAction(
       created_at: doc.created_at as string,
     },
   }
+}
+
+/**
+ * Crée une présentation À PARTIR D'UN FICHIER importé (MD/PDF-texte/Word/Excel).
+ * Extraction serveur → conversion LLM (mode CONVERSION, prompt L99) → deck persisté.
+ * Échec d'extraction/LLM → erreur honnête, aucun deck fabriqué.
+ */
+export async function createPresentationFromFileAction(
+  formData: FormData
+): Promise<CreatePresentationResult> {
+  const file = formData.get("file")
+  if (!(file instanceof File)) return { error: "Aucun fichier fourni." }
+  if (file.size === 0) return { error: "Fichier vide." }
+  if (file.size > MAX_IMPORT_BYTES) return { error: "Fichier trop volumineux (max 20 Mo)." }
+
+  const audience = String(formData.get("audience") ?? "").trim().slice(0, 500)
+  const langRaw = String(formData.get("language") ?? "fr")
+  const language = (DECK_LANGUAGES as readonly string[]).includes(langRaw)
+    ? (langRaw as DeckLanguage)
+    : "fr"
+  const slideCount = Math.min(20, Math.max(3, Math.round(Number(formData.get("slideCount")) || 10)))
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+  if (authError || !user) return { error: "Non authentifié." }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { error: "Tenant introuvable." }
+
+  // Extraction serveur
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const extracted = await extractTextFromFile({ buffer, mime: file.type, filename: file.name })
+  if (!extracted.ok) {
+    const messages: Record<typeof extracted.error, string> = {
+      unsupported_type: "Format non supporté. Formats acceptés : Markdown, PDF (avec texte), Word (.docx), Excel (.xlsx).",
+      extraction_failed: "Impossible de lire le contenu du fichier.",
+      empty_or_image: "Aucun texte exploitable. Un PDF scanné/aplati (image) n'est pas pris en charge.",
+    }
+    return { error: messages[extracted.error] }
+  }
+
+  const { data: tenantRow } = await supabase
+    .from("tenants")
+    .select("brand_dna")
+    .eq("id", tenantId)
+    .single()
+  const rawDna: unknown = tenantRow?.brand_dna ?? null
+  const brandDNA = normalizeBrandDNA(rawDna)
+
+  // Conversion LLM (mode CONVERSION → fidélité aux faits/chiffres de la source).
+  let deck
+  try {
+    const config = await getPromptConfig("document_presentation")
+    const raw = await callTextLLM({
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey,
+      systemPrompt: buildDeckSystemPrompt(),
+      userPrompt: buildDeckConversionPrompt({
+        sourceText: extracted.data.text,
+        truncated: extracted.data.truncated,
+        audience,
+        language,
+        slideCount,
+        brandDNA,
+      }),
+      maxTokens: 4000,
+      temperature: config.temperature,
+    })
+    deck = parseDeck(raw)
+  } catch (err) {
+    log({
+      level: "error",
+      module: "presentations",
+      action: "deck_import_failed",
+      tenant_id: tenantId,
+      metadata: { filename: file.name, error: String(err) },
+    })
+    return { error: "La conversion du fichier a échoué. Réessayez dans quelques instants." }
+  }
+  if (!deck) return { error: "La conversion a produit un contenu invalide. Réessayez." }
+
+  const cover = deck.slides.find((s) => s.type === "cover")
+  const fileBase = file.name.replace(/\.[^.]+$/, "").slice(0, 120)
+  const title = ((cover && "title" in cover ? cover.title : fileBase) || "Présentation importée").slice(0, 120)
+
+  const content: PresentationContent = {
+    brief: { subject: `Import : ${fileBase}`.slice(0, 200), audience, language, slideCount },
+    theme: { accentColor: "#7C3BED" },
+    deck,
+  }
+
+  const { data: doc, error } = await supabase
+    .from("documents")
+    .insert({
+      tenant_id: tenantId,
+      title,
+      type: "presentation",
+      status: "completed",
+      content_json: content,
+      brand_dna_snapshot: rawDna,
+      created_by: user.id,
+    })
+    .select("id")
+    .single()
+
+  if (error || !doc) {
+    if (error?.code === "42P01") return { error: "La table documents n'existe pas encore. Appliquez la migration." }
+    return { error: "Erreur lors de l'enregistrement de la présentation." }
+  }
+
+  revalidatePath("/presentations")
+  revalidatePath("/dashboard/documents")
+  return { id: doc.id }
 }
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
