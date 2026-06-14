@@ -46,9 +46,9 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
 
 
 
-- `/dashboard/video/page.tsx` : **page entièrement mock** (PIPELINE_STEPS, SCRIPT_SECTIONS,
-  VOICE_ACTORS, STORYBOARD_FRAMES, waveform simulée, 3 boutons majeurs sans onClick :
-  voix, « Regenerate All », « Generate Pipeline »). **DEFCON1**.
+- ✅ **RÉSOLU 2026-06-14 (`44ec7cb`)** `/dashboard/video/page.tsx` : page entièrement mock
+  (PIPELINE_STEPS, VOICE_ACTORS, STORYBOARD_FRAMES, waveform simulée, boutons sans onClick) →
+  **remplacée par un redirect vers `/create/video`** (le générateur réel). ~~DEFCON1~~
 - ✅ `/create/video` (VideoGeneratorClient) + `services/video-generation/*` (Veo/Runway/Kling/Luma/Wan)
   = **réels et câblés**. → Décision : soit câbler la page pipeline, soit la retirer/fusionner
   avec `/create/video`.
