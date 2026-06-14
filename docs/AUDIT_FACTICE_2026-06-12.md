@@ -83,7 +83,7 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
 | Élément | Fichier:ligne | Nature | Sévérité |
 |---|---|---|---|
 | ✅ Bouton Download (liste docs) | DocumentsTable.tsx | RÉSOLU 2026-06-14 (`6d8f935`) → route /pdf réelle, PDF 26 Ko vérifié | ~~DEFCON1~~ |
-| Transcriptions : MOCK_SPEAKERS/SUMMARY/VERBATIMS | TranscriptionResult/AiSummaryPanel | mock affiché si Whisper absent, sans badge démo | DEFCON1 |
+| ✅ Transcriptions : MOCK_SPEAKERS/SUMMARY/VERBATIMS | TranscriptionResult/AiSummaryPanel | RÉSOLU 2026-06-14 (`5e098b8`) → données réelles + états honnêtes par statut, notFound() | ~~DEFCON1~~ |
 | Leads : import Apollo / recherche | leads/client.tsx:24, LeadFilters.tsx | callbacks vides, inputs non bindés | MINEUR |
 
 ## LOT 6 — Settings / Onboarding / Découvrabilité
