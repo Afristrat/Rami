@@ -4,6 +4,7 @@ import {
   getProfileAction,
   getNotificationPreferencesAction,
   getCollectiveOptinAction,
+  getWorkspaceInfoAction,
 } from "@/lib/actions/settings.actions"
 import { GeneralSettingsClient } from "@/components/settings/general-settings-client"
 
@@ -15,10 +16,11 @@ export async function generateMetadata() {
 }
 
 export default async function ProfilePage() {
-  const [profileResult, prefsResult, optinResult] = await Promise.all([
+  const [profileResult, prefsResult, optinResult, workspace] = await Promise.all([
     getProfileAction(),
     getNotificationPreferencesAction(),
     getCollectiveOptinAction(),
+    getWorkspaceInfoAction(),
   ])
 
   if (!profileResult.data) {
@@ -30,6 +32,7 @@ export default async function ProfilePage() {
       profile={profileResult.data}
       initialPrefs={prefsResult.data}
       initialCollectiveOptin={optinResult.optin}
+      workspace={workspace}
     />
   )
 }

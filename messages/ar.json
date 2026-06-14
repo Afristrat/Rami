@@ -1530,7 +1530,8 @@
       "slugDefault": "my-agency",
       "generationsAi": "إنتاجات الذكاء الاصطناعي",
       "storage": "التخزين",
-      "tenantsSites": "المستأجرون (المواقع)"
+      "tenantsSites": "المستأجرون (المواقع)",
+      "unlimitedSuffix": "عملية إنشاء هذا الشهر (غير محدود)"
     },
     "billingSection": {
       "currentPlan": "الخطة الحالية",

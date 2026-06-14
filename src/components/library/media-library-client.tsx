@@ -78,6 +78,11 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
     return () => clearTimeout(timer)
   }, [filter, search, loadAssets])
 
+  // Filtre Score DNA appliqué côté client (le scoring Vision AI est 0-100).
+  const displayedAssets = dnaScoreFilter
+    ? assets.filter((a) => (a.brandDnaScore ?? 0) >= 90)
+    : assets
+
   const handleFilterChange = useCallback((newFilter: FilterType) => {
     setFilter(newFilter)
   }, [])
@@ -201,16 +206,10 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
                 : "border-gray-200/60 dark:border-white/10 bg-white dark:bg-white/5 text-muted-foreground"
             )}
           >
-            Score DNA &ge; 0.9
+            Score DNA &ge; 90
             {dnaScoreFilter && (
               <X className="size-3" />
             )}
-          </button>
-
-          {/* Date filter */}
-          <button className="flex items-center gap-1.5 rounded-full border border-gray-200/60 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
-            Date
-            <Search className="size-3" />
           </button>
 
           {/* Search */}
@@ -238,7 +237,7 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-6 pb-8 lg:px-8">
-        {assets.length === 0 ? (
+        {displayedAssets.length === 0 ? (
           <EmptyState search={search} filter={filter} />
         ) : (
           <div className={cn(
@@ -246,7 +245,7 @@ export function MediaLibraryClient({ initialAssets, initialTotal }: MediaLibrary
               ? "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               : "space-y-2"
           )}>
-            {assets.map((asset) => (
+            {displayedAssets.map((asset) => (
               <MediaCard
                 key={asset.id}
                 asset={asset}

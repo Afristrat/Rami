@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import { getPlanConfig, type Plan } from "@/lib/billing/plans"
+import { effectiveGenerationCount } from "@/lib/billing/usage"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -11,6 +13,54 @@ export interface UserProfile {
   email: string
   fullName: string
   avatarUrl: string | null
+}
+
+export interface WorkspaceInfo {
+  name: string
+  slug: string
+  planName: string
+  priceLabel: string
+  generationsUsed: number
+  /** -1 = illimité. */
+  generationsMax: number
+}
+
+/** Infos RÉELLES de l'espace de travail (nom/slug/plan/quota générations). */
+export async function getWorkspaceInfoAction(): Promise<WorkspaceInfo | null> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return null
+
+  const { data: tenant } = await supabase
+    .from("tenants")
+    .select("name, slug, plan, generation_count, generation_reset_at")
+    .eq("id", tenantId)
+    .single<{
+      name: string | null
+      slug: string | null
+      plan: string
+      generation_count: number | null
+      generation_reset_at: string | null
+    }>()
+  if (!tenant) return null
+
+  const resetAt = tenant.generation_reset_at ? new Date(tenant.generation_reset_at) : null
+  const used = effectiveGenerationCount(tenant.generation_count ?? 0, resetAt, new Date())
+  const config = getPlanConfig(tenant.plan as Plan)
+
+  return {
+    name: tenant.name ?? "",
+    slug: tenant.slug ?? "",
+    planName: config.name,
+    priceLabel: config.priceLabel,
+    generationsUsed: used,
+    generationsMax: config.generationsPerMonth,
+  }
 }
 
 export interface TeamMember {

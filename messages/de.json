@@ -1530,7 +1530,8 @@
       "slugDefault": "my-agency",
       "generationsAi": "AI Generations",
       "storage": "Storage",
-      "tenantsSites": "Tenants (Sites)"
+      "tenantsSites": "Tenants (Sites)",
+      "unlimitedSuffix": "Generierungen diesen Monat (unbegrenzt)"
     },
     "billingSection": {
       "currentPlan": "Current plan",

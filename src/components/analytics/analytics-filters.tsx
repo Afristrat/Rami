@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useTransition, useCallback } from "react"
 import { useTranslations } from "next-intl"
-import { FileDown } from "lucide-react"
 import { PLATFORM_CONFIG, ALL_PLATFORMS } from "@/lib/scheduler/platform-config"
 import type { PeriodOption } from "@/app/actions/analytics"
 import type { Platform } from "@/lib/scheduler/platform-config"
@@ -115,14 +114,6 @@ export function AnalyticsFilters({ currentPeriod, currentPlatforms }: AnalyticsF
         </div>
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Export PDF */}
-      <button className="rami-btn-gradient flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-bold">
-        <FileDown className="size-4" />
-        {t("exportPdf")}
-      </button>
     </div>
   )
 }

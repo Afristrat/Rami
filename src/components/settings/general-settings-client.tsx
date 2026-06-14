@@ -19,6 +19,7 @@ import {
   deleteTenantAction,
   type UserProfile,
   type NotificationPreferences,
+  type WorkspaceInfo,
 } from "@/lib/actions/settings.actions"
 import { exportMyDataAction } from "@/lib/actions/data-export.actions"
 import { cn } from "@/lib/utils"
@@ -104,11 +105,12 @@ interface Props {
   profile: UserProfile
   initialPrefs: NotificationPreferences
   initialCollectiveOptin: boolean
+  workspace: WorkspaceInfo | null
 }
 
 const CONFIRMATION_PHRASE = "SUPPRIMER MON ESPACE"
 
-export function GeneralSettingsClient({ profile, initialPrefs, initialCollectiveOptin }: Props) {
+export function GeneralSettingsClient({ profile, initialPrefs, initialCollectiveOptin, workspace }: Props) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -428,38 +430,6 @@ export function GeneralSettingsClient({ profile, initialPrefs, initialCollective
               </span>
             </div>
           </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-muted-foreground dark:text-slate-400 uppercase tracking-wider">
-              {tProfile("timezone")}
-            </label>
-            <select
-              className={cn(
-                "w-full rounded-xl px-4 py-3 text-sm appearance-none",
-                "bg-gray-50 border border-gray-200 text-foreground",
-                "dark:bg-white/5 dark:border-white/10 dark:text-white"
-              )}
-            >
-              <option>Europe/Paris (GMT+01:00)</option>
-              <option>Africa/Casablanca (GMT+01:00)</option>
-              <option>America/New_York (GMT-05:00)</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-muted-foreground dark:text-slate-400 uppercase tracking-wider">
-              {tProfile("language")}
-            </label>
-            <select
-              className={cn(
-                "w-full rounded-xl px-4 py-3 text-sm appearance-none",
-                "bg-gray-50 border border-gray-200 text-foreground",
-                "dark:bg-white/5 dark:border-white/10 dark:text-white"
-              )}
-            >
-              <option>Fran\u00e7ais</option>
-              <option>English</option>
-              <option>Espa\u00f1ol</option>
-            </select>
-          </div>
         </div>
       </GlassCard>
 
@@ -471,9 +441,11 @@ export function GeneralSettingsClient({ profile, initialPrefs, initialCollective
               <h3 className="text-lg font-bold text-foreground dark:text-white">
                 {tWorkspace("title")}
               </h3>
-              <span className="bg-violet-600 text-white text-[10px] font-black px-2 py-1 rounded-md tracking-widest">
-                PRO — $149/MOIS
-              </span>
+              {workspace && (
+                <span className="bg-violet-600 text-white text-[10px] font-black px-2 py-1 rounded-md tracking-widest uppercase">
+                  {workspace.planName}{workspace.priceLabel ? ` — ${workspace.priceLabel}` : ""}
+                </span>
+              )}
             </div>
             <p className="text-sm text-muted-foreground dark:text-slate-400">
               {tWorkspace("subtitle")}
@@ -481,53 +453,62 @@ export function GeneralSettingsClient({ profile, initialPrefs, initialCollective
           </div>
         </div>
 
+        {/* Nom + slug RÉELS du tenant (lecture seule — pas d'édition tant qu'une action de mise à jour n'est pas câblée). */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div className="space-y-2">
             <label className="text-xs font-bold text-muted-foreground dark:text-slate-400 uppercase tracking-wider">
               {tWorkspace("nameLabel")}
             </label>
-            <input
-              type="text"
-              defaultValue={tWorkspace("nameDefault")}
-              className={cn(
-                "w-full rounded-xl px-4 py-3 text-sm",
-                "bg-gray-50 border border-gray-200 text-foreground focus:ring-violet-500 focus:border-violet-500",
-                "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500 dark:focus:border-violet-500"
-              )}
-            />
+            <div className={cn(
+              "w-full rounded-xl px-4 py-3 text-sm",
+              "bg-gray-100 border border-gray-200 text-foreground",
+              "dark:bg-white/5 dark:border-white/10 dark:text-white"
+            )}>
+              {workspace?.name || "—"}
+            </div>
           </div>
           <div className="space-y-2">
             <label className="text-xs font-bold text-muted-foreground dark:text-slate-400 uppercase tracking-wider">
               {tWorkspace("slugLabel")}
             </label>
             <div className="flex">
-              <input
-                type="text"
-                defaultValue={tWorkspace("slugDefault")}
-                className={cn(
-                  "flex-1 rounded-l-xl px-4 py-3 text-sm",
-                  "bg-gray-50 border border-gray-200 text-foreground focus:ring-violet-500 focus:border-violet-500",
-                  "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500 dark:focus:border-violet-500"
-                )}
-              />
-              <span
-                className={cn(
-                  "border-y border-r rounded-r-xl px-4 py-3 text-sm flex items-center",
-                  "bg-gray-100 border-gray-200 text-muted-foreground",
-                  "dark:bg-white/10 dark:border-white/10 dark:text-slate-400"
-                )}
-              >
+              <div className={cn(
+                "flex-1 rounded-l-xl px-4 py-3 text-sm",
+                "bg-gray-100 border border-gray-200 text-foreground",
+                "dark:bg-white/5 dark:border-white/10 dark:text-white"
+              )}>
+                {workspace?.slug || "—"}
+              </div>
+              <span className={cn(
+                "border-y border-r rounded-r-xl px-4 py-3 text-sm flex items-center",
+                "bg-gray-100 border-gray-200 text-muted-foreground",
+                "dark:bg-white/10 dark:border-white/10 dark:text-slate-400"
+              )}>
                 .rami.ai-mpower.com
               </span>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6 border-t border-gray-200 dark:border-white/5">
-          <QuotaBar label={tWorkspace("generationsAi")} current={320} max={500} color="violet" />
-          <QuotaBar label={tWorkspace("storage")} current={12.4} max={50} suffix="GB" color="blue" />
-          <QuotaBar label={tWorkspace("tenantsSites")} current={7} max={10} color="indigo" />
-        </div>
+        {/* Quota générations RÉEL (usage mensuel effectif). */}
+        {workspace && (
+          <div className="pt-6 border-t border-gray-200 dark:border-white/5">
+            {workspace.generationsMax < 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {tWorkspace("generationsAi")} : <span className="font-bold text-foreground dark:text-white">{workspace.generationsUsed}</span> {tWorkspace("unlimitedSuffix")}
+              </p>
+            ) : (
+              <div className="max-w-sm">
+                <QuotaBar
+                  label={tWorkspace("generationsAi")}
+                  current={workspace.generationsUsed}
+                  max={workspace.generationsMax}
+                  color="violet"
+                />
+              </div>
+            )}
+          </div>
+        )}
       </GlassCard>
 
       {/* ─── Section 3: Notifications ────────────────────────────────────── */}

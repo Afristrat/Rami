@@ -110,8 +110,6 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
   const [inviteOpen, setInviteOpen] = useState(false)
   const [inviteEmail, setInviteEmail] = useState("")
   const [inviteRole, setInviteRole] = useState<TeamMember["role"]>("editor")
-  const [inviteProject, setInviteProject] = useState("all")
-  const [inviteMessageText, setInviteMessageText] = useState("")
   const [inviteResult, setInviteResult] = useState<{
     type: "success" | "error"
     text: string
@@ -147,7 +145,6 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
         ...prev,
       ])
       setInviteEmail("")
-      setInviteMessageText("")
       setTimeout(() => setInviteOpen(false), 1500)
     })
   }
@@ -299,11 +296,7 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
                 <td className="px-6 py-4 text-sm text-muted-foreground dark:text-slate-400">
                   {t("online")}
                 </td>
-                <td className="px-6 py-4 text-right">
-                  <button className="p-2 text-gray-400 dark:text-slate-500 hover:text-foreground dark:hover:text-slate-200 transition-colors">
-                    <MoreVertical className="size-5" />
-                  </button>
-                </td>
+                <td className="px-6 py-4" />
               </tr>
 
               {/* Team members */}
@@ -392,9 +385,6 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <button className="px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">
-                      {t("resend")}
-                    </button>
                     <button
                       onClick={() => setMemberToRevoke(member)}
                       className="px-4 py-2 rounded-lg text-sm font-medium text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-400/10 transition-colors"
@@ -454,62 +444,25 @@ export function TeamManager({ initialMembers, ownerEmail }: TeamManagerProps) {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2">
-                  {t("assignedRole")}
-                </label>
-                <div className="relative">
-                  <select
-                    value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value as TeamMember["role"])}
-                    className={cn(
-                      "w-full rounded-xl px-4 py-3 text-sm appearance-none transition-all",
-                      "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
-                      "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
-                    )}
-                  >
-                    <option value="editor">{t("editor")}</option>
-                    <option value="admin">{t("admin")}</option>
-                    <option value="viewer">{t("viewer")}</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2">
-                  {t("project")}
-                </label>
-                <div className="relative">
-                  <select
-                    value={inviteProject}
-                    onChange={(e) => setInviteProject(e.target.value)}
-                    className={cn(
-                      "w-full rounded-xl px-4 py-3 text-sm appearance-none transition-all",
-                      "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
-                      "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
-                    )}
-                  >
-                    <option value="all">{t("allProjects")}</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-slate-500 mb-2">
-                {t("personalMessage")}
+                {t("assignedRole")}
               </label>
-              <textarea
-                value={inviteMessageText}
-                onChange={(e) => setInviteMessageText(e.target.value)}
-                placeholder={t("personalMessagePlaceholder")}
-                rows={3}
-                className={cn(
-                  "w-full rounded-xl px-4 py-3 text-sm transition-all resize-none",
-                  "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
-                  "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
-                )}
-              />
+              <div className="relative">
+                <select
+                  value={inviteRole}
+                  onChange={(e) => setInviteRole(e.target.value as TeamMember["role"])}
+                  className={cn(
+                    "w-full rounded-xl px-4 py-3 text-sm appearance-none transition-all",
+                    "bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-violet-500/50",
+                    "dark:bg-white/5 dark:border-white/10 dark:text-white dark:focus:ring-violet-500/50"
+                  )}
+                >
+                  <option value="editor">{t("editor")}</option>
+                  <option value="admin">{t("admin")}</option>
+                  <option value="viewer">{t("viewer")}</option>
+                </select>
+              </div>
             </div>
 
             {inviteResult && (

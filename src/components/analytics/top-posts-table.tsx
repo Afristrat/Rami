@@ -101,7 +101,7 @@ export function TopPostsTable({ posts }: TopPostsTableProps) {
           {displayData.map((row) => (
             <tr
               key={row.rank}
-              className="hover:bg-muted/50 transition-colors cursor-pointer group"
+              className="hover:bg-muted/50 transition-colors"
             >
               {/* Rang */}
               <td className="px-6 py-4">

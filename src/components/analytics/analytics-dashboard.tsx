@@ -2,7 +2,6 @@
 
 import { Suspense, useMemo } from "react"
 import { useTranslations } from "next-intl"
-import { Search, SlidersHorizontal } from "lucide-react"
 import { KPICards } from "./kpi-cards"
 import { EngagementChart } from "./engagement-chart"
 import { PlatformDonutChart } from "./platform-donut-chart"
@@ -123,20 +122,6 @@ export function AnalyticsDashboard({ data, period, platforms, recommendations }:
                 {t("publishedOf", { count: data.kpis.publishedCount })}
               </p>
             )}
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted/50 transition-colors">
-              <SlidersHorizontal className="size-4" />
-            </button>
-            <button className="flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted/50 transition-colors">
-              <Search className="size-4" />
-            </button>
-            <a
-              href="#"
-              className="ml-2 text-xs font-semibold text-primary hover:underline hidden sm:inline"
-            >
-              {t("viewFullReport")}
-            </a>
           </div>
         </div>
         <TopPostsTable posts={data.topPosts} />
