@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-12 (session #9 — LOT 1 anti-factice TERMINÉ : workflow Steps 4→7 câblés + approbation externe réelle /approve/[token] + browser-verify PROD complet) ==
+# == PASSATION RAMI 2026-06-14 (session #10 — ÉRADICATION TOTALE DU FACTICE (tous DEFCON1) + fix bug bloquant wizard + FEATURE PRÉSENTATIONS RÉELLE (génération LLM + export PPTX pptxgenjs + éditeur structuré/IA responsive) + prompt L99 validé) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -9,16 +9,17 @@
 
 ## [ETAT] — État global du projet
 
-**Branche active** : `main` (ralph/rami-completion **MERGÉE** session #5, ff 42 commits). `main` = origin synchronisé, **HEAD `37ee844`**. Branche ralph conservée sur origin. **Travailler désormais sur main** (ou re-créer une branche feature).
+**Branche active** : `main` = origin synchronisé, **HEAD `5c48e52`** (2026-06-14, 0 commit local en avance). **Travailler sur main.**
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
-**Déploiement** : ✅ Coolify **auto-deploy sur push main**. Plusieurs déploiements session #5 (merge initial `e66824d` puis dettes + US-022). Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/color-trends`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec` (cf. browser-verify).
-**Avancement Ralph** : **31/58** stories `passes=true` (US-001→017, US-020/021, **US-025 ✓ 2026-06-11**, US-027/028/029, Z-01→Z-08). **US-026 = impl + browser-verify rapport OK mais passes=false** (attend la vérif du *téléchargement* du nouveau PDF serveur). **US-022 = impl+pipeline OK passes=false** (clé Whisper). **Zéro dette connue.**
+**Déploiement** : ✅ Coolify **auto-deploy sur push main**. ~25 déploiements session #10. Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/create`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec`. **Surveiller la fin du deploy via l'API Coolify** : `GET /api/v1/deployments?uuid=ry8ytnene4czxdhsoes0z56y` (liste vide = terminé). ⚠️ **NE PAS supprimer de deck/données pendant qu'Amine teste** (un cleanup a cassé un download chez lui).
+**Avancement Ralph** : **31/58** stories `passes=true` formelles, MAIS **audit anti-factice = TOUS les DEFCON1 SOLDÉS** (cf. `docs/AUDIT_FACTICE_2026-06-12.md`). **Zéro dette connue.**
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
-**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ 0 vuln · **Jest** : ✅ **336/336 vert** (22 suites — +7 session-state).
+**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ **0 vuln CRITIQUE** (6 high = tooling dev pré-existant : drizzle-kit/esbuild/tsx) · **Jest** : ✅ **346/346 vert** (23 suites — +10 presentation-deck).
+**Nouvelle dépendance** : `pptxgenjs ^4.0.1` (export PPTX pur-JS, compatible Nixpacks).
 **OAuth social (session #8 — RÉEL VALIDÉ)** : ✅ **LinkedIn + X (Twitter) CONNECTÉS pour de vrai en prod** (flow OAuth complet + bouton « Tester » concluant). Clés dans coffre DPAPI + Coolify. ⚠️ **Secret LinkedIn était TRONQUÉ** (parsing sur le `=`/`.` + copier mobile) → vraie valeur 33 car. (format `WPL_AP1.<…>==`, dans le coffre, **à rotater**). Meta/Pinterest : pas encore (Meta = en manuel, anti-bot). **Mdp super-admin** → coffre `RAMI_SUPERADMIN_PASSWORD`. **Reste : publication réelle d'un post** (bouton Publier vers LinkedIn/X).
-**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**. **origin/main = `96d982d`** (poussé 2026-06-14, **tout synchro, 0 commit local en avance**). Inclut LOT 1 anti-factice complet + **persistance workflow `content_sessions`** (`fc65164`). Auto-deploy Coolify déclenché au push. ⚠️ **Reste 1 gate : browser-verify prod de la reprise de brouillon** (cf. [NEXT] point 0) — non encore exécuté.
-**Hébergement** : **Coolify** (serveur Ubuntu `serveurai` 192.168.100.8) + **cloudflared tunnel** (PAS Vercel).
-**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **31 migrations appliquées** (jusqu'à `20260315000014_content_sessions` — appliquée + RLS cross-tenant testée 2026-06-14 ✓). RLS 100%.
+**Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**, origin/main `5c48e52` synchro. Inclut TOUT le travail session #10 (anti-factice complet + feature Présentations + éditeur + prompt L99).
+**Hébergement** : **Coolify** (serveur Ubuntu `serveurai` 192.168.100.8) + **cloudflared tunnel** (PAS Vercel). ⚠️ **Cloudflare gzip les réponses binaires** (même avec `no-transform`) → tout téléchargement de binaire (PPTX…) doit se faire côté client via `fetch()`+`blob()` (décompresse) et JAMAIS via un simple `<a download>` (sauve les octets gzippés → fichier corrompu).
+**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **32 migrations appliquées** (jusqu'à `20260315000015_post_status_rejected` — enum `post_status` + statut `rejected` pour le Kanban approbations). RLS 100%.
 **LLM** : via **proxy LiteLLM** `proxy.ai-mpower.com` — texte `deepseek-v4-flash`, vision `moonshot-v1-8k-vision-preview`. Plus de clés directes Anthropic/OpenAI nécessaires.
 **pg-boss** : ✅ connecté (schéma `pgboss`, 8 tables) — app `rami` sur réseau `coolify` partagé avec `supabase-db`.
 
@@ -34,6 +35,40 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #10 (2026-06-14) — ÉRADICATION TOTALE DU FACTICE + bug bloquant + FEATURE PRÉSENTATIONS RÉELLE + éditeur + prompt L99
+
+> Session marathon. ~25 commits/déploiements (`13c6240`→`5c48e52`), gates verts à CHAQUE commit (TS0/lint0/Jest jusqu'à 346/build/audit 0 critique), TOUT browser-verified PROD (Playwright MCP, compte test-ralph), tous les seeds de test nettoyés.
+
+### A. Persistance workflow + ÉRADICATION DE TOUT LE FACTICE DEFCON1 (browser-verified prod)
+> Déclencheur Amine : « ce qui est factice est une dette impardonnable et impossible à occulter ». → audit `docs/AUDIT_FACTICE_2026-06-12.md` soldé sur TOUS les DEFCON1.
+- **✓ Persistance brouillon** (`content_sessions`, migration `…014`) browser-verified : autosave → bannière reprise → restauration d'état exacts.
+- **✓ #1 WorkflowSidebar** (`13c6240`) : score « 0.87 » + 3 posts d'historique inventés → vraies couleurs Causse + **score de cohérence culturelle RÉEL** (`scoreCulturalCoherenceFromHex`) + historique posts réels + états vides honnêtes (`getWorkflowSidebarDataAction`).
+- **✓ #2/#3 Dashboard** (`25048a1`) : distribution plateformes 45/30/15/10 hardcodée → **répartition réelle** (agrégation `posts.platforms`) ; faux trend « +2% » retiré.
+- **✓ #4 Kanban Approbations** (`18fbd1f`) : `MOCK_ITEMS` (10 posts inventés) → posts réels review/approved/rejected + décisions persistées (`decideInternalApprovalAction`, commentaire dans `ai_metadata`) ; **nouveau statut `rejected`** (migration `…015`) ; bouton Publier câblé sur `publishPost` réel.
+- **✓ #5 Documents download** (`6d8f935`) : bouton Télécharger → route PDF serveur réelle (PDF 26 Ko vérifié).
+- **✓ #6 Transcriptions** (`5e098b8`) : MOCK_SPEAKERS/SUMMARY/VERBATIMS → données réelles + états honnêtes par statut (échec/processing/vide) + `notFound()`.
+- **✓ #7 RGPD export** (`64f9843`) : bouton « Exporter mes données » sans handler → `exportMyDataAction` (JSON réel tenant-scopé, **tokens OAuth exclus**) — obligation légale.
+- **✓ #8b Connexions** (`6d8f935`) : page `/settings/connections` ajoutée à la sidebar.
+- **✓ #9 Vidéo** (`44ec7cb`) : page `/dashboard/video` 100 % mock (378 lignes) → **redirect** vers `/create/video` (le générateur réel).
+- **✓ Honnêteté** : sous-titre/loader « Claude Haiku » (faux modèle, réel = deepseek) → « L'IA génère… » provider-neutre ×8.
+
+### B. BUG BLOQUANT WORKFLOW corrigé (signalé Amine) — `5c11e32`
+> « à partir de l'étape 3 les éléments n'existent pas ». Cause RÉELLE : bloqué à l'**étape 2** — `Step2Platforms` initialisait `selectedFormat=undefined` alors que `step2Schema.format` est requis → « Suivant » échouait avec l'erreur Zod brute « Invalid option » et restait sur l'étape 2 (étape 3 inatteignable). Fix : format pré-sélectionné `"post"` + messages d'erreur i18n. Browser-verified : on atteint l'étape 3 qui génère une vraie légende.
+
+### C. FEATURE PRÉSENTATIONS RÉELLE (remplace le module 100 % mock) — `0f04b3e`→`290ebfb`
+> Choix Amine : construire (réutiliser `Afristrat/mckinsey-pptx`). Mais `mckinsey-pptx` = **Python** (incompatible Node/Nixpacks sans micro-service) → réimplémenté le style « cabinet de conseil » avec **`pptxgenjs`** (pur JS).
+- **Schéma deck typé Zod** `src/lib/schemas/presentation.schema.ts` (8 types : cover/agenda/section/content/twoColumn/stat/quote/conclusion). Contraintes **généreuses** + **sauvetage par slide** dans `parseDeck` (un slide invalide ne tue pas tout le deck).
+- **Génération LLM réelle** : module pur `presentation-deck.ts` (prompts + parse) + `createPresentationDeckAction` (persiste dans `documents` type=`presentation`, content_json).
+- **Export PPTX RÉEL** : `pptxgenjs` (`deck-pptx.ts` + route `/presentations/[id]/pptx`). Browser-verified : **17 slides, 184 Ko, fichier Office valide (PK), python-pptx l'ouvre**.
+- **UI** : `NewPresentationForm` (brief→génération), `DeckViewer` (aperçu+nav+export), `SlideRenderer`, liste réelle. Routes `/presentations`(liste), `/new`, `/[id]`, `/[id]/edit`, `/[id]/pptx`. Carte Documents « CRÉER DECK » → `/presentations/new` ; présentations exclues de la liste documents générique.
+- **ÉDITEUR Phase 1** (`290ebfb`+`4ff4037`) : `DeckEditor` + `/presentations/[id]/edit`. Édition structurée (texte par type, réordonner, ajouter/supprimer, couleur d'accent) + **retouche IA** (`revisePresentationDeckAction` : instruction NL → LLM révise le deck validé) + `updatePresentationDeckAction` (persiste). Aperçu live. **Responsive** (mobile : bandeau slides horizontal + panneau d'édition empilé). Browser-verified : édition titre → enregistrer → persistance → export PPTX reflète l'édition.
+- **FIX download** (`c44f5d4`→`5a2d628`) : Cloudflare gzip → `<a download>` sauvait les octets compressés (« fichier pas un pptx ») → corrigé par `fetch()`+`blob()` (décompresse, ne sauve que si res.ok). **FIX UI viewer** : hauteur fixe (h-full/min-h-0) → miniatures avec ascenseur, slide adaptée à l'écran, 0 défilement page.
+
+### D. Prompt système L99 VALIDÉ (Amine) — `5c48e52`
+- `buildDeckSystemPrompt` renforcé niveau cabinet de conseil : pyramide de Minto (titre = message clé), structure MECE, rédaction concise, **DÉFCON 1 chiffres** (jamais inventer), audience/langue/Brand DNA, **mode CONVERSION** (imports : restructurer fidèlement, préserver faits/chiffres, ne rien inventer). Contrat JSON inchangé.
 
 ---
 
@@ -244,16 +279,15 @@
 
 ---
 
-## [NEXT] — Prochaines actions prioritaires (session #10)
+## [NEXT] — Prochaines actions prioritaires (session #11)
 
-0. **⭐ BROWSER-VERIFY PROD de la persistance** (migration appliquée + déployée 2026-06-14 ; il ne reste QUE la vérif navigateur) : attendre la fin du deploy Coolify (`docker ps | grep ry8yt`), puis sur rami.ai-mpower.com (test-ralph) : remplir Steps 1-3 → **rafraîchir l'onglet** → bannière « Reprendre votre brouillon ? » → Reprendre → état complet restauré ; tester « Recommencer à zéro » (statut `abandoned`) ; vérifier l'indicateur en-tête « Brouillon enregistré ». Puis cleanup `DELETE FROM content_sessions WHERE tenant_id = '12fe935c-55c2-4864-aced-e18eb6235f9d';`. → si OK, clore la story persistance.
-1. **⭐ PUBLICATION RÉELLE** : terminer le cas d'usage social — câbler/vérifier le bouton **Publier** (workflow Step7 « Publier maintenant » → publish-worker pg-boss → `publishToLinkedIn` UGC `urn:li:person:{sub}` + `publishToTwitter` POST /2/tweets) et **publier un vrai post de test** sur les comptes connectés. La connexion + le test sont OK ; vérifier que la publication aboutit réellement. ⚠️ Note : le tenant des connexions OAuth = AI-MPower (super-admin), pas test-ralph.
-2. **⭐ LOT 1bis — `WorkflowSidebar.tsx` mock** (découvert session #9, DEFCON1 visible sur toutes les étapes) : câbler le vrai Brand DNA (réutiliser `getTenantBrandDNAAction`/`normalizeBrandDNA`) + le vrai historique (posts récents du tenant, état vide honnête) ; au passage corriger le sous-titre Step 3 « Claude Haiku » → libellé provider-neutre (i18n ×8) et i18n du message d'erreur format Step 2.
-3. **DETTE prompts système (LOT 7, tâche)** : dès qu'**Amine partage ses prompts « GoP »** → auditer + remplacer la baseline des system prompts de génération (`prompt-config.ts` `FALLBACK_CONFIGS` + table `ai_prompts_config`).
-4. **LOTS 2→6 anti-factice** (cf. doc) : Documents download + Transcriptions badge démo · Dashboard distribution/trend + Approbations réelles (le Kanban `/dashboard/approvals` pourra s'appuyer sur la vraie table `approval_tokens` désormais) · Onboarding Connexions + sidebar + RGPD export · Vidéo pipeline (câbler ou retirer) · Présentations (US-041/042/043).
-5. **US-026 → passes=true** : browser-verifier le **téléchargement du PDF serveur** (`/dashboard/documents/[id]/pdf`) en prod, puis prd.json passes=true (→ 32/58). **US-032 (workflow approbation client)** : une grande partie est maintenant livrée par le LOT 1 Step 6 — vérifier les critères prd.json avant de la solder.
-6. **Meta (FB+IG)** en MANUEL (anti-bot) + **Pinterest** quand Amine veut. **Whisper/Stripe** : provisioning en attente.
-7. Suivre `.ralph/prd.json` (58 US) + `.ralph/progress.md` + `docs/AUDIT_FACTICE_2026-06-12.md`.
+0. **⭐ IMPORT DE FICHIERS → PPTX (demande Amine, prompt L99 VALIDÉ)** : permettre d'uploader **MD / PDF (couche texte) / Word (.docx) / Excel (.xlsx)** sur `/presentations/new` → extraction serveur → génération deck via le prompt L99 (mode CONVERSION) → éditable + export PPTX. Libs pur-JS Nixpacks : MD=texte, PDF=`pdf-parse` (⚠️ PDF aplati/scan = besoin OCR, hors scope v1), Word=`mammoth`, Excel=`SheetJS/xlsx`. Validation MIME + taille ≤ 20 Mo. Toute la chaîne aval (génération→persist→éditeur→PPTX) existe déjà.
+1. **⭐ PRÉSENTATIONS Phase 2 — éditeur CANVAS type Canva** (demandé par Amine) : nouveau modèle de données (slide = éléments positionnés x/y/w/h), drag-drop, images, polices, redimensionnement + mapping PPTX repensé. **Gros chantier multi-sessions.** La Phase 1 (éditeur structuré + retouche IA) est livrée.
+2. **⭐ PUBLICATION RÉELLE** : câbler/vérifier le bouton **Publier** (workflow Step7 → publish-worker pg-boss → `publishToLinkedIn`/`publishToTwitter`) et publier un vrai post de test. Connexions LinkedIn+X OK (session #8). ⚠️ tenant des connexions OAuth = AI-MPower (super-admin), pas test-ralph.
+3. **MINEURS anti-factice restants** (non-DEFCON1, cf. `docs/AUDIT_FACTICE_2026-06-12.md`) : filtres analytics/library sans effet, sélecteurs settings sans sauvegarde, **étape « Connexions » dans l'onboarding** (découvrabilité). + **prompts « GoP » d'Amine** s'il les fournit (LOT 7) — le prompt L99 deck est validé et déployé.
+4. **Provisioning input Amine (bloqués)** : clé Whisper (US-022/023/024), Stripe live (US-018/019), Meta/Pinterest OAuth, TTS (US-037), TikTok (US-046).
+5. ⚠️ **Deck de test en base** : « Compte Epargne Halal — Edite par RAMI » id `f85a9e8b-afd4-47aa-9b7d-a3ba2dda1bb9` (tenant test-ralph) — laissé pour les tests d'Amine. À supprimer quand inutile (mais **jamais pendant qu'Amine teste**).
+6. Suivre `.ralph/prd.json` + `.ralph/progress.md` + `docs/AUDIT_FACTICE_2026-06-12.md` (tous DEFCON1 soldés).
 
 ---
 
@@ -277,6 +311,9 @@
 
 ## [MEMO] — À ne pas oublier inter-sessions
 
+- **MODULE PRÉSENTATIONS (session #10 — feature RÉELLE)** : schéma `src/lib/schemas/presentation.schema.ts` (deck = 8 types Zod discriminés ; `parseDeck` a un **sauvetage par slide**). Génération/révision : `src/lib/services/documents/presentation-deck.ts` (prompts L99 + `parseDeck`) + `src/lib/actions/presentation.actions.ts` (`createPresentationDeckAction`/`updatePresentationDeckAction`/`revisePresentationDeckAction`/`getPresentationDetailAction`/`listPresentationsAction`). Export PPTX : `src/lib/services/documents/pptx/deck-pptx.ts` (**pptxgenjs** pur-JS) + route `src/app/(dashboard)/presentations/[id]/pptx/route.ts`. UI : `DeckViewer`/`DeckEditor`/`SlideRenderer`/`NewPresentationForm`. Decks stockés dans `documents` type=`presentation` (content_json = `{brief, theme, deck}`). Prompt L99 = `buildDeckSystemPrompt` (validé Amine 2026-06-14).
+- **⚠️ TÉLÉCHARGEMENT DE BINAIRE (PPTX/etc.) — piège Cloudflare gzip** : Cloudflare **gzippe** les réponses (ignore `Cache-Control: no-transform`). Un simple `<a href download>` sauvegarde les **octets gzippés** → fichier corrompu (« pas un pptx »). TOUJOURS télécharger un binaire côté client via `fetch()` → `res.blob()` (fetch décompresse automatiquement) + `URL.createObjectURL` + `<a download>` synthétique, et **ne sauver que si `res.ok`** (jamais une réponse d'erreur 404/HTML déguisée en .pptx). cf. `DeckViewer.handleDownload`.
+- **Validation PPTX** : un vrai .pptx commence par `50 4b 03 04` (PK/zip) ; `1f 8b` = gzip = corrompu. Vérif rigoureuse : `python -c "from pptx import Presentation; Presentation('f.pptx')"`.
 - **Workflow « Créer un post » (session #9)** : modules PURS `src/lib/services/workflow/{quality-score,approval-link,optimal-time,session-state}.ts` + `image-generation/style-presets.ts` (tous testés Jest). Approbation externe : `src/lib/actions/approval.actions.ts` + page `src/app/(public)/approve/[token]/page.tsx` + `approval-decision-panel.tsx` (labels i18n passés en props depuis le Server Component — la page publique est hors provider client). Table `approval_tokens` (migration `…013`). `saveWorkflowPostAction` accepte `existingPostId` (update) + persiste `media_urls`. ⚠️ `z.string().datetime({offset:true})` REJETTE la valeur brute d'un `<input datetime-local>` → toujours convertir en ISO.
 - **Persistance du workflow (content_sessions)** : `src/lib/actions/workflow-session.actions.ts` (save/load/close) + module pur `session-state.ts` (`parseWorkflowStateEnvelope`). Table `content_sessions` (migration `…014`). Autosave câblé dans `WorkflowClient` via `transition()` (remplace les `setState` directs des `handleStepN`), bannière de reprise + `AutosaveIndicator` en bas du même fichier. `Step7Schedule` a une prop `onPublished` qui clôt la session. i18n `workflow.autosave`. ⚠️ migration `…014` à appliquer sur db-rami avant de pousser `fc65164`.
 
