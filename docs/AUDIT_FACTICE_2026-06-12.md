@@ -82,7 +82,7 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
 
 | Élément | Fichier:ligne | Nature | Sévérité |
 |---|---|---|---|
-| Bouton Download (liste docs) | DocumentsTable.tsx:259 | appelle handleView au lieu de la route /pdf | DEFCON1 |
+| ✅ Bouton Download (liste docs) | DocumentsTable.tsx | RÉSOLU 2026-06-14 (`6d8f935`) → route /pdf réelle, PDF 26 Ko vérifié | ~~DEFCON1~~ |
 | Transcriptions : MOCK_SPEAKERS/SUMMARY/VERBATIMS | TranscriptionResult/AiSummaryPanel | mock affiché si Whisper absent, sans badge démo | DEFCON1 |
 | Leads : import Apollo / recherche | leads/client.tsx:24, LeadFilters.tsx | callbacks vides, inputs non bindés | MINEUR |
 
@@ -91,7 +91,7 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
 | Élément | Fichier:ligne | Nature | Sévérité |
 |---|---|---|---|
 | Onboarding sans étape « Connexions sociales » | OnboardingWizard.tsx:20 | parcours incomplet | DEFCON1 |
-| Page Connexions absente de la sidebar | nav-config.ts | non découvrable | DEFCON1 |
+| ✅ Page Connexions absente de la sidebar | nav-config.ts | RÉSOLU 2026-06-14 (`6d8f935`) → ajoutée à navMain | ~~DEFCON1~~ |
 | RGPD « Télécharger mes données » | general-settings-client.tsx:675 | sans handler (obligation légale) | DEFCON1 |
 | `/settings/billing` mock (plan/invoices/boutons) | billing-settings-client.tsx | **à recouper avec /billing réel** | À VÉRIFIER |
 | Timezone / langue / workspace | general-settings-client.tsx | sélecteurs sans sauvegarde | MINEUR |
