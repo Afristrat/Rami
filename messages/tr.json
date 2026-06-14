@@ -1518,7 +1518,8 @@
       "exportData": "Verilerimi dışa aktar",
       "exportAllData": "Export all my data",
       "exportDataDescription": "Tüm verilerinizin bir kopyasını JSON formatında indirin.",
-      "deleteMyAccount": "Delete my account"
+      "deleteMyAccount": "Delete my account",
+      "exportError": "Dışa aktarma başarısız. Tekrar deneyin."
     },
     "workspace": {
       "title": "Workspace",

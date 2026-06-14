@@ -20,6 +20,7 @@ import {
   type UserProfile,
   type NotificationPreferences,
 } from "@/lib/actions/settings.actions"
+import { exportMyDataAction } from "@/lib/actions/data-export.actions"
 import { cn } from "@/lib/utils"
 import {
   Dialog,
@@ -144,6 +145,38 @@ export function GeneralSettingsClient({ profile, initialPrefs, initialCollective
   const [deleteError, setDeleteError] = useState<string | null>(null)
   const [isDeletePending, startDeleteTransition] = useTransition()
   const isDeleteConfirmed = deleteInput === CONFIRMATION_PHRASE
+
+  // Export RGPD (portabilité des données)
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
+
+  async function handleExportData() {
+    setExportError(null)
+    setIsExporting(true)
+    try {
+      const result = await exportMyDataAction()
+      if (!result.success || !result.data) {
+        setExportError(tDanger("exportError"))
+        return
+      }
+      const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+        type: "application/json",
+      })
+      const url = URL.createObjectURL(blob)
+      const stamp = new Date().toISOString().slice(0, 10)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `rami-export-${stamp}.json`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    } catch {
+      setExportError(tDanger("exportError"))
+    } finally {
+      setIsExporting(false)
+    }
+  }
 
   // ─── Profile handlers ──────────────────────────────────────────────────────
 
@@ -666,13 +699,16 @@ export function GeneralSettingsClient({ profile, initialPrefs, initialCollective
         </p>
         <div className="flex flex-col sm:flex-row gap-4">
           <button
+            onClick={handleExportData}
+            disabled={isExporting}
             className={cn(
               "flex items-center justify-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all",
               "border border-gray-200 bg-gray-50 hover:bg-gray-100 text-foreground",
-              "dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white"
+              "dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:text-white",
+              isExporting && "opacity-60 cursor-not-allowed"
             )}
           >
-            <Download className="size-5" />
+            {isExporting ? <Loader2 className="size-5 animate-spin" /> : <Download className="size-5" />}
             {tDanger("exportAllData")}
           </button>
           <button
@@ -691,6 +727,9 @@ export function GeneralSettingsClient({ profile, initialPrefs, initialCollective
             {tDanger("deleteMyAccount")}
           </button>
         </div>
+        {exportError && (
+          <p className="mt-3 text-xs text-red-500">{exportError}</p>
+        )}
       </GlassCard>
 
       {/* ─── Delete confirmation dialog ──────────────────────────────────── */}

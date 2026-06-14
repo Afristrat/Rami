@@ -1518,7 +1518,8 @@
       "exportData": "导出我的数据",
       "exportAllData": "Export all my data",
       "exportDataDescription": "下载您所有数据的 JSON 格式副本。",
-      "deleteMyAccount": "Delete my account"
+      "deleteMyAccount": "Delete my account",
+      "exportError": "导出失败，请重试。"
     },
     "workspace": {
       "title": "Workspace",

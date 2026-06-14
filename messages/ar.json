@@ -1518,7 +1518,8 @@
       "exportData": "تصدير بياناتي",
       "exportAllData": "تصدير جميع بياناتي",
       "exportDataDescription": "حمّل نسخة من جميع بياناتك بتنسيق JSON.",
-      "deleteMyAccount": "حذف حسابي"
+      "deleteMyAccount": "حذف حسابي",
+      "exportError": "فشل التصدير. حاول مرة أخرى."
     },
     "workspace": {
       "title": "مساحة العمل",

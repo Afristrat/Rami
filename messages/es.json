@@ -1518,7 +1518,8 @@
       "exportData": "Exportar mis datos",
       "exportAllData": "Export all my data",
       "exportDataDescription": "Descarga una copia de todos tus datos en formato JSON.",
-      "deleteMyAccount": "Delete my account"
+      "deleteMyAccount": "Delete my account",
+      "exportError": "La exportación falló. Inténtalo de nuevo."
     },
     "workspace": {
       "title": "Workspace",
