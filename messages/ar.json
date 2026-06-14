@@ -2602,7 +2602,10 @@
     "submittedAt": "مقدّم في",
     "noItems": "لا يوجد محتوى للمراجعة",
     "noItemsDesc": "المحتوى المقدّم للموافقة سيظهر هنا.",
-    "publishPlaceholder": "النشر قيد التطوير"
+    "approveSuccess": "تمت الموافقة على المحتوى",
+    "rejectSuccess": "تم رفض المحتوى",
+    "publishSuccess": "بدأ النشر",
+    "actionError": "حدث خطأ"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",

@@ -2602,7 +2602,10 @@
     "submittedAt": "Submitted on",
     "noItems": "No content to review",
     "noItemsDesc": "Content submitted for validation will appear here.",
-    "publishPlaceholder": "Publishing under development"
+    "approveSuccess": "Contenido aprobado",
+    "rejectSuccess": "Contenido rechazado",
+    "publishSuccess": "Publicación iniciada",
+    "actionError": "Se produjo un error"
   },
   "validation": {
     "required": "Ce champ est requis",

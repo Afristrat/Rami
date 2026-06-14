@@ -2602,7 +2602,10 @@
     "submittedAt": "Submitted on",
     "noItems": "No content to review",
     "noItemsDesc": "Content submitted for approval will appear here.",
-    "publishPlaceholder": "Publishing is under development"
+    "approveSuccess": "İçerik onaylandı",
+    "rejectSuccess": "İçerik reddedildi",
+    "publishSuccess": "Yayınlama başlatıldı",
+    "actionError": "Bir hata oluştu"
   },
   "validation": {
     "required": "Ce champ est requis",

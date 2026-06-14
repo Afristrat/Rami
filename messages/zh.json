@@ -2602,7 +2602,10 @@
     "submittedAt": "Submitted on",
     "noItems": "No content to review",
     "noItemsDesc": "Content submitted for approval will appear here.",
-    "publishPlaceholder": "Publishing is under development"
+    "approveSuccess": "内容已批准",
+    "rejectSuccess": "内容已拒绝",
+    "publishSuccess": "已开始发布",
+    "actionError": "发生错误"
   },
   "validation": {
     "required": "Ce champ est requis",

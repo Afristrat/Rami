@@ -18,7 +18,7 @@ import {
 
 export const planEnum = pgEnum('plan', ['free', 'solo', 'pro', 'agency', 'agency_plus', 'enterprise'])
 export const platformEnum = pgEnum('platform', ['twitter', 'linkedin', 'facebook', 'instagram', 'pinterest', 'mastodon', 'youtube', 'tiktok'])
-export const postStatusEnum = pgEnum('post_status', ['draft', 'review', 'approved', 'scheduled', 'publishing', 'published', 'failed'])
+export const postStatusEnum = pgEnum('post_status', ['draft', 'review', 'approved', 'scheduled', 'publishing', 'published', 'failed', 'rejected'])
 export const userRoleEnum = pgEnum('user_role', ['super_admin', 'agency_owner', 'brand_manager', 'content_creator', 'viewer'])
 
 // ============================================================

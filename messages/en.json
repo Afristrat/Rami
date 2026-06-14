@@ -2602,7 +2602,10 @@
     "submittedAt": "Submitted on",
     "noItems": "No content to review",
     "noItemsDesc": "Content submitted for approval will appear here.",
-    "publishPlaceholder": "Publishing is under development"
+    "approveSuccess": "Content approved",
+    "rejectSuccess": "Content rejected",
+    "publishSuccess": "Publishing started",
+    "actionError": "An error occurred"
   },
   "validation": {
     "required": "Ce champ est requis",

@@ -2602,7 +2602,10 @@
     "submittedAt": "Soumis le",
     "noItems": "Aucun contenu à examiner",
     "noItemsDesc": "Les contenus soumis pour validation apparaîtront ici.",
-    "publishPlaceholder": "Publication en cours de développement"
+    "approveSuccess": "Contenu approuvé",
+    "rejectSuccess": "Contenu rejeté",
+    "publishSuccess": "Publication lancée",
+    "actionError": "Une erreur est survenue"
   },
   "validation": {
     "required": "Ce champ est requis",
