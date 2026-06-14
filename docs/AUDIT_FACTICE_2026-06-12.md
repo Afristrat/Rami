@@ -41,8 +41,8 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
 | Élément | Fichier:ligne | Nature | Sévérité |
 |---|---|---|---|
 | Sidebar workflow : score alignement 0.87 + « Historique » (3 posts inventés, « Il y a 2h ») | WorkflowSidebar.tsx:39-50 | mock affiché sur TOUTES les étapes du workflow | DEFCON1 |
-| Sous-titre Step 3 « Claude Haiku génère vos captions » | i18n workflow.step3.desc | provider erroné (réel = deepseek via proxy) | DEFCON2 |
-| Erreur format Step 2 brute « Invalid option: expected one of… » | step2Schema (zod) | message non i18n, anglais technique | MINEUR |
+| ✅ Sous-titre Step 3 « Claude Haiku génère vos captions » | i18n workflow.step3.desc + textGen.generatingCaptions | RÉSOLU 2026-06-14 → « L'IA génère… » provider-neutre ×8 | ~~DEFCON2~~ |
+| ✅ Erreur format Step 2 brute « Invalid option: expected one of… » | step2Schema (zod) | RÉSOLU 2026-06-14 (`5c11e32`) → **BLOQUAIT le wizard** ; format défaut « post » + messages i18n | ~~MINEUR~~ **(était bloquant)** |
 
 
 

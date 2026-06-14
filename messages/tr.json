@@ -1604,7 +1604,7 @@
     },
     "step3": {
       "title": "Content editing",
-      "desc": "Claude Haiku generates captions adapted to each platform."
+      "desc": "Yapay zeka, her platforma uygun açıklamalarınızı oluşturur."
     },
     "step4": {
       "title": "Visual style selection",
@@ -1767,7 +1767,7 @@
       "formatRequired": "Bir içerik biçimi seçin."
     },
     "textGen": {
-      "generatingCaptions": "Claude Haiku is generating your captions...",
+      "generatingCaptions": "Yapay zeka açıklamalarınızı oluşturuyor…",
       "postCaption": "Post caption",
       "expertAI": "Yapay Zekâ Uzmanı",
       "hookVariants": "Hook variants",

@@ -1604,7 +1604,7 @@
     },
     "step3": {
       "title": "Content editing",
-      "desc": "Claude Haiku generates captions adapted to each platform."
+      "desc": "Die KI erstellt Ihre Captions für jede Plattform."
     },
     "step4": {
       "title": "Visual style selection",
@@ -1767,7 +1767,7 @@
       "formatRequired": "Wählen Sie ein Inhaltsformat."
     },
     "textGen": {
-      "generatingCaptions": "Claude Haiku is generating your captions...",
+      "generatingCaptions": "Die KI erstellt Ihre Captions…",
       "postCaption": "Post caption",
       "expertAI": "KI-Experte",
       "hookVariants": "Hook variants",

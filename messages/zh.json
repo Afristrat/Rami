@@ -1604,7 +1604,7 @@
     },
     "step3": {
       "title": "Content editing",
-      "desc": "Claude Haiku generates captions adapted to each platform."
+      "desc": "AI 为每个平台生成量身定制的文案。"
     },
     "step4": {
       "title": "Visual style selection",
@@ -1767,7 +1767,7 @@
       "formatRequired": "请选择内容格式。"
     },
     "textGen": {
-      "generatingCaptions": "Claude Haiku is generating your captions...",
+      "generatingCaptions": "AI 正在生成您的文案…",
       "postCaption": "Post caption",
       "expertAI": "AI 专家",
       "hookVariants": "Hook variants",
