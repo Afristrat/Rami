@@ -25,7 +25,7 @@ export default async function PresentationPage({ params }: PresentationPageProps
   if (!presentation) notFound()
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+    <div className="flex h-full flex-col overflow-hidden">
       <DeckViewer id={presentation.id} title={presentation.title} content={presentation.content} />
     </div>
   )

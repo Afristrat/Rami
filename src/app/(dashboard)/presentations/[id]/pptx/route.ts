@@ -52,11 +52,13 @@ export async function GET(
 
   try {
     const buffer = await buildDeckPptx(parsed.data, doc.title as string)
+    const filename = safeFilename(doc.title as string)
     return new Response(new Uint8Array(buffer), {
       status: 200,
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "Content-Disposition": `attachment; filename="${safeFilename(doc.title as string)}"`,
+        // filename (ASCII) + filename* (RFC 5987) → extension .pptx garantie côté navigateur.
+        "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
         "Cache-Control": "private, no-store",
       },
     })

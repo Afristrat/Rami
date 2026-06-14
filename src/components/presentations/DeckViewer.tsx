@@ -20,6 +20,18 @@ function slideLabel(slide: PresentationContent["deck"]["slides"][number]): strin
   return slide.title
 }
 
+/** Nom de fichier .pptx sûr (ASCII), pour forcer l'extension côté navigateur. */
+function pptxFilename(title: string): string {
+  const base = title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60)
+  return `${base || "presentation"}.pptx`
+}
+
 export function DeckViewer({ id, title, content }: DeckViewerProps) {
   const t = useTranslations("presentations")
   const slides = content.deck.slides
@@ -32,9 +44,9 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
   }
 
   return (
-    <div className="flex flex-1 flex-col min-h-0">
+    <div className="flex h-full flex-1 flex-col min-h-0 overflow-hidden">
       {/* Barre d'action */}
-      <div className="flex items-center justify-between border-b border-border bg-background/50 px-6 py-3 backdrop-blur-md">
+      <div className="flex shrink-0 items-center justify-between border-b border-border bg-background/50 px-6 py-3 backdrop-blur-md">
         <div className="flex items-center gap-3 min-w-0">
           <Link href="/presentations" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="size-5" />
@@ -43,8 +55,9 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
         </div>
         <a
           href={`/presentations/${id}/pptx`}
+          download={pptxFilename(title)}
           className={cn(
-            "flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all",
+            "flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all",
             "bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg shadow-primary/20 hover:opacity-90"
           )}
         >
@@ -85,13 +98,16 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
           </div>
         </aside>
 
-        {/* Aperçu principal */}
-        <section className="flex flex-1 flex-col items-center justify-center gap-6 p-6 lg:p-10 min-h-0">
-          <div className="aspect-video w-full max-w-4xl overflow-hidden rounded-2xl border border-border shadow-2xl">
+        {/* Aperçu principal — la slide s'adapte à la hauteur restante (pas de défilement de page) */}
+        <section className="flex flex-1 flex-col items-center justify-center gap-3 p-3 lg:p-5 min-h-0">
+          <div
+            className="aspect-video w-full max-h-full overflow-hidden rounded-2xl border border-border shadow-2xl"
+            style={{ maxWidth: "min(64rem, calc((100dvh - 14rem) * 16 / 9))" }}
+          >
             <SlideRenderer slide={slides[current]} index={current} total={total} accentColor={accent} variant="full" />
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex shrink-0 items-center gap-6">
             <button
               type="button"
               onClick={() => go(-1)}
@@ -114,7 +130,7 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
       </div>
 
       {/* Pied */}
-      <footer className="flex h-12 items-center gap-2 border-t border-border px-6 text-sm text-muted-foreground">
+      <footer className="flex h-12 shrink-0 items-center gap-2 border-t border-border px-6 text-sm text-muted-foreground">
         <Presentation className="size-4" />
         <span>{t("slidesCount", { count: total })}</span>
       </footer>
