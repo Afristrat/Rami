@@ -2159,7 +2159,15 @@
     "exportTxt": "Export TXT",
     "share": "Share",
     "emptyTitle": "Henüz transkripsiyon yok",
-    "emptyDesc": "İlk transkripsiyonunuzu oluşturmak için bir ses dosyası yükleyin."
+    "emptyDesc": "İlk transkripsiyonunuzu oluşturmak için bir ses dosyası yükleyin.",
+    "summaryEmpty": "Özet mevcut değil.",
+    "verbatimsEmpty": "Alıntı çıkarılmadı.",
+    "actionsEmpty": "Eylem belirlenmedi.",
+    "resultFailedTitle": "Transkripsiyon başarısız",
+    "resultFailedDesc": "Transkripsiyon hizmeti bu ses dosyasını işleyemedi.",
+    "resultProcessingTitle": "Transkripsiyon sürüyor…",
+    "resultProcessingDesc": "İşlem tamamlandığında metin görünecek.",
+    "transcriptEmpty": "Henüz çözümlenmiş metin yok."
   },
   "presentations": {
     "title": "Sunumlar",

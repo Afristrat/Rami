@@ -2159,7 +2159,15 @@
     "exportTxt": "Export TXT",
     "share": "Share",
     "emptyTitle": "Sem transcrições",
-    "emptyDesc": "Envie um arquivo de áudio para gerar sua primeira transcrição."
+    "emptyDesc": "Envie um arquivo de áudio para gerar sua primeira transcrição.",
+    "summaryEmpty": "Resumo não disponível.",
+    "verbatimsEmpty": "Nenhuma citação extraída.",
+    "actionsEmpty": "Nenhuma ação identificada.",
+    "resultFailedTitle": "A transcrição falhou",
+    "resultFailedDesc": "O serviço de transcrição não conseguiu processar este ficheiro de áudio.",
+    "resultProcessingTitle": "Transcrição em curso…",
+    "resultProcessingDesc": "O texto aparecerá assim que o processamento terminar.",
+    "transcriptEmpty": "Ainda não há texto transcrito."
   },
   "presentations": {
     "title": "Apresentações",

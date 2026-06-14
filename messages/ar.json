@@ -2159,7 +2159,15 @@
     "exportTxt": "تصدير TXT",
     "share": "مشاركة",
     "emptyTitle": "لا توجد عمليات تفريغ",
-    "emptyDesc": "ارفع ملفًا صوتيًا لإنشاء أول تفريغ نصي لك."
+    "emptyDesc": "ارفع ملفًا صوتيًا لإنشاء أول تفريغ نصي لك.",
+    "summaryEmpty": "الملخص غير متوفر.",
+    "verbatimsEmpty": "لم يتم استخراج أي اقتباسات.",
+    "actionsEmpty": "لم يتم تحديد أي إجراءات.",
+    "resultFailedTitle": "فشلت عملية التفريغ",
+    "resultFailedDesc": "تعذّر على خدمة التفريغ معالجة هذا الملف الصوتي.",
+    "resultProcessingTitle": "جارٍ التفريغ…",
+    "resultProcessingDesc": "سيظهر النص بمجرد اكتمال المعالجة.",
+    "transcriptEmpty": "لا يوجد نص مُفرَّغ بعد."
   },
   "presentations": {
     "title": "العروض التقديمية",

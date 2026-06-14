@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-// notFound kept for future use when real data replaces mocks
+import { notFound } from 'next/navigation'
 import { requireFeature } from '@/lib/billing/require-feature'
 import { getTranscriptionDetailAction } from '@/lib/actions/transcriptions.actions'
 import TranscriptionResult from '@/components/transcriptions/TranscriptionResult'
@@ -25,15 +25,10 @@ export default async function TranscriptionDetailPage({ params }: TranscriptionD
   await requireFeature('transcription')
 
   const { id } = await params
-  const { transcription, error: _error } = await getTranscriptionDetailAction(id)
+  const { transcription } = await getTranscriptionDetailAction(id)
 
-  // Si la transcription n'existe pas (ou mock), on affiche quand m\u00eame avec donn\u00e9es de d\u00e9mo
-  const isMock = !transcription && id.startsWith('mock-')
-
-  if (!transcription && !isMock) {
-    // Pas de donn\u00e9es r\u00e9elles et pas un ID mock
-    // On affiche quand m\u00eame le composant avec mock data pour la d\u00e9mo
-  }
+  // Transcription inexistante (ou hors tenant) \u2192 vrai 404, jamais de donn\u00e9es de d\u00e9mo.
+  if (!transcription) notFound()
 
   return (
     <div className="w-full px-4 sm:px-6 py-6 space-y-6">

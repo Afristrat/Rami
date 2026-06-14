@@ -2159,7 +2159,15 @@
     "exportTxt": "Export TXT",
     "share": "Share",
     "emptyTitle": "Keine Transkriptionen",
-    "emptyDesc": "Laden Sie eine Audiodatei hoch, um Ihre erste Transkription zu erstellen."
+    "emptyDesc": "Laden Sie eine Audiodatei hoch, um Ihre erste Transkription zu erstellen.",
+    "summaryEmpty": "Zusammenfassung nicht verfügbar.",
+    "verbatimsEmpty": "Keine Zitate extrahiert.",
+    "actionsEmpty": "Keine Aktionen erkannt.",
+    "resultFailedTitle": "Transkription fehlgeschlagen",
+    "resultFailedDesc": "Der Transkriptionsdienst konnte diese Audiodatei nicht verarbeiten.",
+    "resultProcessingTitle": "Transkription läuft…",
+    "resultProcessingDesc": "Der Text erscheint, sobald die Verarbeitung abgeschlossen ist.",
+    "transcriptEmpty": "Noch kein transkribierter Text."
   },
   "presentations": {
     "title": "Präsentationen",

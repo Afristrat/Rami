@@ -2159,7 +2159,15 @@
     "exportTxt": "Export TXT",
     "share": "Share",
     "emptyTitle": "No transcriptions",
-    "emptyDesc": "Upload an audio file to generate your first transcription."
+    "emptyDesc": "Upload an audio file to generate your first transcription.",
+    "summaryEmpty": "Summary not available.",
+    "verbatimsEmpty": "No verbatims extracted.",
+    "actionsEmpty": "No actions identified.",
+    "resultFailedTitle": "Transcription failed",
+    "resultFailedDesc": "The transcription service could not process this audio file.",
+    "resultProcessingTitle": "Transcription in progress…",
+    "resultProcessingDesc": "The text will appear once processing is complete.",
+    "transcriptEmpty": "No transcribed text yet."
   },
   "presentations": {
     "title": "Presentations",

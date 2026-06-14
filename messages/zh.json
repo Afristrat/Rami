@@ -2159,7 +2159,15 @@
     "exportTxt": "Export TXT",
     "share": "Share",
     "emptyTitle": "暂无转录",
-    "emptyDesc": "上传音频文件以生成您的第一份转录。"
+    "emptyDesc": "上传音频文件以生成您的第一份转录。",
+    "summaryEmpty": "暂无摘要。",
+    "verbatimsEmpty": "未提取引述。",
+    "actionsEmpty": "未识别出行动项。",
+    "resultFailedTitle": "转录失败",
+    "resultFailedDesc": "转录服务无法处理此音频文件。",
+    "resultProcessingTitle": "转录进行中…",
+    "resultProcessingDesc": "处理完成后将显示文本。",
+    "transcriptEmpty": "暂无转录文本。"
   },
   "presentations": {
     "title": "演示文稿",

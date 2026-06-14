@@ -2159,7 +2159,15 @@
     "exportTxt": "Exporter TXT",
     "share": "Partager",
     "emptyTitle": "Aucune transcription",
-    "emptyDesc": "Importez un fichier audio pour générer votre première transcription."
+    "emptyDesc": "Importez un fichier audio pour générer votre première transcription.",
+    "summaryEmpty": "Résumé non disponible.",
+    "verbatimsEmpty": "Aucun verbatim extrait.",
+    "actionsEmpty": "Aucune action identifiée.",
+    "resultFailedTitle": "La transcription a échoué",
+    "resultFailedDesc": "Le service de transcription n’a pas pu traiter ce fichier audio.",
+    "resultProcessingTitle": "Transcription en cours…",
+    "resultProcessingDesc": "Le texte apparaîtra dès que le traitement sera terminé.",
+    "transcriptEmpty": "Aucun texte transcrit pour le moment."
   },
   "presentations": {
     "title": "Présentations",
