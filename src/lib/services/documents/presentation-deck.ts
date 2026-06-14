@@ -64,6 +64,27 @@ export function buildDeckUserPrompt(input: {
   ].join("\n")
 }
 
+/**
+ * Prompt utilisateur de RÉVISION : fournit le deck actuel + l'instruction de
+ * l'utilisateur ; le LLM renvoie le deck COMPLET révisé (même format JSON).
+ */
+export function buildDeckRevisionPrompt(input: {
+  currentDeckJson: string
+  instruction: string
+  language: DeckLanguage
+}): string {
+  return [
+    "Voici le deck actuel au format JSON :",
+    input.currentDeckJson,
+    "",
+    `Instruction de modification : ${input.instruction}`,
+    "",
+    `Renvoie le deck COMPLET révisé, au MÊME format JSON imposé, en ${LANGUAGE_LABELS[input.language]}.`,
+    "Ne change que ce que l'instruction demande ; conserve le reste à l'identique.",
+    "Aucun texte hors du JSON.",
+  ].join("\n")
+}
+
 /** Retire d'éventuelles fences Markdown et extrait le premier objet JSON. */
 function stripToJson(raw: string): string {
   let s = raw.trim()

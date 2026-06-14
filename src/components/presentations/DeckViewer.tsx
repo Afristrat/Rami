@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import Link from "next/link"
-import { Download, ChevronLeft, ChevronRight, ArrowLeft, Presentation, Loader2 } from "lucide-react"
+import { Download, ChevronLeft, ChevronRight, ArrowLeft, Presentation, Loader2, Pencil } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SlideRenderer } from "./SlideRenderer"
 import type { PresentationContent } from "@/lib/schemas/presentation.schema"
@@ -84,19 +84,28 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
           </Link>
           <h2 className="truncate text-base font-bold text-foreground">{title}</h2>
         </div>
-        <button
-          type="button"
-          onClick={handleDownload}
-          disabled={downloading}
-          className={cn(
-            "flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all",
-            "bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg shadow-primary/20 hover:opacity-90",
-            downloading && "opacity-60 cursor-not-allowed"
-          )}
-        >
-          {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
-          {t("downloadPptx")}
-        </button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href={`/presentations/${id}/edit`}
+            className="flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-muted"
+          >
+            <Pencil className="size-4" />
+            {t("edit")}
+          </Link>
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={downloading}
+            className={cn(
+              "flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all",
+              "bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg shadow-primary/20 hover:opacity-90",
+              downloading && "opacity-60 cursor-not-allowed"
+            )}
+          >
+            {downloading ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
+            {t("downloadPptx")}
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-1 overflow-hidden min-h-0">

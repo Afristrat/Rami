@@ -16,11 +16,14 @@ import { revalidatePath } from "next/cache"
 import {
   buildDeckSystemPrompt,
   buildDeckUserPrompt,
+  buildDeckRevisionPrompt,
   parseDeck,
 } from "@/lib/services/documents/presentation-deck"
 import {
   DECK_LANGUAGES,
+  deckSchema,
   presentationContentSchema,
+  type Deck,
   type DeckLanguage,
   type PresentationContent,
 } from "@/lib/schemas/presentation.schema"
@@ -187,6 +190,135 @@ export async function getPresentationDetailAction(
       content: parsed.data,
       created_at: doc.created_at as string,
     },
+  }
+}
+
+const HEX_RE = /^#[0-9a-fA-F]{6}$/
+
+/**
+ * Enregistre les modifications d'un deck (édition structurée) : remplace le deck
+ * et la couleur d'accent dans content_json. Le deck est revalidé (jamais de
+ * structure corrompue persistée).
+ */
+export async function updatePresentationDeckAction(
+  id: string,
+  input: { deck: unknown; accentColor?: string }
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "unauthenticated" }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { success: false, error: "no_tenant" }
+
+  const parsedDeck = deckSchema.safeParse(input.deck)
+  if (!parsedDeck.success) return { success: false, error: "invalid_deck" }
+
+  // Charger le contenu existant pour préserver brief/theme.
+  const { data: doc } = await supabase
+    .from("documents")
+    .select("content_json, title")
+    .eq("id", id)
+    .eq("tenant_id", tenantId)
+    .eq("type", "presentation")
+    .single()
+  if (!doc) return { success: false, error: "not_found" }
+
+  const existing = presentationContentSchema.safeParse(doc.content_json)
+  if (!existing.success) return { success: false, error: "corrupt" }
+
+  const accent =
+    typeof input.accentColor === "string" && HEX_RE.test(input.accentColor)
+      ? input.accentColor
+      : existing.data.theme.accentColor
+
+  const nextContent: PresentationContent = {
+    ...existing.data,
+    theme: { accentColor: accent },
+    deck: parsedDeck.data,
+  }
+
+  // Titre = titre de la slide de couverture si présent (suit les renommages).
+  const cover = parsedDeck.data.slides.find((s) => s.type === "cover")
+  const nextTitle = cover && "title" in cover ? cover.title.slice(0, 120) : (doc.title as string)
+
+  const { error } = await supabase
+    .from("documents")
+    .update({ content_json: nextContent, title: nextTitle, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("tenant_id", tenantId)
+    .eq("type", "presentation")
+
+  if (error) return { success: false, error: "update_failed" }
+
+  revalidatePath(`/presentations/${id}`)
+  revalidatePath("/presentations")
+  return { success: true }
+}
+
+/**
+ * Retouche IA : applique une instruction en langage naturel au deck via le LLM
+ * et renvoie le deck révisé (validé). N'enregistre PAS — le client revoit puis
+ * sauvegarde. Échec/contenu invalide → erreur honnête, deck inchangé.
+ */
+export async function revisePresentationDeckAction(
+  id: string,
+  instruction: string
+): Promise<{ deck: Deck } | { error: string }> {
+  const trimmed = instruction.trim()
+  if (trimmed.length < 3) return { error: "instruction_too_short" }
+  if (trimmed.length > 1000) return { error: "instruction_too_long" }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "unauthenticated" }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { error: "no_tenant" }
+
+  const { data: doc } = await supabase
+    .from("documents")
+    .select("content_json")
+    .eq("id", id)
+    .eq("tenant_id", tenantId)
+    .eq("type", "presentation")
+    .single()
+  if (!doc) return { error: "not_found" }
+
+  const existing = presentationContentSchema.safeParse(doc.content_json)
+  if (!existing.success) return { error: "corrupt" }
+
+  try {
+    const config = await getPromptConfig("document_presentation")
+    const raw = await callTextLLM({
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey,
+      systemPrompt: buildDeckSystemPrompt(),
+      userPrompt: buildDeckRevisionPrompt({
+        currentDeckJson: JSON.stringify(existing.data.deck),
+        instruction: trimmed,
+        language: existing.data.brief.language,
+      }),
+      maxTokens: 4000,
+      temperature: config.temperature,
+    })
+    const revised = parseDeck(raw)
+    if (!revised) return { error: "invalid_revision" }
+    return { deck: revised }
+  } catch (err) {
+    log({
+      level: "error",
+      module: "presentations",
+      action: "deck_revision_failed",
+      tenant_id: tenantId,
+      metadata: { id, error: String(err) },
+    })
+    return { error: "revision_failed" }
   }
 }
 

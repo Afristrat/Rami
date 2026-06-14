@@ -1,0 +1,27 @@
+import { notFound } from "next/navigation"
+import { getTranslations } from "next-intl/server"
+import { requireFeature } from "@/lib/billing/require-feature"
+import { getPresentationDetailAction } from "@/lib/actions/presentation.actions"
+import { DeckEditor } from "@/components/presentations/DeckEditor"
+
+interface EditPageProps {
+  params: Promise<{ id: string }>
+}
+
+export async function generateMetadata() {
+  const t = await getTranslations("metadata")
+  return { title: t("presentations"), description: t("presentationsDescription") }
+}
+
+export default async function PresentationEditPage({ params }: EditPageProps) {
+  await requireFeature("document_engine")
+  const { id } = await params
+  const { presentation } = await getPresentationDetailAction(id)
+  if (!presentation) notFound()
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden">
+      <DeckEditor id={presentation.id} title={presentation.title} content={presentation.content} />
+    </div>
+  )
+}
