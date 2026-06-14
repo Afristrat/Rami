@@ -103,6 +103,11 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
     router.push(`/dashboard/documents/${id}`)
   }
 
+  const handleDownload = (id: string) => {
+    // Route PDF serveur réelle (@react-pdf/renderer) → vrai téléchargement.
+    window.open(`/dashboard/documents/${id}/pdf`, "_blank", "noopener,noreferrer")
+  }
+
   const handleDuplicate = (id: string) => {
     startTransition(async () => {
       await duplicateDocumentAction(id)
@@ -272,7 +277,7 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleView(doc.id)}
+                            onClick={() => handleDownload(doc.id)}
                             className={actionButtonClasses}
                             title={t("downloadAction")}
                           >
@@ -362,7 +367,7 @@ export function DocumentsTable({ documents, total }: DocumentsTableProps) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleView(doc.id)}
+                    onClick={() => handleDownload(doc.id)}
                     className={actionButtonClasses}
                     title={t("downloadAction")}
                   >

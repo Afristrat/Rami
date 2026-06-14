@@ -15,6 +15,7 @@ import {
   Video,
   Palette,
   Droplets,
+  Link2,
 } from "lucide-react"
 
 export interface NavItem {
@@ -35,6 +36,7 @@ export const navMain: NavItem[] = [
   { href: "/dashboard/analytics", labelKey: "analytics", icon: BarChart3 },
   { href: "/dashboard/color-trends", labelKey: "colorTrends", icon: Droplets, badgeKey: "pro" },
   { href: "/dashboard/approvals", labelKey: "approvals", icon: CheckSquare },
+  { href: "/settings/connections", labelKey: "connections", icon: Link2 },
 ]
 
 export const navAdvanced: NavItem[] = [

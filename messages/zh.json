@@ -178,7 +178,8 @@
     "video": "视频",
     "invoices": "发票",
     "approvals": "审批",
-    "colorTrends": "色彩趋势"
+    "colorTrends": "色彩趋势",
+    "connections": "连接"
   },
   "theme": {
     "title": "主题",

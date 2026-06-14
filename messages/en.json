@@ -178,7 +178,8 @@
     "video": "Video",
     "invoices": "Invoices",
     "approvals": "Approvals",
-    "colorTrends": "Color Trends"
+    "colorTrends": "Color Trends",
+    "connections": "Connections"
   },
   "theme": {
     "title": "Theme",

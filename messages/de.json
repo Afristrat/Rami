@@ -178,7 +178,8 @@
     "video": "Video",
     "invoices": "Rechnungen",
     "approvals": "Freigaben",
-    "colorTrends": "Farbtrends"
+    "colorTrends": "Farbtrends",
+    "connections": "Verbindungen"
   },
   "theme": {
     "title": "Design",
