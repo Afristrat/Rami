@@ -27,8 +27,7 @@
 
 ## [ENCOURS] — Tâches actives
 
-> **MODE RALPH ACTIF** sur `main`. État dans `.ralph/prd.json` (**58 US** : 50 d'origine + 8 Epic Z).
-> Avancement : **30/58** (US-001→017, US-020/021, US-027/028/029, **Z-01→Z-08** ✓). **Epics A, B, E, Z COMPLETS**. OPS US-017/020/021. **Zéro dette connue.**
+> **MODE RALPH** sur `main`. État dans `.ralph/prd.json` (**58 US**). **Avancement formel 31/58**, MAIS l'axe de travail réel depuis session #10 = **anti-factice (tous DEFCON1 soldés) + feature Présentations** (hors prd.json formel). **Zéro dette connue.**
 > **Plan directeur = `docs/PRD_RAMI_FINITION_L99.md`** (phases) + provisioning Amine = `docs/API_REQUIREMENTS_AMINE.md` (P0/P1/P2) + état câblages = `docs/AUDIT_CABLAGE_2026-06-10.md`.
 > **PHASE 1 — prochaines stories 100 % AUTONOMES (aucune clé)** : **US-025** (offre commerciale PDF — checkpoint détaillé dans `.ralph/progress.md`), US-026 (rapport client PDF), US-030 (competitors Crawl4AI ✓ health 200), US-032 (approbation client), US-034 (audit trail), US-036 (script vidéo), US-038 (storyboard), US-041/042/043 (présentations), US-050 (danger zone RGPD), US-033 (E2E Playwright), US-035 (smoke/monitoring), US-031 (UI analytics + dégradation propre).
 > **PHASE 2 — dès provisioning P0 Amine** : Whisper routé → US-022 happy-path → 023 → 024 ; Stripe live → US-018/019 + invoices réelles ; 4 apps OAuth (X/LinkedIn/Meta/Pinterest) → 1ʳᵉ connexion sociale réelle + durcissement publishing (learnings SE Pro, cf. PRD §Phase 2).
@@ -247,12 +246,11 @@
 
 ## [ALERTE] — Avertissements / risques
 
-- **✅ INCIDENT SERVEUR (2026-06-12) RÉSOLU + déploiement persistance BOUCLÉ (2026-06-14)** : l'incident (530 Cloudflare partout + SSH injoignable → serveur éteint/planté) est clos ; serveur rétabli (`hostname=serveurai`, **IP `.8` inchangée**, SSH par clé OK). **Migration `…014_content_sessions` appliquée sur db-rami + RLS cross-tenant testée** (SELECT cross-tenant 0 ligne, INSERT intrusif rejeté) ; **commit `fc65164` poussé** → `origin/main = 96d982d`, auto-deploy déclenché. *Le coffre est passé de 96 à 103 secrets (ajouts Amine — valeurs jamais lues).*
-- **⚠️ Seul reliquat persistance : browser-verify prod NON encore fait** (cf. [NEXT] point 0).
+- **✅ Persistance workflow BOUCLÉE + browser-verified (session #10, 2026-06-14)** : migration `…014_content_sessions` appliquée db-rami + RLS testée ; autosave → bannière reprise → restauration browser-verified prod. *Le coffre est passé à 103 secrets (ajouts Amine — valeurs jamais lues).* Incident serveur 2026-06-12 (530 + SSH down) résolu, serveur OK (IP `.8`, SSH par clé).
 
 - **✅ Mot de passe super-admin RÉGÉNÉRÉ (2026-06-10, US-017 soldée)** : rotation bcrypt SQL + révocation des 4 sessions + refresh tokens. ⚠️ Méthode : SQL direct dans `supabase-db-szn6...` — l'API admin GoTrue via `db-rami.ai-mpower.com` est inutilisable (Cloudflare strip `Authorization: Bearer` ; et `http://` → 301 qui casse les POST : **toujours https**).
 - **!! Clé Whisper requise (US-022/023/024)** : la transcription est implémentée + pipeline vérifié, mais le proxy LiteLLM **ne route pas whisper** (HTTP 400). Pour le happy-path : poser `WHISPER_API_KEY` = **vraie clé OpenAI** (api.openai.com) sur Coolify, OU configurer un modèle `whisper-1` sur le proxy + `WHISPER_BASE_URL`=proxy. Input Amine/ops.
-- **! Modules FACTICES restants en prod** : Vidéo (US-036+), Présentations (US-041+), Competitors hardcodés (US-030), Documents PDF (US-025/026). ✅ **RÉELS désormais** : Analytics (US-012), Leads (US-029), Enrichissement (US-027 + 5 providers), **Recommandations IA** (dette résolue), **Transcriptions** (US-022 pipeline réel, texte bloqué clé). Détail : `docs/PRD_RAMI_L99.md` §0.2.
+- **✅ FACTICE : TOUS les DEFCON1 SOLDÉS (session #10)** : Sidebar, Dashboard, Approbations, Documents download, Transcriptions, RGPD export, Connexions sidebar, Vidéo (redirect), **Présentations (feature réelle complète)**, sous-titres provider-neutres. ✅ RÉELS antérieurs : Analytics, Leads, Enrichissement (5 providers), Recommandations IA, Transcriptions (texte bloqué clé Whisper). Reste : MINEURS non-DEFCON1 + Competitors US-030 (mock, à faire). Détail : `docs/AUDIT_FACTICE_2026-06-12.md`.
 - **!! Apollo API = plan PAYANT** : free → **403 `API_INACCESSIBLE`**. → **Hunter.io (gratuit) provider par défaut** (`LEADS_ENRICHMENT_PROVIDER=hunter`).
 - **✅ GAP providers enrichissement FERMÉ (session #5)** : 5 providers (apollo/hunter/**pdl/dropcontact/enrich**) implémentés + routables + rows db-rami (migration `…008`).
 - **! Stripe encore en TEST** — Price IDs live + webhook live non configurés (US-018, input Amine requis).
