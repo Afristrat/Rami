@@ -89,6 +89,9 @@ export async function getDocumentsAction(options?: {
 
   if (options?.type) {
     query = query.eq("type", options.type)
+  } else {
+    // Les présentations ont leur propre surface (/presentations) — exclues de la liste Documents.
+    query = query.neq("type", "presentation")
   }
 
   if (options?.search?.trim()) {

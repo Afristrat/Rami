@@ -2222,7 +2222,9 @@
     "stepperBrief": "Brief",
     "stepperStructure": "Structure",
     "stepperDesign": "Design",
-    "stepperGeneration": "Generation"
+    "stepperGeneration": "Generation",
+    "generating": "生成中…",
+    "genericError": "发生错误，请重试。"
   },
   "tenants": {
     "title": "租户",

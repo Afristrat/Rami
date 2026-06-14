@@ -2222,7 +2222,9 @@
     "stepperBrief": "Brief",
     "stepperStructure": "Structure",
     "stepperDesign": "Design",
-    "stepperGeneration": "Generation"
+    "stepperGeneration": "Generation",
+    "generating": "Oluşturuluyor…",
+    "genericError": "Bir hata oluştu. Tekrar deneyin."
   },
   "tenants": {
     "title": "Tenants",

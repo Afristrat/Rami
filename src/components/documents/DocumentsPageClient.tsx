@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { Plus, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -19,11 +20,17 @@ interface DocumentsPageClientProps {
 
 export function DocumentsPageClient({ documents, total }: DocumentsPageClientProps) {
   const t = useTranslations("documents")
+  const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedType, setSelectedType] = useState<DocumentType>("offre_commerciale")
   const templateRef = useRef<HTMLDivElement>(null)
 
   const openCreateDialog = (type: DocumentType) => {
+    // Les présentations ont leur propre flux réel (brief → deck généré → /presentations/[id]).
+    if (type === "presentation") {
+      router.push("/presentations/new")
+      return
+    }
     setSelectedType(type)
     setDialogOpen(true)
   }

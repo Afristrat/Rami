@@ -2222,7 +2222,9 @@
     "stepperBrief": "الملخص",
     "stepperStructure": "الهيكل",
     "stepperDesign": "التصميم",
-    "stepperGeneration": "التوليد"
+    "stepperGeneration": "التوليد",
+    "generating": "جارٍ الإنشاء…",
+    "genericError": "حدث خطأ. حاول مرة أخرى."
   },
   "tenants": {
     "title": "المستأجرون",

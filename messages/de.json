@@ -2222,7 +2222,9 @@
     "stepperBrief": "Brief",
     "stepperStructure": "Structure",
     "stepperDesign": "Design",
-    "stepperGeneration": "Generation"
+    "stepperGeneration": "Generation",
+    "generating": "Wird generiert…",
+    "genericError": "Ein Fehler ist aufgetreten. Bitte erneut versuchen."
   },
   "tenants": {
     "title": "Tenants",
