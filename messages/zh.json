@@ -1848,7 +1848,8 @@
       "backToPrevious": "Back to previous step",
       "time": "时间",
       "bestTimeHeuristic": "建议时段",
-      "bestTimeDetail": "{platform}：{datetime}——该平台的推荐互动时段。"
+      "bestTimeDetail": "{platform}：{datetime}——该平台的推荐互动时段。",
+      "postPublishing": "您的帖子正在发布到所选渠道。"
     },
     "autosave": {
       "saving": "保存中…",

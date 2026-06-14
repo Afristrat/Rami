@@ -1848,7 +1848,8 @@
       "backToPrevious": "Back to previous step",
       "time": "Saat",
       "bestTimeHeuristic": "Önerilen zaman dilimi",
-      "bestTimeDetail": "{platform}: {datetime} — bu platform için önerilen etkileşim aralığı."
+      "bestTimeDetail": "{platform}: {datetime} — bu platform için önerilen etkileşim aralığı.",
+      "postPublishing": "Gönderin seçili kanallarda yayınlanıyor."
     },
     "autosave": {
       "saving": "Kaydediliyor…",

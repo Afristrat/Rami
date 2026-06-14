@@ -1848,7 +1848,8 @@
       "backToPrevious": "Back to previous step",
       "time": "Hora",
       "bestTimeHeuristic": "Franja recomendada",
-      "bestTimeDetail": "{platform}: {datetime} — ventana de interacción recomendada para esta plataforma."
+      "bestTimeDetail": "{platform}: {datetime} — ventana de interacción recomendada para esta plataforma.",
+      "postPublishing": "Tu publicación se está publicando en los canales seleccionados."
     },
     "autosave": {
       "saving": "Guardando…",

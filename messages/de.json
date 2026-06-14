@@ -1848,7 +1848,8 @@
       "backToPrevious": "Back to previous step",
       "time": "Uhrzeit",
       "bestTimeHeuristic": "Empfohlenes Zeitfenster",
-      "bestTimeDetail": "{platform}: {datetime} — empfohlenes Engagement-Zeitfenster für diese Plattform."
+      "bestTimeDetail": "{platform}: {datetime} — empfohlenes Engagement-Zeitfenster für diese Plattform.",
+      "postPublishing": "Dein Beitrag wird auf den ausgewählten Kanälen veröffentlicht."
     },
     "autosave": {
       "saving": "Wird gespeichert…",

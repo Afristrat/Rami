@@ -101,7 +101,7 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
               ? t("postScheduled")
               : publishMode === "draft"
               ? t("postSavedDraft")
-              : t("postApproved")}
+              : t("postPublishing")}
           </p>
         </div>
 

@@ -1848,7 +1848,8 @@
       "backToPrevious": "Retour à l’étape précédente",
       "time": "Heure",
       "bestTimeHeuristic": "Créneau conseillé",
-      "bestTimeDetail": "{platform} : {datetime} — fenêtre d’engagement recommandée pour cette plateforme."
+      "bestTimeDetail": "{platform} : {datetime} — fenêtre d’engagement recommandée pour cette plateforme.",
+      "postPublishing": "Votre post part en publication sur les canaux sélectionnés."
     },
     "autosave": {
       "saving": "Enregistrement…",

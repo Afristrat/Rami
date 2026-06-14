@@ -1848,7 +1848,8 @@
       "backToPrevious": "العودة إلى الخطوة السابقة",
       "time": "الساعة",
       "bestTimeHeuristic": "الفترة المقترحة",
-      "bestTimeDetail": "{platform}: {datetime} — نافذة التفاعل الموصى بها لهذه المنصة."
+      "bestTimeDetail": "{platform}: {datetime} — نافذة التفاعل الموصى بها لهذه المنصة.",
+      "postPublishing": "يتم نشر منشورك على القنوات المحددة."
     },
     "autosave": {
       "saving": "جارٍ الحفظ…",

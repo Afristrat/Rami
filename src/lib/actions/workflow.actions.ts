@@ -460,6 +460,28 @@ export async function saveWorkflowPostAction(data: {
       metadata: { postId: result.data.id, status: data.status },
     })
 
+    // Publication RÉELLE : enfiler le job pg-boss selon le mode choisi (réutilise
+    // l'action réelle `publishPost` → statut "scheduled" + enqueue, worker publie
+    // ensuite via les vraies APIs LinkedIn/X/…). "draft" et "review" ne publient rien.
+    if (data.status === "approved" || data.status === "scheduled") {
+      const { publishPost } = await import("@/app/actions/scheduler")
+      const scheduleDate =
+        data.status === "scheduled" && data.scheduledAt
+          ? new Date(data.scheduledAt)
+          : null
+      const enqueue = await publishPost(result.data.id, scheduleDate)
+      if (!enqueue.success) {
+        log({
+          level: "error",
+          module: "workflow",
+          action: "post_enqueue_failed",
+          tenant_id: ctx.tenantId,
+          metadata: { postId: result.data.id, status: data.status, error: enqueue.error },
+        })
+        return { success: false, error: enqueue.error }
+      }
+    }
+
     return { success: true, postId: result.data.id }
   } catch (err) {
     log({
