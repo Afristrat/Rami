@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { createClient } from "@/lib/supabase/server"
 import { db } from "@/lib/db"
 import { users, tenants, posts } from "@/lib/db/schema"
-import { eq, desc, count } from "drizzle-orm"
+import { eq, desc } from "drizzle-orm"
 import { FileText, Palette, Plus } from "lucide-react"
 import Link from "next/link"
 import { getTranslations, getLocale } from "next-intl/server"
@@ -146,17 +146,34 @@ export default async function DashboardPage() {
     nextPostProject = stats.nextScheduledPost.title
   }
 
-  /* ── Platform distribution ── */
+  /* ── Platform distribution (RÉELLE depuis les posts du tenant) ── */
   let platformTotal = 0
+  let platformDistribution: { platform: string; percentage: number }[] = []
   if (tenantId) {
     try {
-      const [row] = await db
-        .select({ n: count() })
+      const allPosts = await db
+        .select({ platforms: posts.platforms })
         .from(posts)
         .where(eq(posts.tenant_id, tenantId))
-      platformTotal = Number(row?.n ?? 0)
+      platformTotal = allPosts.length
+
+      const counts = new Map<string, number>()
+      for (const p of allPosts) {
+        for (const plat of p.platforms ?? []) {
+          counts.set(plat, (counts.get(plat) ?? 0) + 1)
+        }
+      }
+      const totalOccurrences = [...counts.values()].reduce((a, b) => a + b, 0)
+      if (totalOccurrences > 0) {
+        platformDistribution = [...counts.entries()]
+          .map(([platform, n]) => ({
+            platform,
+            percentage: Math.round((n / totalOccurrences) * 100),
+          }))
+          .sort((a, b) => b.percentage - a.percentage)
+      }
     } catch {
-      // Table inexistante — reste à 0
+      // Table inexistante — reste vide (état honnête)
     }
   }
 
@@ -198,7 +215,7 @@ export default async function DashboardPage() {
           <h3 className="mb-6 font-bold text-foreground">
             {t("platformDistribution")}
           </h3>
-          <PlatformDistribution total={platformTotal} />
+          <PlatformDistribution total={platformTotal} distribution={platformDistribution} />
         </div>
       </div>
 

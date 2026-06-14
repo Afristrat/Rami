@@ -279,7 +279,6 @@
     "quickActions": "Actions rapides",
     "score": "Score",
     "scoreBrandDna": "Score Brand DNA",
-    "trendVsLastWeek": "+2% vs semaine dernière",
     "totalActiveContents": "Total de {total} contenus actifs",
     "calendarPreview": "Calendrier aperçu",
     "weekOf": "Semaine du {date}",
@@ -325,7 +324,8 @@
     "noScheduledPosts": "Aucun post planifié cette semaine.",
     "emptyActivityTitle": "Aucune activité",
     "emptyActivityDesc": "Créez votre premier contenu pour commencer.",
-    "emptyActivityCta": "Créer un contenu"
+    "emptyActivityCta": "Créer un contenu",
+    "platformDistributionEmpty": "Aucune donnée de répartition"
   },
   "brandDna": {
     "title": "Brand DNA",

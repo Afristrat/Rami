@@ -18,9 +18,6 @@ export function BrandDnaKpiCard({ score }: BrandDnaKpiCardProps) {
         <h3 className="mt-1 text-2xl font-bold text-foreground">
           {score !== null ? `${displayScore}%` : "—"}
         </h3>
-        {score !== null && (
-          <p className="mt-2 text-xs text-emerald-400">{t("trendVsLastWeek")}</p>
-        )}
       </div>
       <BrandDNAGauge score={displayScore} />
     </div>

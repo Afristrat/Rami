@@ -279,7 +279,6 @@
     "quickActions": "Schnellaktionen",
     "score": "Score",
     "scoreBrandDna": "Brand DNA Score",
-    "trendVsLastWeek": "+2% ggü. letzter Woche",
     "totalActiveContents": "Insgesamt {total} aktive Inhalte",
     "calendarPreview": "Kalendervorschau",
     "weekOf": "Woche vom {date}",
@@ -325,7 +324,8 @@
     "noScheduledPosts": "Keine geplanten Beiträge diese Woche.",
     "emptyActivityTitle": "Keine Aktivität",
     "emptyActivityDesc": "Erstellen Sie Ihren ersten Inhalt, um loszulegen.",
-    "emptyActivityCta": "Inhalt erstellen"
+    "emptyActivityCta": "Inhalt erstellen",
+    "platformDistributionEmpty": "Noch keine Verteilungsdaten"
   },
   "brandDna": {
     "title": "Brand DNA",

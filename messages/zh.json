@@ -279,7 +279,6 @@
     "quickActions": "快捷操作",
     "score": "评分",
     "scoreBrandDna": "Brand DNA 评分",
-    "trendVsLastWeek": "+2% 较上周",
     "totalActiveContents": "共 {total} 个活跃内容",
     "calendarPreview": "日历预览",
     "weekOf": "{date} 所在周",
@@ -325,7 +324,8 @@
     "noScheduledPosts": "本周无已排期的帖子。",
     "emptyActivityTitle": "暂无活动",
     "emptyActivityDesc": "创建您的第一条内容以开始使用。",
-    "emptyActivityCta": "创建内容"
+    "emptyActivityCta": "创建内容",
+    "platformDistributionEmpty": "暂无分布数据"
   },
   "brandDna": {
     "title": "Brand DNA",
