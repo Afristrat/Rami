@@ -62,11 +62,16 @@ faux badge « Brouillon sauvegardé » Step 2 purgé, `WorkflowActions.tsx` orph
 
 ## LOT 4 — Dashboard & Analytics & Library (résiduel)
 
+> ✅ **2026-06-14** : distribution plateformes (réelle), faux trend KPI (retiré) et
+> Kanban Approbations (`MOCK_ITEMS` → posts réels review/approved/rejected + décisions
+> persistées + statut `rejected`) **TERMINÉS + browser-verified prod** (commits `25048a1`, `18fbd1f`).
+> + sidebar workflow (`WorkflowSidebar`) réelle (`13c6240`). Reste LOT 4 : MINEURS analytics/library.
+
 | Élément | Fichier:ligne | Nature | Sévérité |
 |---|---|---|---|
-| Distribution plateformes 45/30/15/10 | platform-distribution.tsx:13 | pourcentages hardcodés | DEFCON1 |
-| « Tendance vs semaine dernière » | BrandDnaKpiCard.tsx:22 | texte trend sans données | DEFCON1 |
-| Approbations (Kanban) | approval-board.tsx:16 | MOCK_ITEMS, handlers locaux only | DEFCON1 |
+| ✅ Distribution plateformes 45/30/15/10 | platform-distribution.tsx | RÉSOLU (répartition réelle) | ~~DEFCON1~~ |
+| ✅ « Tendance vs semaine dernière » | BrandDnaKpiCard.tsx | RÉSOLU (retiré) | ~~DEFCON1~~ |
+| ✅ Approbations (Kanban) | approval-board.tsx | RÉSOLU (données + décisions réelles) | ~~DEFCON1~~ |
 | Export PDF analytics | analytics-filters.tsx:122 | sans onClick | MINEUR |
 | Filtres avancés (sliders/search) | analytics-dashboard.tsx:128 | sans handler | MINEUR |
 | Lien « rapport complet » `href="#"` | analytics-dashboard.tsx:134 | lien mort | MINEUR |
