@@ -53,8 +53,15 @@
 - **✓ Settings/Équipe** (`team-manager.tsx`) : retiré **select projet** (option unique jamais envoyée), **message perso** (jamais envoyé), bouton **Renvoyer** sans `onClick`, **MoreVertical propriétaire** sans action. **Browser-verified** : modale = Email + Rôle seulement.
 - **✓ a11y `037e322`** : modale invitation utilisait `<h2>`/`<p>` bruts → erreur console Radix « DialogContent requires a DialogTitle ». Remplacé par `DialogTitle`/`DialogDescription` (règle zéro-dette : fichier touché = on corrige le pré-existant). **Browser-verified** : 0 erreur console.
 
+### #2 — Publication réelle CÂBLÉE (code) — `f6543bf` ⚠️ déploiement/vérif BLOQUÉS (panne serveur)
+> Diagnostic Explore : toute la chaîne réelle existait DÉJÀ (services API REST LinkedIn/X réels, worker `publish-worker.ts` lancé par `instrumentation.ts`, pg-boss, route `/api/queue/publish`). **Seul maillon manquant** : `saveWorkflowPostAction` (Step7) n'enfilait jamais le job.
+- **✓ Câblage** (`workflow.actions.ts`) : après save, `saveWorkflowPostAction` appelle l'action réelle **`publishPost(postId, scheduleDate)`** (même chemin que le bouton Publier du Kanban, déjà éprouvé) → statut "scheduled" + `enqueuePublish`/`enqueueScheduledPublish`. `approved`=immédiat, `scheduled`=programmé, `draft`/`review`=rien. **Si l'enqueue échoue → erreur réelle remontée** (pas de faux succès).
+- **✓ Honnêteté** : message succès mode now `postApproved` (« prêt à publier », trompeur) → **`postPublishing`** (« part en publication ») ×8 locales.
+- **✓ Gates** : TS0/lint0/Jest 347/build OK. Poussé `f6543bf`.
+- **✗✗ BLOQUÉ** : au moment du déploiement, **panne serveur `serveurai`** → `rami.ai-mpower.com` + `coolify.ai-mpower.com` renvoient **HTTP 530** (Cloudflare ne joint plus l'origine). SSH KO : `.8` ne ping plus, `.3` ping mais refuse SSH (autre appareil), sweep /24 = aucun hôte SSH n'accepte la clé `serveurai`. **Le serveur est down ou hors-réseau (IP DHCP changée).** → **DÉPLOIEMENT DE `f6543bf` NON CONFIRMÉ**, browser-verify impossible.
+- **À LA REPRISE (serveur revenu)** : Premièrement re-trouver l'IP (`hostname serveurai` via SSH), MAJ coffre si changée. Deuxièmement confirmer/retrigger le deploy de `f6543bf` (Coolify auto-deploy au push, mais le serveur était down → vérifier qu'il s'est bien fait, sinon redéployer). Troisièmement browser-verify chemin **brouillon** (sûr, ne publie rien). Quatrièmement **GO Amine requis** pour le test de publication RÉELLE (compte test-ralph a LinkedIn+X connectés en vrai → post public irréversible) — choisir plateforme/compte du test.
+
 ### [SUITE] quick-win restant
-- **#2 Publication réelle** : câbler workflow Step7 « Publier » → `publish-worker` → `publishToLinkedIn`/`publishToTwitter`. ⚠️ **Obtenir le GO d'Amine avant de publier un vrai post public** (irréversible).
 - **#3 OCR PDF scannés** (Tesseract.js ou service).
 - **#4 Présentations Phase 2** : éditeur canvas (gros, multi-session).
 
