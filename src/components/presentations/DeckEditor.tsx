@@ -168,9 +168,36 @@ export function DeckEditor({ id, title, content }: DeckEditorProps) {
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden min-h-0">
-        {/* Liste des slides */}
-        <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-muted/10 md:flex">
+      {/* Bandeau de slides horizontal (mobile uniquement) */}
+      <div className="flex shrink-0 gap-2 overflow-x-auto border-b border-border bg-muted/10 p-2 lg:hidden">
+        {slides.map((s, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setCurrent(i)}
+            className={cn(
+              "w-24 shrink-0 overflow-hidden rounded-lg border transition-all",
+              i === current ? "border-primary ring-2 ring-primary/20" : "border-border opacity-70"
+            )}
+          >
+            <div className="aspect-video">
+              <SlideRenderer slide={s} index={i} total={total} accentColor={accent} variant="thumb" />
+            </div>
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => addSlide("content")}
+          className="flex w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:text-foreground"
+          title={t("addSlide")}
+        >
+          <Plus className="size-4" />
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden min-h-0">
+        {/* Liste des slides (desktop) */}
+        <aside className="hidden w-56 shrink-0 flex-col border-r border-border bg-muted/10 lg:flex">
           <div className="flex-1 space-y-2 overflow-y-auto p-3">
             {slides.map((s, i) => (
               <button
@@ -218,7 +245,7 @@ export function DeckEditor({ id, title, content }: DeckEditorProps) {
         </aside>
 
         {/* Aperçu + contrôles de slide */}
-        <section className="flex flex-1 flex-col items-center gap-3 overflow-y-auto p-4 min-h-0">
+        <section className="flex flex-col items-center gap-3 p-4 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
           <div
             className="aspect-video w-full max-w-2xl overflow-hidden rounded-xl border border-border shadow-xl"
             style={{ maxWidth: "min(42rem, calc((100dvh - 22rem) * 16 / 9))" }}
@@ -238,8 +265,8 @@ export function DeckEditor({ id, title, content }: DeckEditorProps) {
           </div>
         </section>
 
-        {/* Panneau d'édition */}
-        <aside className="hidden w-80 shrink-0 flex-col gap-4 overflow-y-auto border-l border-border bg-muted/10 p-4 lg:flex">
+        {/* Panneau d'édition (sous l'aperçu sur mobile, colonne droite sur desktop) */}
+        <aside className="flex w-full shrink-0 flex-col gap-4 border-t border-border bg-muted/10 p-4 lg:w-80 lg:border-l lg:border-t-0 lg:overflow-y-auto">
           {/* Retouche IA */}
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
             <div className="mb-2 flex items-center gap-1.5 text-xs font-bold text-primary">
