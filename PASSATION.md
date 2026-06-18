@@ -36,13 +36,43 @@
 
 ## [ENCOURS] — Tâches actives
 
-> **MODE RALPH** sur `main`. État dans `.ralph/prd.json` (**58 US**). **Avancement formel 31/58**, MAIS l'axe de travail réel depuis session #10 = **anti-factice (tous DEFCON1 soldés) + feature Présentations** (hors prd.json formel). **Zéro dette connue.**
+> **🔴 PRIORITÉ #1 (bloquant) — BUILD COOLIFY CASSÉ (IPv6)** : `docker build` ne peut plus puller `ghcr.io/railwayapp/nixpacks` via IPv6 → **aucun déploiement ne passe**. Fixes commités non déployés (`51ca924` pg-boss, à venir CSP). Régler en 1ᵉʳ (forcer Docker IPv4 via `/etc/docker/daemon.json` `{"dns":["8.8.8.8"]}` + désactiver IPv6, ou pré-puller l'image). Contournement actuel = **restart Coolify** (ENV oui, CODE non). Détails dans [ETAT].
+> **MODE RALPH** sur `main`. État dans `.ralph/prd.json` (**58 US**). **Avancement formel 31/58**. Axe réel sessions #10-12 = anti-factice + Présentations + **publication réelle LinkedIn avec image (PROUVÉE #12)**. Dettes infra nouveau serveur listées dans [ETAT].
 > **Plan directeur = `docs/PRD_RAMI_FINITION_L99.md`** (phases) + provisioning Amine = `docs/API_REQUIREMENTS_AMINE.md` (P0/P1/P2) + état câblages = `docs/AUDIT_CABLAGE_2026-06-10.md`.
 > **PHASE 1 — prochaines stories 100 % AUTONOMES (aucune clé)** : **US-025** (offre commerciale PDF — checkpoint détaillé dans `.ralph/progress.md`), US-026 (rapport client PDF), US-030 (competitors Crawl4AI ✓ health 200), US-032 (approbation client), US-034 (audit trail), US-036 (script vidéo), US-038 (storyboard), US-041/042/043 (présentations), US-050 (danger zone RGPD), US-033 (E2E Playwright), US-035 (smoke/monitoring), US-031 (UI analytics + dégradation propre).
 > **PHASE 2 — dès provisioning P0 Amine** : Whisper routé → US-022 happy-path → 023 → 024 ; Stripe live → US-018/019 + invoices réelles ; 4 apps OAuth (X/LinkedIn/Meta/Pinterest) → 1ʳᵉ connexion sociale réelle + durcissement publishing (learnings SE Pro, cf. PRD §Phase 2).
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #12 (2026-06-17/18) — MIGRATION SERVEUR .8→.4 + PUBLICATION LINKEDIN RÉELLE AVEC IMAGE (1ʳᵉ fois) + MinIO RAMI dédié + clé image plafonnée
+
+> Marathon infra + feature. Déclencheurs Amine : « Les 4 par ordre de quick win » → puis migration serveur survenue en cours de route → puis « aides moi à publier » (LinkedIn, avec image). **Résultat : 1ᵉʳ vrai post LinkedIn publié AVEC image** (`urn:li:share:7473272377305513984`). Commits `6d59bab`→`0212b77`. ⚠️ **Build Coolify cassé (IPv6) en fin de session** → fixes de code commités mais pas déployés (cf. [ETAT] dettes).
+
+### A. Item #1 — mineurs anti-factice (browser-verified) — `6d59bab` + a11y `037e322`
+Analytics (boutons sans action retirés), top-posts (cursor trompeur), bibliothèque (filtre Score DNA câblé + bouton Date retiré), settings/général (timezone/langue/QuotaBars factices → infos réelles `getWorkspaceInfoAction`), settings/équipe (select projet + message + Resend factices retirés), DialogTitle a11y.
+
+### B. Item #2 — publication réelle CÂBLÉE — `f6543bf`
+`saveWorkflowPostAction` enfile désormais le job via l'action réelle `publishPost` (statut "approved"=immédiat, "scheduled"=programmé, draft/review=rien). Message succès honnête `postPublishing` ×8 locales.
+
+### C. Migration serveur .8 (`serveurai`) → .4 (`serveuria-MS-7D98`) gérée en live
+Prod down 530 = tunnel cloudflared pas relancé → réplica restauré, **config-nahda.yml de .4 complété** (rami/db-rami/taqwim/linkedinforge/council), tunnel systemd durable. Ancien .8 confirmé **décommissionné**. Conteneur orphelin du snapshot remplacé. (cf. [ETAT] pour l'état détaillé.)
+
+### D. Génération d'images réelle via proxy + clé plafonnée — `76d1bf0`/`d80352f`
+Nouveau provider `litellm_image` (primaire) → `${OPENAI_BASE_URL}/images/generations`, cascade moins-cher d'abord. **Clé virtuelle LiteLLM plafonnée 5 $** (`LITELLM_IMAGE_API_KEY`). **Prix proxy corrigés** depuis la doc Google officielle (gemini-2.5-flash-image 0,039 $ / 3.1-flash 0,067 $ / 3-pro 0,134 $ ; modèles à coût 0 patchés). Une clé créée a fuité (echo Coolify) → **rotée**.
+
+### E. Support image LinkedIn + MinIO RAMI dédié — `17f5eee`/`d80352f` + fix SSRF `d80352f`
+- `generateVisualContentAction` uploade le visuel sur MinIO (`storeVisual`) → URL courte (corrige `Body exceeded 1 MB` des Server Actions + URL exploitable). `bodySizeLimit: 4mb`.
+- `linkedin.ts` : flux média (assets registerUpload → **conversion JPEG** car LinkedIn refuse WebP → upload binaire → `shareMediaCategory: IMAGE`), pas de downgrade silencieux. **Fix SSRF** : allowlist d'hôtes (MinIO env + CDN connus) + HTTPS + `redirect:error`.
+- **Nouvelle instance MinIO RAMI** provisionnée (`rami-minio`, bucket `rami` public, `s3-rami.ai-mpower.com`). cf. [ETAT].
+
+### F. pg-boss — queues manquantes (cause racine du « jamais publié ») — fix `51ca924`
+pg-boss v10 exige `createQueue` avant `send()/work()`. `publish-post`/`collect-metrics` n'existaient pas → `enqueuePublish` renvoyait null, worker jamais démarré. **Créées manuellement en prod + restart** → publication aboutie. Fix code commité (`51ca924`, getBoss crée toutes les queues) **mais pas déployé** (build IPv6).
+
+### G. Publication finale (browser + prod)
+Workflow repris → visuel régénéré (stocké `s3-rami`) → texte honnête français + CTA (validé Amine, sans markdown, hashtags natifs) → Kanban Approbations « Approuver » → « Publier » → job pg-boss → **post LinkedIn published avec image**. Vérifié en DB : `status=published`, `platform_results.linkedin.postId=urn:li:share:7473272377305513984`.
 
 ---
 
