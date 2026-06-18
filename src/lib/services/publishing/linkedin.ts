@@ -104,6 +104,48 @@ export async function publishToLinkedIn(input: PublisherInput): Promise<PublishR
   }
 }
 
+// ── Anti-SSRF : valide l'hôte de l'image avant tout fetch serveur ────────────
+// Seuls nos hôtes de stockage (MinIO) et CDN de génération de confiance sont
+// autorisés. Bloque toute URL interne/privée (169.254.x, 10.x, localhost, etc.)
+// puisqu'elle ne figurera jamais dans l'allowlist.
+function assertAllowedImageHost(imageUrl: string): void {
+  let parsed: URL
+  try {
+    parsed = new URL(imageUrl)
+  } catch {
+    throw new Error("URL image invalide")
+  }
+  if (parsed.protocol !== "https:") {
+    throw new Error("URL image : HTTPS requis")
+  }
+  const host = parsed.hostname.toLowerCase()
+
+  const minioHosts = [process.env.MINIO_PUBLIC_URL, process.env.MINIO_ENDPOINT]
+    .map((v) => {
+      if (!v) return ""
+      try {
+        return new URL(v).hostname.toLowerCase()
+      } catch {
+        return ""
+      }
+    })
+    .filter(Boolean)
+
+  const exactHosts = new Set<string>([
+    ...minioHosts,
+    "replicate.delivery",
+    "pbxt.replicate.delivery",
+    "fal.media",
+    "storage.googleapis.com",
+  ])
+  const suffixHosts = [".fal.media", ".r2.cloudflarestorage.com", ".supabase.co"]
+
+  const allowed = exactHosts.has(host) || suffixHosts.some((s) => host.endsWith(s))
+  if (!allowed) {
+    throw new Error(`URL image non autorisée (hôte ${host})`)
+  }
+}
+
 // ── Upload image via l'Assets API LinkedIn ───────────────────────────────────
 // 1. registerUpload (recette feedshare-image, owner = author URN)
 // 2. fetch de l'image source + conversion JPEG (LinkedIn refuse le WebP)
@@ -149,7 +191,9 @@ async function uploadLinkedInImage(
   }
 
   // 2. Télécharger l'image source + convertir en JPEG (WebP non supporté par LinkedIn)
-  const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(30_000) })
+  // Anti-SSRF : n'autoriser que nos hôtes de stockage/CDN connus, HTTPS, sans redirection.
+  assertAllowedImageHost(imageUrl)
+  const imgRes = await fetch(imageUrl, { signal: AbortSignal.timeout(30_000), redirect: "error" })
   if (!imgRes.ok) throw new Error(`téléchargement image ${imgRes.status}`)
   const srcBuffer = Buffer.from(await imgRes.arrayBuffer())
   const sharp = (await import("sharp")).default
