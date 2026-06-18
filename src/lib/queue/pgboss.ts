@@ -94,6 +94,17 @@ export async function getBoss(): Promise<PgBoss> {
 
   try {
     await boss.start()
+    // pg-boss v10+ : chaque queue doit exister AVANT tout send()/work().
+    // Les jobs planifiés créent leur queue via schedule(), mais publish-post /
+    // collect-metrics passent par send()/work() → on les crée explicitement ici,
+    // sinon enqueuePublish renvoie null et le worker ne démarre jamais (queue absente).
+    for (const queueName of Object.values(JOBS)) {
+      try {
+        await boss.createQueue(queueName)
+      } catch {
+        // Queue déjà existante → ignorer.
+      }
+    }
     bossInstance = boss
     log({ level: "info", module: "pgboss", action: "started", metadata: { url_type: process.env.SUPABASE_DB_POOLER_URL ? "pooler" : "direct" } })
   } catch (err) {
