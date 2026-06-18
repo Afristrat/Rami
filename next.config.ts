@@ -140,6 +140,15 @@ const nextConfig: NextConfig = {
   // externalisées du bundler (sinon casse le build/runtime).
   serverExternalPackages: ["@react-pdf/renderer", "pptxgenjs", "pdf-parse", "mammoth", "exceljs"],
 
+  // Server Actions : relever la limite de corps (défaut 1 Mo). Les visuels sont
+  // désormais uploadés sur MinIO (URLs courtes dans le state), mais on garde une
+  // marge pour les cas de repli (data URI base64 si l'upload échoue).
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "4mb",
+    },
+  },
+
   // ─── Headers de sécurité sur toutes les routes ────────────────────────────
   async headers() {
     return [

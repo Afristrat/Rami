@@ -354,18 +354,47 @@ export async function generateVisualContentAction(
 
     // Z-01 : scorer chaque image via Vision AI (ou heuristique si OPENAI_API_KEY absent).
     // Les appels sont en parallèle pour limiter la latence totale.
+    // Z-04 : uploader chaque visuel vers MinIO → URL publique courte. Évite que les
+    // data URIs base64 (Nano Banana / Gemini, ~1-2 Mo) ne dépassent la limite 1 Mo
+    // des Server Actions (autosave), et fournit une URL exploitable par la publication.
+    const { storeVisual } = await import("@/lib/services/storage/visual-storage")
+    const addWatermark = quotaCheck.plan === "free"
+    const sessionTag = String(Date.now())
+    // tenantId capturé hors closure (le narrowing du guard est perdu dans .map async).
+    const tenantId = ctx.tenantId
     const scored = await Promise.all(
       result.images.map(async (img, idx) => {
-        const visionResult = await scoreImageWithVision({
-          imageUrl: img.url,
-          targetColors,
-          targetEmotion: cognitiveObjective,
-          promptUsed: safePrompt,
-        }).catch(() => ({ score: 70, vision_scored: false as const }))
+        const [visionResult, stored] = await Promise.all([
+          scoreImageWithVision({
+            imageUrl: img.url,
+            targetColors,
+            targetEmotion: cognitiveObjective,
+            promptUsed: safePrompt,
+          }).catch(() => ({ score: 70, vision_scored: false as const })),
+          storeVisual({
+            imageUrl: img.url,
+            tenantId,
+            sessionId: sessionTag,
+            directionId: 1,
+            index: idx,
+            addWatermark,
+          }).catch((e) => ({ data: null, error: e instanceof Error ? e.message : String(e) })),
+        ])
+
+        if (stored.error || !stored.data?.public_url) {
+          log({
+            level: "warn",
+            module: "workflow",
+            action: "visual_storage_failed",
+            tenant_id: tenantId,
+            metadata: { error: stored.error ?? "pas d'URL publique", index: idx },
+          })
+        }
 
         const visual: GeneratedVisual = {
           id: `${result.provider}-${Date.now()}-${idx}`,
-          url: img.url,
+          // URL persistée MinIO en priorité ; data URI source en secours uniquement.
+          url: stored.data?.public_url ?? stored.data?.signed_url ?? img.url,
           prompt: safePrompt,
           // score Vision AI retourné sur 100 → normalisé sur 1 pour l'UI
           brandDnaScore: Math.min(1, Math.max(0, visionResult.score / 100)),
