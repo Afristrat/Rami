@@ -8,6 +8,7 @@
 //   • Ordre optimisé : vitesse + qualité + coût
 // ============================================================
 
+import { LiteLLMImageProvider } from './litellm-image.provider'
 import { NanoBananaProvider } from './nano-banana.provider'
 import { FalProvider } from './fal.provider'
 import { ImagenProvider } from './imagen.provider'
@@ -15,6 +16,7 @@ import { ReplicateProvider } from './replicate.provider'
 import { TogetherProvider } from './together.provider'
 import { GenerationRequest, GenerationResult } from './types'
 
+const litellmImage = new LiteLLMImageProvider()
 const nanoBanana = new NanoBananaProvider()
 const fal        = new FalProvider()
 const imagen     = new ImagenProvider()
@@ -22,12 +24,14 @@ const replicate  = new ReplicateProvider()
 const together   = new TogetherProvider()
 
 // Ordre de priorité :
-// 1. Nano Banana (ultra rapide, pas d'API key)
-// 2. Fal.ai FLUX1.1 Pro Ultra (qualité premium)
-// 3. Google Imagen 4/3 (photorealisme + cohérence couleurs Brand DNA)
-// 4. Replicate (fallback fiable)
-// 5. Together AI (dernier recours, moins cher)
-const PROVIDER_CHAIN = [nanoBanana, fal, imagen, replicate, together]
+// 1. LiteLLM proxy (clé virtuelle plafonnée 5 $) — cascade interne moins-cher d'abord
+//    (gemini-2.5-flash-image → gemini-3.1-flash-image → gemini-3-pro-image)
+// 2. Nano Banana (Google direct, si GEMINI_API_KEY présente)
+// 3. Fal.ai FLUX1.1 Pro Ultra (qualité premium)
+// 4. Google Imagen 4/3 (photorealisme + cohérence couleurs Brand DNA)
+// 5. Replicate (fallback fiable)
+// 6. Together AI (dernier recours, moins cher)
+const PROVIDER_CHAIN = [litellmImage, nanoBanana, fal, imagen, replicate, together]
 
 export async function generateImage(req: GenerationRequest): Promise<GenerationResult> {
   const errors: string[] = []
