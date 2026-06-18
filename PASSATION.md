@@ -9,15 +9,15 @@
 
 ## [ETAT] — État global du projet
 
-**Branche active** : `main` = origin synchronisé, **HEAD `51ca924`** (0 commit local en avance). **Travailler sur main.**
+**Branche active** : `main` = origin synchronisé, **HEAD `71a49d4`** (fix Geist local, session #13 ; 0 commit local en avance). **Travailler sur main.**
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
 **✅✅ PUBLICATION RÉELLE LINKEDIN AVEC IMAGE — PROUVÉE EN PROD (2026-06-18)** : 1ᵉʳ vrai post publié sur le LinkedIn d'Amine (`urn:li:share:7473272377305513984`), AVEC image générée. Chaîne complète OK : génération image (proxy LiteLLM + clé virtuelle plafonnée 5 $) → MinIO RAMI dédié → workflow → approbation → pg-boss → worker → `publishToLinkedIn` (registerUpload → conversion JPEG → `shareMediaCategory: IMAGE`).
 **⚠️ INFRA NOUVEAU SERVEUR (.4) — état & DETTES (2026-06-18)** :
 > - **MinIO RAMI dédié** : conteneur `rami-minio` (réseau `coolify`, volume `rami-minio-data`, restart auto), bucket `rami` public (download). Endpoint interne `http://rami-minio:9000`, public `https://s3-rami.ai-mpower.com` (DNS CNAME + ingress cloudflared durables, health 200). Creds RAMI dans l'env Coolify de l'app (`MINIO_*`). ⚠️ `s3-ania` = MinIO d'un AUTRE projet, NE PAS utiliser pour RAMI.
 > - **Clé image LiteLLM plafonnée 5 $** : env Coolify `LITELLM_IMAGE_API_KEY` (alias `rami-img-prod`, scopée gemini-2.5-flash-image/gemini-3.1-flash-image/gemini-3-pro-image). Provider `litellm_image` en primaire de la chaîne (cascade moins-cher d'abord). Prix proxy corrigés (cf. commits 76d1bf0/d80352f).
-> - **!! DETTE BUILD COOLIFY CASSÉ (IPv6)** : `docker build` échoue à puller `ghcr.io/railwayapp/nixpacks` via **IPv6** (`network is unreachable`). **TOUT déploiement Coolify échoue.** Contournement utilisé : **restart Coolify** (recrée le conteneur depuis la dernière image `d80352f` + env courant, sans build) → applique les changements d'ENV mais PAS les changements de CODE. **À corriger (Amine/infra)** : forcer Docker en IPv4 ou pré-puller l'image nixpacks. Tant que c'est cassé, les commits `51ca924` (fix pg-boss createQueue) et les corrections CSP ne sont PAS en prod.
-> - **!! DETTE pg-boss queues** : pg-boss v10 exige `createQueue` avant `send()/work()`. Les queues `publish-post`/`collect-metrics` n'existaient pas → publication impossible. **Créées MANUELLEMENT** en prod (+ restart) → publication OK. Fix de code commité (`51ca924`) mais **pas déployé** (build cassé). Si la DB pg-boss est recréée, re-créer les queues à la main OU déployer `51ca924`.
-> - **!! DETTE CSP `s3-rami`** : la CSP `img-src` du build `d80352f` a été figée sur l'ancien hôte `s3-ania` (MINIO_PUBLIC_URL au build). Les visuels `s3-rami` sont **bloqués à l'affichage gallery** (cosmétique — la publication fetch côté serveur n'est pas impactée). Se corrige au prochain build réussi (avec MINIO_PUBLIC_URL=s3-rami).
+> - **✅ DETTE BUILD COOLIFY (IPv6) — RÉSOLUE (session #13)** : cause = DNS64 du routeur `.1` (AAAA NAT64) + aucune route IPv6. Fix permanent = drop-in `systemd-resolved` (DNS hôte 1.1.1.1/8.8.8.8, sans DNS64) + Geist en local (`71a49d4`, supprime le fetch Google Fonts au build). `docker build` pull ghcr OK, `next build` OK. Déploiements Coolify repassent.
+> - **✅ DETTE pg-boss queues — RÉSOLUE (session #13)** : le fix `51ca924` (`getBoss` crée toutes les queues avant `send()/work()`) est désormais **déployé** (build de `main` repassé). Plus besoin de créer les queues à la main.
+> - **✅ DETTE CSP `s3-rami` — RÉSOLUE (session #13)** : `MINIO_PUBLIC_URL` passée en `is_buildtime=true` (l'`img-src`/`connect-src` MinIO de `next.config.ts` se dérivent au build). Vérifié en prod : `img-src` contient `https://s3-rami.ai-mpower.com` → visuels gallery débloqués.
 > - **Réplica cloudflared .8** : l'ancien `serveurai` (.8) est **éteint/décommissionné** (vérifié : SSH KO, aucun hôte n'accepte la clé) → réplica nohup déjà parti. Seul le réplica systemd durable de .4 sert. `config-nahda.yml` de .4 complété (rami, db-rami, taqwim, linkedinforge, council).
 **⚠️⚠️ MIGRATION SERVEUR EN COURS (.8 → .4) — 2026-06-17/18** : le serveur a été MIGRÉ vers une nouvelle machine. **Coffre RÉORGANISÉ par Amine** : `SERVER_HOST` pointe désormais sur **`192.168.100.4`** (hostname `serveuria-MS-7D98`, user **`serveuria`**, 166 conteneurs, c'est le serveur CANONIQUE). L'ancien **`.8` (`serveurai`, user `serveurai`)** existe encore mais est en voie de retrait — **SSH .8 KO avec les creds actuels du coffre** (user/clé pointent .4). Vars coffre actuelles : `SERVER_HOST=.4`, `SERVER_SSH_USER=serveuria`, `SERVER_SSH_KEY=serveurai_mnemo`, `SRV_SUDO_PASS`, `COOLIFY_API_TOKEN` (= Coolify de .4). ⚠️ `coolify.ai-mpower.com` et `rami.ai-mpower.com` passent par **cloudflared** : tunnel `7156c3f9` répliqué sur .4 (systemd `cloudflared-nahda.service`, **durable, enabled**) ET .8 (process nohup éphémère que j'ai lancé en dépannage). **L'app rami `eadc0a2` tourne sur .4** (conteneur `ry8ytnene4czxdhsoes0z56y-225248686460`), coolify-proxy sur .4, réseau docker `coolify`. **RESTE À FAIRE (Amine/migration)** : arrêter le réplica nohup cloudflared sur **.8** (sinon, si le conteneur rami de .8 s'arrête, 404 intermittents reviennent) ; compléter le `config-nahda.yml` de .4 avec les domaines manquants (`taqwim.ai-mpower.com`, `linkedinforge.ai-mpower.com`, `council.ai-mpower.com` — présents sur l'ancien .8, absents de .4).
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. ~25 déploiements session #10. Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/create`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec`. **Surveiller la fin du deploy via l'API Coolify** : `GET /api/v1/deployments?uuid=ry8ytnene4czxdhsoes0z56y` (liste vide = terminé). ⚠️ **NE PAS supprimer de deck/données pendant qu'Amine teste** (un cleanup a cassé un download chez lui).
@@ -36,7 +36,7 @@
 
 ## [ENCOURS] — Tâches actives
 
-> **🔴 PRIORITÉ #1 (bloquant) — BUILD COOLIFY CASSÉ (IPv6)** : `docker build` ne peut plus puller `ghcr.io/railwayapp/nixpacks` via IPv6 → **aucun déploiement ne passe**. Fixes commités non déployés (`51ca924` pg-boss, à venir CSP). Régler en 1ᵉʳ (forcer Docker IPv4 via `/etc/docker/daemon.json` `{"dns":["8.8.8.8"]}` + désactiver IPv6, ou pré-puller l'image). Contournement actuel = **restart Coolify** (ENV oui, CODE non). Détails dans [ETAT].
+> **✅ PRIORITÉ #1 (ex-bloquant) — BUILD COOLIFY RÉPARÉ (session #13, 2026-06-18)** : cause = DNS64 du routeur LAN + aucune route IPv6 → buildkit/Turbopack tentaient l'IPv6. Réglé par drop-in `systemd-resolved` (DNS hôte sans DNS64, permanent) + bascule Geist en local (`71a49d4`). Le chemin push→build→prod fonctionne. pg-boss `51ca924` + CSP `s3-rami` déployés. Détails dans [FAIT] #13.
 > **MODE RALPH** sur `main`. État dans `.ralph/prd.json` (**58 US**). **Avancement formel 31/58**. Axe réel sessions #10-12 = anti-factice + Présentations + **publication réelle LinkedIn avec image (PROUVÉE #12)**. Dettes infra nouveau serveur listées dans [ETAT].
 > **Plan directeur = `docs/PRD_RAMI_FINITION_L99.md`** (phases) + provisioning Amine = `docs/API_REQUIREMENTS_AMINE.md` (P0/P1/P2) + état câblages = `docs/AUDIT_CABLAGE_2026-06-10.md`.
 > **PHASE 1 — prochaines stories 100 % AUTONOMES (aucune clé)** : **US-025** (offre commerciale PDF — checkpoint détaillé dans `.ralph/progress.md`), US-026 (rapport client PDF), US-030 (competitors Crawl4AI ✓ health 200), US-032 (approbation client), US-034 (audit trail), US-036 (script vidéo), US-038 (storyboard), US-041/042/043 (présentations), US-050 (danger zone RGPD), US-033 (E2E Playwright), US-035 (smoke/monitoring), US-031 (UI analytics + dégradation propre).
@@ -44,6 +44,33 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #13 (2026-06-18) — DÉBLOCAGE BUILD COOLIFY (IPv6) + déploiement code coincé + rotation creds MinIO
+
+> Déclencheur Amine : « restart Coolify » puis « faisons les choses proprement dans l'ordre requis ». Les 3 dettes critiques de la session #12 sont SOLDÉES. Commit `71a49d4` (Geist local) buildé+déployé. Prod vérifiée (`/api/health` 200, CSP corrigée). **Zéro dette laissée sur le périmètre touché.**
+
+### A. Cause racine du build IPv6 — RÉSOLUE (fix permanent, réversible)
+- **Diag** : le routeur LAN `192.168.100.1` fait du **DNS64** → AAAA NAT64 `64:ff9b::` pour des domaines sans IPv6 routable (ghcr.io), alors que le serveur `.4` n'a **aucune route IPv6** (RA du routeur = Router Lifetime 0, aucun préfixe global ; `enp3s0` accept_ra=0). buildkit tentait l'IPv6 et mourait.
+- **Fix** : drop-in `/etc/systemd/resolved.conf.d/99-rami-no-dns64.conf` → `DNS=1.1.1.1 8.8.8.8`, `FallbackDNS=1.0.0.1 8.8.4.4`, `Domains=~.` + `systemctl restart systemd-resolved`. `getent ahosts ghcr.io` ne renvoie plus que l'IPv4. **Permanent.** (Pour annuler : supprimer le fichier + restart resolved.)
+- ⚠️ **Pas de connectivité IPv6 publique sur ce LAN** (FAI/box n'en fournit pas). RAMI n'en a PAS besoin (tout en IPv4 : cloudflared, Supabase, MinIO, proxy LLM). NE PAS monter de chantier IPv6 pour le build. `ndisc6` installé sur le serveur (diag, anodin).
+
+### B. `next build` cassé par Google Fonts (2ᵉ symptôme IPv6) — RÉSOLU par code
+- `next/font/google` (Geist/Geist Mono) téléchargeait les polices au build ; Turbopack récupérait l'AAAA réelle de `fonts.googleapis.com` (Google a l'IPv6) et tentait l'IPv6 sans basculer en IPv4 (≠ curl qui marche). **Déterministe.**
+- **Fix** : `src/app/layout.tsx` bascule sur le package local **`geist`** (`geist/font/sans` + `geist/font/mono`, `geist@1.7.2`) → zéro fetch réseau au build. Variables CSS inchangées (`--font-geist-sans`/`--font-geist-mono`). Validé en local (tsc 0/lint 0/build OK). Commit **`71a49d4`**.
+
+### C. CSP `s3-rami` — CORRIGÉE
+- `next.config.ts` dérive `img-src`/`connect-src` MinIO de `MINIO_PUBLIC_URL` **au build**. Cette var était `is_buildtime=false` → vide au build → visuels `s3-rami` bloqués.
+- **Fix** : `MINIO_PUBLIC_URL` passée en **`is_buildtime=true`** (API Coolify PATCH). Vérifié en prod : `img-src` contient `https://s3-rami.ai-mpower.com`.
+
+### D. pg-boss `createQueue` (`51ca924`) — DÉPLOYÉ
+- Inclus dans le build de `main` désormais livré. Le chemin push→build→prod fonctionne à nouveau.
+
+### E. Rotation des creds root MinIO RAMI (incident leak)
+- `MINIO_ACCESS_KEY`/`MINIO_SECRET_KEY` (= **root** du conteneur `rami-minio`) exposés en clair dans le transcript de session → **rotés**. Conteneur `rami-minio` recréé avec nouveau root (volume `rami-minio-data` conservé, bucket `rami` intact), env Coolify mis à jour (PATCH runtime), app redémarrée et **alignée** (vérifié). Anciens creds **révoqués**.
+- ⚠️ **Coffre DPAPI** : les `MINIO_ROOT_USER/PASSWORD` non préfixés du coffre **ne sont PAS** ceux de RAMI (autre MinIO). Aucun cred MinIO RAMI n'est dans le coffre → source de vérité = **Coolify** (env app `rami`, récupérable via `docker exec <app> printenv MINIO_*`). Optionnel : les ajouter au coffre préfixés `RAMI_MINIO_*`.
+- ⚠️ **GOTCHA confirmé** : l'API Coolify via `coolify.ai-mpower.com` **DEPUIS le serveur** renvoie 401 (cloudflared strip le Bearer, comme GoTrue). → faire les appels API Coolify **depuis le poste** (PowerShell), pas depuis le serveur.
 
 ---
 
