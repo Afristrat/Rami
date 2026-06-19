@@ -354,3 +354,23 @@ export const documents = pgTable('documents', {
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
+
+// ============================================================
+// API KEYS — API publique v1 (US-051)
+// Clé Bearer par tenant pour agents externes (Hermès). La clé en clair
+// n'est jamais stockée : seul son hash SHA-256 (key_hash) + un prefix
+// affichable (key_prefix) sont conservés.
+// ============================================================
+
+export const apiKeys = pgTable('api_keys', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  key_prefix: varchar('key_prefix', { length: 16 }).notNull(),
+  key_hash: text('key_hash').notNull().unique(),
+  scopes: text('scopes').array().notNull().default([]),
+  last_used_at: timestamp('last_used_at', { withTimezone: true }),
+  revoked_at: timestamp('revoked_at', { withTimezone: true }),
+  created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})

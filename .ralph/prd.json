@@ -575,6 +575,15 @@
       "passes": true,
       "completedAt": "2026-06-11",
       "note": "Implemente par agents supervises + review expert. Gates TS0/lint0/Jest261. Deploye+smoke prod. Browser-verify Playwright a planifier."
+    },
+    {
+      "id": "US-051",
+      "epic": "M",
+      "priority": "P1",
+      "title": "API publique v1 a cle + pont Hermes (publier, contenu, presentations, analytics)",
+      "deps": [],
+      "passes": false,
+      "note": "Spec : docs/plans/2026-06-19-api-publique-v1-pont-hermes.md. LOT0 fondation cle API (table api_keys + RLS + middleware Bearer + feature api_publique) ; LOT1 vertical slice publier prouve E2E via Telegram ; LOT2 contenu complet ; LOT3 presentations ; LOT4 analytics. Cote Hermes : skill rami (curl+polling) + cle au vault DPAPI."
     }
   ]
 }

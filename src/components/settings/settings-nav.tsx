@@ -14,6 +14,7 @@ export function SettingsNav() {
     { href: "/settings/connections", labelKey: "connections" as const },
     { href: "/settings/team", labelKey: "team" as const },
     { href: "/settings/billing", labelKey: "billingSettings" as const },
+    { href: "/settings/api", labelKey: "api" as const },
   ]
 
   return (
