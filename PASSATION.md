@@ -1,7 +1,7 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-14 (session #10 — ÉRADICATION TOTALE DU FACTICE (tous DEFCON1) + fix bug bloquant wizard + FEATURE PRÉSENTATIONS RÉELLE (génération LLM + export PPTX pptxgenjs + éditeur structuré/IA responsive) + prompt L99 validé) ==
+# == PASSATION RAMI 2026-06-22 (session #14 — ÉDITION BROUILLONS option A (modale + IA) + FIX BUG MAJEUR reprise brouillon (réhydratation forms) + option B (rouvrir un post dans le parcours complet /create?post=id) + MÉDIATHÈQUE : enregistrement auto des visuels générés (fin gaspillage) + fix dashboard (compteur visuels/score DNA) + PRICING 2-AXES décidé avec Amine (plan L0 écrit) + audit vraie situation (US-051 réelle, 2 DEFCON1 billing factices RESTANTS)) ==
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -9,7 +9,7 @@
 
 ## [ETAT] — État global du projet
 
-**Branche active** : `main` = origin synchronisé, **HEAD `e272adb`** (US-026 validée, session #13 ; 0 commit local en avance). **Travailler sur main.**
+**Branche active** : `main` = origin synchronisé, **HEAD `24c9157`** (médiathèque auto + fix dashboard, session #14 ; 0 commit local en avance). **Travailler sur main.** Commits session #14 : `c1ede13`(drafts→Kanban) → `78a984f`(option A modale édition+IA) → `afdf6a0`(plan pricing L0) → `56ecab1`(**FIX reprise brouillon**) → `0ee38c3`(**option B** /create?post=id) → `24c9157`(**médiathèque auto + fix dashboard**). ⚠️ Coolify affiche parfois des « commit » qui n'existent PAS dans git (`c58b23b`, `6995931`, `c899295`) = artefacts internes de re-build, PAS des commits — ne pas s'en inquiéter, vérifier `git rev-parse origin/main`.
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
 **✅✅ PUBLICATION RÉELLE LINKEDIN AVEC IMAGE — PROUVÉE EN PROD (2026-06-18)** : 1ᵉʳ vrai post publié sur le LinkedIn d'Amine (`urn:li:share:7473272377305513984`), AVEC image générée. Chaîne complète OK : génération image (proxy LiteLLM + clé virtuelle plafonnée 5 $) → MinIO RAMI dédié → workflow → approbation → pg-boss → worker → `publishToLinkedIn` (registerUpload → conversion JPEG → `shareMediaCategory: IMAGE`).
 **⚠️ INFRA NOUVEAU SERVEUR (.4) — état & DETTES (2026-06-18)** :
@@ -21,7 +21,7 @@
 > - **Réplica cloudflared .8** : l'ancien `serveurai` (.8) est **éteint/décommissionné** (vérifié : SSH KO, aucun hôte n'accepte la clé) → réplica nohup déjà parti. Seul le réplica systemd durable de .4 sert. `config-nahda.yml` de .4 complété (rami, db-rami, taqwim, linkedinforge, council).
 **⚠️⚠️ MIGRATION SERVEUR EN COURS (.8 → .4) — 2026-06-17/18** : le serveur a été MIGRÉ vers une nouvelle machine. **Coffre RÉORGANISÉ par Amine** : `SERVER_HOST` pointe désormais sur **`192.168.100.4`** (hostname `serveuria-MS-7D98`, user **`serveuria`**, 166 conteneurs, c'est le serveur CANONIQUE). L'ancien **`.8` (`serveurai`, user `serveurai`)** existe encore mais est en voie de retrait — **SSH .8 KO avec les creds actuels du coffre** (user/clé pointent .4). Vars coffre actuelles : `SERVER_HOST=.4`, `SERVER_SSH_USER=serveuria`, `SERVER_SSH_KEY=serveurai_mnemo`, `SRV_SUDO_PASS`, `COOLIFY_API_TOKEN` (= Coolify de .4). ⚠️ `coolify.ai-mpower.com` et `rami.ai-mpower.com` passent par **cloudflared** : tunnel `7156c3f9` répliqué sur .4 (systemd `cloudflared-nahda.service`, **durable, enabled**) ET .8 (process nohup éphémère que j'ai lancé en dépannage). **L'app rami `eadc0a2` tourne sur .4** (conteneur `ry8ytnene4czxdhsoes0z56y-225248686460`), coolify-proxy sur .4, réseau docker `coolify`. **RESTE À FAIRE (Amine/migration)** : arrêter le réplica nohup cloudflared sur **.8** (sinon, si le conteneur rami de .8 s'arrête, 404 intermittents reviennent) ; compléter le `config-nahda.yml` de .4 avec les domaines manquants (`taqwim.ai-mpower.com`, `linkedinforge.ai-mpower.com`, `council.ai-mpower.com` — présents sur l'ancien .8, absents de .4).
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. ~25 déploiements session #10. Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/create`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec`. **Surveiller la fin du deploy via l'API Coolify** : `GET /api/v1/deployments?uuid=ry8ytnene4czxdhsoes0z56y` (liste vide = terminé). ⚠️ **NE PAS supprimer de deck/données pendant qu'Amine teste** (un cleanup a cassé un download chez lui).
-**Avancement Ralph** : **32/58** stories `passes=true` formelles (US-026 validée session #13), MAIS **audit anti-factice = TOUS les DEFCON1 SOLDÉS** (cf. `docs/AUDIT_FACTICE_2026-06-12.md`). **Zéro dette connue.**
+**Avancement Ralph** : **32/59** stories `passes=true` (prd.json = 59 stories, US-051 ajoutée Epic M). ⚠️ **2 DEFCON1 factices RESTANTS** (billing : `/settings/billing` mock + `/dashboard/invoices` — cf. [ALERTE]) + 3 plateformes fantômes → la claim « zéro dette » n'est PLUS vraie. Session #14 = gros chantier UX (édition brouillons A+B, fix reprise, médiathèque auto) hors prd.json formel.
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
 **TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ **0 vuln CRITIQUE** (6 high = tooling dev pré-existant : drizzle-kit/esbuild/tsx) · **Jest** : ✅ **347/347 vert** (23 suites).
 **Nouvelle dépendance** : `pptxgenjs ^4.0.1` (export PPTX pur-JS, compatible Nixpacks).
@@ -44,6 +44,43 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #14 (2026-06-22) — ÉDITION BROUILLONS (A+B) + FIX MAJEUR reprise + MÉDIATHÈQUE auto + PRICING 2-axes décidé + audit vraie situation
+
+> Session marathon UX/produit, copilotage navigateur (claude-in-chrome, compte **AI-Mpower enterprise**). 6 commits, gates verts à CHAQUE (TS0/lint0/**Jest 356**/build), tout browser-verified PROD. Déclencheurs Amine en cascade : « où voir les brouillons » → « éditer les brouillons » → « pricing » → « la modale me fait perdre la richesse, montre-moi 2→3→4 » → « la reprise ne récupère pas mon travail » → « dashboard/médiathèque vides = gaspillage » → « cliquer un topic = ouvrir en création (systématique) ».
+
+### A. Audit « vraie situation » (deep explore 4 agents) — la claim « zéro factice » était FAUSSE
+- **US-051 API publique v1 (LOT 0+1)** = RÉELLE et complète (non documentée jusqu'ici) : routes `/api/v1/posts`(+`/publish`,+GET), auth Bearer SHA-256 + table `api_keys` (migration `…016`), gating plan, rate-limit 1000/24h, UI `/settings/api`, tests. **LOT 2-4 (content/présentations/analytics) = planifiés non codés** (`docs/plans/2026-06-19-api-publique-v1-pont-hermes.md`). prd.json = **59 stories** (32✓/27✗, US-051 ajoutée Epic M).
+- **!! 2 DEFCON1 FACTICES RESTANTS (à corriger)** : `src/components/settings/billing-settings-client.tsx` (carte « Visa 4242 », « Alex Rivier / 15 Av. Champs-Élysées », fausses factures — **accessible via `/settings/billing` lié dans `settings-nav.tsx:16`**) + `src/app/(dashboard)/dashboard/invoices/page.tsx` (`MOCK_INVOICES`, route orpheline non liée). Le vrai billing Stripe = `/billing` (distinct).
+- **!! 3 plateformes FANTÔMES** : Mastodon/YouTube/TikTok déclarées dans l'UI (`platform-config.ts`, schéma scheduler) mais SANS backend publish/metrics → échec si sélectionnées. À masquer ou implémenter (US-044/045/046).
+- **/settings/api « vide »** = NORMAL : gated `api_publique` (agency_plus/enterprise). Tenants prod : **AI-Mpower=enterprise**, **Banque Test Ralph=agency** → test-ralph redirigé `/pricing`.
+
+### B. Édition des brouillons — OPTION A (`78a984f`) puis OPTION B (`0ee38c3`)
+- **`c1ede13`** : les brouillons (status `draft`, toute origine : workflow/API/Hermès) tombent dans le Kanban `/dashboard/approvals` colonne « à valider » (badge « Brouillon »). Avant : un draft sans `scheduled_at` n'était visible NULLE PART (absent calendrier + Kanban).
+- **Option A `78a984f`** : modale `approval-edit-dialog.tsx` (édition texte + **« Améliorer avec l'IA »** = `improveDraftAction` LLM proxy, sans inventer ; `updateDraftContentAction` tenant-scopé). Bouton crayon ajouté sur les cartes en attente. i18n ×8.
+- **Option B `0ee38c3`** (Amine : « la modale me fait perdre toute la richesse ») : **cliquer un brouillon l'ouvre dans le PARCOURS COMPLET** `/dashboard/create?post=<id>` pré-rempli. Mécanique : `saveWorkflowPostAction` persiste un **snapshot complet du parcours** dans `posts.ai_metadata.workflow_state` (Step5 brouillon + Step7) ; `getDraftWorkflowStateAction` recharge ce snapshot OU reconstruit un état minimal (fallback posts hors-workflow) ; `create/page.tsx` = Server Component async lit `?post=` → `WorkflowClient initialState/initialPostId` (saute la bannière de reprise, met à jour CE post via `existingPostId`, zéro doublon). Carte d'approbation : **contenu cliquable** + bouton « Ouvrir dans le parcours complet » dans la modale. i18n `openInWorkflow` ×8.
+
+### C. !! FIX BUG MAJEUR — la reprise de brouillon ne restaurait RIEN (`56ecab1`)
+- Repro browser : « Reprendre votre brouillon » → formulaire **VIDE** (titre/desc/objectif perdus) alors que le titre de session était correct. Cause RACINE : `resumeSession()` faisait bien `setState(resumeOffer.state)` MAIS les composants Step (react-hook-form) **ne lisent `defaultValues` qu'au montage** et n'étaient JAMAIS remontés (mode Expert = tous montés en permanence). Travail apparemment perdu à chaque reprise.
+- Fix : compteur **`hydrationKey`** incrémenté UNIQUEMENT dans `resumeSession()` (et init via `initialState`), posé en **`key` sur le conteneur des étapes** (modes Expert + guidé) → remontage = relecture des defaultValues. Inchangé pendant la saisie (zéro perte de focus). **Browser-verified : titre+desc+objectif Aspiration restaurés.** ⚠️ même piège react-hook-form partout : réhydratation d'un form contrôlé = `key` ou `reset()`, jamais defaultValues seul.
+
+### D. MÉDIATHÈQUE — fin du gaspillage + fix dashboard (`24c9157`)
+- **Cause gaspillage (preuve système)** : `/dashboard/library` lit `media_assets` ; le workflow étape 4 (`generateVisualContentAction`) faisait `storeVisual` (MinIO) mais **AUCUN insert media_assets** → visuels générés jamais réutilisables (seul un clic manuel « Enregistrer » le faisait, page `/create/visual`). Vidéos dans `generated_videos` (table séparée, invisible library).
+- Fix : nouveau helper `src/lib/services/storage/library-asset.ts` (`registerLibraryAsset`) ; **CHAQUE visuel généré à l'étape 4 → inséré dans media_assets** (tenant via `resolveUserTenant` pour matcher la lecture library, best-effort). **Browser-verified : généré 1 visuel → apparaît dans la médiathèque (avant vide).**
+- **Dashboard `dashboard.actions.ts`** : « Visuels générés » comptait la table morte **`media`** (jamais écrite) → compte désormais `media_assets`(file_type=image) du mois ; « Score Brand DNA » lisait `dna_score` absent → **complétude réelle** via `normalizeBrandDNA` ; `nextScheduledPost` expose `id` (cliquabilité).
+
+### E. PRICING 2-AXES — décidé avec Amine, plan L0 écrit (`afdf6a0`) — À IMPLÉMENTER
+- **Modèle validé** : Axe 1 **paliers = VOLUME** (pool au niveau COMPTE) ; Axe 2 **modules add-on** activables. Plan complet : `docs/plans/2026-06-22-pricing-2axes-L0-comptes.md`.
+- **Paliers** (ratio 1 gén : 3 pub) : Free 0$/1 marque/1 gén/3 pub(watermark) · Solo **149$**/1/10/30 · Pro **399$**/3/30/90 · Agency **899$**/10/100/300 · Agency+ **~1799$ PROVISOIRE**/30/300/900 · Enterprise devis/illimité.
+- **Modules add-on (par palier ; inclus dès Agency)** : Lead Gen Solo99/Pro199 · Studio Documents 49/99 · Facturation 39/79 · bundle Business Suite 159/319 · **Connecteur Founder-OS 39$** (scope `posts:write`, dès Solo) · **API complète 99$** (tous scopes, dès Solo — Amine : « solo-preneurs multi-side-projects » → **API publique N'EST PLUS exclusive Agency+**) · pack volume +10gén/+30pub 39$ · marque supp 25$.
+- **⚠️ Découverte archi** : AUCUNE couche « Compte » aujourd'hui (plan/Stripe/quota = sur le `tenant`, nb marques jamais enforcé, Stripe mono-item). L0 = **introduire table `accounts`** (owner→1 compte, plan+abonnement+quotas pool gén+pub+add-ons) + `tenants.account_id` + entitlements (palier ∪ add-ons) + **nouveau quota publications** (inexistant). Migration triviale (2 tenants réels). Amine veut **les deux** : pool compte + suivi/allocation par marque.
+
+### F. Reste demandé (NON fait) — cliquabilité « systématique »
+- Amine : « cliquer un topic depuis dashboard / historique / approbations → l'ouvrir en création de post (édition/validation/publication), c'est systématique ». **FAIT** : cartes d'approbation. **RESTE** : dashboard (prochaine pub : id prêt, lien UI à poser), **historique** (sidebar `WorkflowSidebar` + calendrier `Voir tout l'historique`) → `/create?post=<id>`.
+- Petit reliquat cosmétique : compteur « 0/2000 » de la description affiche 0 jusqu'à la 1ʳᵉ frappe à la reprise (`Step1Brief` useWatch defaultValue).
+- Médiathèque : **vidéos** (generated_videos) + page **Visuels IA** (`/create/visual`) pas encore auto-enregistrées (seul le workflow Step4 l'est). Images générées AVANT `24c9157` non rétroactives.
 
 ---
 
@@ -352,7 +389,7 @@ Workflow repris → visuel régénéré (stocké `s3-rami`) → texte honnête f
 
 - **✅ Mot de passe super-admin RÉGÉNÉRÉ (2026-06-10, US-017 soldée)** : rotation bcrypt SQL + révocation des 4 sessions + refresh tokens. ⚠️ Méthode : SQL direct dans `supabase-db-szn6...` — l'API admin GoTrue via `db-rami.ai-mpower.com` est inutilisable (Cloudflare strip `Authorization: Bearer` ; et `http://` → 301 qui casse les POST : **toujours https**).
 - **!! Clé Whisper requise (US-022/023/024)** : la transcription est implémentée + pipeline vérifié, mais le proxy LiteLLM **ne route pas whisper** (HTTP 400). Pour le happy-path : poser `WHISPER_API_KEY` = **vraie clé OpenAI** (api.openai.com) sur Coolify, OU configurer un modèle `whisper-1` sur le proxy + `WHISPER_BASE_URL`=proxy. Input Amine/ops.
-- **✅ FACTICE : TOUS les DEFCON1 SOLDÉS (session #10)** : Sidebar, Dashboard, Approbations, Documents download, Transcriptions, RGPD export, Connexions sidebar, Vidéo (redirect), **Présentations (feature réelle complète)**, sous-titres provider-neutres. ✅ RÉELS antérieurs : Analytics, Leads, Enrichissement (5 providers), Recommandations IA, Transcriptions (texte bloqué clé Whisper). Reste : MINEURS non-DEFCON1 + Competitors US-030 (mock, à faire). Détail : `docs/AUDIT_FACTICE_2026-06-12.md`.
+- **⚠️ FACTICE : 2 DEFCON1 RESTANTS découverts session #14 (la claim « tous soldés » était FAUSSE)** : (1) `src/components/settings/billing-settings-client.tsx` — carte « Visa 4242 » + adresse « Alex Rivier » + fausses factures, **accessible via `/settings/billing`** (lié `settings-nav.tsx:16`) ; (2) `src/app/(dashboard)/dashboard/invoices/page.tsx` — `MOCK_INVOICES` (route orpheline). **À CORRIGER** (le vrai billing = `/billing` Stripe). + **3 plateformes fantômes** Mastodon/YouTube/TikTok (UI sans backend). Les DEFCON1 session #10 (Sidebar, Dashboard, Approbations, Documents, Transcriptions, RGPD, Vidéo, Présentations) restent soldés. Détail : `docs/AUDIT_FACTICE_2026-06-12.md`.
 - **!! Apollo API = plan PAYANT** : free → **403 `API_INACCESSIBLE`**. → **Hunter.io (gratuit) provider par défaut** (`LEADS_ENRICHMENT_PROVIDER=hunter`).
 - **✅ GAP providers enrichissement FERMÉ (session #5)** : 5 providers (apollo/hunter/**pdl/dropcontact/enrich**) implémentés + routables + rows db-rami (migration `…008`).
 - **! Stripe encore en TEST** — Price IDs live + webhook live non configurés (US-018, input Amine requis).
@@ -379,7 +416,18 @@ Workflow repris → visuel régénéré (stocké `s3-rami`) → texte honnête f
 
 ---
 
-## [NEXT] — Prochaines actions prioritaires (session #11)
+## [NEXT] — Prochaines actions prioritaires (session #15)
+
+> **Priorités validées/induites par Amine (session #14) :**
+> 1. **Cliquabilité « systématique »** (demande explicite Amine) : câbler `/create?post=<id>` depuis le **dashboard** (carte prochaine pub : `id` déjà exposé), l'**historique** (`WorkflowSidebar` items + calendrier « Voir tout l'historique »). Les cartes d'approbation = déjà fait.
+> 2. **Médiathèque — finir le gaspillage** : auto-enregistrer aussi les **vidéos** (`generated_videos`) et la page **Visuels IA** (`/create/visual`) dans `media_assets` (réutiliser `registerLibraryAsset`).
+> 3. **2 DEFCON1 billing factices** à corriger (`/settings/billing` mock + `/dashboard/invoices`) — cf. [ALERTE]. Masquer Mastodon/YouTube/TikTok de l'UI.
+> 4. **PRICING LOT 0** : implémenter le plan `docs/plans/2026-06-22-pricing-2axes-L0-comptes.md` (couche `accounts` + entitlements palier∪add-ons + quota publications). Confirmer avec Amine le prix Agency+ avant live Stripe.
+> 5. Petit fix cosmétique compteur « 0/2000 » (`Step1Brief`).
+> 6. Reprendre Ralph : **US-030** (competitors Crawl4AI, mock à remplacer).
+>
+> ---
+> **(Ancienne liste session #11, encore valable pour le reste) :**
 
 0. **✅ IMPORT DE FICHIERS → PPTX (LIVRÉ + browser-verified, commit `c1cb70c`)** : upload MD/PDF(texte)/Word/Excel sur `/presentations/new` (onglet « Depuis un fichier ») → extraction (`file-extract.ts`) → conversion LLM prompt L99 → deck éditable + PPTX. Vérifié MD + Excel (chiffres source préservés). ⚠️ Excel via **exceljs** (pas `xlsx`/SheetJS = vuln HIGH).
    - **💳 DETTE ASSUMÉE (notée par Amine 2026-06-14)** : import **PDF (`pdf-parse`) et Word (`mammoth`) NON browser-vérifiés avec de vrais fichiers** (seuls MD + Excel testés ; code + build OK). À tester quand Amine fournit des PDF/Word réels. + **OCR pour PDF scannés/aplatis** = hors scope v1 (à ajouter si besoin).
