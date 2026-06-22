@@ -30,6 +30,8 @@ export interface ApprovalItem {
   authorName: string
   submittedAt: string
   status: ApprovalStatus
+  /** Vrai si le post est un brouillon (badge « Brouillon » au lieu de « En attente »). */
+  isDraft?: boolean
   comment: string
 }
 

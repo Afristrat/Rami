@@ -2,8 +2,10 @@
 
 // ============================================================
 // Tableau d'approbation interne (Kanban /dashboard/approvals) — données RÉELLES
-// Remplace le mock MOCK_ITEMS : charge les vrais posts en revue/approuvés/rejetés
-// du tenant et persiste les décisions.
+// Remplace le mock MOCK_ITEMS : charge les vrais posts à traiter avant publication
+// (brouillons + en revue + approuvés + rejetés) du tenant et persiste les décisions.
+// Les brouillons (draft, toute origine : workflow, API publique, Hermès) tombent
+// dans la colonne « à valider » pour être visibles et validables au même endroit.
 // ============================================================
 
 import { createClient } from "@/lib/supabase/server"
@@ -21,11 +23,15 @@ export interface ApprovalBoardItem {
   authorName: string
   submittedAt: string
   status: InternalApprovalStatus
+  /** Vrai si le post est un brouillon (status DB = draft), pour le distinguer
+   *  d'un post explicitement soumis en revue (badge « Brouillon » côté UI). */
+  isDraft: boolean
   comment: string
 }
 
-/** Mapping statut DB → colonne du board. */
+/** Mapping statut DB → colonne du board. Un brouillon est « à valider ». */
 const DB_TO_BOARD: Record<string, InternalApprovalStatus> = {
+  draft: "pending_approval",
   review: "pending_approval",
   approved: "approved",
   rejected: "rejected",
@@ -50,7 +56,7 @@ export async function getApprovalBoardAction(): Promise<{ items: ApprovalBoardIt
     .from("posts")
     .select("id, content, platforms, media_urls, status, created_by, ai_metadata, updated_at, created_at")
     .eq("tenant_id", tenantId)
-    .in("status", ["review", "approved", "rejected"])
+    .in("status", ["draft", "review", "approved", "rejected"])
     .order("updated_at", { ascending: false })
     .limit(60)
 
@@ -95,6 +101,7 @@ export async function getApprovalBoardAction(): Promise<{ items: ApprovalBoardIt
       authorName: (createdBy && namesById.get(createdBy)) || "—",
       submittedAt: (p.updated_at as string) ?? (p.created_at as string),
       status: DB_TO_BOARD[p.status as string] ?? "pending_approval",
+      isDraft: (p.status as string) === "draft",
       comment,
     }
   })
@@ -134,9 +141,9 @@ export async function decideInternalApprovalAction(
 
   if (!post) return { success: false, error: "not_found" }
 
-  // Garde d'état : on ne décide que sur un post en revue ou déjà décidé (re-décision),
-  // jamais sur un post en cours/déjà publié.
-  if (!["review", "approved", "rejected"].includes(post.status as string)) {
+  // Garde d'état : on décide sur un brouillon, un post en revue, ou déjà décidé
+  // (re-décision) ; jamais sur un post en cours/déjà publié.
+  if (!["draft", "review", "approved", "rejected"].includes(post.status as string)) {
     return { success: false, error: "not_decidable" }
   }
 
@@ -157,7 +164,7 @@ export async function decideInternalApprovalAction(
     })
     .eq("id", postId)
     .eq("tenant_id", tenantId)
-    .in("status", ["review", "approved", "rejected"])
+    .in("status", ["draft", "review", "approved", "rejected"])
 
   if (error) {
     log({
