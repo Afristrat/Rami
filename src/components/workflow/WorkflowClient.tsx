@@ -141,6 +141,12 @@ export function WorkflowClient() {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [resumeOffer, setResumeOffer] = useState<Extract<LoadWorkflowSessionResult, { found: true }> | null>(null)
   const [autosave, setAutosave] = useState<"idle" | "saving" | "saved" | "error">("idle")
+  // Compteur de réhydratation : incrémenté UNIQUEMENT lorsqu'un état est injecté
+  // de l'extérieur (reprise de brouillon). Posé en `key` sur le conteneur des
+  // étapes pour les remonter et faire relire leurs `defaultValues` par
+  // react-hook-form (qui ne lit defaultValues qu'au montage). Inchangé pendant
+  // la saisie → aucune perte de focus lors des transitions normales.
+  const [hydrationKey, setHydrationKey] = useState(0)
 
   // ── Données réelles du panneau latéral (Brand DNA + historique des posts) ──
   const [sidebarBrandDNA, setSidebarBrandDNA] = useState<WorkflowSidebarBrandDNA | null>(null)
@@ -194,6 +200,8 @@ export function WorkflowClient() {
     setSessionId(resumeOffer.sessionId)
     setAutosave("saved")
     setResumeOffer(null)
+    // Force le remontage des étapes → les formulaires relisent l'état restauré.
+    setHydrationKey((k) => k + 1)
   }
 
   function discardSession() {
@@ -316,8 +324,10 @@ export function WorkflowClient() {
 
         {/* Main content grid */}
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Workflow Area — accordion sections */}
-          <div className="lg:col-span-8 space-y-3">
+          {/* Workflow Area — accordion sections.
+              key=hydrationKey : remonte les étapes à la reprise pour réhydrater
+              les formulaires (defaultValues lus au montage). */}
+          <div key={`steps-expert-${hydrationKey}`} className="lg:col-span-8 space-y-3">
             {/* Step 1 — Brief */}
             <WorkflowAccordionSection
               icon={EXPERT_STEP_ICONS[0]}
@@ -529,8 +539,9 @@ export function WorkflowClient() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Workflow Area */}
         <div className="lg:col-span-8">
-          {/* Main Card */}
-          <div className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/[0.05] rounded-2xl p-8 shadow-xl dark:shadow-none backdrop-blur-sm">
+          {/* Main Card — key=hydrationKey : remonte l'étape courante à la reprise
+              pour réhydrater le formulaire (defaultValues lus au montage). */}
+          <div key={`steps-guided-${hydrationKey}`} className="bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-white/[0.05] rounded-2xl p-8 shadow-xl dark:shadow-none backdrop-blur-sm">
             {state.currentStep === 1 && (
               <Step1Brief
                 defaultValues={state.step1}
