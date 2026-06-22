@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { ClipboardCheck, Inbox, Loader2 } from "lucide-react"
@@ -11,11 +10,11 @@ import {
   type ApprovalItem,
   type ApprovalStatus,
 } from "./approval-card"
+import { ApprovalEditDialog } from "./approval-edit-dialog"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import {
   getApprovalBoardAction,
   decideInternalApprovalAction,
-  reopenForReviewAction,
 } from "@/lib/actions/approval-board.actions"
 import { publishPost } from "@/app/actions/scheduler"
 
@@ -31,9 +30,9 @@ const COLUMNS: { status: ApprovalStatus; labelKey: string; color: string }[] = [
 
 export function ApprovalBoard() {
   const t = useTranslations("approvals")
-  const router = useRouter()
   const [items, setItems] = useState<ApprovalItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingItem, setEditingItem] = useState<ApprovalItem | null>(null)
 
   const refresh = useCallback(async () => {
     const { items: boardItems } = await getApprovalBoardAction()
@@ -102,14 +101,11 @@ export function ApprovalBoard() {
     [t, refresh]
   )
 
-  const handleEdit = useCallback(
-    async (id: string) => {
-      // Réouvre le post en revue puis dirige vers le calendrier pour l'éditer.
-      await reopenForReviewAction(id)
-      router.push("/dashboard/calendar")
-    },
-    [router]
-  )
+  // Ouvre la modale d'édition sur la carte choisie (fonction simple : dépend de
+  // `items` qui change à chaque refresh — éviter useCallback côté React Compiler).
+  const handleEdit = (id: string) => {
+    setEditingItem(items.find((it) => it.id === id) ?? null)
+  }
 
   // Le commentaire est local (textarea) ; il est persisté au moment du rejet.
   const handleUpdateComment = useCallback((id: string, comment: string) => {
@@ -194,6 +190,13 @@ export function ApprovalBoard() {
           })}
         </div>
       )}
+
+      <ApprovalEditDialog
+        key={editingItem?.id ?? "none"}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onSaved={refresh}
+      />
     </div>
   )
 }

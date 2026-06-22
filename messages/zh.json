@@ -2698,7 +2698,19 @@
     "approveSuccess": "内容已批准",
     "rejectSuccess": "内容已拒绝",
     "publishSuccess": "已开始发布",
-    "actionError": "发生错误"
+    "actionError": "发生错误",
+    "editTitle": "编辑帖子",
+    "editDescription": "调整文本或用 AI 优化，然后保存。",
+    "contentLabel": "内容",
+    "improveWithAI": "用 AI 优化",
+    "improving": "优化中…",
+    "improveSuccess": "文本已由 AI 优化",
+    "improveError": "AI 优化失败，请重试。",
+    "save": "保存",
+    "saving": "保存中…",
+    "saveSuccess": "草稿已保存",
+    "saveError": "保存失败",
+    "cancel": "取消"
   },
   "validation": {
     "required": "Ce champ est requis",

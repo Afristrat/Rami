@@ -11,6 +11,12 @@
 import { createClient } from "@/lib/supabase/server"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { log } from "@/lib/utils/logger"
+import { callTextLLM } from "@/lib/services/ai/text-llm"
+import { getPromptConfig } from "@/lib/services/ai/prompt-config"
+import { sanitizePromptInput } from "@/lib/utils/sanitize"
+
+/** Statuts d'un post sur lesquels l'édition de contenu est permise. */
+const EDITABLE_STATUSES = ["draft", "review", "approved", "rejected"]
 
 export type InternalApprovalStatus = "pending_approval" | "approved" | "rejected"
 
@@ -204,4 +210,96 @@ export async function reopenForReviewAction(
 
   if (error) return { success: false, error: "update_failed" }
   return { success: true }
+}
+
+/**
+ * Enregistre le contenu édité d'un post (brouillon ou post en revue/décidé),
+ * tenant-scopé, sans changer son statut. Permet d'ouvrir et modifier un
+ * brouillon directement depuis le Kanban d'approbation.
+ */
+export async function updateDraftContentAction(
+  postId: string,
+  content: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "unauthenticated" }
+
+  const tenantId = await resolveUserTenant(supabase, user.id)
+  if (!tenantId) return { success: false, error: "no_tenant" }
+
+  const clean = content.trim()
+  if (clean.length < 1) return { success: false, error: "empty" }
+  if (clean.length > 3000) return { success: false, error: "too_long" }
+
+  const { error } = await supabase
+    .from("posts")
+    .update({ content: clean, updated_at: new Date().toISOString() })
+    .eq("id", postId)
+    .eq("tenant_id", tenantId)
+    .in("status", EDITABLE_STATUSES)
+
+  if (error) return { success: false, error: "update_failed" }
+  return { success: true }
+}
+
+/**
+ * Améliore le texte d'un post via le LLM (proxy LiteLLM). Réécriture plus
+ * percutante SANS inventer de faits ni changer la langue. Renvoie le texte
+ * proposé ; la persistance reste à la main de l'utilisateur (bouton Enregistrer).
+ */
+export async function improveDraftAction(input: {
+  content: string
+  platform?: string
+}): Promise<{ success: true; content: string } | { success: false; error: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: "unauthenticated" }
+
+  const content = sanitizePromptInput(input.content ?? "")
+  if (content.trim().length < 5) return { success: false, error: "too_short" }
+
+  const config = await getPromptConfig("workflow_brief_enrich")
+  const platform = (input.platform ?? "").toString().slice(0, 30)
+  const systemPrompt =
+    "Tu es un expert en rédaction social media. On te donne le texte d'un post. " +
+    "Réécris-le pour le rendre plus percutant : accroche claire dès la première ligne, " +
+    "structure lisible, appel à l'action pertinent, ton naturel. N'invente AUCUN fait, " +
+    "chiffre ni promesse. Conserve la langue d'origine et le sens. Pas de markdown. " +
+    "Réponds UNIQUEMENT avec le texte amélioré."
+  const userPrompt = [
+    platform ? `Plateforme cible : ${platform}` : "",
+    "Texte à améliorer :",
+    content,
+  ]
+    .filter(Boolean)
+    .join("\n")
+
+  try {
+    const raw = await callTextLLM({
+      provider: config.provider,
+      model: config.model,
+      apiKey: config.apiKey,
+      systemPrompt,
+      userPrompt,
+      maxTokens: 700,
+      temperature: config.temperature,
+    })
+    const improved = raw.trim().replace(/^["']|["']$/g, "").slice(0, 3000)
+    if (improved.length < 5) return { success: false, error: "empty" }
+    return { success: true, content: improved }
+  } catch (err) {
+    log({
+      level: "error",
+      module: "approvals",
+      action: "improve_draft_failed",
+      message: "Échec de l'amélioration IA du brouillon",
+      metadata: { error: String(err) },
+    })
+    return { success: false, error: "llm_failed" }
+  }
 }

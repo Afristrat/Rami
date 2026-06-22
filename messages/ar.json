@@ -2698,7 +2698,19 @@
     "approveSuccess": "تمت الموافقة على المحتوى",
     "rejectSuccess": "تم رفض المحتوى",
     "publishSuccess": "بدأ النشر",
-    "actionError": "حدث خطأ"
+    "actionError": "حدث خطأ",
+    "editTitle": "تعديل المنشور",
+    "editDescription": "عدّل النص أو حسّنه بالذكاء الاصطناعي ثم احفظ.",
+    "contentLabel": "المحتوى",
+    "improveWithAI": "تحسين بالذكاء الاصطناعي",
+    "improving": "جارٍ التحسين…",
+    "improveSuccess": "تم تحسين النص بالذكاء الاصطناعي",
+    "improveError": "فشل التحسين بالذكاء الاصطناعي. حاول مرة أخرى.",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "saveSuccess": "تم حفظ المسودة",
+    "saveError": "فشل الحفظ",
+    "cancel": "إلغاء"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",

@@ -2698,7 +2698,19 @@
     "approveSuccess": "Inhalt genehmigt",
     "rejectSuccess": "Inhalt abgelehnt",
     "publishSuccess": "Veröffentlichung gestartet",
-    "actionError": "Ein Fehler ist aufgetreten"
+    "actionError": "Ein Fehler ist aufgetreten",
+    "editTitle": "Beitrag bearbeiten",
+    "editDescription": "Text anpassen oder mit KI verbessern, dann speichern.",
+    "contentLabel": "Inhalt",
+    "improveWithAI": "Mit KI verbessern",
+    "improving": "Wird verbessert…",
+    "improveSuccess": "Text durch KI verbessert",
+    "improveError": "KI-Verbesserung fehlgeschlagen. Erneut versuchen.",
+    "save": "Speichern",
+    "saving": "Wird gespeichert…",
+    "saveSuccess": "Entwurf gespeichert",
+    "saveError": "Speichern fehlgeschlagen",
+    "cancel": "Abbrechen"
   },
   "validation": {
     "required": "Ce champ est requis",

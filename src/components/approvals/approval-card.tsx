@@ -204,6 +204,15 @@ export function ApprovalCard({
               <X className="size-3.5" />
               {t("reject")}
             </button>
+            <button
+              type="button"
+              onClick={() => onEdit(item.id)}
+              title={t("edit")}
+              aria-label={t("edit")}
+              className="flex items-center justify-center rounded-lg bg-muted/50 dark:bg-white/[0.06] px-2.5 py-1.5 text-foreground transition-colors hover:bg-muted dark:hover:bg-white/[0.10]"
+            >
+              <Pencil className="size-3.5" />
+            </button>
           </>
         )}
         {item.status === "approved" && (

@@ -2698,7 +2698,19 @@
     "approveSuccess": "İçerik onaylandı",
     "rejectSuccess": "İçerik reddedildi",
     "publishSuccess": "Yayınlama başlatıldı",
-    "actionError": "Bir hata oluştu"
+    "actionError": "Bir hata oluştu",
+    "editTitle": "Gönderiyi düzenle",
+    "editDescription": "Metni düzenleyin veya yapay zekâ ile iyileştirip kaydedin.",
+    "contentLabel": "İçerik",
+    "improveWithAI": "Yapay zekâ ile iyileştir",
+    "improving": "İyileştiriliyor…",
+    "improveSuccess": "Metin yapay zekâ ile iyileştirildi",
+    "improveError": "Yapay zekâ iyileştirmesi başarısız. Tekrar deneyin.",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor…",
+    "saveSuccess": "Taslak kaydedildi",
+    "saveError": "Kaydetme başarısız",
+    "cancel": "İptal"
   },
   "validation": {
     "required": "Ce champ est requis",

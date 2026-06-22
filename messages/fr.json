@@ -2698,7 +2698,19 @@
     "approveSuccess": "Contenu approuvé",
     "rejectSuccess": "Contenu rejeté",
     "publishSuccess": "Publication lancée",
-    "actionError": "Une erreur est survenue"
+    "actionError": "Une erreur est survenue",
+    "editTitle": "Modifier le post",
+    "editDescription": "Ajustez le texte ou améliorez-le avec l'IA, puis enregistrez.",
+    "contentLabel": "Contenu",
+    "improveWithAI": "Améliorer avec l'IA",
+    "improving": "Amélioration…",
+    "improveSuccess": "Texte amélioré par l'IA",
+    "improveError": "L'amélioration IA a échoué. Réessayez.",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saveSuccess": "Brouillon enregistré",
+    "saveError": "Échec de l'enregistrement",
+    "cancel": "Annuler"
   },
   "validation": {
     "required": "Ce champ est requis",

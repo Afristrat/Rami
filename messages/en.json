@@ -2698,7 +2698,19 @@
     "approveSuccess": "Content approved",
     "rejectSuccess": "Content rejected",
     "publishSuccess": "Publishing started",
-    "actionError": "An error occurred"
+    "actionError": "An error occurred",
+    "editTitle": "Edit post",
+    "editDescription": "Adjust the text or improve it with AI, then save.",
+    "contentLabel": "Content",
+    "improveWithAI": "Improve with AI",
+    "improving": "Improving…",
+    "improveSuccess": "Text improved by AI",
+    "improveError": "AI improvement failed. Try again.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveSuccess": "Draft saved",
+    "saveError": "Save failed",
+    "cancel": "Cancel"
   },
   "validation": {
     "required": "Ce champ est requis",

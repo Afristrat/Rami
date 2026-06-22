@@ -2698,7 +2698,19 @@
     "approveSuccess": "Contenido aprobado",
     "rejectSuccess": "Contenido rechazado",
     "publishSuccess": "Publicación iniciada",
-    "actionError": "Se produjo un error"
+    "actionError": "Se produjo un error",
+    "editTitle": "Editar publicación",
+    "editDescription": "Ajusta el texto o mejóralo con IA y guarda.",
+    "contentLabel": "Contenido",
+    "improveWithAI": "Mejorar con IA",
+    "improving": "Mejorando…",
+    "improveSuccess": "Texto mejorado por IA",
+    "improveError": "La mejora con IA falló. Inténtalo de nuevo.",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saveSuccess": "Borrador guardado",
+    "saveError": "Error al guardar",
+    "cancel": "Cancelar"
   },
   "validation": {
     "required": "Ce champ est requis",
