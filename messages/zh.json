@@ -2710,7 +2710,8 @@
     "saving": "保存中…",
     "saveSuccess": "草稿已保存",
     "saveError": "保存失败",
-    "cancel": "取消"
+    "cancel": "取消",
+    "openInWorkflow": "在完整流程中打开"
   },
   "validation": {
     "required": "Ce champ est requis",

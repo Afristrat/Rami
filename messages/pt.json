@@ -2710,7 +2710,8 @@
     "saving": "Salvando…",
     "saveSuccess": "Rascunho salvo",
     "saveError": "Falha ao salvar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "openInWorkflow": "Abrir no fluxo completo"
   },
   "validation": {
     "required": "Ce champ est requis",

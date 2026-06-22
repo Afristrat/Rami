@@ -13,9 +13,10 @@ import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
 import { generateImage } from "@/lib/services/image-generation"
 import { getStylePreset } from "@/lib/services/image-generation/style-presets"
 import { scoreImageWithVision } from "@/lib/services/brand-dna/vision-scorer"
-import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual } from "@/lib/schemas/workflow.schema"
+import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual, WorkflowState } from "@/lib/schemas/workflow.schema"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import type { NewPostData } from "@/app/actions/scheduler"
+import { parseWorkflowStateEnvelope } from "@/lib/services/workflow/session-state"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -449,8 +450,10 @@ export async function saveWorkflowPostAction(data: {
   finalVisualUrl: string | null
   scheduledAt: string | null
   status: "draft" | "review" | "approved" | "scheduled"
-  /** Post déjà créé en amont (ex. lien d'approbation Step 6) — mis à jour au lieu d'être dupliqué. */
+  /** Post déjà créé en amont (ex. lien d'approbation Step 6, ou édition d'un brouillon) — mis à jour au lieu d'être dupliqué. */
   existingPostId?: string | null
+  /** Snapshot complet du parcours, stocké sur le post pour une réouverture riche (Option B). */
+  workflowState?: WorkflowState | null
 }): Promise<SaveWorkflowPostResult> {
   const ctx = await getAuthContext()
   if (!ctx?.tenantId) return { success: false, error: "Non authentifié" }
@@ -489,6 +492,24 @@ export async function saveWorkflowPostAction(data: {
       metadata: { postId: result.data.id, status: data.status },
     })
 
+    // Snapshot complet du parcours dans le post → réouverture riche (Option B :
+    // éditer/reprendre recharge captions, visuels, style — pas seulement le texte).
+    if (data.workflowState && parseWorkflowStateEnvelope(data.workflowState).valid) {
+      const supabase = await createClient()
+      const { data: existing } = await supabase
+        .from("posts")
+        .select("ai_metadata")
+        .eq("id", result.data.id)
+        .eq("tenant_id", ctx.tenantId)
+        .single<{ ai_metadata: Record<string, unknown> | null }>()
+      const meta = existing?.ai_metadata ?? {}
+      await supabase
+        .from("posts")
+        .update({ ai_metadata: { ...meta, workflow_state: data.workflowState } })
+        .eq("id", result.data.id)
+        .eq("tenant_id", ctx.tenantId)
+    }
+
     // Publication RÉELLE : enfiler le job pg-boss selon le mode choisi (réutilise
     // l'action réelle `publishPost` → statut "scheduled" + enqueue, worker publie
     // ensuite via les vraies APIs LinkedIn/X/…). "draft" et "review" ne publient rien.
@@ -522,4 +543,70 @@ export async function saveWorkflowPostAction(data: {
     })
     return { success: false, error: "Erreur lors de la sauvegarde du post." }
   }
+}
+
+/**
+ * Charge l'état de parcours d'un post pour le rouvrir dans « Créer un post »
+ * (Option B). Retourne :
+ *  1. le snapshot complet `ai_metadata.workflow_state` s'il existe (brouillon créé
+ *     via le workflow → captions, visuels, style préservés) ;
+ *  2. sinon un état minimal reconstruit depuis le post (titre, texte, plateformes,
+ *     visuel) — pour les posts créés hors workflow ou avant cette feature.
+ * Tenant-scopé ; `null` si le post est introuvable.
+ */
+export async function getDraftWorkflowStateAction(
+  postId: string
+): Promise<{ state: WorkflowState } | null> {
+  const ctx = await getAuthContext()
+  if (!ctx?.tenantId) return null
+
+  const supabase = await createClient()
+  const { data: post } = await supabase
+    .from("posts")
+    .select("title, content, platforms, media_urls, ai_metadata")
+    .eq("id", postId)
+    .eq("tenant_id", ctx.tenantId)
+    .maybeSingle<{
+      title: string | null
+      content: string | null
+      platforms: string[] | null
+      media_urls: string[] | null
+      ai_metadata: Record<string, unknown> | null
+    }>()
+
+  if (!post) return null
+
+  // 1) Snapshot complet du parcours s'il a été persisté.
+  const snapshot = post.ai_metadata?.workflow_state
+  if (snapshot) {
+    const env = parseWorkflowStateEnvelope(snapshot)
+    if (env.valid) return { state: env.state }
+  }
+
+  // 2) Fallback : reconstruire un état minimal depuis les champs du post.
+  const platforms = (Array.isArray(post.platforms) ? post.platforms : []) as Platform[]
+  const mediaUrls = Array.isArray(post.media_urls) ? post.media_urls : []
+  const content = post.content ?? ""
+  const state: WorkflowState = {
+    currentStep: 1,
+    step1: {
+      titre: post.title ?? "",
+      description: content.slice(0, 2000),
+      objectif: "expertise",
+      cible: "",
+      angle: "",
+    },
+    step2: platforms.length > 0 ? { platforms, format: "post" } : null,
+    step3: null,
+    step4: null,
+    step5: {
+      finalCaption: content,
+      finalHashtags: [],
+      finalVisualUrl: mediaUrls[0] ?? null,
+      notes: "",
+    },
+    step6: null,
+    step7: null,
+  }
+  return { state }
 }

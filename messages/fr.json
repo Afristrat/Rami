@@ -2710,7 +2710,8 @@
     "saving": "Enregistrement…",
     "saveSuccess": "Brouillon enregistré",
     "saveError": "Échec de l'enregistrement",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "openInWorkflow": "Ouvrir dans le parcours complet"
   },
   "validation": {
     "required": "Ce champ est requis",

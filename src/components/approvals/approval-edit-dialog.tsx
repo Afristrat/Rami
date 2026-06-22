@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
-import { Sparkles, Loader2, Save } from "lucide-react"
+import { Sparkles, Loader2, Save, Maximize2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,7 @@ interface ApprovalEditDialogProps {
 
 export function ApprovalEditDialog({ item, onClose, onSaved }: ApprovalEditDialogProps) {
   const t = useTranslations("approvals")
+  const router = useRouter()
   // Le parent remonte ce composant via `key={item.id}` → l'état initial reflète
   // toujours le post courant, sans useEffect (pattern « reset state via key »).
   const [content, setContent] = useState(item?.content ?? "")
@@ -103,6 +105,15 @@ export function ApprovalEditDialog({ item, onClose, onSaved }: ApprovalEditDialo
         </div>
 
         <DialogFooter>
+          <button
+            type="button"
+            onClick={() => item && router.push(`/dashboard/create?post=${item.id}`)}
+            disabled={busy || !item}
+            className="mr-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-violet-500 transition-colors hover:text-violet-400 disabled:opacity-50"
+          >
+            <Maximize2 className="size-3.5" />
+            {t("openInWorkflow")}
+          </button>
           <button
             type="button"
             onClick={onClose}

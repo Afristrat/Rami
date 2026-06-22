@@ -2710,7 +2710,8 @@
     "saving": "Wird gespeichert…",
     "saveSuccess": "Entwurf gespeichert",
     "saveError": "Speichern fehlgeschlagen",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "openInWorkflow": "Im vollständigen Workflow öffnen"
   },
   "validation": {
     "required": "Ce champ est requis",

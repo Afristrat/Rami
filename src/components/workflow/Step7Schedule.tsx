@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { saveWorkflowPostAction } from "@/lib/actions/workflow.actions"
 import { suggestOptimalTime, toDatetimeLocalValue } from "@/lib/services/workflow/optimal-time"
-import type { Step1Data, Step2Data, Step5Data, Step6Data, Step7Data } from "@/lib/schemas/workflow.schema"
+import type { Step1Data, Step2Data, Step5Data, Step6Data, Step7Data, WorkflowState } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
 import { cn } from "@/lib/utils"
 import { ArrowLeft, CalendarCheck, Zap, Save, CheckCircle2, ExternalLink, Sparkles, Calendar } from "lucide-react"
@@ -28,12 +28,16 @@ interface Step7ScheduleProps {
   /** Données du Step 6 — porte le post déjà créé via le lien d'approbation externe. */
   step6?: Step6Data | null
   defaultValues?: Step7Data | null
+  /** Post édité (Option B) — prioritaire sur l'éventuel post du Step 6. */
+  existingPostId?: string | null
+  /** Snapshot complet du parcours, persisté sur le post pour réouverture riche. */
+  workflowState?: WorkflowState | null
   onBack: () => void
   /** Appelé quand le post final est sauvegardé — clôt la session de brouillon. */
   onPublished?: () => void
 }
 
-export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBack, onPublished }: Step7ScheduleProps) {
+export function Step7Schedule({ step1, step2, step5, step6, defaultValues, existingPostId, workflowState, onBack, onPublished }: Step7ScheduleProps) {
   const t = useTranslations("workflow.schedule")
   const tc = useTranslations("common")
   const intlLocale = useIntlLocale()
@@ -74,8 +78,9 @@ export function Step7Schedule({ step1, step2, step5, step6, defaultValues, onBac
         // datetime-local (heure locale, sans offset) → ISO complet attendu par le schéma serveur
         scheduledAt: publishMode === "scheduled" ? new Date(scheduledAt).toISOString() : null,
         status: publishMode === "draft" ? "draft" : publishMode === "scheduled" ? "scheduled" : "approved",
-        // Post déjà créé au Step 6 (lien d'approbation) → mise à jour, pas de doublon.
-        existingPostId: step6?.approvalPostId ?? null,
+        // Post édité (Option B) ou post créé au Step 6 → mise à jour, pas de doublon.
+        existingPostId: existingPostId ?? step6?.approvalPostId ?? null,
+        workflowState,
       })
 
       if (result.success) {

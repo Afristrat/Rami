@@ -2710,7 +2710,8 @@
     "saving": "Guardando…",
     "saveSuccess": "Borrador guardado",
     "saveError": "Error al guardar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "openInWorkflow": "Abrir en el flujo completo"
   },
   "validation": {
     "required": "Ce champ est requis",

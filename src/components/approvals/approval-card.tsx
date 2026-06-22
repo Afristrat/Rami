@@ -86,6 +86,8 @@ interface ApprovalCardProps {
   onReject: (id: string, comment: string) => void
   onPublish: (id: string) => void
   onEdit: (id: string) => void
+  /** Ouvre le post dans le parcours complet « Créer un post ». */
+  onOpen: (id: string) => void
   onUpdateComment: (id: string, comment: string) => void
 }
 
@@ -95,6 +97,7 @@ export function ApprovalCard({
   onReject,
   onPublish,
   onEdit,
+  onOpen,
   onUpdateComment,
 }: ApprovalCardProps) {
   const t = useTranslations("approvals")
@@ -129,10 +132,15 @@ export function ApprovalCard({
         </div>
       )}
 
-      {/* Content preview */}
-      <p className="mb-3 text-sm text-foreground dark:text-white/90 line-clamp-2 leading-relaxed">
+      {/* Content preview — cliquable : ouvre le post dans le parcours complet */}
+      <button
+        type="button"
+        onClick={() => onOpen(item.id)}
+        title={t("openInWorkflow")}
+        className="mb-3 block w-full text-left text-sm text-foreground dark:text-white/90 line-clamp-2 leading-relaxed cursor-pointer transition-colors hover:text-violet-600 dark:hover:text-violet-400"
+      >
         {item.content}
-      </p>
+      </button>
 
       {/* Author + date */}
       <div className="mb-3 flex items-center gap-2">

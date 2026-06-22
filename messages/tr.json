@@ -2710,7 +2710,8 @@
     "saving": "Kaydediliyor…",
     "saveSuccess": "Taslak kaydedildi",
     "saveError": "Kaydetme başarısız",
-    "cancel": "İptal"
+    "cancel": "İptal",
+    "openInWorkflow": "Tam akışta aç"
   },
   "validation": {
     "required": "Ce champ est requis",

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 import { ClipboardCheck, Inbox, Loader2 } from "lucide-react"
@@ -30,9 +31,17 @@ const COLUMNS: { status: ApprovalStatus; labelKey: string; color: string }[] = [
 
 export function ApprovalBoard() {
   const t = useTranslations("approvals")
+  const router = useRouter()
   const [items, setItems] = useState<ApprovalItem[]>([])
   const [loading, setLoading] = useState(true)
   const [editingItem, setEditingItem] = useState<ApprovalItem | null>(null)
+
+  // Ouvre le post dans le parcours complet « Créer un post » (édition riche :
+  // captions, visuels, style) — geste systématique demandé partout (dashboard,
+  // historique, approbations).
+  const openInWorkflow = (id: string) => {
+    router.push(`/dashboard/create?post=${id}`)
+  }
 
   const refresh = useCallback(async () => {
     const { items: boardItems } = await getApprovalBoardAction()
@@ -170,6 +179,7 @@ export function ApprovalBoard() {
                         onReject={handleReject}
                         onPublish={handlePublish}
                         onEdit={handleEdit}
+                        onOpen={openInWorkflow}
                         onUpdateComment={handleUpdateComment}
                       />
                     ))

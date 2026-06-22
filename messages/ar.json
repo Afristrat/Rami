@@ -2710,7 +2710,8 @@
     "saving": "جارٍ الحفظ…",
     "saveSuccess": "تم حفظ المسودة",
     "saveError": "فشل الحفظ",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "openInWorkflow": "افتح في المسار الكامل"
   },
   "validation": {
     "required": "هذا الحقل مطلوب",

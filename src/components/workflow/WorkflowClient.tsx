@@ -129,13 +129,21 @@ const EMPTY_STATE: WorkflowState = {
   step7: null,
 }
 
-export function WorkflowClient() {
+export function WorkflowClient({
+  initialState = null,
+  initialPostId = null,
+}: {
+  /** État de parcours pré-chargé (Option B : édition d'un post existant). */
+  initialState?: WorkflowState | null
+  /** Id du post édité — le Step final met à jour ce post au lieu d'en créer un. */
+  initialPostId?: string | null
+} = {}) {
   const t = useTranslations("workflow")
   const intlLocale = useIntlLocale()
   const { isExpert } = useExpertMode()
   // Keep local mode state in sync with global expert mode for the stepper
   const mode = isExpert ? 'expert' as const : 'guided' as const
-  const [state, setState] = useState<WorkflowState>(EMPTY_STATE)
+  const [state, setState] = useState<WorkflowState>(initialState ?? EMPTY_STATE)
 
   // ── Persistance (content_sessions) : autosave aux transitions + reprise ──
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -155,9 +163,13 @@ export function WorkflowClient() {
 
   useEffect(() => {
     let cancelled = false
-    loadLatestWorkflowSessionAction().then((result) => {
-      if (!cancelled && result.found) setResumeOffer(result)
-    })
+    // En édition d'un post précis (Option B), on ne propose PAS de reprendre un
+    // autre brouillon : l'état vient déjà du post ouvert.
+    if (!initialPostId) {
+      loadLatestWorkflowSessionAction().then((result) => {
+        if (!cancelled && result.found) setResumeOffer(result)
+      })
+    }
     getWorkflowSidebarDataAction()
       .then((data) => {
         if (cancelled) return
@@ -171,7 +183,7 @@ export function WorkflowClient() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [initialPostId])
 
   /** Sauvegarde l'état en DB (fire-and-forget, indicateur honnête). */
   function persist(nextState: WorkflowState) {
@@ -409,6 +421,8 @@ export function WorkflowClient() {
                   step3={state.step3}
                   step4={state.step4}
                   defaultValues={state.step5}
+                  existingPostId={initialPostId}
+                  workflowState={state}
                   onBack={() => {}}
                   onNext={handleStep5}
                 />
@@ -453,6 +467,8 @@ export function WorkflowClient() {
                   step5={state.step5}
                   step6={state.step6}
                   defaultValues={state.step7}
+                  existingPostId={initialPostId}
+                  workflowState={state}
                   onBack={() => {}}
                   onPublished={handleWorkflowCompleted}
                 />
@@ -584,6 +600,8 @@ export function WorkflowClient() {
                 step3={state.step3}
                 step4={state.step4}
                 defaultValues={state.step5}
+                existingPostId={initialPostId}
+                workflowState={state}
                 onBack={() => goTo(4)}
                 onNext={handleStep5}
               />
@@ -606,6 +624,8 @@ export function WorkflowClient() {
                 step5={state.step5}
                 step6={state.step6}
                 defaultValues={state.step7}
+                existingPostId={initialPostId}
+                workflowState={state}
                 onBack={() => goTo(6)}
                 onPublished={handleWorkflowCompleted}
               />

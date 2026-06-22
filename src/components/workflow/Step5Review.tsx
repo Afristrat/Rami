@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data } from "@/lib/schemas/workflow.schema"
+import type { Step1Data, Step2Data, Step3Data, Step4Data, Step5Data, WorkflowState } from "@/lib/schemas/workflow.schema"
 import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
 import { computeQualityScore, HASHTAG_RANGES, type QualityMetricId } from "@/lib/services/workflow/quality-score"
 import { saveWorkflowPostAction } from "@/lib/actions/workflow.actions"
@@ -32,11 +32,15 @@ interface Step5ReviewProps {
   step3: Step3Data
   step4: Step4Data
   defaultValues?: Step5Data | null
+  /** Post édité (Option B) — mis à jour au lieu d'être dupliqué. */
+  existingPostId?: string | null
+  /** Snapshot complet du parcours, persisté sur le post pour réouverture riche. */
+  workflowState?: WorkflowState | null
   onBack: () => void
   onNext: (data: Step5Data) => void
 }
 
-export function Step5Review({ step1, step2, step3, step4, defaultValues, onBack, onNext }: Step5ReviewProps) {
+export function Step5Review({ step1, step2, step3, step4, defaultValues, existingPostId, workflowState, onBack, onNext }: Step5ReviewProps) {
   const t = useTranslations("workflow")
   const tc = useTranslations("common")
 
@@ -87,6 +91,8 @@ export function Step5Review({ step1, step2, step3, step4, defaultValues, onBack,
         finalVisualUrl,
         scheduledAt: null,
         status: "draft",
+        existingPostId,
+        workflowState,
       })
       setDraftState(result.success ? "saved" : "error")
     })
