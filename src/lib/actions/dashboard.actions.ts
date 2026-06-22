@@ -2,9 +2,10 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { db } from "@/lib/db"
-import { posts, media } from "@/lib/db/schema"
+import { posts } from "@/lib/db/schema"
 import { and, eq, gte, lte, asc, count, sql } from "drizzle-orm"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,6 +18,7 @@ export interface DashboardStats {
   brandDnaScore: number | null
   /** Prochain post planifié */
   nextScheduledPost: {
+    id: string
     title: string
     scheduledAt: string // ISO string
   } | null
@@ -114,21 +116,22 @@ export async function getDashboardStatsAction(): Promise<
         )
     )
 
-    // ── Visuels/médias générés ce mois-ci ──
-    const visualsCount = await safeCount(() =>
-      db
-        .select({ n: count() })
-        .from(media)
-        .where(
-          and(
-            eq(media.tenant_id, tenantId),
-            gte(media.created_at, startOfMonth),
-            lte(media.created_at, endOfMonth)
-          )
-        )
-    )
+    // ── Visuels générés ce mois-ci (bibliothèque réelle media_assets) ──
+    let visualsCount = 0
+    try {
+      const { count: vc } = await supabase
+        .from("media_assets")
+        .select("id", { count: "exact", head: true })
+        .eq("tenant_id", tenantId)
+        .eq("file_type", "image")
+        .gte("created_at", startOfMonth.toISOString())
+        .lte("created_at", endOfMonth.toISOString())
+      visualsCount = vc ?? 0
+    } catch {
+      // table absente — reste 0
+    }
 
-    // ── Brand DNA score ──
+    // ── Brand DNA score = complétude réelle des dimensions configurées ──
     let brandDnaScore: number | null = null
     try {
       const { data: tenant } = await supabase
@@ -138,10 +141,18 @@ export async function getDashboardStatsAction(): Promise<
         .single()
 
       if (tenant?.brand_dna) {
-        const dna = tenant.brand_dna as Record<string, unknown>
-        if (typeof dna.dna_score === "number") {
-          brandDnaScore = Math.round(dna.dna_score * 100)
-        }
+        const dna = normalizeBrandDNA(tenant.brand_dna)
+        const checks: Array<string | undefined> = [
+          dna.identity?.name,
+          dna.identity?.sector,
+          dna.identity?.positioning,
+          dna.cognitive_objective,
+          dna.culture_markets?.primary_culture,
+          dna.editorial_tone?.register,
+          (dna.color_palette?.length ?? 0) > 0 ? "ok" : undefined,
+        ]
+        const filled = checks.filter((v) => typeof v === "string" && v.trim().length > 0).length
+        brandDnaScore = Math.round((filled / checks.length) * 100)
       }
     } catch {
       // Table inexistante ou erreur — brandDnaScore reste null
@@ -152,6 +163,7 @@ export async function getDashboardStatsAction(): Promise<
     try {
       const [nextPost] = await db
         .select({
+          id: posts.id,
           title: posts.title,
           content: posts.content,
           scheduled_at: posts.scheduled_at,
@@ -167,8 +179,9 @@ export async function getDashboardStatsAction(): Promise<
         .orderBy(asc(posts.scheduled_at))
         .limit(1)
 
-      if (nextPost?.scheduled_at) {
+      if (nextPost?.id && nextPost.scheduled_at) {
         nextScheduledPost = {
+          id: nextPost.id,
           title: nextPost.title ?? nextPost.content.slice(0, 40),
           scheduledAt: nextPost.scheduled_at.toISOString(),
         }

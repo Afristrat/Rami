@@ -17,6 +17,8 @@ import type { Step1Data, Step2Data, GeneratedCaption, GeneratedVisual, WorkflowS
 import type { Platform } from "@/lib/scheduler/platform-config"
 import type { NewPostData } from "@/app/actions/scheduler"
 import { parseWorkflowStateEnvelope } from "@/lib/services/workflow/session-state"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import { registerLibraryAsset } from "@/lib/services/storage/library-asset"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -363,7 +365,7 @@ export async function generateVisualContentAction(
     const sessionTag = String(Date.now())
     // tenantId capturé hors closure (le narrowing du guard est perdu dans .map async).
     const tenantId = ctx.tenantId
-    const scored = await Promise.all(
+    const results = await Promise.all(
       result.images.map(async (img, idx) => {
         const [visionResult, stored] = await Promise.all([
           scoreImageWithVision({
@@ -402,9 +404,32 @@ export async function generateVisualContentAction(
           visionScored: visionResult.vision_scored,
           provider: result.provider,
         }
-        return visual
+        return { visual, stored: stored.data }
       })
     )
+    const scored = results.map((r) => r.visual)
+
+    // Enregistrement bibliothèque : CHAQUE visuel généré devient réutilisable
+    // (fin du gaspillage). Best-effort, tenant aligné sur la lecture de la
+    // bibliothèque (resolveUserTenant). N'altère jamais le résultat de génération.
+    const libUserId = ctx.userId
+    if (libUserId) {
+      const supabase = await createClient()
+      const libTenant = (await resolveUserTenant(supabase, libUserId)) ?? tenantId
+      await Promise.all(
+        results.map(async (r) => {
+          if (!r.stored?.public_url) return
+          await registerLibraryAsset(supabase, {
+            tenantId: libTenant,
+            userId: libUserId,
+            stored: r.stored,
+            brandDnaScore: r.visual.brandDnaScore,
+            provider: r.visual.provider,
+            source: "workflow",
+          }).catch(() => {})
+        })
+      )
+    }
 
     // Génération réelle → consomme un quota (US-020).
     await incrementGenerationCount(ctx.tenantId)
