@@ -161,13 +161,21 @@ export async function decideInternalApprovalAction(
     meta.review_comment = typeof comment === "string" ? comment.trim().slice(0, 1000) : ""
   }
 
+  // Verrou de publication : « Approuver » pose l'approbation humaine qui
+  // déverrouille la publication ; « Rejeter » l'efface (un post rejeté ne doit
+  // jamais rester publiable). C'est le déclencheur d'approbation côté UI.
+  const nowIso = new Date().toISOString()
+  const updatePayload: Record<string, unknown> = {
+    status: decision,
+    ai_metadata: meta,
+    updated_at: nowIso,
+    approved_by: decision === "approved" ? user.id : null,
+    approved_at: decision === "approved" ? nowIso : null,
+  }
+
   const { error } = await supabase
     .from("posts")
-    .update({
-      status: decision,
-      ai_metadata: meta,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updatePayload)
     .eq("id", postId)
     .eq("tenant_id", tenantId)
     .in("status", ["draft", "review", "approved", "rejected"])
@@ -181,6 +189,16 @@ export async function decideInternalApprovalAction(
       metadata: { postId, decision },
     })
     return { success: false, error: "update_failed" }
+  }
+
+  if (decision === "approved") {
+    await supabase.from("audit_log").insert({
+      tenant_id: tenantId,
+      user_id: user.id,
+      action: "post.human_approved",
+      resource_type: "social_post",
+      resource_id: postId,
+    })
   }
 
   return { success: true }
