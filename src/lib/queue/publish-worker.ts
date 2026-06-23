@@ -22,6 +22,7 @@ import { getValidAccessToken } from "./token-refresh"
 import { createServiceClient } from "@/lib/supabase/service"
 import { log } from "@/lib/utils/logger"
 import { captureServerEvent } from "@/lib/utils/posthog-server"
+import { isHumanApproved } from "@/lib/services/workflow/publish-gate"
 
 // ── Worker principal ──────────────────────────────────────────────────────────
 
@@ -63,7 +64,7 @@ async function processPublishJob(
   // 1. Charger le post
   const { data: post, error: postError } = await supabase
     .from("posts")
-    .select("id, tenant_id, content, platforms, status, media_urls, platform_results")
+    .select("id, tenant_id, content, platforms, status, media_urls, platform_results, approved_by, approved_at")
     .eq("id", postId)
     .eq("tenant_id", tenantId)
     .single()
@@ -83,6 +84,17 @@ async function processPublishJob(
   if (post.status === "failed" || post.status === "draft") {
     // Statuts terminaux — on ne retente pas sans action utilisateur
     log({ level: "info", module: "publish-worker", action: "skip_terminal_status", tenant_id: tenantId, metadata: { postId, status: post.status } })
+    return
+  }
+
+  // Backstop : un job programmé périmé ne doit jamais publier un contenu dont
+  // l'approbation a été réinitialisée (ex. contenu réédité après planification).
+  if (!isHumanApproved({ approved_by: post.approved_by, approved_at: post.approved_at })) {
+    log({ level: "warn", module: "publish-worker", action: "skip_not_human_approved", tenant_id: tenantId, metadata: { postId } })
+    await supabase
+      .from("posts")
+      .update({ status: "failed", updated_at: new Date().toISOString() })
+      .eq("id", postId)
     return
   }
 
