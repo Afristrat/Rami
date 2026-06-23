@@ -95,6 +95,8 @@ export const posts = pgTable('posts', {
   status: postStatusEnum('status').notNull().default('draft'),
   scheduled_at: timestamp('scheduled_at', { withTimezone: true }),
   published_at: timestamp('published_at', { withTimezone: true }),
+  approved_by: uuid('approved_by'),
+  approved_at: timestamp('approved_at', { withTimezone: true }),
   brand_dna_snapshot: jsonb('brand_dna_snapshot'),
   ai_metadata: jsonb('ai_metadata'),
   platform_results: jsonb('platform_results'), // { twitter: { post_id, url }, ... }
