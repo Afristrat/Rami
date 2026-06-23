@@ -15,6 +15,11 @@ export interface PlatformConfig {
   textClass: string  // classe Tailwind pour texte badge
   icon: string       // emoji fallback
   charLimit: number
+  // ── Contraintes média (guidance soft : aperçu fidèle + avertissements) ──
+  aspectRatios: string[]    // ratios d'image acceptés ; le 1er sert de défaut d'aperçu
+  maxImages: number         // nombre max d'images dans un post (borne haute connue)
+  supportsCarousel: boolean // carrousel multi-images natif sur la plateforme
+  mediaRequired: boolean    // un média est-il obligatoire pour publier
 }
 
 export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
@@ -25,6 +30,10 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#1D9BF0]",
     icon: "𝕏",
     charLimit: 280,
+    aspectRatios: ["16:9", "1:1"],
+    maxImages: 4,
+    supportsCarousel: false,
+    mediaRequired: false,
   },
   linkedin: {
     label: "LinkedIn",
@@ -33,6 +42,10 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#0A66C2]",
     icon: "in",
     charLimit: 3000,
+    aspectRatios: ["1.91:1", "1:1", "4:5"],
+    maxImages: 9,
+    supportsCarousel: true,
+    mediaRequired: false,
   },
   facebook: {
     label: "Facebook",
@@ -41,6 +54,10 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#1877F2]",
     icon: "f",
     charLimit: 63206,
+    aspectRatios: ["1.91:1", "1:1", "4:5"],
+    maxImages: 10,
+    supportsCarousel: true,
+    mediaRequired: false,
   },
   instagram: {
     label: "Instagram",
@@ -49,6 +66,10 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#E1306C]",
     icon: "📸",
     charLimit: 2200,
+    aspectRatios: ["1:1", "4:5", "1.91:1", "9:16"],
+    maxImages: 10,
+    supportsCarousel: true,
+    mediaRequired: true,
   },
   pinterest: {
     label: "Pinterest",
@@ -57,6 +78,10 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#E60023]",
     icon: "P",
     charLimit: 500,
+    aspectRatios: ["2:3", "1:1"],
+    maxImages: 5,
+    supportsCarousel: true,
+    mediaRequired: true,
   },
   mastodon: {
     label: "Mastodon",
@@ -65,6 +90,10 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#6364FF]",
     icon: "M",
     charLimit: 500,
+    aspectRatios: ["16:9", "1:1"],
+    maxImages: 4,
+    supportsCarousel: false,
+    mediaRequired: false,
   },
   youtube: {
     label: "YouTube",
@@ -73,6 +102,10 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#FF0000]",
     icon: "▶",
     charLimit: 5000,
+    aspectRatios: ["16:9"],
+    maxImages: 1,
+    supportsCarousel: false,
+    mediaRequired: true,
   },
   tiktok: {
     label: "TikTok",
@@ -81,7 +114,60 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-zinc-900 dark:text-zinc-100",
     icon: "♪",
     charLimit: 2200,
+    aspectRatios: ["9:16"],
+    maxImages: 35,
+    supportsCarousel: true,
+    mediaRequired: true,
   },
 }
 
 export const ALL_PLATFORMS = Object.keys(PLATFORM_CONFIG) as Platform[]
+
+/** Convertit un ratio "w:h" en valeur CSS aspect-ratio "w / h" (défaut 1/1). */
+export function aspectRatioToCss(ratio: string | undefined): string {
+  if (!ratio) return "1 / 1"
+  const [w, h] = ratio.split(":")
+  const nw = Number(w)
+  const nh = Number(h)
+  if (!Number.isFinite(nw) || !Number.isFinite(nh) || nw <= 0 || nh <= 0) return "1 / 1"
+  return `${nw} / ${nh}`
+}
+
+export interface MediaConformityIssue {
+  level: "warning" | "error"
+  message: string
+}
+
+/**
+ * Vérifie la conformité d'un contenu vis-à-vis d'une plateforme (guidance pour
+ * l'aperçu). Soft : sert à AVERTIR l'humain avant validation, pas à bloquer.
+ */
+export function checkPlatformConformity(
+  platform: Platform,
+  input: { content: string; imageCount: number }
+): MediaConformityIssue[] {
+  const cfg = PLATFORM_CONFIG[platform]
+  const issues: MediaConformityIssue[] = []
+  if (input.content.length > cfg.charLimit) {
+    issues.push({
+      level: "error",
+      message: `Texte trop long pour ${cfg.label} (${input.content.length}/${cfg.charLimit}).`,
+    })
+  }
+  if (cfg.mediaRequired && input.imageCount === 0) {
+    issues.push({ level: "error", message: `${cfg.label} exige au moins un média.` })
+  }
+  if (input.imageCount > cfg.maxImages) {
+    issues.push({
+      level: "warning",
+      message: `${cfg.label} accepte au plus ${cfg.maxImages} image(s) (${input.imageCount} fournies).`,
+    })
+  }
+  if (input.imageCount > 1 && !cfg.supportsCarousel) {
+    issues.push({
+      level: "warning",
+      message: `${cfg.label} ne gère pas de carrousel — seule la 1ʳᵉ image sera utilisée.`,
+    })
+  }
+  return issues
+}
