@@ -25,9 +25,10 @@ type Palette = {
 }
 
 function palette(theme: "dark" | "light"): Palette {
+  // Hex solide (parité avec le rendu PDF @react-pdf).
   return theme === "dark"
-    ? { bg: "#0B0B0F", text: "#F4F4F5", muted: "#9CA3AF", panel: "rgba(255,255,255,0.05)", hairline: "rgba(255,255,255,0.10)" }
-    : { bg: "#FBFBFD", text: "#0B0B0F", muted: "#6B7280", panel: "rgba(0,0,0,0.04)", hairline: "rgba(0,0,0,0.10)" }
+    ? { bg: "#0B0B0F", text: "#F4F4F5", muted: "#9CA3AF", panel: "#16161D", hairline: "#2A2A31" }
+    : { bg: "#FBFBFD", text: "#0B0B0F", muted: "#6B7280", panel: "#F1F1F4", hairline: "#E4E4E8" }
 }
 
 export function CarouselSlide({ slide, index, total, accentHex, theme, handle }: CarouselSlideProps) {

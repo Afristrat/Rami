@@ -15,9 +15,10 @@ const u = (n: number): number => (n / 100) * W // cqw → pt
 
 type Colors = { bg: string; text: string; muted: string; panel: string; hairline: string }
 function colors(theme: "dark" | "light"): Colors {
+  // Couleurs en hex solide : @react-pdf mal-interprète certains rgba() (filets verts).
   return theme === "dark"
-    ? { bg: "#0B0B0F", text: "#F4F4F5", muted: "#9CA3AF", panel: "rgba(255,255,255,0.05)", hairline: "rgba(255,255,255,0.12)" }
-    : { bg: "#FBFBFD", text: "#0B0B0F", muted: "#6B7280", panel: "rgba(0,0,0,0.04)", hairline: "rgba(0,0,0,0.12)" }
+    ? { bg: "#0B0B0F", text: "#F4F4F5", muted: "#9CA3AF", panel: "#16161D", hairline: "#2A2A31" }
+    : { bg: "#FBFBFD", text: "#0B0B0F", muted: "#6B7280", panel: "#F1F1F4", hairline: "#E4E4E8" }
 }
 
 function Slide({
