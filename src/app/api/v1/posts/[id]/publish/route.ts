@@ -10,6 +10,7 @@ import { createServiceClient } from "@/lib/supabase/service"
 import { authenticateApiRequest, requireScopes } from "@/lib/api/auth"
 import { apiError, apiOk } from "@/lib/api/respond"
 import { enqueuePublish, enqueueScheduledPublish } from "@/lib/queue/pgboss"
+import { assertPublishable } from "@/lib/services/workflow/publish-gate"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -17,8 +18,6 @@ export const dynamic = "force-dynamic"
 const BodySchema = z.object({
   scheduledAt: z.string().datetime({ offset: true }).optional(),
 })
-
-const PUBLISHABLE_STATUSES = ["draft", "review", "approved", "scheduled", "failed"]
 
 export async function POST(
   request: NextRequest,
@@ -46,17 +45,27 @@ export async function POST(
   const supabase = createServiceClient()
   const { data: post, error } = await supabase
     .from("posts")
-    .select("id, status, scheduled_at, platforms")
+    .select("id, status, scheduled_at, platforms, approved_by, approved_at")
     .eq("id", id)
     .eq("tenant_id", auth.ctx.tenantId)
-    .single<{ id: string; status: string; scheduled_at: string | null; platforms: string[] | null }>()
+    .single<{
+      id: string
+      status: string
+      scheduled_at: string | null
+      platforms: string[] | null
+      approved_by: string | null
+      approved_at: string | null
+    }>()
 
   if (error || !post) return apiError(404, "Post introuvable.")
-  if (!PUBLISHABLE_STATUSES.includes(post.status)) {
-    return apiError(409, `Post en statut "${post.status}" — non publiable.`)
-  }
-  if (!post.platforms || post.platforms.length === 0) {
-    return apiError(422, "Aucune plateforme sélectionnée pour ce post.")
+
+  const gate = assertPublishable(post)
+  if (!gate.ok) {
+    if (gate.code === "not_human_approved") {
+      const approvalUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/dashboard/review/${id}`
+      return apiError(409, gate.message, { approvalUrl })
+    }
+    return apiError(gate.code === "no_platforms" ? 422 : 409, gate.message)
   }
 
   const scheduledDate = scheduledAt ? new Date(scheduledAt) : null
