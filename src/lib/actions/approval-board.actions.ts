@@ -254,7 +254,8 @@ export async function updateDraftContentAction(
 
   const { error } = await supabase
     .from("posts")
-    .update({ content: clean, updated_at: new Date().toISOString() })
+    // L'édition du contenu invalide l'approbation de publication (re-validation requise)
+    .update({ content: clean, approved_by: null, approved_at: null, updated_at: new Date().toISOString() })
     .eq("id", postId)
     .eq("tenant_id", tenantId)
     .in("status", EDITABLE_STATUSES)

@@ -535,6 +535,23 @@ export async function saveWorkflowPostAction(data: {
         .eq("tenant_id", ctx.tenantId)
     }
 
+    // Publier depuis le workflow = action humaine explicite après aperçu (Step 5/6).
+    // On pose l'approbation de publication (verrou) pour ce chemin — le Plan 3
+    // remplacera l'aperçu actuel par un mockup fidèle multi-plateforme.
+    if (data.status === "approved" || data.status === "scheduled") {
+      const supabase = await createClient()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (user) {
+        await supabase
+          .from("posts")
+          .update({ approved_by: user.id, approved_at: new Date().toISOString() })
+          .eq("id", result.data.id)
+          .eq("tenant_id", ctx.tenantId)
+      }
+    }
+
     // Publication RÉELLE : enfiler le job pg-boss selon le mode choisi (réutilise
     // l'action réelle `publishPost` → statut "scheduled" + enqueue, worker publie
     // ensuite via les vraies APIs LinkedIn/X/…). "draft" et "review" ne publient rien.

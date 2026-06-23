@@ -248,6 +248,11 @@ export async function updatePost(
   if (scheduled_at !== undefined) updatePayload.scheduled_at = scheduled_at ?? null
   if (finalStatus) updatePayload.status = finalStatus
   if (media_urls) updatePayload.media_urls = media_urls
+  // Toute édition de contenu invalide l'approbation de publication (re-validation requise)
+  if (content || platforms || media_urls) {
+    updatePayload.approved_by = null
+    updatePayload.approved_at = null
+  }
 
   const { data: updated, error } = await supabase
     .from("posts")
