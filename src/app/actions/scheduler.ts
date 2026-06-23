@@ -10,6 +10,7 @@ import type { ScheduledPost } from "@/lib/scheduler/types"
 import type { Platform } from "@/lib/scheduler/platform-config"
 import { enqueuePublish, enqueueScheduledPublish } from "@/lib/queue/pgboss"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import { assertPublishable } from "@/lib/services/workflow/publish-gate"
 
 // ── Schémas de validation ───────────────────────────────────────────────────
 
@@ -492,7 +493,7 @@ export async function publishPost(
   // Vérifier que le post appartient au tenant
   const { data: post } = await supabase
     .from("posts")
-    .select("id, status, platforms, scheduled_at")
+    .select("id, status, platforms, scheduled_at, approved_by, approved_at")
     .eq("id", postId)
     .eq("tenant_id", tenantId)
     .single()
@@ -500,13 +501,13 @@ export async function publishPost(
   if (!post) return { success: false, error: "Post introuvable" }
 
   const p = post as Record<string, unknown>
-  if (p.status === "publishing") {
-    return { success: false, error: "Publication déjà en cours pour ce post." }
-  }
-
-  if (((p.platforms as string[]) ?? []).length === 0) {
-    return { success: false, error: "Sélectionnez au moins une plateforme avant de publier." }
-  }
+  const gate = assertPublishable({
+    status: p.status as string,
+    platforms: (p.platforms as string[] | null) ?? null,
+    approved_by: (p.approved_by as string | null) ?? null,
+    approved_at: (p.approved_at as string | null) ?? null,
+  })
+  if (!gate.ok) return { success: false, error: gate.message }
 
   try {
     const dateToSchedule = scheduledAt ?? (p.scheduled_at as Date | null)
