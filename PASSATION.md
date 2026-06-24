@@ -1,7 +1,9 @@
 <!-- PASSATION NUCLÉAIRE — RAMI by AI-MPower -->
 <!-- Protocole de quart industrie nucléaire — lire INTÉGRALEMENT avant toute action -->
 
-# == PASSATION RAMI 2026-06-22 (session #14 — ÉDITION BROUILLONS option A (modale + IA) + FIX BUG MAJEUR reprise brouillon (réhydratation forms) + option B (rouvrir un post dans le parcours complet /create?post=id) + MÉDIATHÈQUE : enregistrement auto des visuels générés (fin gaspillage) + fix dashboard (compteur visuels/score DNA) + PRICING 2-AXES décidé avec Amine (plan L0 écrit) + audit vraie situation (US-051 réelle, 2 DEFCON1 billing factices RESTANTS)) ==
+# == PASSATION RAMI 2026-06-24 (session #15 — VERROU DE PUBLICATION human-in-the-loop (3 points, 409 prouvé prod, protège Hermès) + POSTE DE PILOTAGE de validation (aperçu fidèle multi-plateforme + presets de correction cliquables + régénération texte) + MOTEUR CARROUSEL NATIF RAMI (slides React 4:5 → aperçu fidèle → PDF @react-pdf accents parfaits → génération IA depuis un sujet) — diagnostic carrousel Hermès HTML→Chromium (header/footer + clipping + accents strippés à la PUBLI Hermès, pas RAMI)) ==
+
+<!-- Session #14 (2026-06-22) : ÉDITION BROUILLONS (A modale+IA / B parcours complet /create?post=id) + FIX reprise brouillon (réhydratation forms) + médiathèque auto + fix dashboard + pricing 2-axes décidé (plan L0) + audit (US-051 réelle, 2 DEFCON1 billing factices). cf. [FAIT] #14 plus bas. -->
 
 > Légende sténo : `>` en cours · `!` problème · `✗` bloqué · `✓` validé · `→` transition · `!!` critique · `??` à vérifier · `cf.` voir
 
@@ -9,7 +11,7 @@
 
 ## [ETAT] — État global du projet
 
-**Branche active** : `main` = origin synchronisé, **HEAD `24c9157`** (médiathèque auto + fix dashboard, session #14 ; 0 commit local en avance). **Travailler sur main.** Commits session #14 : `c1ede13`(drafts→Kanban) → `78a984f`(option A modale édition+IA) → `afdf6a0`(plan pricing L0) → `56ecab1`(**FIX reprise brouillon**) → `0ee38c3`(**option B** /create?post=id) → `24c9157`(**médiathèque auto + fix dashboard**). ⚠️ Coolify affiche parfois des « commit » qui n'existent PAS dans git (`c58b23b`, `6995931`, `c899295`) = artefacts internes de re-build, PAS des commits — ne pas s'en inquiéter, vérifier `git rev-parse origin/main`.
+**Branche active** : `main` = origin synchronisé, **HEAD `76f557f`** (génération carrousel IA, session #15 ; 0 commit local en avance). **Travailler sur main, push à chaque tâche (deploy continu validé par Amine).** Commits session #15 (verrou) : `0bba747`(migration approved_by/at) → `c95d788`(publish-gate pur) → `e4c2d34`(approvePostForPublish) → `cc680be`(Kanban pose appro) → `c185c05`(édition reset appro) → `9621b1a`(**API v1 409**) → `c6cbb35`(publishPost gate) → `d5dfa30`(worker backstop). Puis (aperçu+pilotage) : `6503abc`(platform-config enrichi) → `a06c7ee`(PlatformPreview + /dashboard/review) → `115929f`(**poste de pilotage : édition+presets+régén**). Puis (carrousel) : `27d5835`(slides React + démo) → `b6d988c`(PDF @react-pdf) → `c73e875`(fix couleurs hex) → `76f557f`(**génération IA**). ⚠️ Coolify affiche parfois des « commit » fantômes (artefacts de re-build) — vérifier `git rev-parse origin/main`.
 **Repo GitHub** : https://github.com/Afristrat/Rami (origin/main synchronisé).
 **✅✅ PUBLICATION RÉELLE LINKEDIN AVEC IMAGE — PROUVÉE EN PROD (2026-06-18)** : 1ᵉʳ vrai post publié sur le LinkedIn d'Amine (`urn:li:share:7473272377305513984`), AVEC image générée. Chaîne complète OK : génération image (proxy LiteLLM + clé virtuelle plafonnée 5 $) → MinIO RAMI dédié → workflow → approbation → pg-boss → worker → `publishToLinkedIn` (registerUpload → conversion JPEG → `shareMediaCategory: IMAGE`).
 **⚠️ INFRA NOUVEAU SERVEUR (.4) — état & DETTES (2026-06-18)** :
@@ -23,12 +25,12 @@
 **Déploiement** : ✅ Coolify **auto-deploy sur push main**. ~25 déploiements session #10. Smoke-test live OK : `/login`=200, `/causse`=200, `/dashboard/create`=307. ⚠️ **Le nom du conteneur app change à chaque deploy** (`ry8ytnene4czxdhsoes0z56y-<n>`) → le re-récupérer via `docker ps | grep ry8yt` avant tout `docker exec`. **Surveiller la fin du deploy via l'API Coolify** : `GET /api/v1/deployments?uuid=ry8ytnene4czxdhsoes0z56y` (liste vide = terminé). ⚠️ **NE PAS supprimer de deck/données pendant qu'Amine teste** (un cleanup a cassé un download chez lui).
 **Avancement Ralph** : **32/59** stories `passes=true` (prd.json = 59 stories, US-051 ajoutée Epic M). ⚠️ **2 DEFCON1 factices RESTANTS** (billing : `/settings/billing` mock + `/dashboard/invoices` — cf. [ALERTE]) + 3 plateformes fantômes → la claim « zéro dette » n'est PLUS vraie. Session #14 = gros chantier UX (édition brouillons A+B, fix reprise, médiathèque auto) hors prd.json formel.
 **Build** : ✅ `npm run build` → OK (Next 16.2.6, `output: standalone` conditionnel `BUILD_STANDALONE`).
-**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ **0 vuln CRITIQUE** (6 high = tooling dev pré-existant : drizzle-kit/esbuild/tsx) · **Jest** : ✅ **347/347 vert** (23 suites).
+**TypeScript** : ✅ 0 erreur · **Lint** : ✅ 0 erreur / 0 warning · **npm audit** : ✅ **0 vuln CRITIQUE** (6 high = tooling dev pré-existant : drizzle-kit/esbuild/tsx) · **Jest** : ✅ **372/372 vert** (27 suites ; +publish-gate +platform-config +correction-presets session #15).
 **Nouvelle dépendance** : `pptxgenjs ^4.0.1` (export PPTX pur-JS, compatible Nixpacks).
 **OAuth social (session #8 — RÉEL VALIDÉ)** : ✅ **LinkedIn + X (Twitter) CONNECTÉS pour de vrai en prod** (flow OAuth complet + bouton « Tester » concluant). Clés dans coffre DPAPI + Coolify. ⚠️ **Secret LinkedIn était TRONQUÉ** (parsing sur le `=`/`.` + copier mobile) → vraie valeur 33 car. (format `WPL_AP1.<…>==`, dans le coffre, **à rotater**). Meta/Pinterest : pas encore (Meta = en manuel, anti-bot). **Mdp super-admin** → coffre `RAMI_SUPERADMIN_PASSWORD`. **Reste : publication réelle d'un post** (bouton Publier vers LinkedIn/X).
 **Déployé en PROD** : ✅ **`https://rami.ai-mpower.com` EN LIGNE**, origin/main `5c48e52` synchro. Inclut TOUT le travail session #10 (anti-factice complet + feature Présentations + éditeur + prompt L99).
 **Hébergement** : **Coolify** (serveur Ubuntu `serveurai` 192.168.100.8) + **cloudflared tunnel** (PAS Vercel). ⚠️ **Cloudflare gzip les réponses binaires** (même avec `no-transform`) → tout téléchargement de binaire (PPTX…) doit se faire côté client via `fetch()`+`blob()` (décompresse) et JAMAIS via un simple `<a download>` (sauve les octets gzippés → fichier corrompu).
-**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **32 migrations appliquées** (jusqu'à `20260315000015_post_status_rejected` — enum `post_status` + statut `rejected` pour le Kanban approbations). RLS 100%.
+**Supabase** : **instance DÉDIÉE** `db-rami.ai-mpower.com` (service Coolify `supabase-rami`, uuid `szn6rjsrqig7n4oerw27egwr`). **Migrations appliquées jusqu'à `20260315000017_post_human_approval`** (session #15 : colonnes `posts.approved_by/approved_at` du verrou ; précédentes : `…016_api_keys`, `…015_post_status_rejected`). RLS 100%.
 **LLM** : via **proxy LiteLLM** `proxy.ai-mpower.com` — texte `deepseek-v4-flash`, vision `moonshot-v1-8k-vision-preview`. Plus de clés directes Anthropic/OpenAI nécessaires.
 **pg-boss** : ✅ connecté (schéma `pgboss`, 8 tables) — app `rami` sur réseau `coolify` partagé avec `supabase-db`.
 
@@ -44,6 +46,37 @@
 > ⚠️ **Hors-scope autonome (input Amine)** : US-018/019 (Stripe live), clé Whisper (US-022/023/024), apps OAuth sociales, TTS (US-037 — décision ElevenLabs vs proxy), accès TikTok API (US-046 — délai validation long, demande à lancer tôt).
 > ⚠️ **RÈGLE AMINE (2026-06-10) : JAMAIS de dev local** (`npm run dev`/localhost interdits) — tout sur Coolify + cloudflared, jamais Vercel. L'ancienne méthode browser-verify on-LAN ([CTX] sessions #3-5) est **OBSOLÈTE** : vérifier en PROD (compte test-ralph) ou créer une app staging Coolify (proposée à Amine, en attente de décision). Gates poste (tsc/eslint/jest) restent OK.
 > Reprendre : *« continue »* / *« reprends en Ralph »* → CAS B (lire prd.json + progress.md + AGENTS.md).
+
+---
+
+## [FAIT] — Session #15 (2026-06-23/24) — VERROU PUBLICATION (human-in-the-loop) + POSTE DE PILOTAGE de validation + MOTEUR CARROUSEL NATIF RAMI
+
+> Déclencheur Amine : « le dernier article publié, je l'ai supprimé — problèmes d'accents + mise en page du carrousel indigne d'un level 0 en design ». Demande : (1) validation humaine systématique avec **vrai rendu par RS** ; (2) **presets de correction** cliquables pour relancer la génération d'un élément. Brainstorm L99 → spec → plans → exécution inline, push à chaque tâche (deploy continu, ordre réordonné anti-fenêtre-cassée). 17 commits, gates verts à CHAQUE (TS0/lint0/**Jest 372**/build), browser/PDF-verified. Specs : `docs/plans/2026-06-23-kit-validation-apercu-presets-L0.md`, `…-verrou-publication-plan.md`, `…-carrousel-engine-rami.md`.
+
+### A. VERROU DE PUBLICATION — human-in-the-loop, 3 points (défense en profondeur) — PROUVÉ PROD
+- **Cause du besoin** : l'API v1 `publish` (chemin Hermès) acceptait `draft/review/approved` → publiait SANS validation humaine. Trou fermé.
+- **Migration** `20260315000017_post_human_approval.sql` (appliquée db-rami) : colonnes `posts.approved_by`/`approved_at` (NULL = non approuvé). Règle : publiable **ssi** les deux non-NULL ; **toute édition de contenu les réinitialise** (re-validation).
+- **Module pur** `src/lib/services/workflow/publish-gate.ts` (`assertPublishable`/`isHumanApproved`, 5 tests) appliqué en **3 points** : API v1 `posts/[id]/publish/route.ts` (→ **409 + `approvalUrl`**), action `scheduler.ts publishPost`, **worker** `publish-worker.ts` (backstop : abandonne un job programmé si l'appro a sauté).
+- **Déclencheur d'appro UI** : `decideInternalApprovalAction` (Kanban) — « Approuver » pose `approved_by/at` + audit_log ; « Rejeter » les efface. `saveWorkflowPostAction` pose l'appro quand on publie depuis le workflow (clic humain après aperçu Step5/6). `updatePost` + `updateDraftContentAction` effacent l'appro à l'édition.
+- **PREUVE SYSTÈME PROD** : clé API jetable forgée en db-rami (hash SHA-256) + post draft non approuvé → `POST /api/v1/posts/<id>/publish` → **HTTP 409** + `{approvalUrl}` (le JSON est UTF-8 correct ; l'affichage cp1252 console trompe). Nettoyé. ⚠️ Décision Amine : l'appro qui débloque = **membre du tenant authentifié** ; la page token externe NE débloque PAS (avis seulement).
+
+### B. POSTE DE PILOTAGE de validation — aperçu fidèle + presets de correction + régénération
+- **`platform-config.ts` enrichi** (`6503abc`) : `aspectRatios`/`maxImages`/`supportsCarousel`/`mediaRequired` par plateforme + `aspectRatioToCss` + `checkPlatformConformity` (avertissements soft). 6 tests.
+- **`PlatformPreview.tsx`** (`a06c7ee`) : mockup feed fidèle par réseau (ratio/couleur/limite réels, troncature, points de carrousel, conformité — **zéro fausse métrique**). Page **`/dashboard/review/[postId]`** = cible de l'`approvalUrl` (rend le 409 actionnable).
+- **`115929f` — la page n'est plus « approuver » seul** (demande Amine : « non-choix inacceptable ») : éditeur de texte (aperçu live) + **presets de correction cliquables** (`correction-presets.ts` pur, 5 tests : trop long / orthographe & accents / ton pro / chaleureux / accroche / moins commercial / CTA / jargon) + **« Régénérer le texte »** (`applyCorrectionPresetsAction`, LLM sans inventer) + Enregistrer + Approuver (désactivé tant qu'il reste des modifs non enregistrées). Amine : « le contenu avec les modifs est vraiment excellent ».
+
+### C. DIAGNOSTIC carrousel Hermès (preuve : PDF téléchargé + métadonnées)
+- Le carrousel « indigne » N'EST PAS RAMI : **généré par Hermès** (`Hermes/nexus-os/scripts/html-to-pdf.py` = Playwright HTML→PDF ; le carrousel runtime écrit `/opt/data/exports/*.html` + impression Chromium). Métadonnées PDF : `Creator=HeadlessChrome`, `Producer=Skia/PDF`, polices DejaVuSans embarquées.
+- **Défauts vus** : texte tronqué G/D (page portrait vs slides larges), **header/footer navigateur laissés actifs** (date + `file://` + n° sur chaque slide), ratio portrait → vide noir, faute « l'IA **argentique** » (≠ agentique).
+- **Accents** : la casse vient du **chemin de PUBLICATION Hermès** (post publié `ec9cf470` = accents ET apostrophes strippés en ASCII), PAS de RAMI (brouillon `627a7588` = accents parfaits). + le carrousel est **collé en URL dans la légende** (« Carrousel complet : https://minio.ai-… ») au lieu d'un **document LinkedIn natif**.
+- **Décision Amine** : RAMI devient le **hub carrousel** (génération + aperçu + PDF + publi document natif). Hermès parqué.
+
+### D. MOTEUR CARROUSEL NATIF RAMI (design-first, validé par Amine « perfecto »)
+- **Archi** (best practice, zéro dépendance fragile) : carrousel = **deck de slides typées React** → aperçu fidèle GRATUIT (pas de pdf.js/Chromium/CSP) → PDF via **`@react-pdf`** (polices Noto déjà embarquées → **accents garantis**) → futur upload document LinkedIn.
+- **`carousel.schema.ts`** (Zod, parse-salvage par slide : cover/point/stat/quote/comparison/cta) · **`CarouselSlide.tsx`** (rendu 4:5, container-queries `cqw` → scaling parfait, accent Brand DNA, n° de slide, pied de page) · **`CarouselPreview.tsx`** (swipeable).
+- **`carousel-pdf.tsx`** (@react-pdf, 1080×1350, `u()` = cqw→pt). ⚠️ **rgba() mal interprété par @react-pdf → filets verts** → passé en hex (`c73e875`). **PDF re-téléchargé + LU page par page : accents PARFAITS, zéro troncature, zéro chrome, design net** (validé visuellement).
+- **Génération IA** (`76f557f`) : `createCarouselAction` (brief → LLM → deck JSON conforme, **DÉFCON aucun chiffre inventé**, accents soignés ; thème/accent/handle imposés par l'UI). Route **`/dashboard/carousel/new`** (sujet → aperçu → PDF via `POST /api/carousel/pdf`, download fetch+blob anti-gzip). Démo publique : **`/carousel-demo`** (+ `/pdf`).
+- **RESTE arc carrousel** : (1) **publication LinkedIn en document natif** (upload PDF = carrousel swipeable, dernier maillon) ; (2) brancher le poste de pilotage SUR le carrousel (éditer/régénérer un slide) ; (3) lien sidebar + persistance ; (4) **autres formats** (post simple, story 9:16…) à la même rigueur — vœu Amine « j'espère qu'il en sera de même pour les autres formats ».
 
 ---
 
@@ -385,6 +418,8 @@ Workflow repris → visuel régénéré (stocké `s3-rami`) → texte honnête f
 
 ## [ALERTE] — Avertissements / risques
 
+- **⚠️ CHANGEMENT DE COMPORTEMENT — VERROU PUBLICATION ACTIF (session #15)** : depuis le déploiement, **AUCUNE publication ne part sans `approved_by/at`** (membre du tenant). En prod : approuver dans le Kanban `/dashboard/approvals` (ou page `/dashboard/review/[postId]`, ou publier depuis le workflow après aperçu) → l'appro est posée → publication possible. **Toute édition de contenu réinitialise l'appro** (re-validation). Hermès/API v1 reçoivent **409 + approvalUrl** si non approuvé (= protection voulue). Si « rien ne se publie », vérifier `approved_at` du post. cf. [FAIT] #15-A.
+- **ℹ️ Accents Hermès ≠ RAMI** : la casse des accents observée venait du **chemin de publication Hermès** (post publié strippé ASCII), PAS de RAMI. Le moteur carrousel natif RAMI garantit les accents (Noto embarqué). cf. [FAIT] #15-C.
 - **✅ Persistance workflow BOUCLÉE + browser-verified (session #10, 2026-06-14)** : migration `…014_content_sessions` appliquée db-rami + RLS testée ; autosave → bannière reprise → restauration browser-verified prod. *Le coffre est passé à 103 secrets (ajouts Amine — valeurs jamais lues).* Incident serveur 2026-06-12 (530 + SSH down) résolu, serveur OK (IP `.8`, SSH par clé).
 
 - **✅ Mot de passe super-admin RÉGÉNÉRÉ (2026-06-10, US-017 soldée)** : rotation bcrypt SQL + révocation des 4 sessions + refresh tokens. ⚠️ Méthode : SQL direct dans `supabase-db-szn6...` — l'API admin GoTrue via `db-rami.ai-mpower.com` est inutilisable (Cloudflare strip `Authorization: Bearer` ; et `http://` → 301 qui casse les POST : **toujours https**).
@@ -416,9 +451,23 @@ Workflow repris → visuel régénéré (stocké `s3-rami`) → texte honnête f
 
 ---
 
-## [NEXT] — Prochaines actions prioritaires (session #15)
+## [NEXT] — Prochaines actions prioritaires (session #16)
 
-> **Priorités validées/induites par Amine (session #14) :**
+> **Priorités induites par Amine (session #15) — ARC CARROUSEL d'abord :**
+> 1. **Publication LinkedIn en DOCUMENT natif** (dernier maillon) : étendre `linkedin.ts` pour uploader le PDF carrousel en document (`registerUpload` document / UGC media document → carrousel swipeable), PAS un lien. Recommandé en premier par Claude.
+> 2. **Brancher le poste de pilotage SUR le carrousel** : éditer le texte de chaque slide + presets de correction + **régénérer un slide isolé** (réutiliser `correction-presets` + `regenerateElement`), AVANT approbation (verrou).
+> 3. **Lien sidebar** `/dashboard/carousel/new` + **persistance** des carrousels (table ou `documents` type=`carousel` ; le post final = caption + PDF document en media).
+> 4. **AUTRES FORMATS à la même rigueur** (vœu Amine « j'espère qu'il en sera de même ») : post simple (visuel composé par le code, texte en typo réelle plutôt qu'halluciné par l'IA image), story/reel 9:16. = généraliser le Pilier 1 (composition code) au-delà du carrousel.
+> 5. Micro-finition : alignement des puces « • » dans le PDF carrousel (cosmétique, non bloquant).
+> 6. **Tester la génération carrousel** (`/dashboard/carousel/new`) — 1ʳᵉ exécution live ; juger la qualité du contenu LLM, durcir le prompt si besoin.
+>
+> **Dette héritée encore valable (session #14) :**
+> - **2 DEFCON1 billing factices** (`/settings/billing` mock + `/dashboard/invoices`) — cf. [ALERTE]. Masquer Mastodon/YouTube/TikTok de l'UI.
+> - **PRICING LOT 0** : `docs/plans/2026-06-22-pricing-2axes-L0-comptes.md` (couche `accounts` + entitlements + quota publications).
+> - Cliquabilité `/create?post=<id>` depuis dashboard + historique. Médiathèque : auto-enregistrer vidéos + page Visuels IA. Reprendre Ralph US-030 (competitors Crawl4AI).
+> - Petit fix cosmétique compteur « 0/2000 » (`Step1Brief`).
+
+> **(Archive — priorités session #14, pour mémoire) :**
 > 1. **Cliquabilité « systématique »** (demande explicite Amine) : câbler `/create?post=<id>` depuis le **dashboard** (carte prochaine pub : `id` déjà exposé), l'**historique** (`WorkflowSidebar` items + calendrier « Voir tout l'historique »). Les cartes d'approbation = déjà fait.
 > 2. **Médiathèque — finir le gaspillage** : auto-enregistrer aussi les **vidéos** (`generated_videos`) et la page **Visuels IA** (`/create/visual`) dans `media_assets` (réutiliser `registerLibraryAsset`).
 > 3. **2 DEFCON1 billing factices** à corriger (`/settings/billing` mock + `/dashboard/invoices`) — cf. [ALERTE]. Masquer Mastodon/YouTube/TikTok de l'UI.
@@ -460,6 +509,9 @@ Workflow repris → visuel régénéré (stocké `s3-rami`) → texte honnête f
 
 ## [MEMO] — À ne pas oublier inter-sessions
 
+- **VERROU PUBLICATION (session #15)** : règle pure `src/lib/services/workflow/publish-gate.ts` (`assertPublishable`/`isHumanApproved`) appliquée dans `api/v1/posts/[id]/publish/route.ts` + `app/actions/scheduler.ts publishPost` + `lib/queue/publish-worker.ts`. Pose de l'appro : `lib/actions/publish-approval.actions.ts` (`approvePostForPublish`) + dans `decideInternalApprovalAction` (Kanban). Reset à l'édition : `updatePost`, `updateDraftContentAction`. Colonnes `posts.approved_by/approved_at` (migration `…017`). Page validation : `app/(dashboard)/dashboard/review/[postId]/page.tsx` + `components/preview/review-client.tsx`.
+- **APERÇU FIDÈLE (session #15)** : `components/preview/platform-preview.tsx` (mockup feed par plateforme) ; contraintes dans `lib/scheduler/platform-config.ts` (`aspectRatios`/`maxImages`/`supportsCarousel`/`mediaRequired` + `checkPlatformConformity`). Presets de correction texte : `lib/services/workflow/correction-presets.ts` + action `lib/actions/correction.actions.ts` (`applyCorrectionPresetsAction`, LLM sans inventer).
+- **MOTEUR CARROUSEL NATIF (session #15)** : `lib/schemas/carousel.schema.ts` (deck typé Zod, `parseCarousel` parse-salvage) · rendu React `components/carousel/CarouselSlide.tsx` (4:5, container-queries `cqw`) + `CarouselPreview.tsx` (swipeable) + `CarouselCreator.tsx` · PDF `lib/services/documents/carousel/carousel-pdf.tsx` (@react-pdf 1080×1350, `u()` cqw→pt ; **rgba interdit @react-pdf → hex**) · génération `lib/actions/carousel.actions.ts` (`createCarouselAction`) · routes `/dashboard/carousel/new`, `POST /api/carousel/pdf`, démo `/carousel-demo` (+`/pdf`). Deck démo partagé : `lib/services/documents/carousel/demo-deck.ts`. **Carrousel Hermès = HTML→Chromium dans `Hermes/nexus-os/scripts/`** (parqué). **RESTE : publi LinkedIn document natif + brancher pilotage sur slides + autres formats.**
 - **MODULE PRÉSENTATIONS (session #10 — feature RÉELLE)** : schéma `src/lib/schemas/presentation.schema.ts` (deck = 8 types Zod discriminés ; `parseDeck` a un **sauvetage par slide**). Génération/révision : `src/lib/services/documents/presentation-deck.ts` (prompts L99 + `parseDeck`) + `src/lib/actions/presentation.actions.ts` (`createPresentationDeckAction`/`updatePresentationDeckAction`/`revisePresentationDeckAction`/`getPresentationDetailAction`/`listPresentationsAction`). Export PPTX : `src/lib/services/documents/pptx/deck-pptx.ts` (**pptxgenjs** pur-JS) + route `src/app/(dashboard)/presentations/[id]/pptx/route.ts`. UI : `DeckViewer`/`DeckEditor`/`SlideRenderer`/`NewPresentationForm`. Decks stockés dans `documents` type=`presentation` (content_json = `{brief, theme, deck}`). Prompt L99 = `buildDeckSystemPrompt` (validé Amine 2026-06-14).
 - **⚠️ TÉLÉCHARGEMENT DE BINAIRE (PPTX/etc.) — piège Cloudflare gzip** : Cloudflare **gzippe** les réponses (ignore `Cache-Control: no-transform`). Un simple `<a href download>` sauvegarde les **octets gzippés** → fichier corrompu (« pas un pptx »). TOUJOURS télécharger un binaire côté client via `fetch()` → `res.blob()` (fetch décompresse automatiquement) + `URL.createObjectURL` + `<a download>` synthétique, et **ne sauver que si `res.ok`** (jamais une réponse d'erreur 404/HTML déguisée en .pptx). cf. `DeckViewer.handleDownload`.
 - **Validation PPTX** : un vrai .pptx commence par `50 4b 03 04` (PK/zip) ; `1f 8b` = gzip = corrompu. Vérif rigoureuse : `python -c "from pptx import Presentation; Presentation('f.pptx')"`.
