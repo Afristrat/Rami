@@ -2,7 +2,12 @@
 
 import { useState } from "react"
 import { step2Schema, type Step2Data, CONTENT_FORMATS } from "@/lib/schemas/workflow.schema"
-import { PLATFORM_CONFIG, type Platform } from "@/lib/scheduler/platform-config"
+import {
+  PLATFORM_CONFIG,
+  VISIBLE_PLATFORMS,
+  isPlatformSelectable,
+  type Platform,
+} from "@/lib/scheduler/platform-config"
 import { cn } from "@/lib/utils"
 import { ArrowLeft, ArrowRight, Check } from "lucide-react"
 import {
@@ -17,7 +22,11 @@ import {
 } from "@/components/connections/platform-icons"
 import { useTranslations } from "next-intl"
 
-const PLATFORMS = Object.entries(PLATFORM_CONFIG) as [Platform, typeof PLATFORM_CONFIG[Platform]][]
+// On n'expose que les plateformes VISIBLES (les `hidden` sont exclues) ; les
+// `coming_soon` restent affichées mais désactivées (badge « Bientôt »).
+const PLATFORMS = VISIBLE_PLATFORMS.map(
+  (p) => [p, PLATFORM_CONFIG[p]] as [Platform, (typeof PLATFORM_CONFIG)[Platform]]
+)
 
 /** Map platform key to its SVG icon component */
 const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: string }>> = {
@@ -88,23 +97,35 @@ export function Step2Platforms({ defaultValues, onBack, onNext }: Step2Platforms
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {PLATFORMS.map(([platform, config]) => {
             const isSelected = selectedPlatforms.includes(platform)
+            const selectable = isPlatformSelectable(platform)
             return (
               <button
                 key={platform}
                 type="button"
-                onClick={() => togglePlatform(platform)}
+                onClick={() => selectable && togglePlatform(platform)}
+                disabled={!selectable}
+                aria-disabled={!selectable}
+                title={!selectable ? tc("comingSoon") : undefined}
                 className={cn(
                   "relative flex items-start gap-3 p-4 rounded-2xl transition-all text-left",
-                  isSelected
+                  !selectable
+                    ? "border border-dashed border-slate-200 dark:border-white/10 bg-slate-50/60 dark:bg-white/[0.02] opacity-60 cursor-not-allowed"
+                    : isSelected
                     ? "border-2 border-violet-500 bg-violet-500/5 shadow-[0_0_15px_rgba(124,58,237,0.15)]"
                     : "border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.03] hover:border-violet-500/50"
                 )}
               >
                 {/* Checkbox indicator */}
-                {isSelected && (
+                {isSelected && selectable && (
                   <div className="absolute top-3 right-3 size-5 rounded-full bg-violet-500 flex items-center justify-center">
                     <Check className="size-3 text-white" />
                   </div>
+                )}
+                {/* Badge « Bientôt » pour les plateformes coming_soon */}
+                {!selectable && (
+                  <span className="absolute top-2.5 right-2.5 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                    {tc("comingSoon")}
+                  </span>
                 )}
 
                 {(() => {

@@ -1,21 +1,9 @@
 import { redirect } from "next/navigation"
-import { getTranslations } from "next-intl/server"
-import { getProfileAction } from "@/lib/actions/settings.actions"
-import { BillingSettingsClient } from "@/components/settings/billing-settings-client"
 
-export async function generateMetadata() {
-  const t = await getTranslations("metadata")
-  return {
-    title: t("settingsBilling"),
-  }
-}
-
-export default async function BillingSettingsPage() {
-  const { data: profile } = await getProfileAction()
-
-  if (!profile) {
-    redirect("/login")
-  }
-
-  return <BillingSettingsClient />
+// La gestion de l'abonnement (plan, moyen de paiement, factures) vit sur la page
+// `/billing` réelle (Stripe : portail, checkout, factures réelles). Cette ancienne
+// route settings ne fait plus que rediriger — filet pour les liens / bookmarks
+// existants. L'écran factice (carte « Visa 4242 », fausses factures) a été supprimé.
+export default function BillingSettingsPage() {
+  redirect("/billing")
 }

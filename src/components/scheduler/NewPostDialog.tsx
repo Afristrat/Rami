@@ -24,7 +24,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-import { PLATFORM_CONFIG, ALL_PLATFORMS } from "@/lib/scheduler/platform-config"
+import {
+  PLATFORM_CONFIG,
+  VISIBLE_PLATFORMS,
+  isPlatformSelectable,
+} from "@/lib/scheduler/platform-config"
 import { createPost, type NewPostData } from "@/app/actions/scheduler"
 import type { ScheduledPost } from "@/lib/scheduler/types"
 
@@ -58,6 +62,7 @@ interface NewPostDialogProps {
 
 export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialogProps) {
   const t = useTranslations("calendar.dialog")
+  const tCommon = useTranslations("common")
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
@@ -184,23 +189,34 @@ export function NewPostDialog({ defaultDate, onCreated, trigger }: NewPostDialog
                   Plateformes <span className="text-destructive">*</span>
                 </Label>
                 <div className="flex flex-wrap gap-2">
-                  {ALL_PLATFORMS.map((p) => {
+                  {VISIBLE_PLATFORMS.map((p) => {
                     const cfg = PLATFORM_CONFIG[p]
                     const active = selectedPlatforms.includes(p)
+                    const selectable = isPlatformSelectable(p)
                     return (
                       <button
                         key={p}
                         type="button"
-                        onClick={() => togglePlatform(p)}
+                        onClick={() => selectable && togglePlatform(p)}
+                        disabled={!selectable}
+                        aria-disabled={!selectable}
+                        title={!selectable ? tCommon("comingSoon") : undefined}
                         className={cn(
                           "rounded-full px-3 py-1 text-xs font-medium border transition-all",
-                          active
+                          !selectable
+                            ? "border-dashed border-border bg-muted/30 text-muted-foreground/60 opacity-60 cursor-not-allowed"
+                            : active
                             ? "text-white border-transparent"
                             : "border-border bg-muted/50 text-muted-foreground hover:border-border hover:bg-muted"
                         )}
-                        style={active ? { backgroundColor: cfg.color, borderColor: cfg.color } : {}}
+                        style={active && selectable ? { backgroundColor: cfg.color, borderColor: cfg.color } : {}}
                       >
                         {cfg.label}
+                        {!selectable && (
+                          <span className="ml-1.5 text-[9px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                            · {tCommon("comingSoon")}
+                          </span>
+                        )}
                       </button>
                     )
                   })}

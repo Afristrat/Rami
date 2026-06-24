@@ -17,7 +17,11 @@ import { PlatformBadge } from "./PlatformBadge"
 import { deletePost, updatePost, updatePostStatus, duplicatePost } from "@/app/actions/scheduler"
 import { STATUS_LABELS, STATUS_STYLES } from "@/lib/scheduler/types"
 import type { ScheduledPost } from "@/lib/scheduler/types"
-import { PLATFORM_CONFIG, ALL_PLATFORMS } from "@/lib/scheduler/platform-config"
+import {
+  PLATFORM_CONFIG,
+  VISIBLE_PLATFORMS,
+  isPlatformSelectable,
+} from "@/lib/scheduler/platform-config"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -275,6 +279,7 @@ function EditForm({
   onCancel: () => void
 }) {
   const t = useTranslations("calendar.detail")
+  const tCommon = useTranslations("common")
   const [isSaving, startSaveTransition] = useTransition()
 
   const form = useForm<EditFormData>({
@@ -365,23 +370,34 @@ function EditForm({
         <div className="space-y-1.5">
           <Label>Plateformes <span className="text-destructive">*</span></Label>
           <div className="flex flex-wrap gap-1.5">
-            {ALL_PLATFORMS.map((p) => {
+            {VISIBLE_PLATFORMS.map((p) => {
               const cfg = PLATFORM_CONFIG[p]
               const active = selectedPlatforms.includes(p)
+              const selectable = isPlatformSelectable(p)
               return (
                 <button
                   key={p}
                   type="button"
-                  onClick={() => togglePlatform(p)}
+                  onClick={() => selectable && togglePlatform(p)}
+                  disabled={!selectable}
+                  aria-disabled={!selectable}
+                  title={!selectable ? tCommon("comingSoon") : undefined}
                   className={cn(
                     "rounded-full px-2.5 py-0.5 text-xs font-medium border transition-all",
-                    active
+                    !selectable
+                      ? "border-dashed border-border bg-muted/30 text-muted-foreground/60 opacity-60 cursor-not-allowed"
+                      : active
                       ? "text-white border-transparent"
                       : "border-border bg-muted/50 text-muted-foreground hover:bg-muted"
                   )}
-                  style={active ? { backgroundColor: cfg.color } : {}}
+                  style={active && selectable ? { backgroundColor: cfg.color } : {}}
                 >
                   {cfg.label}
+                  {!selectable && (
+                    <span className="ml-1 text-[9px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+                      · {tCommon("comingSoon")}
+                    </span>
+                  )}
                 </button>
               )
             })}

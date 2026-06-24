@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { getBillingDataAction } from '@/lib/billing/actions'
-import { requireFeature } from '@/lib/billing/require-feature'
 import { BillingDashboard } from '@/components/billing/billing-dashboard'
 
 export async function generateMetadata() {
@@ -17,9 +16,10 @@ export default async function BillingPage({
 }: {
   searchParams: Promise<{ success?: string; plan?: string }>
 }) {
-  // Vérification feature flag côté serveur — Agency ou supérieur
-  await requireFeature('billing_module')
-
+  // Gérer son propre abonnement (plan courant, paiement, factures, upgrade) doit
+  // être accessible à TOUT tenant authentifié — pas réservé à un plan. L'auth est
+  // assurée par getBillingDataAction (null → /login). (Le module de FACTURATION
+  // client, lui, reste gaté `billing_module` côté /dashboard si besoin.)
   const t = await getTranslations('billing')
   const params = await searchParams
   const data = await getBillingDataAction()

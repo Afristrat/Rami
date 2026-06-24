@@ -8,6 +8,17 @@ export type Platform =
   | "youtube"
   | "tiktok"
 
+/**
+ * Statut de disponibilité d'une plateforme dans l'UI :
+ * - `live`        : backend de publication réel → sélectionnable et publiable.
+ * - `coming_soon` : déclarée mais sans backend → VISIBLE (badge « Bientôt ») mais
+ *                   NON sélectionnable (zéro factice : rien ne peut échouer).
+ * - `hidden`      : masquée des listes de sélection (aucun backend, non prioritaire).
+ * NB : l'AFFICHAGE des posts historiques s'appuie toujours sur `PLATFORM_CONFIG`
+ * complet — seules les listes de SÉLECTION filtrent sur ce statut.
+ */
+export type PlatformStatus = "live" | "coming_soon" | "hidden"
+
 export interface PlatformConfig {
   label: string
   color: string      // hex pour les chips calendrier
@@ -15,6 +26,7 @@ export interface PlatformConfig {
   textClass: string  // classe Tailwind pour texte badge
   icon: string       // emoji fallback
   charLimit: number
+  status: PlatformStatus
   // ── Contraintes média (guidance soft : aperçu fidèle + avertissements) ──
   aspectRatios: string[]    // ratios d'image acceptés ; le 1er sert de défaut d'aperçu
   maxImages: number         // nombre max d'images dans un post (borne haute connue)
@@ -30,6 +42,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#1D9BF0]",
     icon: "𝕏",
     charLimit: 280,
+    status: "live",
     aspectRatios: ["16:9", "1:1"],
     maxImages: 4,
     supportsCarousel: false,
@@ -42,6 +55,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#0A66C2]",
     icon: "in",
     charLimit: 3000,
+    status: "live",
     aspectRatios: ["1.91:1", "1:1", "4:5"],
     maxImages: 9,
     supportsCarousel: true,
@@ -54,6 +68,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#1877F2]",
     icon: "f",
     charLimit: 63206,
+    status: "live",
     aspectRatios: ["1.91:1", "1:1", "4:5"],
     maxImages: 10,
     supportsCarousel: true,
@@ -66,6 +81,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#E1306C]",
     icon: "📸",
     charLimit: 2200,
+    status: "live",
     aspectRatios: ["1:1", "4:5", "1.91:1", "9:16"],
     maxImages: 10,
     supportsCarousel: true,
@@ -78,6 +94,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#E60023]",
     icon: "P",
     charLimit: 500,
+    status: "live",
     aspectRatios: ["2:3", "1:1"],
     maxImages: 5,
     supportsCarousel: true,
@@ -90,6 +107,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#6364FF]",
     icon: "M",
     charLimit: 500,
+    status: "hidden",
     aspectRatios: ["16:9", "1:1"],
     maxImages: 4,
     supportsCarousel: false,
@@ -102,6 +120,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-[#FF0000]",
     icon: "▶",
     charLimit: 5000,
+    status: "coming_soon",
     aspectRatios: ["16:9"],
     maxImages: 1,
     supportsCarousel: false,
@@ -114,6 +133,7 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     textClass: "text-zinc-900 dark:text-zinc-100",
     icon: "♪",
     charLimit: 2200,
+    status: "coming_soon",
     aspectRatios: ["9:16"],
     maxImages: 35,
     supportsCarousel: true,
@@ -122,6 +142,24 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
 }
 
 export const ALL_PLATFORMS = Object.keys(PLATFORM_CONFIG) as Platform[]
+
+/**
+ * Plateformes VISIBLES dans les listes de sélection (toutes sauf `hidden`).
+ * Inclut les `coming_soon` — à afficher avec un badge « Bientôt », non sélectionnables.
+ */
+export const VISIBLE_PLATFORMS = ALL_PLATFORMS.filter(
+  (p) => PLATFORM_CONFIG[p].status !== "hidden"
+)
+
+/** Plateformes réellement SÉLECTIONNABLES (backend de publication réel : `live`). */
+export const SELECTABLE_PLATFORMS = ALL_PLATFORMS.filter(
+  (p) => PLATFORM_CONFIG[p].status === "live"
+)
+
+/** True si la plateforme est sélectionnable (publiable). */
+export function isPlatformSelectable(platform: Platform): boolean {
+  return PLATFORM_CONFIG[platform].status === "live"
+}
 
 /** Convertit un ratio "w:h" en valeur CSS aspect-ratio "w / h" (défaut 1/1). */
 export function aspectRatioToCss(ratio: string | undefined): string {

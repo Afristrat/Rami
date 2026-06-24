@@ -33,6 +33,9 @@ interface Platform {
   Icon: React.FC<{ className?: string }>
   iconBg: string
   phase: "MVP" | "Phase 2"
+  // Plateforme déclarée mais sans flow OAuth réel (aucune config dans OAUTH_CONFIGS)
+  // → affichée « Bientôt », non connectable (zéro bouton cassé).
+  comingSoon?: boolean
 }
 
 // ─── Plateformes ──────────────────────────────────────────────────────────────
@@ -76,7 +79,8 @@ const PLATFORMS: Platform[] = [
     descriptionKey: "platformYoutubeDesc",
     Icon: YoutubeIcon,
     iconBg: "bg-red-500/10",
-    phase: "MVP",
+    phase: "Phase 2",
+    comingSoon: true,
   },
   {
     id: "pinterest",
@@ -135,6 +139,7 @@ function PlatformCard({
   connection?: OAuthConnection
 }) {
   const t = useTranslations("settings.connectionsSection")
+  const tc = useTranslations("common")
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
   const [optimisticDisconnected, setOptimisticDisconnected] = React.useState(false)
@@ -215,7 +220,13 @@ function PlatformCard({
             )}
           />
         </div>
-        <StatusBadge status={status} />
+        {platform.comingSoon ? (
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-500/20 text-xs font-bold uppercase tracking-wide">
+            {tc("comingSoon")}
+          </div>
+        ) : (
+          <StatusBadge status={status} />
+        )}
       </div>
 
       {/* Connected: show account info */}
@@ -286,7 +297,18 @@ function PlatformCard({
 
       {/* Actions */}
       <div className="mt-auto">
-        {isDisconnected && (
+        {platform.comingSoon && (
+          <div
+            className={cn(
+              "w-full py-3 rounded-xl font-bold text-sm uppercase tracking-widest text-center",
+              "border-2 border-dashed border-amber-300/60 text-amber-600/80",
+              "dark:border-amber-500/30 dark:text-amber-400/80 cursor-not-allowed select-none"
+            )}
+          >
+            {tc("comingSoon")}
+          </div>
+        )}
+        {isDisconnected && !platform.comingSoon && (
           <button
             onClick={handleConnect}
             className={cn(
