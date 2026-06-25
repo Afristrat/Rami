@@ -56,7 +56,7 @@ export interface GeneratedVisual {
   brandDnaScore: number
   /** false = score heuristique de secours (Vision AI indisponible) — l'UI doit le signaler */
   visionScored?: boolean
-  provider: "litellm_image" | "fal" | "replicate" | "nano_banana" | "fal_ai" | "google_imagen" | "together_ai"
+  provider: "litellm_image" | "fal" | "replicate" | "nano_banana" | "fal_ai" | "google_imagen" | "together_ai" | "rami-compose"
 }
 
 export interface Step4Data {

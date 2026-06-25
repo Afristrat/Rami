@@ -1754,7 +1754,11 @@
         "isometric": "等距 3D，彩色方块",
         "abstract": "有机形状，渐变色彩",
         "hero-photo": "高品质大片摄影"
-      }
+      },
+      "modeAi": "AI 图像",
+      "modeCompose": "由 RAMI 合成",
+      "composeCta": "生成图像",
+      "composeHint": "由代码生成的文字——保证重音与排版。"
     },
     "export": {
       "title": "导出",

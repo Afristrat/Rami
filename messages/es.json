@@ -1754,7 +1754,11 @@
         "isometric": "3D isométrico, bloques de colores",
         "abstract": "Formas orgánicas, degradados",
         "hero-photo": "Fotografía premium, alta calidad"
-      }
+      },
+      "modeAi": "Imagen IA",
+      "modeCompose": "Compuesto por RAMI",
+      "composeCta": "Componer el visual",
+      "composeHint": "Texto compuesto por código: acentos y tipografía garantizados."
     },
     "export": {
       "title": "Exportar",

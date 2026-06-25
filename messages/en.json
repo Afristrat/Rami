@@ -1754,7 +1754,11 @@
         "isometric": "Isometric 3D, colorful blocks",
         "abstract": "Organic shapes, gradients",
         "hero-photo": "Premium photography, high quality"
-      }
+      },
+      "modeAi": "AI image",
+      "modeCompose": "Composed by RAMI",
+      "composeCta": "Compose the visual",
+      "composeHint": "Text composed by code — guaranteed accents and typography."
     },
     "export": {
       "title": "Export",

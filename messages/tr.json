@@ -1754,7 +1754,11 @@
         "isometric": "İzometrik 3D, renkli bloklar",
         "abstract": "Organik şekiller, degradeler",
         "hero-photo": "Premium fotoğraf, yüksek kalite"
-      }
+      },
+      "modeAi": "Yapay zekâ görseli",
+      "modeCompose": "RAMI ile oluşturuldu",
+      "composeCta": "Görseli oluştur",
+      "composeHint": "Kodla oluşturulan metin — aksanlar ve tipografi garantili."
     },
     "export": {
       "title": "Dışa Aktar",

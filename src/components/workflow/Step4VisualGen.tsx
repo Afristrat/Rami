@@ -3,10 +3,11 @@
 import { useState, useTransition, useEffect } from "react"
 import Link from "next/link"
 import { generateVisualContentAction } from "@/lib/actions/workflow.actions"
+import { createPostVisualAction } from "@/lib/actions/post-visual.actions"
 import { STYLE_PRESETS } from "@/lib/services/image-generation/style-presets"
 import type { Step1Data, Step2Data, GeneratedVisual, Step4Data } from "@/lib/schemas/workflow.schema"
 import { cn } from "@/lib/utils"
-import { ArrowLeft, ArrowRight, Image as ImageIcon, ImageOff, RefreshCw, CheckCircle2, Star, Sparkles } from "lucide-react"
+import { ArrowLeft, ArrowRight, Image as ImageIcon, ImageOff, RefreshCw, CheckCircle2, Star, Sparkles, Type } from "lucide-react"
 import { useTranslations } from "next-intl"
 
 interface Step4VisualGenProps {
@@ -31,6 +32,25 @@ export function Step4VisualGen({ step1, step2, defaultValues, onBack, onNext }: 
   // Preset effectivement utilisé pour les visuels affichés — permet d'indiquer
   // honnêtement qu'une régénération est nécessaire après changement de style.
   const [generatedPreset, setGeneratedPreset] = useState<string | null>(defaultValues?.stylePresetId ?? null)
+  // Mode de génération : "ai" = image générée par l'IA ; "compose" = carte
+  // composée par le code (vraie typo Noto, accents garantis, couleur Brand DNA).
+  const [mode, setMode] = useState<"ai" | "compose">("ai")
+
+  function compose() {
+    setError(null)
+    setQuotaBlocked(null)
+    startTransition(async () => {
+      const result = await createPostVisualAction(step1, { format: "1:1", theme: "dark" })
+      if (result.success) {
+        setVisuals([result.visual])
+        setSelectedId(result.visual.id)
+      } else if (result.quota_exceeded) {
+        setQuotaBlocked({ count: result.quota_exceeded.count, limit: result.quota_exceeded.limit })
+      } else {
+        setError(result.error)
+      }
+    })
+  }
 
   function generate(stylePresetId: string | null) {
     setError(null)
@@ -64,8 +84,45 @@ export function Step4VisualGen({ step1, step2, defaultValues, onBack, onNext }: 
   const presetChanged = !isPending && visuals.length > 0 && selectedPreset !== generatedPreset
   const pendingPresetLabel = STYLE_PRESETS.find((p) => p.id === selectedPreset)?.label ?? t("visuals.styleAuto")
 
+  function switchMode(next: "ai" | "compose") {
+    if (next === mode) return
+    setMode(next)
+    setSelectedId(null)
+    setError(null)
+    setQuotaBlocked(null)
+    setVisuals([])
+    if (next === "ai") generate(selectedPreset)
+  }
+
   return (
     <div className="space-y-6">
+      {/* Sélecteur de mode : IA image vs Composé par le code (accents garantis) */}
+      <div className="inline-flex rounded-xl border border-slate-200 dark:border-white/10 p-1 bg-slate-50 dark:bg-white/[0.03]">
+        {([
+          { id: "ai", label: t("visuals.modeAi"), Icon: ImageIcon },
+          { id: "compose", label: t("visuals.modeCompose"), Icon: Type },
+        ] as const).map(({ id, label, Icon }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => switchMode(id)}
+            disabled={isPending}
+            className={cn(
+              "flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold transition-all",
+              mode === id
+                ? "bg-white dark:bg-white/10 text-violet-600 dark:text-violet-300 shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200",
+              isPending && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            <Icon className="size-3.5" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {mode === "ai" && (
+      <>
       {/* Header */}
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-wider text-violet-500 dark:text-violet-400">
@@ -129,6 +186,36 @@ export function Step4VisualGen({ step1, step2, defaultValues, onBack, onNext }: 
         <div className="flex items-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-3 text-xs text-violet-600 dark:text-violet-300">
           <RefreshCw className="size-3.5 shrink-0" />
           {t("visuals.styleHint", { label: pendingPresetLabel })}
+        </div>
+      )}
+      </>
+      )}
+
+      {/* Mode composé : carte rendue par le code (accents garantis) */}
+      {mode === "compose" && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start gap-2 rounded-xl border border-violet-500/20 bg-violet-500/5 px-4 py-3 text-xs text-slate-600 dark:text-slate-300">
+            <Type className="size-3.5 shrink-0 mt-0.5 text-violet-500" />
+            <span>{t("visuals.composeHint")}</span>
+          </div>
+          <button
+            type="button"
+            onClick={compose}
+            disabled={isPending}
+            className={cn(
+              "inline-flex items-center justify-center gap-2 self-start rounded-xl px-5 py-2.5 text-sm font-bold transition-all",
+              "bg-gradient-to-r from-violet-600 to-blue-600 text-white shadow-lg shadow-violet-500/20",
+              "hover:scale-[1.02] active:scale-[0.98]",
+              isPending && "opacity-50 cursor-not-allowed hover:scale-100"
+            )}
+          >
+            {isPending ? (
+              <RefreshCw className="size-4 animate-spin" />
+            ) : (
+              <Sparkles className="size-4" />
+            )}
+            {visuals.length > 0 ? t("visuals.regenerate") : t("visuals.composeCta")}
+          </button>
         </div>
       )}
 
