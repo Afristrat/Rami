@@ -4,6 +4,7 @@
 // ============================================================
 
 import { GESTALT_SHAPES, getRecommendedColors } from '@/lib/utils/causse-matrix'
+import { sectorToShapeKey } from '@/lib/services/brand-dna/resolver'
 import { VisualDirection } from '@/lib/services/image-generation/types'
 
 export interface BrandDNA {
@@ -189,19 +190,9 @@ export function compileBrandDNAToPrompts(
   }
   const cultureKW = cultureContext[primaryCulture] ?? 'universal, globally appealing'
 
-  // Forme Gestalt dominante selon secteur
-  const sectorToShape: Record<string, keyof typeof GESTALT_SHAPES> = {
-    finance: 'carre',
-    tech: 'diagonales',
-    santé: 'cercle',
-    agro: 'courbes',
-    luxe: 'courbes',
-    startups: 'triangle',
-    data: 'grille',
-    default: 'cercle',
-  }
-  const shapeKey = sectorToShape[sector] ?? sectorToShape.default
-  const gestaltShape = GESTALT_SHAPES[shapeKey]
+  // Forme Gestalt dominante selon secteur — mapping EXHAUSTIF (30 secteurs) via
+  // le Brand DNA Resolver, source unique de la psychologie des formes.
+  const gestaltShape = GESTALT_SHAPES[sectorToShapeKey(sector)]
 
   const { width, height } = getPlatformDimensions(platform)
 

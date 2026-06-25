@@ -10,6 +10,7 @@ import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
 import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
+import { compileBrandDNAToPrompts, type StructuredPrompt } from "@/lib/services/brand-dna/prompt-compiler"
 import { generateImage } from "@/lib/services/image-generation"
 import { getStylePreset } from "@/lib/services/image-generation/style-presets"
 import { scoreImageWithVision } from "@/lib/services/brand-dna/vision-scorer"
@@ -21,6 +22,26 @@ import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { registerLibraryAsset } from "@/lib/services/storage/library-asset"
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Choisit la direction visuelle (parmi les 4 compilées) la plus alignée avec
+ * l'objectif cognitif du post. Fallback sur la 1ʳᵉ direction (Blueprint/confiance).
+ */
+function pickDirectionForObjective(prompts: StructuredPrompt[], objective: string): StructuredPrompt {
+  const byObjective: Record<string, number> = {
+    confiance: 0, // Blueprint Scientifique
+    urgence: 1, // Machine Narratif
+    aspiration: 2, // Carte & Aspiration
+    expertise: 3, // Dashboard Expertise
+    communaute: 0,
+    joie: 1,
+    serenite: 0,
+    croissance: 2,
+    creativite: 1,
+  }
+  const idx = byObjective[objective] ?? 0
+  return prompts[idx] ?? prompts[0]
+}
 
 async function getAuthContext() {
   const supabase = await createClient()
@@ -325,23 +346,28 @@ export async function generateVisualContentAction(
   // Normalise la shape PLATE réelle → couleurs/secteur/objectif fiables (résout IDs Causse → HEX).
   const dna = normalizeBrandDNA(tenant?.brand_dna)
 
-  // Construction du prompt visuel basé sur Brand DNA + Causse
-  const primaryColor = dna.color_palette?.[0]?.hex || "#1D4ED8"
-  const sector = dna.identity?.sector || "professionnel"
   const cognitiveObjective = dna.cognitive_objective || step1.objectif
+  // Couleurs cibles pour le scoring Vision AI (palette réelle du tenant).
   const targetColors: string[] =
     dna.color_palette
       ?.map((c) => c.hex)
       .filter((h): h is string => typeof h === "string" && h.length > 0)
-      ?? [primaryColor]
+      ?? ["#1D4ED8"]
+
+  // UNIFICATION (anti-dette) : le workflow utilise désormais le MÊME compilateur
+  // Brand DNA que la page /create — palette HEX COMPLÈTE + forme Gestalt du
+  // secteur + émotion (objectif cognitif) + contexte culturel + positionnement.
+  // Fini le prompt simplifié qui n'injectait que la couleur primaire (20% du DNA).
+  const brief = sanitizePromptInput([step1.titre, step1.description].filter(Boolean).join(". ").trim())
+  const compiled = compileBrandDNAToPrompts(dna, brief)
+  const direction = pickDirectionForObjective(compiled, cognitiveObjective)
 
   // Preset de style sélectionné dans le Step 4 — résolu côté serveur (id inconnu → ignoré).
   const stylePreset = getStylePreset(options?.stylePresetId)
   const styleFragment = stylePreset ? `, ${stylePreset.prompt}` : ""
 
-  const positivePrompt = `${step1.titre}, moderne et épuré design, ${cognitiveObjective} emotion, professional ${sector} brand, dominant color ${primaryColor}${styleFragment}, clean composition, high quality marketing visual, modern, premium`
-  const negativePrompt = "text, watermark, blur, low quality, generic, stock photo, pixelated, distorted"
-  const safePrompt = sanitizePromptInput(positivePrompt)
+  const safePrompt = sanitizePromptInput(direction.positive_prompt + styleFragment)
+  const negativePrompt = direction.negative_prompt
 
   try {
     // Z-03 : appel unique au service unifié — gère la chaîne de fallback complète.
