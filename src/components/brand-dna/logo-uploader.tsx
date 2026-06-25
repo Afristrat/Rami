@@ -49,7 +49,9 @@ export function LogoUploader({ value, fileName, onChange, onClear, error, compac
           return
         }
         ctx.drawImage(img, 0, 0, w, h)
-        const resized = canvas.toDataURL("image/webp", 0.85)
+        // PNG (et non WebP) : seul format rendu de façon fiable par les moteurs
+        // de composition (Satori, @react-pdf, pptxgenjs). Conserve la transparence.
+        const resized = canvas.toDataURL("image/png")
         onChange(resized, fileName)
       }
       img.onerror = () => {

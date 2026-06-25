@@ -64,6 +64,14 @@ function palette(theme: "dark" | "light"): Palette {
     : { bg: "#FBFBFD", text: "#0B0B0F", muted: "#6B7280", panel: "#F1F1F4", hairline: "#E4E4E8" }
 }
 
+/** Convertit un HEX #RRGGBB en rgba(...) avec l'alpha donné. */
+function rgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
+
 // ── Construction de l'élément JSX (Satori-compatible : flex + px absolus) ─────
 
 const W = 1080
@@ -272,6 +280,9 @@ function ShapeGlyph({ accentHex, shape }: { accentHex: string; shape: GestaltSha
 function buildElement(card: PostVisual): ReactElement {
   const c = palette(card.theme)
   const hasBrand = card.brand != null
+  // Fond teinté marque : voile d'accent qui s'estompe vers le fond de base
+  // (subtil → le texte reste sur le fond de base, contraste préservé).
+  const tint = card.theme === "dark" ? 0.22 : 0.12
   return (
     <div
       style={{
@@ -281,6 +292,7 @@ function buildElement(card: PostVisual): ReactElement {
         width: "100%",
         height: "100%",
         backgroundColor: c.bg,
+        backgroundImage: `radial-gradient(120% 85% at 0% 0%, ${rgba(card.accentHex, tint)} 0%, ${c.bg} 48%, ${c.bg} 100%)`,
         color: c.text,
         fontFamily: "NotoSans",
       }}

@@ -17,6 +17,7 @@ import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { sanitizePromptInput } from "@/lib/utils/sanitize"
 import { resolveBrandIdentity } from "@/lib/services/brand-dna/resolver"
+import { normalizeLogoForRender } from "@/lib/services/brand-dna/logo-normalize"
 import { preflightComposed } from "@/lib/services/brand-dna/preflight"
 import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
 import { registerLibraryAsset } from "@/lib/services/storage/library-asset"
@@ -80,12 +81,14 @@ export async function createPostVisualAction(
   const identity = resolveBrandIdentity(tenant?.brand_dna, { tenantName: tenant?.name })
   const accentHex = identity.accent
   const handle = identity.handle ?? undefined
+  // Logo converti en PNG (Satori ne rend pas le WebP de façon fiable).
+  const logoPng = await normalizeLogoForRender(identity.logoDataUrl)
   const brand = {
     monogram: identity.monogram,
     onAccent: identity.onAccent,
     secondary: identity.secondary ?? undefined,
     shapeKey: identity.shapeKey,
-    logoDataUrl: identity.logoDataUrl ?? undefined,
+    logoDataUrl: logoPng ?? undefined,
   }
   const theme = options?.theme === "light" ? "light" : "dark"
   const format: PostFormat = options?.format ?? "1:1"

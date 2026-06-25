@@ -29,6 +29,11 @@ function chipRadiusPx(shapeKey: string | undefined): number {
   return 12
 }
 
+/** Voile d'accent subtil (fond teinté marque), contraste préservé. */
+function tintStyle(accentColor: string): string {
+  return `radial-gradient(110% 70% at 0% 0%, ${accentColor}1f 0%, transparent 55%)`
+}
+
 export function SlideRenderer({ slide, index, total, accentColor, variant = "full", brand }: SlideRendererProps) {
   const isThumb = variant === "thumb"
   const pad = isThumb ? "p-3" : "p-8 md:p-12"
@@ -39,7 +44,7 @@ export function SlideRenderer({ slide, index, total, accentColor, variant = "ful
   return (
     <div
       className="relative h-full w-full overflow-hidden bg-white dark:bg-slate-950 flex flex-col"
-      style={{ borderTop: `${isThumb ? 3 : 8}px solid ${accentColor}` }}
+      style={{ borderTop: `${isThumb ? 3 : 8}px solid ${accentColor}`, backgroundImage: tintStyle(accentColor) }}
     >
       {/* Pastille de marque (logo ou monogramme) — identité du tenant */}
       {!isThumb && brand && (brand.logoDataUrl || brand.monogram) && (
