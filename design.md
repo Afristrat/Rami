@@ -57,6 +57,14 @@ renvoie une `BrandIdentity` :
 7. **Conformité mesurée, jamais bloquante.** Le `Brand Preflight Score`
    (`preflight.ts`) produit un badge « Conformité marque X% ». Il ne bloque
    AUCUNE publication — le seul verrou reste l'approbation humaine.
+8. **Logo incrusté = PNG.** Satori (next-og) et @react-pdf **ne rendent PAS le
+   WebP/SVG de façon fiable**. Tout logo passe par `normalizeLogoForRender()`
+   (sharp → PNG redimensionné) AVANT incrustation. L'uploader produit du PNG.
+   Un format non convertible → on retombe sur le monogramme (jamais de logo cassé).
+9. **Fond teinté marque, contraste préservé.** Le fond d'un artefact composé
+   dérive de l'accent (voile/dégradé subtil qui s'estompe vers le fond de base),
+   jamais un aplat opaque qui tuerait la lisibilité. Le texte reste sur le fond
+   de base.
 
 ---
 
@@ -97,11 +105,45 @@ Avant de merger un nouveau moteur/format qui produit un artefact tenant :
 - [ ] Pour une image IA : prompt via `compileBrandDNAToPrompts`.
 - [ ] Un `Brand Preflight Score` est calculé et exposé (badge, non bloquant).
 - [ ] Le test de conformité `tests/unit/brand-compliance.test.ts` couvre le nouveau fichier.
+- [ ] Logo converti en PNG via `normalizeLogoForRender` avant incrustation.
+- [ ] Fond teinté marque (subtil), contraste préservé.
 - [ ] Gates : `tsc` 0, `lint` 0 (0 warning), `jest` vert. Browser-verify en prod.
 
 ---
 
-## 6. Modules de référence
+## 6. Pistes d'innovation (moat-hunter) — feuille de route de marque
+
+Issu d'une analyse par analogies inter-industries (job niveau 3 : « garantir la
+conformité d'un jeu de contraintes immuables à chaque sortie d'une chaîne de
+production automatisée »). À garder comme **directions produit** pour les
+prochaines surfaces — ce qui distingue RAMI de « ChatGPT + Canva » :
+
+| Piste | Analogie source | État | Direction |
+|---|---|---|---|
+| **Brand DNA Resolver** (tokens runtime) | Design systems → design tokens | ✅ livré | Toute nouvelle surface s'y branche. |
+| **Brand Preflight Score** (conformité mesurée) | Imprimerie → preflight check | ✅ livré (non bloquant) | Le **moat** : transformer « flèche calibrée » en métrique vérifiable. Étendre aux images IA (score vision) et exposer en badge partout. |
+| **Brand Color Grade + logo compositing** | Cinéma/VFX → LUT pipeline | ⏳ logo PNG livré | Étape suivante : passe déterministe en bout de chaîne sur image IA (cadre/bandeau de marque, duotone **optionnel jamais par défaut**). |
+| **Slots de marque (templated creative)** | Ad-tech → DCO | ✅ partiel | Généraliser le « design-first » (post/carrousel/présentation) à tout nouveau format. |
+| **Compliance-by-design enforcement** | Jeux vidéo → asset validation | ✅ livré | `brand-compliance.test.ts` ; étendre à chaque nouveau renderer. |
+
+---
+
+## 7. Garde-fous (avocat du diable) — ce qu'il ne faut JAMAIS faire
+
+Stress-test du plan (np-sparring-partner). Ces interdits priment sur l'esthétique :
+
+1. **NE PAS** repeindre toute l'UI RAMI aux couleurs du tenant (contraste + identité + surface de bug). Accent **ciblé** seulement (artefacts + aperçus).
+2. **NE PAS** rendre le Preflight Score bloquant (un 2ᵉ gate après l'approbation humaine frustrerait et risquerait de tout bloquer).
+3. **NE PAS** appliquer une couleur de marque sans calcul de contraste (`onAccent` via luminance) — sinon texte illisible.
+4. **NE PAS** appliquer de duotone/color-grade destructif **par défaut** sur une photo IA (option opt-in uniquement).
+5. **NE PAS** dupliquer la logique (un seul resolver, un seul compilateur de prompt, un seul mapping secteur→forme).
+6. **NE PAS** faire un test anti-hardcode global (faux positifs sur les couleurs légitimes) — cibler les renderers.
+7. **NE PAS** construire pour du vide : vérifier que le tenant a un DNA exploitable avant de présumer (beaucoup n'ont pas de logo → monogramme obligatoire ; certains pas de DNA → fallbacks).
+8. **NE PAS** stocker un logo en WebP/SVG pour l'incrustation (cf. règle 8) — PNG only au rendu.
+
+---
+
+## 8. Modules de référence
 
 | Rôle | Fichier |
 |---|---|
