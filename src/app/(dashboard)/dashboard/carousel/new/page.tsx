@@ -1,13 +1,38 @@
 // ============================================================
 // Création d'un carrousel LinkedIn (moteur natif RAMI).
 // Sujet → génération IA → aperçu fidèle → PDF document. Page tenant (auth).
+// L'accent par DÉFAUT et le handle sont résolus depuis le Brand DNA du tenant.
 // ============================================================
 
 import { CarouselCreator } from "@/components/carousel/CarouselCreator"
+import { createClient } from "@/lib/supabase/server"
+import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import { resolveBrandIdentity } from "@/lib/services/brand-dna/resolver"
 
 export const dynamic = "force-dynamic"
 
-export default function NewCarouselPage() {
+export default async function NewCarouselPage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  let initialAccent = "#1D4ED8"
+  let initialHandle = ""
+  if (user) {
+    const tenantId = await resolveUserTenant(supabase, user.id)
+    if (tenantId) {
+      const { data: t } = await supabase
+        .from("tenants")
+        .select("brand_dna, name")
+        .eq("id", tenantId)
+        .single()
+      const identity = resolveBrandIdentity(t?.brand_dna ?? null, { tenantName: t?.name ?? null })
+      initialAccent = identity.accent
+      initialHandle = identity.handle ?? ""
+    }
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <header className="mb-6">
@@ -17,7 +42,7 @@ export default function NewCarouselPage() {
           publier en document LinkedIn. Tu pourras l&apos;éditer et le valider avant publication.
         </p>
       </header>
-      <CarouselCreator />
+      <CarouselCreator initialAccent={initialAccent} initialHandle={initialHandle} />
     </div>
   )
 }

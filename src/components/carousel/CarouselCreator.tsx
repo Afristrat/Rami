@@ -12,10 +12,17 @@ import { CarouselPreview } from "@/components/carousel/CarouselPreview"
 import { createCarouselAction } from "@/lib/actions/carousel.actions"
 import type { Carousel } from "@/lib/schemas/carousel.schema"
 
-export function CarouselCreator() {
+export function CarouselCreator({
+  initialAccent = "#1D4ED8",
+  initialHandle = "",
+}: {
+  /** Accent par défaut = couleur de marque (Brand DNA). Le user peut le changer. */
+  initialAccent?: string
+  initialHandle?: string
+}) {
   const [brief, setBrief] = useState("")
-  const [handle, setHandle] = useState("")
-  const [accentHex, setAccentHex] = useState("#F59E0B")
+  const [handle, setHandle] = useState(initialHandle)
+  const [accentHex, setAccentHex] = useState(initialAccent)
   const [theme, setTheme] = useState<"dark" | "light">("dark")
   const [slideCount, setSlideCount] = useState(7)
   const [carousel, setCarousel] = useState<Carousel | null>(null)
