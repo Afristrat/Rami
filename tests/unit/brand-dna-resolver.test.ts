@@ -157,11 +157,12 @@ describe("resolveBrandIdentity (DNA plat réel)", () => {
     primaryCulture: "international",
   }
 
-  test("résout la palette réelle (IDs Causse → HEX)", () => {
+  test("résout la palette réelle (IDs Causse → HEX) + hasBrandColor", () => {
     const id = resolveBrandIdentity(aiMpower)
     expect(id.accent).toBe("#1D4ED8")
     expect(id.secondary).toBe("#059669")
     expect(id.palette).toEqual(["#1D4ED8", "#059669", "#EA580C"])
+    expect(id.hasBrandColor).toBe(true)
   })
 
   test("onAccent lisible + forme dérivée du secteur RH = cercle", () => {
@@ -204,6 +205,7 @@ describe("resolveBrandIdentity — fallbacks gracieux", () => {
     expect(id.monogram).toBe("SD")
     expect(id.handle).toBe("Studio Démo")
     expect(id.hasLogo).toBe(false)
+    expect(id.hasBrandColor).toBe(false) // accent = fallback, pas une vraie couleur de marque
   })
 
   test("DNA vide complet → fallback monogramme puce", () => {

@@ -17,6 +17,7 @@ import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { sanitizePromptInput } from "@/lib/utils/sanitize"
 import { resolveBrandIdentity } from "@/lib/services/brand-dna/resolver"
+import { preflightComposed } from "@/lib/services/brand-dna/preflight"
 import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
 import { registerLibraryAsset } from "@/lib/services/storage/library-asset"
 import { renderPostVisualToDataUri } from "@/lib/services/post-visual/render"
@@ -150,13 +151,22 @@ export async function createPostVisualAction(
       return { success: false, error: stored.error ?? "Échec du stockage de l'image" }
     }
 
+    // Score de conformité MESURÉ (Brand Preflight) — plus de constante magique.
+    // Le visuel composé applique structurellement : couleur de marque (si DNA),
+    // contraste lisible (onAccent), pastille (monogramme/logo), forme du secteur.
+    const preflight = preflightComposed({
+      brandColorApplied: identity.hasBrandColor,
+      contrastSafe: true,
+      brandMarkPresent: true,
+      brandShapeApplied: true,
+    })
+
     const visual: GeneratedVisual = {
       id: `rami-compose-${Date.now()}`,
       url: stored.data.public_url,
       prompt: `post-visual:${card.layout.type}`,
-      // Visuel composé avec la couleur de marque EXACTE → alignement structurel
-      // (non mesuré par Vision AI : visionScored=false).
-      brandDnaScore: 1,
+      // Conformité structurelle calculée (non mesurée par Vision AI : visionScored=false).
+      brandDnaScore: preflight.score / 100,
       visionScored: false,
       provider: "rami-compose",
     }

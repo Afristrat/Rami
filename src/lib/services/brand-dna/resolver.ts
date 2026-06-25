@@ -35,6 +35,8 @@ export interface BrandIdentity {
   onAccent: string
   /** Couleur secondaire (HEX) si disponible, sinon null. */
   secondary: string | null
+  /** Vrai si l'accent provient d'une VRAIE couleur de marque (pas du fallback). */
+  hasBrandColor: boolean
 
   // ── Identité de marque ──────────────────────────────────────────────────────
   brandName: string | null
@@ -243,6 +245,7 @@ export function resolveBrandIdentity(
   const palette = (dna.color_palette ?? [])
     .map((c) => c.hex)
     .filter(isHex6)
+  const hasBrandColor = palette.length > 0
   const accent = palette[0] ?? FALLBACK_ACCENT
   const secondary = palette[1] ?? null
   const onAccent = readableTextColor(accent)
@@ -271,6 +274,7 @@ export function resolveBrandIdentity(
     accent,
     onAccent,
     secondary,
+    hasBrandColor,
     brandName,
     handle,
     monogram,
