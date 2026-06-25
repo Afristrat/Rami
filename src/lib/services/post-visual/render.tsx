@@ -15,6 +15,8 @@ import {
   POST_DIMENSIONS,
   type PostVisual,
   type PostLayout,
+  type BrandMark,
+  type GestaltShapeKeyZ,
 } from "@/lib/schemas/post-visual.schema"
 
 // ── Polices (chargées une fois par process) ──────────────────────────────────
@@ -177,8 +179,99 @@ function layoutBody(layout: PostLayout, c: Palette, accentHex: string): ReactEle
   }
 }
 
+// ── Marque : pastille logo / monogramme + décor de forme Gestalt ──────────────
+
+/** Rayon de la pastille de marque selon la forme Gestalt (psychologie des formes). */
+function chipRadius(shape: GestaltShapeKeyZ): number {
+  switch (shape) {
+    case "cercle":
+      return 999
+    case "courbes":
+      return u(4)
+    case "carre":
+      return u(1.2)
+    default: // triangle / diagonales / grille → anguleux
+      return u(0.6)
+  }
+}
+
+/** Pastille de marque : logo si disponible, sinon monogramme sur fond d'accent. */
+function BrandChip({ accentHex, brand }: { accentHex: string; brand: BrandMark }): ReactElement {
+  const size = u(11)
+  const radius = chipRadius(brand.shapeKey)
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: u(4.5),
+        left: PAD,
+        display: "flex",
+        width: size,
+        height: size,
+        borderRadius: radius,
+        backgroundColor: brand.logoDataUrl ? "transparent" : accentHex,
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+      }}
+    >
+      {brand.logoDataUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={brand.logoDataUrl} width={size} height={size} alt="" style={{ objectFit: "contain" }} />
+      ) : (
+        <div style={{ display: "flex", fontSize: u(4.4), fontWeight: 700, color: brand.onAccent }}>{brand.monogram}</div>
+      )}
+    </div>
+  )
+}
+
+/** Glyphe décoratif (coin haut-droit) matérialisant la forme Gestalt du secteur. */
+function ShapeGlyph({ accentHex, shape }: { accentHex: string; shape: GestaltShapeKeyZ }): ReactElement | null {
+  const S = u(16)
+  const base = { position: "absolute" as const, top: u(5), right: PAD, display: "flex", opacity: 0.14 }
+  const stroke = u(1.3)
+  switch (shape) {
+    case "cercle":
+      return <div style={{ ...base, width: S, height: S, borderRadius: 999, borderWidth: stroke, borderStyle: "solid", borderColor: accentHex }} />
+    case "carre":
+      return <div style={{ ...base, width: S, height: S, borderWidth: stroke, borderStyle: "solid", borderColor: accentHex }} />
+    case "triangle":
+      return (
+        <div
+          style={{
+            ...base,
+            width: 0,
+            height: 0,
+            borderStyle: "solid",
+            borderLeftWidth: S / 2,
+            borderRightWidth: S / 2,
+            borderBottomWidth: S,
+            borderTopWidth: 0,
+            borderLeftColor: "transparent",
+            borderRightColor: "transparent",
+            borderBottomColor: accentHex,
+            borderTopColor: "transparent",
+          }}
+        />
+      )
+    case "diagonales":
+      return <div style={{ ...base, top: u(9), width: S, height: u(2), backgroundColor: accentHex, transform: "rotate(-45deg)" }} />
+    case "courbes":
+      return <div style={{ ...base, width: S, height: S, borderTopLeftRadius: S, borderBottomRightRadius: S, borderWidth: stroke, borderStyle: "solid", borderColor: accentHex }} />
+    case "grille":
+      return (
+        <div style={{ ...base, width: S, height: S, display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignContent: "space-between" }}>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} style={{ display: "flex", width: u(6.5), height: u(6.5), backgroundColor: accentHex }} />
+          ))}
+        </div>
+      )
+  }
+}
+
 function buildElement(card: PostVisual): ReactElement {
   const c = palette(card.theme)
+  const hasBrand = card.brand != null
   return (
     <div
       style={{
@@ -194,13 +287,17 @@ function buildElement(card: PostVisual): ReactElement {
     >
       {/* Barre d'accent supérieure */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: u(1.4), backgroundColor: card.accentHex, display: "flex" }} />
+      {/* Décor de forme Gestalt (selon le secteur du tenant) */}
+      {card.brand ? <ShapeGlyph accentHex={card.accentHex} shape={card.brand.shapeKey} /> : null}
+      {/* Pastille de marque (logo ou monogramme) */}
+      {card.brand ? <BrandChip accentHex={card.accentHex} brand={card.brand} /> : null}
       {/* Corps */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           flex: 1,
-          paddingTop: u(10),
+          paddingTop: hasBrand ? u(19) : u(10),
           paddingBottom: FOOTER_H + u(3),
           paddingLeft: PAD,
           paddingRight: PAD,

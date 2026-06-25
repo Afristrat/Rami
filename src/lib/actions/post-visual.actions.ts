@@ -16,7 +16,7 @@ import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { sanitizePromptInput } from "@/lib/utils/sanitize"
-import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
+import { resolveBrandIdentity } from "@/lib/services/brand-dna/resolver"
 import { checkGenerationQuota, getPlanConfig, incrementGenerationCount } from "@/lib/billing"
 import { registerLibraryAsset } from "@/lib/services/storage/library-asset"
 import { renderPostVisualToDataUri } from "@/lib/services/post-visual/render"
@@ -70,15 +70,22 @@ export async function createPostVisualAction(
     }
   }
 
-  // Brand DNA → accent (couleur primaire réelle, ID Causse résolu en HEX) + handle.
+  // Brand DNA → identité visuelle résolue (SOURCE UNIQUE) : accent + onAccent
+  // lisible, forme Gestalt du secteur, logo/monogramme, handle. Plus aucune
+  // couleur hardcodée ici.
   const tenant = await db.query.tenants
     .findFirst({ where: eq(tenants.id, tenantId), columns: { brand_dna: true, name: true } })
     .catch(() => null)
-  const dna = normalizeBrandDNA(tenant?.brand_dna)
-  const accentHex = dna.color_palette?.[0]?.hex && /^#[0-9a-fA-F]{6}$/.test(dna.color_palette[0].hex)
-    ? dna.color_palette[0].hex
-    : "#F59E0B"
-  const handle = (tenant?.name ?? "").slice(0, 60) || undefined
+  const identity = resolveBrandIdentity(tenant?.brand_dna, { tenantName: tenant?.name })
+  const accentHex = identity.accent
+  const handle = identity.handle ?? undefined
+  const brand = {
+    monogram: identity.monogram,
+    onAccent: identity.onAccent,
+    secondary: identity.secondary ?? undefined,
+    shapeKey: identity.shapeKey,
+    logoDataUrl: identity.logoDataUrl ?? undefined,
+  }
   const theme = options?.theme === "light" ? "light" : "dark"
   const format: PostFormat = options?.format ?? "1:1"
 
@@ -125,7 +132,7 @@ export async function createPostVisualAction(
     const json = extractJson(rawText)
     if (!json || typeof json !== "object") return { success: false, error: "Réponse IA invalide" }
 
-    const card = parsePostVisual({ ...(json as Record<string, unknown>), format, theme, accentHex, handle })
+    const card = parsePostVisual({ ...(json as Record<string, unknown>), format, theme, accentHex, handle, brand })
     if (!card) return { success: false, error: "Composition invalide" }
 
     // Rendu code → image (accents garantis) → WebP/MinIO via storeVisual (data URI).

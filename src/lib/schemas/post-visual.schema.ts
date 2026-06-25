@@ -63,6 +63,29 @@ export type PostLayoutType = PostLayout["type"]
 
 // ── Carte complète ───────────────────────────────────────────────────────────
 
+/** Formes Gestalt (psychologie des formes) appliquées au décor de la carte. */
+export const GESTALT_SHAPE_KEYS = ["cercle", "carre", "triangle", "diagonales", "courbes", "grille"] as const
+export type GestaltShapeKeyZ = (typeof GESTALT_SHAPE_KEYS)[number]
+
+/**
+ * Tokens de marque injectés par le SERVEUR (Brand DNA Resolver) — jamais par le
+ * LLM. Garantissent l'application visuelle de l'identité : pastille logo/monogramme,
+ * texte lisible sur l'accent, forme Gestalt selon le secteur.
+ */
+export const brandMarkSchema = z.object({
+  /** Initiales de repli (quand pas de logo). */
+  monogram: z.string().min(1).max(3),
+  /** Texte lisible posé sur l'accent (contraste WCAG, calculé serveur). */
+  onAccent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  /** Couleur secondaire de marque (optionnelle). */
+  secondary: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  /** Forme Gestalt dominante (dérivée du secteur). */
+  shapeKey: z.enum(GESTALT_SHAPE_KEYS),
+  /** Data URI du logo si exploitable (sinon on rend le monogramme). */
+  logoDataUrl: z.string().optional(),
+})
+export type BrandMark = z.infer<typeof brandMarkSchema>
+
 export const postVisualSchema = z.object({
   format: z.enum(POST_FORMATS).default("1:1"),
   theme: z.enum(["dark", "light"]).default("dark"),
@@ -72,6 +95,8 @@ export const postVisualSchema = z.object({
     .default("#F59E0B"),
   /** Marque / handle affiché en pied (ex. "@ai-mpower"). */
   handle: z.string().max(60).optional(),
+  /** Tokens de marque (injectés serveur depuis le Brand DNA Resolver). */
+  brand: brandMarkSchema.optional(),
   layout: postLayout,
 })
 export type PostVisual = z.infer<typeof postVisualSchema>
@@ -92,6 +117,7 @@ export function parsePostVisual(input: unknown): PostVisual | null {
       theme: obj.theme,
       accentHex: obj.accentHex,
       handle: obj.handle,
+      brand: obj.brand,
     })
   const base = meta.success
     ? meta.data
