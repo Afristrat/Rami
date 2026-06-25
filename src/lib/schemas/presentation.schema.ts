@@ -83,6 +83,16 @@ export const presentationContentSchema = z.object({
   }),
   theme: z.object({
     accentColor: z.string().default("#7C3BED"),
+    /** Couleur secondaire de marque (Brand DNA Resolver). */
+    secondary: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+    /** Logo du tenant (data URI) si disponible — incrusté sur les slides. */
+    logoDataUrl: z.string().optional(),
+    /** Initiales de repli quand pas de logo. */
+    monogram: z.string().max(3).optional(),
+    /** Texte lisible sur l'accent (contraste WCAG). */
+    onAccent: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+    /** Forme Gestalt du secteur. */
+    shapeKey: z.enum(["cercle", "carre", "triangle", "diagonales", "courbes", "grille"]).optional(),
   }),
   deck: deckSchema,
 })

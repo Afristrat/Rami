@@ -5,15 +5,31 @@ import type { DeckSlide } from "@/lib/schemas/presentation.schema"
 // Rend une slide RÉELLE (issue du deck généré) dans un cadre 16:9.
 // `variant="full"` = aperçu principal ; `variant="thumb"` = vignette compacte.
 
+interface SlideBrand {
+  logoDataUrl?: string
+  monogram?: string
+  onAccent?: string
+  shapeKey?: string
+}
+
 interface SlideRendererProps {
   slide: DeckSlide
   index: number
   total: number
   accentColor: string
   variant?: "full" | "thumb"
+  /** Marque du tenant (logo/monogramme/forme) — affichée sur l'aperçu plein. */
+  brand?: SlideBrand
 }
 
-export function SlideRenderer({ slide, index, total, accentColor, variant = "full" }: SlideRendererProps) {
+/** Rayon de la pastille de marque (px) selon la forme Gestalt. */
+function chipRadiusPx(shapeKey: string | undefined): number {
+  if (shapeKey === "cercle" || shapeKey === "courbes") return 999
+  if (shapeKey === "carre" || shapeKey === "grille") return 6
+  return 12
+}
+
+export function SlideRenderer({ slide, index, total, accentColor, variant = "full", brand }: SlideRendererProps) {
   const isThumb = variant === "thumb"
   const pad = isThumb ? "p-3" : "p-8 md:p-12"
   const titleSize = isThumb ? "text-[11px] font-bold leading-tight" : "text-2xl md:text-4xl font-black leading-tight"
@@ -25,6 +41,27 @@ export function SlideRenderer({ slide, index, total, accentColor, variant = "ful
       className="relative h-full w-full overflow-hidden bg-white dark:bg-slate-950 flex flex-col"
       style={{ borderTop: `${isThumb ? 3 : 8}px solid ${accentColor}` }}
     >
+      {/* Pastille de marque (logo ou monogramme) — identité du tenant */}
+      {!isThumb && brand && (brand.logoDataUrl || brand.monogram) && (
+        <div
+          className="absolute right-6 top-6 z-10 flex items-center justify-center overflow-hidden"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: chipRadiusPx(brand.shapeKey),
+            backgroundColor: brand.logoDataUrl ? "transparent" : accentColor,
+          }}
+        >
+          {brand.logoDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={brand.logoDataUrl} alt="" className="h-full w-full object-contain" />
+          ) : (
+            <span className="text-sm font-bold" style={{ color: brand.onAccent ?? "#FFFFFF" }}>
+              {brand.monogram}
+            </span>
+          )}
+        </div>
+      )}
       <div className={`flex-1 flex flex-col ${pad} min-h-0`}>
         {slide.type === "cover" && (
           <div className="flex flex-1 flex-col justify-center gap-3">

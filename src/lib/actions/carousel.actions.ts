@@ -11,6 +11,7 @@ import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { sanitizePromptInput } from "@/lib/utils/sanitize"
+import { resolveBrandIdentity } from "@/lib/services/brand-dna/resolver"
 import { parseCarousel, type Carousel } from "@/lib/schemas/carousel.schema"
 import { log } from "@/lib/utils/logger"
 
@@ -44,9 +45,26 @@ export async function createCarouselAction(input: {
   const brief = sanitizePromptInput(input.brief ?? "")
   if (brief.trim().length < 10) return { success: false, error: "brief_too_short" }
 
+  // Brand DNA → identité résolue : accent par DÉFAUT = couleur de marque (le
+  // choix manuel de l'UI reste prioritaire), + monogramme/logo/forme injectés.
+  const { data: tenantRow } = await supabase
+    .from("tenants")
+    .select("brand_dna, name")
+    .eq("id", tenantId)
+    .single()
+  const identity = resolveBrandIdentity(tenantRow?.brand_dna ?? null, { tenantName: tenantRow?.name ?? null })
+
   const n = Math.max(5, Math.min(10, input.slideCount ?? 7))
-  const accentHex = /^#[0-9a-fA-F]{6}$/.test(input.accentHex ?? "") ? input.accentHex : "#F59E0B"
+  const accentHex = /^#[0-9a-fA-F]{6}$/.test(input.accentHex ?? "") ? input.accentHex : identity.accent
   const theme = input.theme === "light" ? "light" : "dark"
+  const brand = {
+    monogram: identity.monogram,
+    onAccent: identity.onAccent,
+    secondary: identity.secondary ?? undefined,
+    shapeKey: identity.shapeKey,
+    logoDataUrl: identity.logoDataUrl ?? undefined,
+  }
+  const handle = input.handle ?? identity.handle ?? undefined
 
   const config = await getPromptConfig("workflow_brief_enrich")
   const systemPrompt =
@@ -96,7 +114,8 @@ export async function createCarouselAction(input: {
             ...(json as Record<string, unknown>),
             theme,
             accentHex,
-            handle: input.handle ?? (json as Record<string, unknown>).handle,
+            brand,
+            handle: handle ?? (json as Record<string, unknown>).handle,
             author: input.author ?? (json as Record<string, unknown>).author,
           }
         : json

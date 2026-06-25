@@ -78,7 +78,8 @@ export interface PdfShellProps {
 }
 
 export function accentFor(branding: PdfBranding): string {
-  return branding.mode === "agency" ? ACCENT_AGENCY : ACCENT_RAMI
+  // Accent réel de la marque (Brand DNA Resolver). Repli historique si absent.
+  return branding.accentColor || (branding.mode === "agency" ? ACCENT_AGENCY : ACCENT_RAMI)
 }
 
 export function PdfShell({

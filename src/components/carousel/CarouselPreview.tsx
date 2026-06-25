@@ -35,6 +35,7 @@ export function CarouselPreview({ carousel, maxWidth = 460 }: CarouselPreviewPro
             accentHex={carousel.accentHex}
             theme={carousel.theme}
             handle={carousel.handle}
+            brand={carousel.brand}
           />
         </div>
 

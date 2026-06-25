@@ -12,6 +12,7 @@
 // PUR : aucune I/O. Le plan et le brand_dna sont fournis par l'appelant.
 
 import { hasFeatureAccess, type Plan } from "@/lib/billing/plans"
+import { resolveBrandIdentity } from "@/lib/services/brand-dna/resolver"
 
 export type PdfBrandingMode = "agency" | "cobrand" | "rami"
 
@@ -23,6 +24,10 @@ export interface PdfBranding {
   displayName: string
   /** true → afficher la mention « Propulsé par RAMI » en pied de page. */
   showPoweredBy: boolean
+  /** Couleur d'accent de marque (Brand DNA Resolver) appliquée au document. */
+  accentColor: string
+  /** Texte lisible sur l'accent (contraste WCAG). */
+  onAccent: string
 }
 
 const RAMI_NAME = "RAMI"
@@ -70,13 +75,21 @@ export function resolvePdfBranding(input: ResolvePdfBrandingInput): PdfBranding 
 
   const hasCustomBranding = hasFeatureAccess(input.plan, "white_label")
 
-  // Niveau 3 : aucun logo agence → RAMI seul.
+  // Accent de marque (couleur réelle du tenant via le Brand DNA Resolver) — le
+  // document n'est plus figé sur le violet RAMI.
+  const identityTokens = resolveBrandIdentity(input.brandDna)
+  const accentColor = identityTokens.accent
+  const onAccent = identityTokens.onAccent
+
+  // Niveau 3 : aucun logo agence → RAMI seul (mais l'accent reste celui de la marque).
   if (!logo) {
     return {
       mode: "rami",
       logoDataUrl: null,
       displayName: RAMI_NAME,
       showPoweredBy: false,
+      accentColor,
+      onAccent,
     }
   }
 
@@ -87,6 +100,8 @@ export function resolvePdfBranding(input: ResolvePdfBrandingInput): PdfBranding 
       logoDataUrl: logo,
       displayName: agencyName ?? "",
       showPoweredBy: false,
+      accentColor,
+      onAccent,
     }
   }
 
@@ -96,5 +111,7 @@ export function resolvePdfBranding(input: ResolvePdfBrandingInput): PdfBranding 
     logoDataUrl: logo,
     displayName: agencyName ?? "",
     showPoweredBy: true,
+    accentColor,
+    onAccent,
   }
 }

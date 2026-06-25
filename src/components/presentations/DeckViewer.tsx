@@ -146,7 +146,19 @@ export function DeckViewer({ id, title, content }: DeckViewerProps) {
             className="aspect-video w-full max-h-full overflow-hidden rounded-2xl border border-border shadow-2xl"
             style={{ maxWidth: "min(64rem, calc((100dvh - 14rem) * 16 / 9))" }}
           >
-            <SlideRenderer slide={slides[current]} index={current} total={total} accentColor={accent} variant="full" />
+            <SlideRenderer
+              slide={slides[current]}
+              index={current}
+              total={total}
+              accentColor={accent}
+              variant="full"
+              brand={{
+                logoDataUrl: content.theme.logoDataUrl,
+                monogram: content.theme.monogram,
+                onAccent: content.theme.onAccent,
+                shapeKey: content.theme.shapeKey,
+              }}
+            />
           </div>
 
           <div className="flex shrink-0 items-center gap-6">

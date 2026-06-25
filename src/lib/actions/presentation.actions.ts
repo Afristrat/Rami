@@ -9,6 +9,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
 import { normalizeBrandDNA } from "@/lib/services/brand-dna/normalize"
+import { resolveBrandIdentity, type BrandIdentity } from "@/lib/services/brand-dna/resolver"
 import { getPromptConfig } from "@/lib/services/ai/prompt-config"
 import { callTextLLM } from "@/lib/services/ai/text-llm"
 import { log } from "@/lib/utils/logger"
@@ -45,6 +46,18 @@ export type CreatePresentationResult =
   | { id: string }
   | { error: string }
 
+/** Construit le thème visuel d'un deck depuis l'identité résolue (Brand DNA). */
+function themeFromIdentity(identity: BrandIdentity, explicitAccent?: string) {
+  return {
+    accentColor: explicitAccent ?? identity.accent,
+    secondary: identity.secondary ?? undefined,
+    logoDataUrl: identity.logoDataUrl ?? undefined,
+    monogram: identity.monogram,
+    onAccent: identity.onAccent,
+    shapeKey: identity.shapeKey,
+  }
+}
+
 export async function createPresentationDeckAction(
   input: CreatePresentationInput
 ): Promise<CreatePresentationResult> {
@@ -65,12 +78,13 @@ export async function createPresentationDeckAction(
 
   const { data: tenantRow } = await supabase
     .from("tenants")
-    .select("brand_dna")
+    .select("brand_dna, name")
     .eq("id", tenantId)
     .single()
 
   const rawDna: unknown = tenantRow?.brand_dna ?? null
   const brandDNA = normalizeBrandDNA(rawDna)
+  const identity = resolveBrandIdentity(rawDna, { tenantName: tenantRow?.name ?? null })
 
   // Génération LLM (deepseek via proxy). Échec → erreur honnête, aucun deck fabriqué.
   let deck
@@ -122,7 +136,7 @@ export async function createPresentationDeckAction(
       language: parsed.data.language as DeckLanguage,
       slideCount: parsed.data.slideCount,
     },
-    theme: { accentColor: parsed.data.accentColor ?? "#7C3BED" },
+    theme: themeFromIdentity(identity, parsed.data.accentColor),
     deck,
   }
 
@@ -239,11 +253,12 @@ export async function createPresentationFromFileAction(
 
   const { data: tenantRow } = await supabase
     .from("tenants")
-    .select("brand_dna")
+    .select("brand_dna, name")
     .eq("id", tenantId)
     .single()
   const rawDna: unknown = tenantRow?.brand_dna ?? null
   const brandDNA = normalizeBrandDNA(rawDna)
+  const identity = resolveBrandIdentity(rawDna, { tenantName: tenantRow?.name ?? null })
 
   // Conversion LLM (mode CONVERSION → fidélité aux faits/chiffres de la source).
   let deck
@@ -284,7 +299,7 @@ export async function createPresentationFromFileAction(
 
   const content: PresentationContent = {
     brief: { subject: `Import : ${fileBase}`.slice(0, 200), audience, language, slideCount },
-    theme: { accentColor: "#7C3BED" },
+    theme: themeFromIdentity(identity),
     deck,
   }
 

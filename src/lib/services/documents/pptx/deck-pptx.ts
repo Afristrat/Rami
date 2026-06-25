@@ -22,16 +22,26 @@ export async function buildDeckPptx(content: PresentationContent, title: string)
   pptx.title = title
 
   const accent = hex(content.theme.accentColor || "#7C3BED")
+  const onAccent = hex(content.theme.onAccent || "#FFFFFF")
+  const logo =
+    typeof content.theme.logoDataUrl === "string" && content.theme.logoDataUrl.startsWith("data:image/")
+      ? content.theme.logoDataUrl
+      : null
+  const monogram = (content.theme.monogram ?? "").slice(0, 3)
+  const shapeKey = content.theme.shapeKey ?? "cercle"
   const slides = content.deck.slides
   const total = slides.length
 
   slides.forEach((slide, idx) => {
     const s = pptx.addSlide()
     s.background = { color: "FFFFFF" }
-    // Barre d'accent haute
+    // Barre d'accent haute (couleur de marque)
     s.addShape("rect", { x: 0, y: 0, w: "100%", h: 0.12, fill: { color: accent } })
 
     renderSlide(s, slide, idx, total, accent)
+
+    // Marque (logo ou monogramme) en haut à droite — identité sur CHAQUE slide.
+    brandMark(s, { logo, monogram, accent, onAccent, shapeKey })
 
     // Pied de page
     s.addText("RAMI", { x: 0.5, y: 7.05, w: 3, h: 0.3, fontSize: 9, color: GREY })
@@ -43,6 +53,43 @@ export async function buildDeckPptx(content: PresentationContent, title: string)
 }
 
 type Slide = ReturnType<PptxGenJS["addSlide"]>
+
+/** Forme de la pastille de marque selon la forme Gestalt du secteur. */
+function chipShape(shapeKey: string): "ellipse" | "rect" | "roundRect" {
+  if (shapeKey === "cercle" || shapeKey === "courbes") return "ellipse"
+  if (shapeKey === "carre" || shapeKey === "grille") return "rect"
+  return "roundRect"
+}
+
+/**
+ * Pastille de marque (haut-droit de chaque slide) : logo du tenant si disponible,
+ * sinon monogramme sur fond d'accent. Garantit la présence de l'identité partout.
+ */
+function brandMark(
+  s: Slide,
+  opts: { logo: string | null; monogram: string; accent: string; onAccent: string; shapeKey: string }
+): void {
+  const x = 12.45
+  const y = 0.3
+  const d = 0.58
+  if (opts.logo) {
+    s.addImage({ data: opts.logo, x, y, w: d, h: d })
+    return
+  }
+  if (!opts.monogram) return
+  s.addShape(chipShape(opts.shapeKey), { x, y, w: d, h: d, fill: { color: opts.accent } })
+  s.addText(opts.monogram, {
+    x,
+    y,
+    w: d,
+    h: d,
+    fontSize: 13,
+    bold: true,
+    color: opts.onAccent,
+    align: "center",
+    valign: "middle",
+  })
+}
 
 function renderSlide(s: Slide, slide: DeckSlide, idx: number, total: number, accent: string): void {
   switch (slide.type) {

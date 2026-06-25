@@ -5,13 +5,20 @@
 // 1 unité "u" = 1% de la largeur (1080) → calque fidèle des tailles cqw du React.
 // ============================================================
 
-import { Document, Page, View, Text, StyleSheet, renderToBuffer } from "@react-pdf/renderer"
+import { Document, Page, View, Text, Image, StyleSheet, renderToBuffer } from "@react-pdf/renderer"
 import { registerPdfFonts } from "@/lib/services/documents/pdf/fonts"
-import type { Carousel, CarouselSlide } from "@/lib/schemas/carousel.schema"
+import type { Carousel, CarouselSlide, CarouselBrand } from "@/lib/schemas/carousel.schema"
 
 const W = 1080
 const H = 1350
 const u = (n: number): number => (n / 100) * W // cqw → pt
+
+/** Rayon (pt) de la pastille de marque selon la forme Gestalt. */
+function chipRadiusPt(shapeKey: string | undefined, size: number): number {
+  if (shapeKey === "cercle" || shapeKey === "courbes") return size / 2
+  if (shapeKey === "carre" || shapeKey === "grille") return u(1.4)
+  return u(3)
+}
 
 type Colors = { bg: string; text: string; muted: string; panel: string; hairline: string }
 function colors(theme: "dark" | "light"): Colors {
@@ -28,6 +35,7 @@ function Slide({
   accentHex,
   theme,
   handle,
+  brand,
 }: {
   slide: CarouselSlide
   index: number
@@ -35,9 +43,12 @@ function Slide({
   accentHex: string
   theme: "dark" | "light"
   handle?: string
+  brand?: CarouselBrand
 }) {
   const c = colors(theme)
   const isCover = slide.type === "cover"
+  const onAccent = brand?.onAccent ?? (theme === "dark" ? "#0B0B0F" : "#FFFFFF")
+  const chip = u(11)
   const s = StyleSheet.create({
     page: { backgroundColor: c.bg, color: c.text, fontFamily: "NotoSans", position: "relative" },
     accentBar: { position: "absolute", top: 0, left: 0, right: 0, height: u(1.4), backgroundColor: accentHex },
@@ -66,6 +77,30 @@ function Slide({
   return (
     <Page size={[W, H]} style={s.page}>
       <View style={s.accentBar} />
+      {brand && (brand.logoDataUrl || brand.monogram) ? (
+        <View
+          style={{
+            position: "absolute",
+            top: u(5.5),
+            right: u(8),
+            width: chip,
+            height: chip,
+            borderRadius: chipRadiusPt(brand.shapeKey, chip),
+            backgroundColor: brand.logoDataUrl ? undefined : accentHex,
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+        >
+          {brand.logoDataUrl ? (
+            // @react-pdf Image (PDF, pas HTML) — pas de prop alt.
+            // eslint-disable-next-line jsx-a11y/alt-text
+            <Image src={brand.logoDataUrl} style={{ width: chip, height: chip, objectFit: "contain" }} />
+          ) : (
+            <Text style={{ fontSize: u(4.4), color: onAccent, fontWeight: "bold" }}>{brand.monogram}</Text>
+          )}
+        </View>
+      ) : null}
       <View style={s.body}>
         {slide.type === "cover" && (
           <View style={{ flexGrow: 1, justifyContent: "center" }}>
@@ -157,7 +192,7 @@ function Slide({
             {slide.body ? <Text style={{ fontSize: u(4.4), color: c.muted, marginTop: u(4), lineHeight: 1.4 }}>{slide.body}</Text> : null}
             {slide.action ? (
               <View style={{ backgroundColor: accentHex, borderRadius: u(8), paddingVertical: u(3.5), paddingHorizontal: u(6), marginTop: u(6), alignSelf: "flex-start" }}>
-                <Text style={{ color: theme === "dark" ? "#0B0B0F" : "#FFFFFF", fontSize: u(4.2), fontWeight: "bold" }}>{slide.action}</Text>
+                <Text style={{ color: onAccent, fontSize: u(4.2), fontWeight: "bold" }}>{slide.action}</Text>
               </View>
             ) : null}
           </View>
@@ -189,6 +224,7 @@ function CarouselDocument({ carousel }: { carousel: Carousel }) {
           accentHex={carousel.accentHex}
           theme={carousel.theme}
           handle={carousel.handle}
+          brand={carousel.brand}
         />
       ))}
     </Document>

@@ -5,7 +5,7 @@
 // Pas de hook → utilisable côté serveur comme client.
 // ============================================================
 
-import type { CarouselSlide as Slide } from "@/lib/schemas/carousel.schema"
+import type { CarouselSlide as Slide, CarouselBrand } from "@/lib/schemas/carousel.schema"
 
 export interface CarouselSlideProps {
   slide: Slide
@@ -14,6 +14,15 @@ export interface CarouselSlideProps {
   accentHex: string
   theme: "dark" | "light"
   handle?: string
+  /** Marque du tenant (logo/monogramme/forme) — Brand DNA Resolver. */
+  brand?: CarouselBrand
+}
+
+/** Rayon de la pastille de marque selon la forme Gestalt (unités cqw / %). */
+function chipRadius(shapeKey: string | undefined): string {
+  if (shapeKey === "cercle" || shapeKey === "courbes") return "50%"
+  if (shapeKey === "carre" || shapeKey === "grille") return "1.4cqw"
+  return "3cqw"
 }
 
 type Palette = {
@@ -31,9 +40,10 @@ function palette(theme: "dark" | "light"): Palette {
     : { bg: "#FBFBFD", text: "#0B0B0F", muted: "#6B7280", panel: "#F1F1F4", hairline: "#E4E4E8" }
 }
 
-export function CarouselSlide({ slide, index, total, accentHex, theme, handle }: CarouselSlideProps) {
+export function CarouselSlide({ slide, index, total, accentHex, theme, handle, brand }: CarouselSlideProps) {
   const c = palette(theme)
   const isCover = slide.type === "cover"
+  const onAccent = brand?.onAccent ?? (theme === "dark" ? "#0B0B0F" : "#FFFFFF")
 
   return (
     <div
@@ -50,6 +60,32 @@ export function CarouselSlide({ slide, index, total, accentHex, theme, handle }:
     >
       {/* Barre d'accent supérieure */}
       <div style={{ height: "1.4cqw", background: accentHex }} className="absolute inset-x-0 top-0" />
+
+      {/* Pastille de marque (logo ou monogramme) — haut-droit */}
+      {brand && (brand.logoDataUrl || brand.monogram) && (
+        <div
+          style={{
+            position: "absolute",
+            top: "5.5cqw",
+            right: "8cqw",
+            width: "11cqw",
+            height: "11cqw",
+            borderRadius: chipRadius(brand.shapeKey),
+            background: brand.logoDataUrl ? "transparent" : accentHex,
+            overflow: "hidden",
+          }}
+          className="z-10 flex items-center justify-center"
+        >
+          {brand.logoDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={brand.logoDataUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+          ) : (
+            <span style={{ fontSize: "4.4cqw", color: onAccent }} className="font-bold">
+              {brand.monogram}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Corps */}
       <div
@@ -178,7 +214,7 @@ export function CarouselSlide({ slide, index, total, accentHex, theme, handle }:
             )}
             {slide.action && (
               <div
-                style={{ background: accentHex, color: theme === "dark" ? "#0B0B0F" : "#FFFFFF", fontSize: "4.2cqw", padding: "3.5cqw 6cqw", marginTop: "6cqw" }}
+                style={{ background: accentHex, color: onAccent, fontSize: "4.2cqw", padding: "3.5cqw 6cqw", marginTop: "6cqw" }}
                 className="inline-block self-start rounded-full font-bold"
               >
                 {slide.action}

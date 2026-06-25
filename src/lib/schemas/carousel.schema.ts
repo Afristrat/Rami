@@ -60,6 +60,16 @@ export const carouselSlide = z.discriminatedUnion("type", [
 ])
 export type CarouselSlide = z.infer<typeof carouselSlide>
 
+/** Tokens de marque injectés serveur (Brand DNA Resolver) — jamais par le LLM. */
+export const carouselBrandSchema = z.object({
+  monogram: z.string().min(1).max(3),
+  onAccent: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+  secondary: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  shapeKey: z.enum(["cercle", "carre", "triangle", "diagonales", "courbes", "grille"]),
+  logoDataUrl: z.string().optional(),
+})
+export type CarouselBrand = z.infer<typeof carouselBrandSchema>
+
 export const carouselSchema = z.object({
   theme: z.enum(["dark", "light"]).default("dark"),
   accentHex: z
@@ -68,6 +78,7 @@ export const carouselSchema = z.object({
     .default("#F59E0B"),
   handle: z.string().max(60).optional(),
   author: z.string().max(80).optional(),
+  brand: carouselBrandSchema.optional(),
   slides: z.array(carouselSlide).min(1).max(12),
 })
 export type Carousel = z.infer<typeof carouselSchema>
@@ -88,7 +99,7 @@ export function parseCarousel(input: unknown): Carousel | null {
   if (slides.length === 0) return null
   const meta = carouselSchema
     .omit({ slides: true })
-    .safeParse({ theme: obj.theme, accentHex: obj.accentHex, handle: obj.handle, author: obj.author })
+    .safeParse({ theme: obj.theme, accentHex: obj.accentHex, handle: obj.handle, author: obj.author, brand: obj.brand })
   const base = meta.success ? meta.data : { theme: "dark" as const, accentHex: "#F59E0B" }
   return { ...base, slides }
 }
