@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server'
-import { VideoGeneratorClient } from '@/components/visual/VideoGeneratorClient'
+import { VideoWorkspace } from '@/components/visual/VideoWorkspace'
 
 export async function generateMetadata() {
   const t = await getTranslations("metadata")
@@ -10,5 +10,5 @@ export async function generateMetadata() {
 }
 
 export default function VideoPage() {
-  return <VideoGeneratorClient />
+  return <VideoWorkspace />
 }

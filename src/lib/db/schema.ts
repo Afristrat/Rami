@@ -376,3 +376,24 @@ export const apiKeys = pgTable('api_keys', {
   created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })
+
+// ============================================================
+// VIDEO PRODUCTIONS — Studio Mishkāt (génération vidéo par API)
+// Une production = un job Mishkāt → jusqu'à 4 variantes (lang × format).
+// Les MP4 finaux sont archivés dans media_assets (bibliothèque tenant).
+// ============================================================
+
+export const videoProductions = pgTable('video_productions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  mishkat_job_id: text('mishkat_job_id').notNull(),
+  mode: varchar('mode', { length: 16 }).notNull().default('v1_pool'),
+  status: varchar('status', { length: 16 }).notNull().default('queued'),
+  brief: jsonb('brief').notNull(),
+  brand_snapshot: jsonb('brand_snapshot'),
+  storyboard: jsonb('storyboard'),
+  variants: jsonb('variants').notNull().default([]),
+  error_message: text('error_message'),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
