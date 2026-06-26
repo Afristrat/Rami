@@ -2830,5 +2830,77 @@
     "notFound": "رابط الموافقة غير موجود أو غير صالح.",
     "decisionError": "تعذّر حفظ القرار. حاول مجددًا.",
     "submitting": "جارٍ الحفظ…"
+  },
+  "videoStudio": {
+    "title": "استوديو فيديو العلامة",
+    "subtitle": "أنشئ 4 فيديوهات ثنائية اللغة (فرنسي·عربي × 16:9·9:16) بصور علامتك، عبر استوديو مشكاة.",
+    "modeStudio": "استوديو العلامة (مشكاة)",
+    "modeQuick": "توليد سريع (Veo)",
+    "intentLabel": "هدف الفيديو",
+    "intentPlaceholder": "صف ما يجب أن يحققه الفيديو…",
+    "audienceLabel": "الجمهور المستهدف",
+    "toneLabel": "النبرة",
+    "objectiveLabel": "الهدف",
+    "durationLabel": "المدة",
+    "primaryLangLabel": "اللغة الأساسية",
+    "secondaryLangLabel": "اللغة الثانوية",
+    "noSecondary": "بدون",
+    "audience": {
+      "etudiant": "طلاب",
+      "institution": "مؤسسات",
+      "investisseur": "مستثمرون",
+      "grand_public": "الجمهور العام",
+      "pairs_tech": "النظراء التقنيون",
+      "interne": "داخلي"
+    },
+    "tone": {
+      "premium": "راقٍ",
+      "insolent": "جريء",
+      "cinematic": "سينمائي",
+      "pedagogique": "تعليمي",
+      "urgence": "عاجل",
+      "default": "افتراضي"
+    },
+    "objective": {
+      "awareness": "الوعي",
+      "acquisition": "الاكتساب",
+      "proof": "إثبات",
+      "wrapped_shareable": "ملخص قابل للمشاركة",
+      "demo_day": "يوم العرض"
+    },
+    "lang": {
+      "fr": "الفرنسية",
+      "ar": "العربية",
+      "darija": "الدارجة",
+      "en": "الإنجليزية"
+    },
+    "music": "موسيقى",
+    "voiceover": "تعليق صوتي",
+    "captions": "ترجمة مدمجة",
+    "backgroundsLabel": "صور الخلفية (المكتبة)",
+    "selectedCount": "{count}/{max} محدد",
+    "loadingAssets": "جارٍ تحميل المكتبة…",
+    "noAssets": "لا توجد صور في مكتبتك. استوردها من مكتبة الأصول.",
+    "noBackgroundsHint": "بدون صورة محددة، ستولّد مشكاة خلفية سيادية.",
+    "backgroundsHint": "ستُستخدم هذه الصور كخلفيات موزّعة على المشاهد.",
+    "submit": "بدء الإنتاج",
+    "submitting": "جارٍ الإرسال…",
+    "status": {
+      "queued": "في قائمة الانتظار…",
+      "generating": "جارٍ التوليد…",
+      "rendering": "جارٍ العرض…",
+      "done": "اكتمل",
+      "error": "خطأ"
+    },
+    "resultTitle": "فيديوهاتك جاهزة",
+    "noVariants": "لم تُنتج أي نسخة.",
+    "download": "تنزيل MP4",
+    "viewInLibrary": "عرض في المكتبة",
+    "errors": {
+      "timeout": "انتهت مهلة الإنتاج. أعد المحاولة.",
+      "generic": "حدث خطأ.",
+      "intentTooShort": "صف الهدف بما لا يقل عن 10 أحرف.",
+      "network": "خطأ في الشبكة. أعد المحاولة."
+    }
   }
 }

@@ -2830,5 +2830,77 @@
     "notFound": "Lien d’approbation introuvable ou invalide.",
     "decisionError": "Échec de l’enregistrement de la décision. Réessayez.",
     "submitting": "Enregistrement…"
+  },
+  "videoStudio": {
+    "title": "Studio vidéo de marque",
+    "subtitle": "Générez 4 vidéos bilingues (FR·AR × 16:9·9:16) avec vos images de marque, propulsées par le studio Mishkāt.",
+    "modeStudio": "Studio de marque (Mishkāt)",
+    "modeQuick": "Génération rapide (Veo)",
+    "intentLabel": "Intention de la vidéo",
+    "intentPlaceholder": "Décrivez ce que la vidéo doit accomplir (ex. annoncer le lancement et susciter l'essai)…",
+    "audienceLabel": "Audience cible",
+    "toneLabel": "Ton",
+    "objectiveLabel": "Objectif",
+    "durationLabel": "Durée",
+    "primaryLangLabel": "Langue principale",
+    "secondaryLangLabel": "Langue secondaire",
+    "noSecondary": "Aucune",
+    "audience": {
+      "etudiant": "Étudiants",
+      "institution": "Institutions",
+      "investisseur": "Investisseurs",
+      "grand_public": "Grand public",
+      "pairs_tech": "Pairs techniques",
+      "interne": "Interne"
+    },
+    "tone": {
+      "premium": "Premium",
+      "insolent": "Insolent",
+      "cinematic": "Cinématique",
+      "pedagogique": "Pédagogique",
+      "urgence": "Urgence",
+      "default": "Par défaut"
+    },
+    "objective": {
+      "awareness": "Notoriété",
+      "acquisition": "Acquisition",
+      "proof": "Preuve",
+      "wrapped_shareable": "Récap partageable",
+      "demo_day": "Demo day"
+    },
+    "lang": {
+      "fr": "Français",
+      "ar": "Arabe",
+      "darija": "Darija",
+      "en": "Anglais"
+    },
+    "music": "Musique",
+    "voiceover": "Voix off",
+    "captions": "Sous-titres incrustés",
+    "backgroundsLabel": "Images de fond (bibliothèque)",
+    "selectedCount": "{count}/{max} sélectionnée(s)",
+    "loadingAssets": "Chargement de la bibliothèque…",
+    "noAssets": "Aucune image dans votre bibliothèque. Importez-en depuis la bibliothèque d'assets.",
+    "noBackgroundsHint": "Sans image sélectionnée, un fond souverain sera généré par Mishkāt.",
+    "backgroundsHint": "Ces images serviront de fonds, réparties sur les scènes.",
+    "submit": "Lancer la production",
+    "submitting": "Envoi…",
+    "status": {
+      "queued": "En file d'attente…",
+      "generating": "Génération…",
+      "rendering": "Rendu…",
+      "done": "Terminé",
+      "error": "Erreur"
+    },
+    "resultTitle": "Vos vidéos sont prêtes",
+    "noVariants": "Aucune variante produite.",
+    "download": "Télécharger le MP4",
+    "viewInLibrary": "Voir dans la bibliothèque",
+    "errors": {
+      "timeout": "La production a expiré. Réessayez.",
+      "generic": "Une erreur est survenue.",
+      "intentTooShort": "Décrivez l'intention en au moins 10 caractères.",
+      "network": "Erreur réseau. Réessayez."
+    }
   }
 }
