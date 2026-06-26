@@ -4,6 +4,7 @@ const config: Config = {
   preset: "ts-jest",
   testEnvironment: "node",
   moduleNameMapper: {
+    "^server-only$": "<rootDir>/tests/__mocks__/empty.ts",
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   testMatch: ["**/tests/unit/**/*.test.ts"],
