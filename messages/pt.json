@@ -2901,6 +2901,10 @@
       "generic": "Something went wrong.",
       "intentTooShort": "Describe the intent with at least 10 characters.",
       "network": "Network error. Try again."
+    },
+    "history": {
+      "title": "Recent productions",
+      "untitled": "Untitled"
     }
   }
 }

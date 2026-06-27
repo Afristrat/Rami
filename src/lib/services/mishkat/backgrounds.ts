@@ -50,18 +50,48 @@ export async function resolveBackgroundUrls(
 }
 
 /**
- * URL du logo pour BrandTokens. Le Brand DNA stocke le logo en base64
- * (`logoDataUrl`), inexploitable comme URL → on ne renvoie une URL que si
- * un vrai lien http est présent. Sinon '' → fallback souverain Mishkāt.
+ * URL du logo pour BrandTokens. Le Brand DNA stocke souvent le logo en base64
+ * (`logoDataUrl`) — inexploitable comme URL par le moteur de rendu. On l'héberge
+ * alors une seule fois dans `rami-media` (`<tenant>/brand/logo.<ext>`) et on
+ * renvoie son URL publique https. Un vrai lien http est renvoyé tel quel.
+ * Renvoie '' si aucun logo exploitable → fallback souverain Mishkāt.
  */
 export async function resolveLogoUrl(
-  _supabase: SupabaseClient,
-  _tenantId: string,
+  supabase: SupabaseClient,
+  tenantId: string,
   dna: BrandDnaFormData | null,
 ): Promise<string> {
   const logo = dna?.logoDataUrl
-  if (logo && /^https?:\/\//i.test(logo)) return logo
-  return ''
+  if (!logo) return ''
+  if (/^https?:\/\//i.test(logo)) return logo
+
+  const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,([\s\S]+)$/.exec(logo)
+  if (!match) return ''
+  const mime = match[1]
+  const ext = mime.split('/')[1]?.replace('svg+xml', 'svg').replace('jpeg', 'jpg') ?? 'png'
+  const dir = `${tenantId}/brand`
+  const path = `${dir}/logo.${ext}`
+
+  try {
+    // Idempotence : ne ré-uploader que si l'objet n'existe pas déjà.
+    const { data: listed } = await supabase.storage.from(BUCKET).list(dir)
+    const exists = listed?.some((f) => f.name === `logo.${ext}`)
+    if (!exists) {
+      const buffer = Buffer.from(match[2].replace(/\s/g, ''), 'base64')
+      const { error } = await supabase.storage
+        .from(BUCKET)
+        .upload(path, buffer, { contentType: mime, upsert: true })
+      if (error) {
+        log({ level: 'warn', module: 'mishkat', action: 'logo_upload_failed', tenant_id: tenantId, metadata: { error: error.message } })
+        return ''
+      }
+    }
+    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
+    return data?.publicUrl ?? ''
+  } catch (err) {
+    log({ level: 'warn', module: 'mishkat', action: 'logo_resolve_failed', tenant_id: tenantId, metadata: { error: err instanceof Error ? err.message : String(err) } })
+    return ''
+  }
 }
 
 async function signOrPublic(

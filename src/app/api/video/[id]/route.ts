@@ -27,11 +27,13 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   // Garde-fou : la production doit appartenir au tenant (défense en profondeur + RLS).
   const { data: prod } = await supabase
     .from('video_productions')
-    .select('id, status, variants')
+    .select('id, status, variants, mode, storyboard')
     .eq('mishkat_job_id', id)
     .eq('tenant_id', tenantId)
     .single()
   if (!prod) return NextResponse.json({ error: 'Production introuvable.' }, { status: 404 })
+
+  const kind = (prod.mode as string) ?? 'v1_pool'
 
   let live
   try {
@@ -55,7 +57,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
       .eq('mishkat_job_id', id)
       .eq('tenant_id', tenantId)
 
-    return NextResponse.json({ status: 'done', variants })
+    return NextResponse.json({ status: 'done', kind, storyboard: live.storyboard ?? prod.storyboard ?? null, variants })
   }
 
   await supabase
@@ -64,5 +66,5 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     .eq('mishkat_job_id', id)
     .eq('tenant_id', tenantId)
 
-  return NextResponse.json({ status: live.status, error: live.error })
+  return NextResponse.json({ status: live.status, kind, storyboard: live.storyboard ?? prod.storyboard ?? null, error: live.error })
 }

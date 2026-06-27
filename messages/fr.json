@@ -2901,6 +2901,10 @@
       "generic": "Une erreur est survenue.",
       "intentTooShort": "Décrivez l'intention en au moins 10 caractères.",
       "network": "Erreur réseau. Réessayez."
+    },
+    "history": {
+      "title": "Productions récentes",
+      "untitled": "Sans titre"
     }
   }
 }

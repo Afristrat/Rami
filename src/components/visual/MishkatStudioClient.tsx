@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useRef, useCallback, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { Sparkles, Loader2, Download, AlertCircle, CheckCircle2, ImageIcon, Library } from 'lucide-react'
+import { Sparkles, Loader2, Download, AlertCircle, CheckCircle2, ImageIcon, Library, History } from 'lucide-react'
 import { Select } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { getMediaAssetsAction, type MediaAsset } from '@/lib/actions/library.actions'
+import { getVideoProductionsAction, type VideoProductionSummary } from '@/lib/actions/video-productions.actions'
 import {
   MISHKAT_AUDIENCES,
   MISHKAT_TONES,
@@ -27,7 +28,7 @@ interface ResultVariant {
 }
 
 const DURATIONS = [10, 15, 20, 30, 45, 60, 90] as const
-const POLL_INTERVAL_MS = 4000
+const POLL_INTERVAL_MS = 3000
 const POLL_TIMEOUT_MS = 6 * 60 * 1000
 const MAX_BACKGROUNDS = 8
 
@@ -51,6 +52,14 @@ export function MishkatStudioClient() {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isLoadingAssets, startLoadAssets] = useTransition()
 
+  // ── Historique des productions ──────────────────────────────────────────
+  const [history, setHistory] = useState<VideoProductionSummary[]>([])
+  const loadHistory = useCallback(() => {
+    void getVideoProductionsAction(12).then((res) => {
+      if ('data' in res) setHistory(res.data)
+    })
+  }, [])
+
   // ── Production lifecycle ────────────────────────────────────────────────
   const [phase, setPhase] = useState<'idle' | 'submitting' | 'polling' | 'done' | 'error'>('idle')
   const [status, setStatus] = useState<MishkatStatus | null>(null)
@@ -64,7 +73,8 @@ export function MishkatStudioClient() {
       const res = await getMediaAssetsAction({ fileType: 'image', limit: 60 })
       if ('data' in res) setAssets(res.data)
     })
-  }, [])
+    loadHistory()
+  }, [loadHistory])
 
   // Polling piloté par l'état : tant que phase === 'polling', on interroge
   // /api/video/:id. Tout changement de phase (done/error) coupe l'effet.
@@ -91,6 +101,7 @@ export function MishkatStudioClient() {
         if (body.status === 'done') {
           setVariants(Array.isArray(body.variants) ? body.variants : [])
           setPhase('done')
+          loadHistory()
         } else if (body.status === 'error') {
           setPhase('error')
           setError(body.error ?? t('errors.generic'))
@@ -105,7 +116,7 @@ export function MishkatStudioClient() {
       cancelled = true
       clearInterval(interval)
     }
-  }, [phase, jobId, t])
+  }, [phase, jobId, t, loadHistory])
 
   const toggleAsset = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -311,8 +322,48 @@ export function MishkatStudioClient() {
           <a href="/dashboard/library" className="text-sm text-primary hover:underline">{t('viewInLibrary')}</a>
         </section>
       )}
+
+      {/* Historique des productions */}
+      {history.length > 0 && (
+        <section className="space-y-3 border-t border-input pt-4">
+          <h3 className="flex items-center gap-2 text-base font-semibold"><History className="h-4 w-4" /> {t('history.title')}</h3>
+          <ul className="space-y-2">
+            {history.map((p) => {
+              const ready = p.variants.filter((v) => v.public_url)
+              return (
+                <li key={p.jobId} className="rounded-lg border border-input p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="truncate text-sm text-muted-foreground">{p.intent || t('history.untitled')}</span>
+                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{statusLabel(t, p.status)}</span>
+                  </div>
+                  {ready.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {ready.map((v) => v.public_url ? (
+                        <a
+                          key={`${v.lang}-${v.format}`}
+                          href={v.public_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded border border-input px-2 py-1 text-xs text-foreground hover:bg-muted"
+                        >
+                          <Download className="h-3 w-3" /> {v.lang} · {v.format}
+                        </a>
+                      ) : null)}
+                    </div>
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
     </div>
   )
+}
+
+const KNOWN_STATUSES = new Set(['queued', 'generating', 'rendering', 'done', 'error'])
+function statusLabel(t: ReturnType<typeof useTranslations>, status: string): string {
+  return KNOWN_STATUSES.has(status) ? t(`status.${status}`) : status
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
