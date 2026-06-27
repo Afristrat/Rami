@@ -2905,6 +2905,22 @@
     "history": {
       "title": "Recent productions",
       "untitled": "Untitled"
+    },
+    "improveBrief": "Improve brief",
+    "addImages": "Generate / Import",
+    "imageStudio": {
+      "title": "Image studio",
+      "subtitle": "Generate brand visuals or import your images — they're added to your library.",
+      "tabGenerate": "Generate",
+      "tabImport": "Import",
+      "addToLibrary": "Add to library",
+      "added": "Added",
+      "uploadSuccess": "Image added to library.",
+      "uploading": "Importing…",
+      "chooseFile": "Choose an image to import",
+      "generateError": "Generation failed.",
+      "saveError": "Failed to add to library.",
+      "quotaExceeded": "Generation quota reached this month."
     }
   }
 }

@@ -2905,6 +2905,22 @@
     "history": {
       "title": "Productions récentes",
       "untitled": "Sans titre"
+    },
+    "improveBrief": "Améliorer le brief",
+    "addImages": "Générer / Importer",
+    "imageStudio": {
+      "title": "Studio d'images",
+      "subtitle": "Générez des visuels de marque ou importez vos images — elles s'ajoutent à votre bibliothèque.",
+      "tabGenerate": "Générer",
+      "tabImport": "Importer",
+      "addToLibrary": "Ajouter à la bibliothèque",
+      "added": "Ajoutée",
+      "uploadSuccess": "Image ajoutée à la bibliothèque.",
+      "uploading": "Import en cours…",
+      "chooseFile": "Choisir une image à importer",
+      "generateError": "Échec de la génération.",
+      "saveError": "Échec de l'ajout à la bibliothèque.",
+      "quotaExceeded": "Quota de générations atteint ce mois."
     }
   }
 }

@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
-import { Sparkles, Loader2, Download, AlertCircle, CheckCircle2, ImageIcon, Library, History } from 'lucide-react'
+import { Sparkles, Loader2, Download, AlertCircle, CheckCircle2, ImageIcon, Library, History, Wand2, ImagePlus } from 'lucide-react'
+import { ImageStudioDialog } from './ImageStudioDialog'
 import { Select } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { getMediaAssetsAction, type MediaAsset } from '@/lib/actions/library.actions'
@@ -29,6 +30,13 @@ interface ResultVariant {
 
 const DURATIONS = [10, 15, 20, 30, 45, 60, 90] as const
 const POLL_INTERVAL_MS = 3000
+
+// Propositions d'intention cliquables (pré-remplissent le brief).
+const BRIEF_EXAMPLES = [
+  "Annoncer le lancement de notre nouveau produit aux jeunes entrepreneurs au Maroc et susciter l'envie d'essayer.",
+  "Présenter notre service aux institutions avec un ton premium et une démonstration sobre et crédible.",
+  "Recruter des talents tech à Casablanca : montrer la culture d'équipe et l'impact concret du travail.",
+] as const
 const POLL_TIMEOUT_MS = 6 * 60 * 1000
 const MAX_BACKGROUNDS = 8
 
@@ -51,6 +59,15 @@ export function MishkatStudioClient() {
   const [assets, setAssets] = useState<MediaAsset[]>([])
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isLoadingAssets, startLoadAssets] = useTransition()
+  const [showImageStudio, setShowImageStudio] = useState(false)
+  const [improving, setImproving] = useState(false)
+
+  const loadAssets = useCallback(() => {
+    startLoadAssets(async () => {
+      const res = await getMediaAssetsAction({ fileType: 'image', limit: 60 })
+      if ('data' in res) setAssets(res.data)
+    })
+  }, [])
 
   // ── Historique des productions ──────────────────────────────────────────
   const [history, setHistory] = useState<VideoProductionSummary[]>([])
@@ -69,12 +86,9 @@ export function MishkatStudioClient() {
   const pollStartedAt = useRef<number>(0)
 
   useEffect(() => {
-    startLoadAssets(async () => {
-      const res = await getMediaAssetsAction({ fileType: 'image', limit: 60 })
-      if ('data' in res) setAssets(res.data)
-    })
+    loadAssets()
     loadHistory()
-  }, [loadHistory])
+  }, [loadAssets, loadHistory])
 
   // Polling piloté par l'état : tant que phase === 'polling', on interroge
   // /api/video/:id. Tout changement de phase (done/error) coupe l'effet.
@@ -125,6 +139,26 @@ export function MishkatStudioClient() {
       return [...prev, id]
     })
   }, [])
+
+  const improveBrief = useCallback(async () => {
+    if (intent.trim().length < 10 || improving) return
+    setImproving(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/video/improve-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ intent: intent.trim() }),
+      })
+      const body = await res.json()
+      if (res.ok && body.result) setIntent(body.result)
+      else setError(body.error ?? t('errors.generic'))
+    } catch {
+      setError(t('errors.network'))
+    } finally {
+      setImproving(false)
+    }
+  }, [intent, improving, t])
 
   const onSubmit = useCallback(async () => {
     if (intent.trim().length < 10) {
@@ -190,6 +224,31 @@ export function MishkatStudioClient() {
           disabled={busy}
           className="w-full rounded-lg border border-input bg-background p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-1.5">
+            {BRIEF_EXAMPLES.map((ex, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setIntent(ex)}
+                disabled={busy}
+                className="max-w-[220px] truncate rounded-md border border-border bg-muted px-2 py-1 text-xs text-muted-foreground transition hover:text-foreground disabled:opacity-50"
+                title={ex}
+              >
+                {ex.slice(0, 42)}…
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={improveBrief}
+            disabled={busy || improving || intent.trim().length < 10}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-primary/40 px-2.5 py-1 text-xs font-medium text-primary transition hover:bg-primary/10 disabled:opacity-50"
+          >
+            {improving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+            {t('improveBrief')}
+          </button>
+        </div>
       </div>
 
       {/* Selects grid */}
@@ -240,7 +299,17 @@ export function MishkatStudioClient() {
           <label className="flex items-center gap-2 text-sm font-medium">
             <Library className="h-4 w-4" /> {t('backgroundsLabel')}
           </label>
-          <span className="text-xs text-muted-foreground">{t('selectedCount', { count: selectedIds.length, max: MAX_BACKGROUNDS })}</span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setShowImageStudio(true)}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 px-2.5 py-1 text-xs font-medium text-primary transition hover:bg-primary/10 disabled:opacity-50"
+            >
+              <ImagePlus className="h-3.5 w-3.5" /> {t('addImages')}
+            </button>
+            <span className="text-xs text-muted-foreground">{t('selectedCount', { count: selectedIds.length, max: MAX_BACKGROUNDS })}</span>
+          </div>
         </div>
         {isLoadingAssets ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> {t('loadingAssets')}</div>
@@ -357,6 +426,12 @@ export function MishkatStudioClient() {
           </ul>
         </section>
       )}
+
+      <ImageStudioDialog
+        open={showImageStudio}
+        onOpenChange={setShowImageStudio}
+        onLibraryChanged={loadAssets}
+      />
     </div>
   )
 }

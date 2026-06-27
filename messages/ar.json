@@ -2905,6 +2905,22 @@
     "history": {
       "title": "الإنتاجات الأخيرة",
       "untitled": "بدون عنوان"
+    },
+    "improveBrief": "تحسين الموجز",
+    "addImages": "توليد / استيراد",
+    "imageStudio": {
+      "title": "استوديو الصور",
+      "subtitle": "ولّد صور العلامة أو استورد صورك — تُضاف إلى مكتبتك.",
+      "tabGenerate": "توليد",
+      "tabImport": "استيراد",
+      "addToLibrary": "أضف إلى المكتبة",
+      "added": "أُضيفت",
+      "uploadSuccess": "أُضيفت الصورة إلى المكتبة.",
+      "uploading": "جارٍ الاستيراد…",
+      "chooseFile": "اختر صورة للاستيراد",
+      "generateError": "فشل التوليد.",
+      "saveError": "فشلت الإضافة إلى المكتبة.",
+      "quotaExceeded": "بلغت حصة التوليد لهذا الشهر."
     }
   }
 }
