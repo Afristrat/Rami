@@ -24,10 +24,10 @@ import {
 import { GenerateForm } from './GenerateForm'
 import {
   generateVisualsAction,
-  saveVisualToLibraryAction,
   getTenantBrandDNAAction,
   type BrandDNASummary,
 } from '@/lib/actions/visual.actions'
+import { registerVisualsToLibraryAction } from '@/lib/actions/register-visual.actions'
 import { uploadMediaAssetAction } from '@/lib/actions/library.actions'
 import type { GenerateBriefInput } from '@/lib/schemas/visual.schema'
 import type { GeneratedVisual } from '@/lib/services/image-generation/types'
@@ -76,22 +76,24 @@ export function ImageStudioDialog({ open, onOpenChange, onAssetsAdded }: ImageSt
       }
       setVisuals(res.visuals)
 
-      // Sauvegarde AUTOMATIQUE de toutes les images générées (anti-gaspillage).
-      const results = await Promise.all(
-        res.visuals.map((v) =>
-          saveVisualToLibraryAction({
-            imageUrl: v.image.url,
-            directionId: v.direction.id,
-            directionName: v.direction.name,
-            brandDnaScore: v.brand_dna_score,
-          }),
-        ),
+      // Référencement AUTOMATIQUE dans la bibliothèque, SANS recopier le fichier :
+      // les visuels sont déjà stockés sur MinIO, on insère juste une ligne
+      // media_assets pointant vers l'URL existante (anti-gaspillage + anti-perte).
+      const reg = await registerVisualsToLibraryAction(
+        res.visuals.map((v) => ({
+          url: v.image.url,
+          directionId: v.direction.id,
+          directionName: v.direction.name,
+          brandDnaScore: v.brand_dna_score,
+        })),
       )
-      const ids = results.flatMap((r) => (r.success && r.asset_id ? [r.asset_id] : []))
-      const failed = results.length - ids.length
-      setSavedCount(ids.length)
-      if (ids.length > 0) onAssetsAdded(ids)
-      if (failed > 0) setError(t('partialSaveError', { count: failed }))
+      if ('error' in reg) {
+        setError(reg.error)
+        return
+      }
+      setSavedCount(reg.assetIds.length)
+      if (reg.assetIds.length > 0) onAssetsAdded(reg.assetIds)
+      if (reg.failed > 0) setError(t('partialSaveError', { count: reg.failed }))
     })
   }, [onAssetsAdded, t])
 
@@ -152,9 +154,11 @@ export function ImageStudioDialog({ open, onOpenChange, onAssetsAdded }: ImageSt
                     <div key={`${v.direction.id}-${i}`} className="relative space-y-1.5 rounded-lg border border-input p-1.5">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={v.image.url} alt={v.direction.name} className="aspect-video w-full rounded object-cover" />
-                      <span className="inline-flex items-center gap-1 text-xs text-green-600">
-                        <Check className="h-3.5 w-3.5" /> {t('added')}
-                      </span>
+                      {savedCount > 0 && (
+                        <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                          <Check className="h-3.5 w-3.5" /> {t('added')}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
