@@ -3,14 +3,17 @@
 // ============================================================
 // ImageStudioDialog — modal de génération / import d'images pour le Studio vidéo
 // Réutilise le workflow visuel EXISTANT (GenerateForm + generateVisualsAction +
-// saveVisualToLibraryAction) et l'upload (uploadMediaAssetAction). À chaque ajout,
-// `onLibraryChanged` rafraîchit le picker de la page vidéo. Composant isolé : il
-// ne touche jamais l'état (brief / sélection) de la page vidéo.
+// saveVisualToLibraryAction) et l'upload (uploadMediaAssetAction).
+//
+// IMPORTANT — anti-gaspillage de tokens : toute image GÉNÉRÉE est sauvegardée
+// AUTOMATIQUEMENT dans la bibliothèque dès la génération (pas de clic requis),
+// puis remontée au parent via `onAssetsAdded` pour rafraîchir + auto-sélectionner.
+// Composant isolé : il ne touche jamais l'état (brief / sélection) de la page vidéo.
 // ============================================================
 
 import { useState, useEffect, useTransition, useCallback, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { Loader2, Check, Upload, Sparkles, ImagePlus, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Loader2, Check, Upload, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -32,7 +35,9 @@ import type { GeneratedVisual } from '@/lib/services/image-generation/types'
 interface ImageStudioDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onLibraryChanged: () => void
+  /** Appelé avec les IDs des assets ajoutés (générés ou importés) → le parent
+   *  rafraîchit sa bibliothèque et auto-sélectionne ces images. */
+  onAssetsAdded: (assetIds: string[]) => void
 }
 
 interface BrandCtx {
@@ -42,15 +47,14 @@ interface BrandCtx {
   summary?: BrandDNASummary
 }
 
-export function ImageStudioDialog({ open, onOpenChange, onLibraryChanged }: ImageStudioDialogProps) {
+export function ImageStudioDialog({ open, onOpenChange, onAssetsAdded }: ImageStudioDialogProps) {
   const t = useTranslations('videoStudio.imageStudio')
   const [tab, setTab] = useState<'generate' | 'import'>('generate')
   const [brand, setBrand] = useState<BrandCtx>({ hasDNA: false })
   const [isPending, startTransition] = useTransition()
   const [visuals, setVisuals] = useState<GeneratedVisual[]>([])
+  const [savedCount, setSavedCount] = useState(0)
   const [error, setError] = useState<string | null>(null)
-  const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set())
-  const [savingKey, setSavingKey] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadMsg, setUploadMsg] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -60,41 +64,36 @@ export function ImageStudioDialog({ open, onOpenChange, onLibraryChanged }: Imag
     void getTenantBrandDNAAction().then((r) => setBrand(r))
   }, [open])
 
-  const keyOf = (v: GeneratedVisual): string => `${v.direction.id}-${v.image.url}`
-
   const handleGenerate = useCallback(async (data: GenerateBriefInput): Promise<void> => {
     setError(null)
     setVisuals([])
-    setSavedKeys(new Set())
+    setSavedCount(0)
     startTransition(async () => {
       const res = await generateVisualsAction(data)
       if (!res.success) {
-        if (res.quota_exceeded) setError(t('quotaExceeded'))
-        else setError(res.error ?? t('generateError'))
+        setError(res.quota_exceeded ? t('quotaExceeded') : (res.error ?? t('generateError')))
         return
       }
       setVisuals(res.visuals)
-    })
-  }, [t])
 
-  const handleSave = useCallback(async (v: GeneratedVisual): Promise<void> => {
-    const k = keyOf(v)
-    setSavingKey(k)
-    setError(null)
-    const res = await saveVisualToLibraryAction({
-      imageUrl: v.image.url,
-      directionId: v.direction.id,
-      directionName: v.direction.name,
-      brandDnaScore: v.brand_dna_score,
+      // Sauvegarde AUTOMATIQUE de toutes les images générées (anti-gaspillage).
+      const results = await Promise.all(
+        res.visuals.map((v) =>
+          saveVisualToLibraryAction({
+            imageUrl: v.image.url,
+            directionId: v.direction.id,
+            directionName: v.direction.name,
+            brandDnaScore: v.brand_dna_score,
+          }),
+        ),
+      )
+      const ids = results.flatMap((r) => (r.success && r.asset_id ? [r.asset_id] : []))
+      const failed = results.length - ids.length
+      setSavedCount(ids.length)
+      if (ids.length > 0) onAssetsAdded(ids)
+      if (failed > 0) setError(t('partialSaveError', { count: failed }))
     })
-    setSavingKey(null)
-    if (res.success) {
-      setSavedKeys((prev) => new Set(prev).add(k))
-      onLibraryChanged()
-    } else {
-      setError(res.error ?? t('saveError'))
-    }
-  }, [onLibraryChanged, t])
+  }, [onAssetsAdded, t])
 
   const handleUpload = useCallback(async (file: File): Promise<void> => {
     setUploading(true)
@@ -106,11 +105,11 @@ export function ImageStudioDialog({ open, onOpenChange, onLibraryChanged }: Imag
     setUploading(false)
     if ('data' in res) {
       setUploadMsg(t('uploadSuccess'))
-      onLibraryChanged()
+      onAssetsAdded([res.data.id])
     } else {
       setError(res.error)
     }
-  }, [onLibraryChanged, t])
+  }, [onAssetsAdded, t])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -142,28 +141,22 @@ export function ImageStudioDialog({ open, onOpenChange, onLibraryChanged }: Imag
                 brandName={brand.brandName}
                 brandDNASummary={brand.summary}
               />
+              {savedCount > 0 && (
+                <div className="flex items-center gap-2 rounded-lg border border-green-600/40 bg-green-600/10 p-3 text-sm text-green-600">
+                  <CheckCircle2 className="h-4 w-4" /> {t('savedCount', { count: savedCount })}
+                </div>
+              )}
               {visuals.length > 0 && (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  {visuals.map((v) => {
-                    const k = keyOf(v)
-                    const saved = savedKeys.has(k)
-                    return (
-                      <div key={k} className="space-y-1.5 rounded-lg border border-input p-1.5">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={v.image.url} alt={v.direction.name} className="aspect-video w-full rounded object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => handleSave(v)}
-                          disabled={saved || savingKey === k}
-                          className={`flex w-full items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition ${saved ? 'bg-green-600/15 text-green-600' : 'bg-primary text-primary-foreground hover:opacity-90'} disabled:opacity-70`}
-                        >
-                          {saved ? (<><Check className="h-3.5 w-3.5" /> {t('added')}</>)
-                            : savingKey === k ? (<Loader2 className="h-3.5 w-3.5 animate-spin" />)
-                            : (<><ImagePlus className="h-3.5 w-3.5" /> {t('addToLibrary')}</>)}
-                        </button>
-                      </div>
-                    )
-                  })}
+                  {visuals.map((v, i) => (
+                    <div key={`${v.direction.id}-${i}`} className="relative space-y-1.5 rounded-lg border border-input p-1.5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={v.image.url} alt={v.direction.name} className="aspect-video w-full rounded object-cover" />
+                      <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                        <Check className="h-3.5 w-3.5" /> {t('added')}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               )}
             </>

@@ -2920,7 +2920,9 @@
       "chooseFile": "Choisir une image à importer",
       "generateError": "Échec de la génération.",
       "saveError": "Échec de l'ajout à la bibliothèque.",
-      "quotaExceeded": "Quota de générations atteint ce mois."
+      "quotaExceeded": "Quota de générations atteint ce mois.",
+      "savedCount": "{count} image(s) générée(s) et ajoutée(s) à la bibliothèque.",
+      "partialSaveError": "{count} image(s) n'ont pas pu être enregistrées."
     }
   }
 }

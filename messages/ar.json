@@ -2920,7 +2920,9 @@
       "chooseFile": "اختر صورة للاستيراد",
       "generateError": "فشل التوليد.",
       "saveError": "فشلت الإضافة إلى المكتبة.",
-      "quotaExceeded": "بلغت حصة التوليد لهذا الشهر."
+      "quotaExceeded": "بلغت حصة التوليد لهذا الشهر.",
+      "savedCount": "تم توليد {count} صورة وإضافتها إلى المكتبة.",
+      "partialSaveError": "تعذّر حفظ {count} صورة."
     }
   }
 }

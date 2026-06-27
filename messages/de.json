@@ -2920,7 +2920,9 @@
       "chooseFile": "Choose an image to import",
       "generateError": "Generation failed.",
       "saveError": "Failed to add to library.",
-      "quotaExceeded": "Generation quota reached this month."
+      "quotaExceeded": "Generation quota reached this month.",
+      "savedCount": "{count} image(s) generated and added to your library.",
+      "partialSaveError": "{count} image(s) could not be saved."
     }
   }
 }

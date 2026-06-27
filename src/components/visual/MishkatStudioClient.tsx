@@ -160,6 +160,19 @@ export function MishkatStudioClient() {
     }
   }, [intent, improving, t])
 
+  // Images générées/importées dans le modal : on rafraîchit la bibliothèque ET
+  // on auto-sélectionne les nouvelles images (sans jamais toucher le brief saisi).
+  const handleAssetsAdded = useCallback((ids: string[]) => {
+    loadAssets()
+    setSelectedIds((prev) => {
+      const merged = [...prev]
+      for (const id of ids) {
+        if (!merged.includes(id) && merged.length < MAX_BACKGROUNDS) merged.push(id)
+      }
+      return merged
+    })
+  }, [loadAssets])
+
   const onSubmit = useCallback(async () => {
     if (intent.trim().length < 10) {
       setError(t('errors.intentTooShort'))
@@ -430,7 +443,7 @@ export function MishkatStudioClient() {
       <ImageStudioDialog
         open={showImageStudio}
         onOpenChange={setShowImageStudio}
-        onLibraryChanged={loadAssets}
+        onAssetsAdded={handleAssetsAdded}
       />
     </div>
   )
