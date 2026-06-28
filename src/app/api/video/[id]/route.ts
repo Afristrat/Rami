@@ -1,14 +1,15 @@
 // ============================================================
-// GET /api/video/:id — Relais du polling Mishkāt (+ archivage à `done`)
-// Renvoie le statut live ; quand `done`, archive les MP4 dans la bibliothèque
-// du tenant et renvoie les variantes enrichies (URLs RAMI souveraines).
+// GET /api/video/:id — Relais du polling Mishkāt
+// Renvoie le statut live ; quand `done`, persiste les variants[].url (URLs MinIO
+// publiques permanentes que Mishkāt archive lui-même — plus de re-download).
+// Copie de redondance souveraine optionnelle via MISHKAT_ARCHIVE_REDUNDANT_COPY.
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { resolveUserTenant } from '@/lib/services/tenant/resolve'
 import { getProduction, MishkatConfigError } from '@/lib/services/mishkat/client'
-import { archiveProductionIfNeeded, type ArchivedVariant } from '@/lib/services/mishkat/archive'
+import { archiveProductionIfNeeded, toPermanentVariants, type ArchivedVariant } from '@/lib/services/mishkat/archive'
 import { log } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
@@ -49,7 +50,13 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
 
   if (live.status === 'done') {
     const existing = Array.isArray(prod.variants) ? (prod.variants as ArchivedVariant[]) : []
-    const variants = await archiveProductionIfNeeded(supabase, tenantId, user.id, id, live.variants ?? [], existing)
+    const liveVariants = live.variants ?? []
+    // Par défaut : on persiste l'URL MinIO permanente fournie par Mishkāt (pas de
+    // re-download). Copie de redondance souveraine seulement si explicitement activée.
+    const variants =
+      process.env.MISHKAT_ARCHIVE_REDUNDANT_COPY === 'true'
+        ? await archiveProductionIfNeeded(supabase, tenantId, user.id, id, liveVariants, existing)
+        : toPermanentVariants(liveVariants, existing)
 
     await supabase
       .from('video_productions')

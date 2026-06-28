@@ -3,7 +3,8 @@
 // ============================================================
 // ImageStudioDialog — modal de génération / import d'images pour le Studio vidéo
 // Réutilise le workflow visuel EXISTANT (GenerateForm + generateVisualsAction +
-// saveVisualToLibraryAction) et l'upload (uploadMediaAssetAction).
+// registerVisualsToLibraryAction, référence MinIO sans copie) et l'upload
+// (uploadMediaAssetAction → MinIO).
 //
 // IMPORTANT — anti-gaspillage de tokens : toute image GÉNÉRÉE est sauvegardée
 // AUTOMATIQUEMENT dans la bibliothèque dès la génération (pas de clic requis),

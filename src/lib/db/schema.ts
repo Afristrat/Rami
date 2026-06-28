@@ -141,18 +141,9 @@ export const approvalTokens = pgTable('approval_tokens', {
 // MEDIA (assets stockés MinIO/R2)
 // ============================================================
 
-export const media = pgTable('media', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
-  uploaded_by: uuid('uploaded_by').references(() => users.id, { onDelete: 'set null' }),
-  filename: varchar('filename', { length: 500 }).notNull(),
-  mime_type: varchar('mime_type', { length: 100 }).notNull(),
-  size_bytes: integer('size_bytes').notNull(),
-  storage_path: text('storage_path').notNull(), // chemin MinIO/R2
-  public_url: text('public_url'),
-  alt_text: text('alt_text'),
-  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-})
+// NB : la bibliothèque média utilise la table `media_assets` (cf. migrations
+// 20260311000008_media_assets.sql) ; l'ancien pgTable `media`, orphelin et
+// jamais requêté, a été retiré (stockage 100% MinIO, plus de Supabase Storage).
 
 // ============================================================
 // POST METRICS (engagement réel — Performance Loop, MOAT-1)

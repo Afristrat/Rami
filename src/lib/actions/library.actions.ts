@@ -3,6 +3,12 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { resolveUserTenant } from "@/lib/services/tenant/resolve"
+import {
+  uploadToStorage,
+  deleteFromStorage,
+  buildStoragePath,
+  BUCKETS,
+} from "@/lib/services/storage/client"
 
 export type MediaFileType = "image" | "video" | "document"
 
@@ -57,12 +63,6 @@ function detectFileType(mimeType: string): MediaFileType | null {
   return null
 }
 
-function formatStoragePath(tenantId: string, filename: string): string {
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).slice(2, 8)
-  const ext = filename.split(".").pop() ?? "bin"
-  return `${tenantId}/${timestamp}-${random}.${ext}`
-}
 
 /**
  * Liste les assets média du tenant avec filtres optionnels.
@@ -110,8 +110,8 @@ export async function getMediaAssetsAction(options?: {
 
   const assets: MediaAsset[] = (data ?? []).map((row) => {
     const meta = (row.metadata as Record<string, unknown>) ?? {}
-    // brand_dna_score est stocké dans metadata.brand_dna_score par saveVisualToLibraryAction
-    // (valeur 0-100 issue du scoring Vision AI Claude Haiku)
+    // brand_dna_score est stocké dans metadata.brand_dna_score par
+    // registerVisualsToLibraryAction / registerLibraryAsset (0-100, scoring Vision AI)
     const rawScore = meta.brand_dna_score
     const brandDnaScore: number | null =
       typeof rawScore === "number" && isFinite(rawScore)
@@ -166,27 +166,22 @@ export async function uploadMediaAssetAction(
     return { error: `Type de fichier non supporté : ${file.type}.` }
   }
 
-  // Génération du chemin de stockage
-  const storagePath = formatStoragePath(tenantId, file.name)
+  // Upload vers MinIO (bucket public `media`)
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const { data: uploaded, error: uploadError } = await uploadToStorage({
+    bucket: BUCKETS.media,
+    path: buildStoragePath(tenantId, file.name),
+    buffer,
+    mimeType: file.type,
+  })
 
-  // Upload vers Supabase Storage
-  const { error: uploadError } = await supabase.storage
-    .from("rami-media")
-    .upload(storagePath, file, {
-      contentType: file.type,
-      upsert: false,
-    })
-
-  if (uploadError) {
-    return { error: `Erreur d'upload : ${uploadError.message}` }
+  if (uploadError || !uploaded) {
+    return { error: `Erreur d'upload : ${uploadError?.message ?? "MinIO indisponible"}` }
   }
 
-  // URL publique
-  const { data: urlData } = supabase.storage
-    .from("rami-media")
-    .getPublicUrl(storagePath)
-
-  const publicUrl = urlData?.publicUrl ?? null
+  // `uploaded.path` = objectPath complet MinIO (ex. `media/<tenant>/...`)
+  const storagePath = uploaded.path
+  const publicUrl = uploaded.publicUrl
 
   // Insertion en DB
   const { data: inserted, error: insertError } = await supabase
@@ -194,21 +189,21 @@ export async function uploadMediaAssetAction(
     .insert({
       tenant_id: tenantId,
       user_id: user.id,
-      filename: storagePath.split("/").pop()!,
+      filename: storagePath.split("/").pop() ?? file.name,
       original_filename: file.name,
       file_type: fileType,
       mime_type: file.type,
       file_size_bytes: file.size,
       storage_path: storagePath,
       public_url: publicUrl,
-      metadata: {},
+      metadata: { external_storage: "minio" },
     })
     .select()
     .single()
 
   if (insertError) {
     // Nettoyage storage si la DB échoue
-    await supabase.storage.from("rami-media").remove([storagePath])
+    await deleteFromStorage(storagePath)
     return { error: "Erreur lors de l'enregistrement du fichier." }
   }
 
@@ -251,14 +246,9 @@ export async function deleteMediaAssetAction(id: string): Promise<DeleteMediaRes
 
   if (fetchError || !asset) return { error: "Fichier introuvable." }
 
-  // Suppression Storage
-  const { error: storageError } = await supabase.storage
-    .from("rami-media")
-    .remove([asset.storage_path])
-
-  if (storageError) {
-    // Continuer même si le storage échoue (fichier peut être absent)
-  }
+  // Suppression Storage MinIO (best-effort : on continue si l'objet est absent).
+  // `storage_path` = objectPath complet MinIO (ex. `media/<tenant>/...`).
+  await deleteFromStorage(asset.storage_path)
 
   // Suppression DB (RLS vérifie l'ownership)
   const { error: dbError } = await supabase

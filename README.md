@@ -89,7 +89,7 @@ Il remplace en une seule plateforme : **Buffer + Canva + Notion + Otter.ai + Apo
 - 15 tests Playwright E2E
 
 ### Storage — Gestion des fichiers
-- Upload vers **Supabase Storage** (buckets : logos, media, audios, docs)
+- Upload vers **MinIO** (S3-compatible, self-hosted ; préfixes : logos, media, audios, docs)
 - Resize automatique des images via **sharp** (WebP < 500 Ko)
 - URLs CDN publiques signées
 - Validation MIME type obligatoire (PNG, JPEG, WebP, SVG, MP4, MP3, PDF)
@@ -179,7 +179,7 @@ Il remplace en une seule plateforme : **Buffer + Canva + Notion + Otter.ai + Apo
 | Validation | Zod (schemas partagés front/back) |
 | State | React Hook Form + Zustand |
 | Déploiement | Vercel (frontend) + Railway (workers) |
-| CDN/Storage | Supabase Storage + Cloudflare R2 |
+| CDN/Storage | MinIO (S3-compatible, self-hosted) + Cloudflare R2 |
 | Image IA | Fal.ai FLUX.1 → Replicate → Together AI (fallback chain) |
 | LLM | Claude Haiku 4.5 (runtime) + Claude Sonnet 4.6 (Brand DNA) |
 | Publishing | OAuth natif par plateforme + services dédiés |

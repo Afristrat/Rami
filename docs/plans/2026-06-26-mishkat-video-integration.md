@@ -48,17 +48,17 @@ required: brand_id, intent, audience, channel_format, language, tone, duration_s
   "media":    { "backgrounds": ["https://…signed1.jpg", "https://…signed2.jpg"] }  // v1 pool
 }
 ```
-> Les URLs `media.backgrounds` doivent être **publiquement accessibles au rendu** → URLs signées Supabase (TTL 7 j via `createSignedUrl`) conviennent. Sans elles → fond mesh souverain Mishkāt (acceptable, non bloquant).
+> Les URLs `media.backgrounds` doivent être **publiquement accessibles au rendu** → URL publique du bucket MinIO `media` (repli URL signée MinIO TTL 7 j). Sans elles → fond mesh souverain Mishkāt (acceptable, non bloquant). _(cf. MISE À JOUR 2026-06-28 ci-dessous, qui fait foi.)_
 
-> ## ⚠️ CORRECTIONS POST-VÉRIFICATION (2026-06-27, lues sur le code réel)
-> L'exploration initiale avait deux erreurs (hallucinations) corrigées ici — **ce bloc fait foi** :
-> 1. **Stockage de la bibliothèque = Supabase Storage** (bucket `rami-media`), **pas MinIO**. `src/lib/services/storage/` (MinIO) n'est **pas** le système de la bibliothèque et n'est **pas** utilisé ici.
-> 2. **Table de la bibliothèque = `media_assets`** (pas le pgTable `media`). Colonnes : `tenant_id, user_id, filename, original_filename, file_type, mime_type, file_size_bytes, storage_path, public_url, metadata, thumbnail_url, created_at`. `getMediaAssetsAction({fileType})` lit cette table → les MP4 archivés y apparaîtront automatiquement.
-> 3. `detectFileType` accepte `video/mp4` ; `MAX_FILE_SIZE = 50 MB` (OK pour clips courts). **Pas de problème de whitelist MIME ni de resize** (on n'utilise pas `uploadAsset`).
-> 4. **Fonds & archivage** passent par `supabase.storage.from('rami-media')` + insert `media_assets` (pattern `uploadMediaAssetAction`). URLs : signer via `supabase.storage.from('rami-media').createSignedUrl(path, 604800)` (fallback `public_url`). **Pas** le `createSignedUrl` MinIO.
-> 5. Typo réelle : `dna.typography?.heading?.family` / `dna.typography?.body?.family` (schéma `{heading,subheading,body}` de `{family,size,weight}`). Corrige `buildBrandTokens`.
-> 6. `getBrandDnaAction()` → `{ data: BrandDnaFormData | null } | { error }` (jamais throw ; `data` peut être `null`).
-> 7. `createSignedUrl` MinIO et `SIGNED_URL_TTL` (objet `{short,medium,long}`) **non pertinents** ici.
+> ## ⚠️ MISE À JOUR 2026-06-28 — STOCKAGE 100 % MinIO + CONTRAT VIDÉO RÉVISÉ (CE BLOC FAIT FOI)
+> Supabase Storage a été **entièrement retiré** du produit (jamais fonctionnel : aucun bucket n'existait en base). Tout le stockage média passe par **MinIO** (`src/lib/services/storage/client.ts`, bucket public `media`).
+> 1. **Stockage média = MinIO** (`uploadToStorage`/`deleteFromStorage`/`createSignedUrl` MinIO). Le bucket `rami-media` Supabase n'existe pas et n'est plus référencé.
+> 2. **Table de la bibliothèque = `media_assets`** (le pgTable `media`, orphelin, a été supprimé). `getMediaAssetsAction({fileType})` lit `media_assets` → les vidéos y apparaissent.
+> 3. `detectFileType` accepte `video/mp4` ; `MAX_FILE_SIZE = 50 MB`.
+> 4. **Fonds (`media.backgrounds`)** : on renvoie l'URL publique MinIO de l'asset (repli URL signée MinIO `createSignedUrl(storage_path, SIGNED_URL_TTL.long)`). Logo hébergé sur MinIO.
+> 5. **Archivage** : Mishkāt **archive lui-même** → `GET /v1/productions/:id` renvoie `variants[].url` = **URL MinIO publique permanente**. On la persiste telle quelle (`toPermanentVariants`), **plus de re-download**. `archiveProductionIfNeeded` (copie de redondance MinIO) est optionnel, derrière `MISHKAT_ARCHIVE_REDUNDANT_COPY=true`.
+> 6. **`duration_s ≥ 18`** (reading-floor storyboard 4 scènes ≈ 17 s FR / 14,5 s AR ; valeur < 18 rejetée par Mishkāt).
+> 7. Typo : `dna.typography?.heading?.family` / `dna.typography?.body?.family`. `getBrandDnaAction()` → `{ data: BrandDnaFormData | null } | { error }` (jamais throw).
 
 **Carte du code RAMI existant (référence, ne pas redécouvrir) :**
 | Rôle | Fichier | Signature clé |
@@ -583,7 +583,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 **Archivage (`archive.ts`)** — chemin **vidéo-safe** (ne pas passer par `uploadAsset` qui resize les images) :
 1. Pour chaque variante : dériver la `key` (`<lang>-<format>.mp4`, ex. `fr-16x9.mp4`) depuis `{lang,format}` (mapper `16:9`→`16x9`, `9:16`→`9x16`).
 2. `fetchVariant(jobId, key)` → buffer MP4.
-3. Upload direct Supabase Storage (bucket `tenant-posts`, chemin `${tenantId}/videos/${jobId}/${key}`) via le client storage bas-niveau (pas de resize). Vérifier la whitelist MIME du bucket → **autoriser `video/mp4`** si absente (étendre `BUCKETS`/validation en conséquence, sinon insert direct via `supabase.storage.from(bucket).upload`).
+3. ~~Upload direct Supabase Storage~~ **[SUPERSÉDÉ 2026-06-28]** : plus de re-upload — Mishkāt renvoie `variants[].url` = URL MinIO publique permanente, persistée telle quelle (`toPermanentVariants`). Copie de redondance MinIO optionnelle (`archiveProductionIfNeeded`, `MISHKAT_ARCHIVE_REDUNDANT_COPY=true`) via `uploadToStorage({ bucket: BUCKETS.media })`.
 4. Insert `media` (tenant_id, filename, mime_type `video/mp4`, size_bytes, storage_path, public_url/signed).
 5. Retourner `media_id` + URL pour enrichir `variants`.
 

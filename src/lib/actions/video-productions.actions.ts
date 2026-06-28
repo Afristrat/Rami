@@ -2,7 +2,8 @@
 
 // ============================================================
 // Video Productions Actions — historique des productions Mishkāt
-// Les MP4 sont servis depuis la bibliothèque (media_assets / rami-media).
+// Les MP4 sont servis directement depuis l'URL MinIO publique permanente
+// renvoyée par Mishkāt (variants[].public_url), persistée dans video_productions.
 // ============================================================
 
 import { createClient } from '@/lib/supabase/server'

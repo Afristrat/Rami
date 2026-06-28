@@ -17,7 +17,16 @@ export const MishkatVideoInputSchema = z.object({
   audience: z.enum(MISHKAT_AUDIENCES),
   tone: z.enum(MISHKAT_TONES),
   objective: z.enum(MISHKAT_OBJECTIVES),
-  duration_s: z.number().int().min(10).max(180),
+  // Reading-floor d'un storyboard 4 scènes (hook + stat + feature + outro) ≈ 17 s
+  // en FR / 14,5 s en AR : un duration_s trop court est rejeté par Mishkāt.
+  // Plancher = 18 s (valeur de référence). Pour plus court, réduire le nb de scènes
+  // côté concept (pas encore supporté automatiquement).
+  duration_s: z
+    .number()
+    .int()
+    .min(18, { message: 'Durée minimale 18 s (reading-floor du storyboard 4 scènes).' })
+    .max(180)
+    .default(18),
   primaryLang: z.enum(MISHKAT_LANGS).default('fr'),
   secondaryLang: z.enum(MISHKAT_LANGS).optional(),
   music: z.boolean().default(true),

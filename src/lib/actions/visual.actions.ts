@@ -39,12 +39,6 @@ export interface VisualGenerationResult {
   }
 }
 
-export interface SaveToLibraryResult {
-  success: boolean
-  asset_id?: string
-  error?: string
-}
-
 /**
  * Persiste une session de génération + images dans Supabase.
  * Les images sont stockées avec URLs permanentes (MinIO) + champs Vision AI.
@@ -404,103 +398,6 @@ export async function generateVisualsAction(
     session_id: sessionId,
     visuals: cleanVisuals,
     errors: errors.length > 0 ? errors : undefined,
-  }
-}
-
-/**
- * Enregistre une image générée dans la bibliothèque du tenant.
- * Télécharge depuis l'URL temporaire du provider → upload Supabase Storage → media_assets.
- */
-export async function saveVisualToLibraryAction(params: {
-  imageUrl: string
-  directionId: number
-  directionName: string
-  brandDnaScore: number
-  sessionImageId?: string
-}): Promise<SaveToLibraryResult> {
-  const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { success: false, error: 'Non authentifié' }
-
-  const tenantId = await resolveUserTenant(supabase, user.id)
-  if (!tenantId) return { success: false, error: 'Tenant introuvable' }
-
-  try {
-    // 1. Télécharger l'image depuis l'URL du provider
-    const response = await fetch(params.imageUrl)
-    if (!response.ok) throw new Error(`Téléchargement échoué : ${response.status}`)
-
-    const arrayBuffer = await response.arrayBuffer()
-    const uint8Array = new Uint8Array(arrayBuffer)
-    const contentType = response.headers.get('content-type') ?? 'image/webp'
-
-    // 2. Construire le nom de fichier
-    const ext = contentType.includes('png') ? 'png' : 'webp'
-    const timestamp = Date.now()
-    const random = Math.random().toString(36).slice(2, 7)
-    const filename = `rami-visual-d${params.directionId}-${timestamp}-${random}.${ext}`
-    const storagePath = `${tenantId}/${filename}`
-
-    // 3. Upload dans Supabase Storage (bucket rami-media)
-    const { error: uploadError } = await supabase.storage
-      .from('rami-media')
-      .upload(storagePath, uint8Array, {
-        contentType,
-        cacheControl: '3600',
-        upsert: false,
-      })
-
-    if (uploadError) throw new Error(`Upload échoué : ${uploadError.message}`)
-
-    // 4. Obtenir l'URL publique
-    const { data: urlData } = supabase.storage
-      .from('rami-media')
-      .getPublicUrl(storagePath)
-
-    const publicUrl = urlData?.publicUrl ?? null
-
-    // 5. Insérer dans media_assets
-    const { data: asset, error: dbError } = await supabase
-      .from('media_assets')
-      .insert({
-        tenant_id: tenantId,
-        user_id: user.id,
-        filename,
-        original_filename: filename,
-        file_type: 'image',
-        mime_type: contentType,
-        file_size_bytes: uint8Array.byteLength,
-        storage_path: storagePath,
-        public_url: publicUrl,
-        metadata: {
-          source: 'visual_engine',
-          direction_id: params.directionId,
-          direction_name: params.directionName,
-          brand_dna_score: params.brandDnaScore,
-        },
-      })
-      .select('id')
-      .single()
-
-    if (dbError) throw new Error(`Insertion DB échouée : ${dbError.message}`)
-
-    // 6. Mettre à jour visual_session_images si un ID est fourni
-    if (params.sessionImageId) {
-      await supabase
-        .from('visual_session_images')
-        .update({
-          saved_to_library: true,
-          library_asset_id: asset.id,
-        })
-        .eq('id', params.sessionImageId)
-    }
-
-    return { success: true, asset_id: asset.id }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    log({ level: 'error', module: 'visual.actions', action: 'save_to_library_failed', tenant_id: tenantId, metadata: { error: message } })
-    return { success: false, error: message }
   }
 }
 

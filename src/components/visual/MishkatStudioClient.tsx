@@ -28,7 +28,9 @@ interface ResultVariant {
   media_id: string | null
 }
 
-const DURATIONS = [10, 15, 20, 30, 45, 60, 90] as const
+// Plancher 18 s : reading-floor du storyboard 4 scènes (≈17 s FR / 14,5 s AR).
+// Des durées plus courtes sont rejetées par Mishkāt.
+const DURATIONS = [18, 20, 30, 45, 60, 90] as const
 const POLL_INTERVAL_MS = 3000
 
 // Propositions d'intention cliquables (pré-remplissent le brief).
