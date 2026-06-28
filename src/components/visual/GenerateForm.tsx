@@ -96,12 +96,14 @@ const CULTURE_LABELS: Record<string, string> = {
 }
 
 interface GenerateFormProps {
-  onGenerate: (data: GenerateBriefInput) => Promise<void>
+  onGenerate: (data: GenerateBriefInput & { platforms: string[] }) => Promise<void>
   isGenerating: boolean
   defaultPlatform?: string
   hasBrandDNA: boolean
   brandName?: string
   brandDNASummary?: BrandDNASummary
+  /** Autorise la sélection de PLUSIEURS plateformes (génère une série par plateforme). */
+  multiPlatform?: boolean
 }
 
 export function GenerateForm({
@@ -111,6 +113,7 @@ export function GenerateForm({
   hasBrandDNA,
   brandName,
   brandDNASummary,
+  multiPlatform = false,
 }: GenerateFormProps) {
   const t = useTranslations('visuals.form')
   const tc = useTranslations('visuals.campaigns')
@@ -119,6 +122,9 @@ export function GenerateForm({
     new Set([1, 2, 3, 4])
   )
   const [selectedCampaignType, setSelectedCampaignType] = useState<string | undefined>(undefined)
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(
+    new Set([defaultPlatform])
+  )
 
   const BRIEF_EXAMPLES = [
     "Lancement d'un nouveau caf\u00e9 premium au Maroc, ambiance chaleureuse et moderne",
@@ -144,7 +150,6 @@ export function GenerateForm({
   })
 
   const briefValue = useWatch({ control, name: 'brief', defaultValue: '' })
-  const selectedPlatform = useWatch({ control, name: 'platform', defaultValue: 'instagram' })
   const charCount = briefValue?.length ?? 0
 
   const toggleDirection = (id: number) => {
@@ -161,8 +166,32 @@ export function GenerateForm({
     })
   }
 
+  const handlePlatformClick = (value: string) => {
+    setSelectedPlatforms((prev) => {
+      const next = new Set(prev)
+      if (multiPlatform) {
+        if (next.has(value)) {
+          if (next.size <= 1) return prev // Au moins une plateforme
+          next.delete(value)
+        } else {
+          next.add(value)
+        }
+      } else {
+        next.clear()
+        next.add(value)
+      }
+      // La 1re plateforme alimente le champ `platform` (validité du schéma).
+      setValue('platform', (next.values().next().value as GenerateBriefInput['platform']))
+      return next
+    })
+  }
+
+  const submit = handleSubmit((data) =>
+    onGenerate({ ...data, platforms: Array.from(selectedPlatforms) })
+  )
+
   return (
-    <form onSubmit={handleSubmit(onGenerate)} className="space-y-4">
+    <form onSubmit={submit} className="space-y-4">
       {/* Hidden : directions_count synced by toggleDirection */}
       <input type="hidden" {...register('directions_count', { valueAsNumber: true })} />
 
@@ -421,12 +450,12 @@ export function GenerateForm({
         {/* Plateformes */}
         <div className="flex flex-wrap gap-2">
           {PLATFORMS.map((p) => {
-            const isActive = selectedPlatform === p.value
+            const isActive = selectedPlatforms.has(p.value)
             return (
               <button
                 key={p.value}
                 type="button"
-                onClick={() => setValue('platform', p.value as GenerateBriefInput['platform'])}
+                onClick={() => handlePlatformClick(p.value)}
                 className={`group flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-xs font-semibold transition-all ${
                   isActive
                     ? `${p.activeBorder} ${p.activeBg} shadow-sm`

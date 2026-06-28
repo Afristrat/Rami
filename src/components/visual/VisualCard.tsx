@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { GeneratedVisual } from '@/lib/services/image-generation/types'
-import { saveVisualToLibraryAction } from '@/lib/actions/visual.actions'
+import { registerVisualsToLibraryAction } from '@/lib/actions/register-visual.actions'
 import { Check, Download, BookmarkPlus, BookmarkCheck, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
@@ -55,19 +55,19 @@ export function VisualCard({ visual, isSelected, onToggleSelect, index }: Visual
     setIsSaving(true)
     setSaveError(null)
 
-    const result = await saveVisualToLibraryAction({
-      imageUrl: visual.image.url,
+    const result = await registerVisualsToLibraryAction([{
+      url: visual.image.url,
       directionId: visual.direction.id,
       directionName: visual.direction.name,
       brandDnaScore: visual.brand_dna_score,
-    })
+    }])
 
     setIsSaving(false)
 
-    if (result.success) {
+    if ('assetIds' in result && result.assetIds.length > 0) {
       setSavedToLibrary(true)
     } else {
-      setSaveError(result.error ?? t('saveError'))
+      setSaveError('error' in result ? result.error : t('saveError'))
       setTimeout(() => setSaveError(null), 3000)
     }
   }

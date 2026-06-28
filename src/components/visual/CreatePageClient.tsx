@@ -51,7 +51,7 @@ export function CreatePageClient({
     visuals: visuals.filter((v) => v.direction.id === dirId),
   }))
 
-  const handleGenerate = useCallback(async (data: GenerateBriefInput): Promise<void> => {
+  const handleGenerate = useCallback(async (data: GenerateBriefInput & { platforms: string[] }): Promise<void> => {
     setGlobalError(null)
     setErrors([])
     setVisuals([])
@@ -59,26 +59,38 @@ export function CreatePageClient({
     setHasGenerated(false)
     setShowMultiFormat(false)
     setLastBrief(data.brief)
-    setLastPlatform(data.platform)
+    setLastPlatform(data.platforms[0] ?? data.platform)
+
+    const { platforms, ...briefData } = data
+    const targets = platforms.length > 0 ? platforms : [data.platform]
 
     startTransition(async () => {
-      const result = await generateVisualsAction(data)
-
-      if (!result.success) {
-        if (result.quota_exceeded) {
-          showUpgrade(
-            'visual_engine',
-            `Quota de générations atteint (${result.quota_exceeded.count}/${result.quota_exceeded.limit} ce mois).`
-          )
-          return
+      const all: GeneratedVisual[] = []
+      const errs: string[] = []
+      for (const platform of targets) {
+        const result = await generateVisualsAction({ ...briefData, platform: platform as GenerateBriefInput['platform'] })
+        if (!result.success) {
+          if (result.quota_exceeded) {
+            showUpgrade(
+              'visual_engine',
+              `Quota de générations atteint (${result.quota_exceeded.count}/${result.quota_exceeded.limit} ce mois).`
+            )
+            return
+          }
+          errs.push(result.error ?? t('generationFailed'))
+          continue
         }
-        setGlobalError(result.error ?? t('generationFailed'))
-        return
+        all.push(...result.visuals)
+        if (result.errors && result.errors.length > 0) errs.push(...result.errors)
       }
 
-      setVisuals(result.visuals)
+      if (all.length === 0) {
+        setGlobalError(errs[0] ?? t('generationFailed'))
+        return
+      }
+      setVisuals(all)
       setHasGenerated(true)
-      if (result.errors && result.errors.length > 0) setErrors(result.errors)
+      if (errs.length > 0) setErrors(errs)
     })
   }, [showUpgrade, t])
 

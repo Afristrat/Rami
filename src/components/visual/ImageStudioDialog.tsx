@@ -64,23 +64,35 @@ export function ImageStudioDialog({ open, onOpenChange, onAssetsAdded }: ImageSt
     void getTenantBrandDNAAction().then((r) => setBrand(r))
   }, [open])
 
-  const handleGenerate = useCallback(async (data: GenerateBriefInput): Promise<void> => {
+  const handleGenerate = useCallback(async (data: GenerateBriefInput & { platforms: string[] }): Promise<void> => {
     setError(null)
     setVisuals([])
     setSavedCount(0)
+    const { platforms, ...briefData } = data
+    const targets = platforms.length > 0 ? platforms : [data.platform]
     startTransition(async () => {
-      const res = await generateVisualsAction(data)
-      if (!res.success) {
-        setError(res.quota_exceeded ? t('quotaExceeded') : (res.error ?? t('generateError')))
+      // Une série de visuels PAR plateforme sélectionnée (option multi-plateforme).
+      const all: GeneratedVisual[] = []
+      let quota = false
+      for (const platform of targets) {
+        const res = await generateVisualsAction({ ...briefData, platform: platform as GenerateBriefInput['platform'] })
+        if (!res.success) {
+          if (res.quota_exceeded) { quota = true; break }
+          continue
+        }
+        all.push(...res.visuals)
+      }
+      if (all.length === 0) {
+        setError(quota ? t('quotaExceeded') : t('generateError'))
         return
       }
-      setVisuals(res.visuals)
+      setVisuals(all)
 
       // Référencement AUTOMATIQUE dans la bibliothèque, SANS recopier le fichier :
       // les visuels sont déjà stockés sur MinIO, on insère juste une ligne
       // media_assets pointant vers l'URL existante (anti-gaspillage + anti-perte).
       const reg = await registerVisualsToLibraryAction(
-        res.visuals.map((v) => ({
+        all.map((v) => ({
           url: v.image.url,
           directionId: v.direction.id,
           directionName: v.direction.name,
@@ -142,6 +154,7 @@ export function ImageStudioDialog({ open, onOpenChange, onAssetsAdded }: ImageSt
                 hasBrandDNA={brand.hasDNA}
                 brandName={brand.brandName}
                 brandDNASummary={brand.summary}
+                multiPlatform
               />
               {savedCount > 0 && (
                 <div className="flex items-center gap-2 rounded-lg border border-green-600/40 bg-green-600/10 p-3 text-sm text-green-600">
