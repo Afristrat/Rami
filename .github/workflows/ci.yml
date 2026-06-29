@@ -253,9 +253,18 @@ jobs:
             -H "Authorization: Bearer $COOLIFY_API_TOKEN"
           echo "Déploiement Coolify déclenché."
 
+      # Smoke test post-déploiement — exécuté UNIQUEMENT si l'URL de production
+      # est configurée (variable de dépôt `PRODUCTION_URL`). Sans elle, le script
+      # reçoit une URL vide et échoue (`Failed to parse URL from /`). Gardé sur
+      # `vars` (autorisé dans `if:`, contrairement à `secrets`).
       - name: Attendre la disponibilité puis smoke tests
+        if: ${{ vars.PRODUCTION_URL != '' }}
         run: |
           sleep 45
           npx tsx scripts/smoke-test.ts "${{ vars.PRODUCTION_URL }}"
         env:
           NEXT_PUBLIC_APP_URL: ${{ vars.PRODUCTION_URL }}
+
+      - name: Smoke test ignoré (PRODUCTION_URL non configurée)
+        if: ${{ vars.PRODUCTION_URL == '' }}
+        run: echo "PRODUCTION_URL non définie → smoke test post-déploiement ignoré (déploiement réel géré par l'auto-deploy Coolify)."
