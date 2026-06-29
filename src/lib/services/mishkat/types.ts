@@ -77,6 +77,43 @@ export interface BrandTokens {
   }
   logo_url: string
   media?: { backgrounds: string[] }
+  /**
+   * Spec psychologique calibré (Causse × Gestalt). C'est le CONTRAT que le
+   * renderer Mishkāt doit consommer pour produire un visuel « pensé pour
+   * l'impact » : couleurs liées à une émotion cible, forme Gestalt du secteur,
+   * fond/dégradé calibrés (contraste WCAG garanti), style de composition.
+   */
+  psychology?: MishkatPsychologySpec
+}
+
+/**
+ * Calibration psychologique d'une vidéo, dérivée par RAMI depuis le Brand DNA
+ * (objectif cognitif + secteur + culture) via la matrice Causse et la
+ * psychologie des formes (Gestalt). Toutes les couleurs sont des HEX #RRGGBB.
+ */
+export interface MishkatPsychologySpec {
+  /** Émotion cible (clé Causse : confiance, urgence, aspiration, expertise…). */
+  target_emotion: string
+  /** Justification Causse de l'émotion (effet physiologique + intention). */
+  emotion_rationale: string
+  /** Palette calibrée à l'émotion, contraste texte/fond garanti (WCAG). */
+  palette: {
+    bg: string // fond de base calibré
+    text: string // texte LISIBLE sur `bg` (WCAG)
+    accent: string // accent (marque si réel, sinon couleur d'émotion Causse)
+    onAccent: string // texte lisible sur `accent`
+    secondary: string
+    /** 2 arrêts de dégradé calibrés émotion (du fond vers l'accent). */
+    gradient: [string, string]
+  }
+  /** Forme Gestalt dominante du secteur + son signal psychologique. */
+  gestalt: { shape: string; signal: string; keywords: string }
+  /** Style de composition recommandé (cf. règles RAMI objectif→style). */
+  composition_style: string
+  /** Culture primaire (maroc, international…) — pour les codes locaux. */
+  culture: string | null
+  /** Réseaux où la couleur d'émotion performe le mieux (Causse). */
+  networks_optimal: string[]
 }
 
 export const MISHKAT_STATUSES = ['queued', 'generating', 'rendering', 'done', 'error'] as const

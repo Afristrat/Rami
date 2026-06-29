@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { resolveUserTenant } from '@/lib/services/tenant/resolve'
 import { getBrandDnaAction } from '@/lib/actions/brand-dna.actions'
+import { resolveBrandIdentity } from '@/lib/services/brand-dna/resolver'
 import { MishkatVideoInputSchema, toMishkatBrief } from '@/lib/schemas/mishkat-video.schema'
 import { buildBrandTokens } from '@/lib/services/mishkat/brand-tokens'
 import { resolveBackgroundUrls, resolveLogoUrl } from '@/lib/services/mishkat/backgrounds'
@@ -39,18 +40,27 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Paramètres invalides.', details: parsed.error.issues }, { status: 400 })
   }
 
-  // brand_id Mishkāt = slug du tenant (fallback id)
-  const { data: tenantRow } = await supabase.from('tenants').select('slug').eq('id', tenantId).single()
+  // brand_id Mishkāt = slug du tenant (fallback id) ; brand_dna brut pour le resolver
+  const { data: tenantRow } = await supabase.from('tenants').select('slug, brand_dna').eq('id', tenantId).single()
   const brandId = tenantRow?.slug ?? tenantId
 
   const dnaResult = await getBrandDnaAction()
   const dna = 'data' in dnaResult ? dnaResult.data : null
 
+  // Identité visuelle résolue (accent, contraste WCAG, forme Gestalt, objectif
+  // cognitif…) = base du spec psychologique calibré envoyé au studio.
+  const identity = resolveBrandIdentity(tenantRow?.brand_dna ?? null, { tenantName: dna?.brandName ?? null })
+
   const backgrounds = await resolveBackgroundUrls(supabase, tenantId, parsed.data.assetIds)
   const logoUrl = await resolveLogoUrl(supabase, tenantId, dna)
 
   const brief = toMishkatBrief(brandId, parsed.data)
-  const brand = buildBrandTokens(brandId, dna, { backgrounds, logoUrl })
+  const brand = buildBrandTokens(
+    brandId,
+    identity,
+    { objective: parsed.data.objective, tone: parsed.data.tone },
+    { backgrounds, logoUrl },
+  )
 
   try {
     const { id, status } = await createProduction({ brief, brand })
