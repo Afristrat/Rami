@@ -584,6 +584,17 @@
       "deps": [],
       "passes": false,
       "note": "Spec : docs/plans/2026-06-19-api-publique-v1-pont-hermes.md. LOT0 fondation cle API (table api_keys + RLS + middleware Bearer + feature api_publique) ; LOT1 vertical slice publier prouve E2E via Telegram ; LOT2 contenu complet ; LOT3 presentations ; LOT4 analytics. Cote Hermes : skill rami (curl+polling) + cle au vault DPAPI."
+    },
+    {
+      "id": "US-052",
+      "epic": "M",
+      "priority": "P1",
+      "title": "API publique v1 generation de visuels + gates QA (boucle vertueuse anti-carrousel-casse)",
+      "deps": [
+        "US-051"
+      ],
+      "passes": false,
+      "note": "Spec (repo Hermes) : docs/superpowers/specs/2026-06-28-boucle-qa-visuelle-design.md. FONDATION DEJA POSEE (commit [US-052] sur branche feat/us-052-visual-qa-api) : src/lib/schemas/visual-api.schema.ts (contrat public, distinct du visual.schema.ts interne) + src/lib/services/visuals/qa-gates.ts (evaluateVisualQA deterministe : format, no_browser_chrome, fonts_embedded, brand via resolveBrandIdentity) + 9 tests jest verts. RESTE : (1) refactorer generateVisualsAction pour accepter un contexte tenant EXPLICITE (l'API v1 fournit le tenant par cle, pas par session getUser()) sans dupliquer la logique ; (2) routes /api/v1/visuals/{generate,[id],[id]/qa,[id]/preview,[id]/regenerate} reutilisant la generation existante + branchant evaluateVisualQA ; (3) persister le resultat QA (colonne qa sur content_sessions) ; (4) e2e Playwright API ; (5) gates typecheck/lint/build. Le gardien cote Hermes (skill visual-qa-gate) consomme ces endpoints ; en mode degrade il protege deja."
     }
   ]
 }
