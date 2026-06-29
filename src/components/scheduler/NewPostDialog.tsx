@@ -42,7 +42,7 @@ const formSchema = z.object({
     .max(3000, V.contentTooLong)
     .trim(),
   platforms: z
-    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
+    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "youtube", "tiktok"]))
     .min(1, V.platformRequired),
   scheduled_at: z.string().optional().nullable(),
   status: z.enum(["draft", "review", "approved", "scheduled"]),

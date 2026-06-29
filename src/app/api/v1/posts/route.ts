@@ -19,7 +19,6 @@ const PLATFORMS = [
   "facebook",
   "instagram",
   "pinterest",
-  "mastodon",
   "youtube",
   "tiktok",
 ] as const

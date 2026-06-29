@@ -78,7 +78,6 @@ const PLATFORM_CHAR_LIMITS: Record<Platform, number> = {
   facebook: 63206,
   instagram: 2200,
   pinterest: 500,
-  mastodon: 500,
   youtube: 5000,
   tiktok: 2200,
 }
@@ -228,7 +227,6 @@ Règles :
 - Facebook : ton conversationnel, engageant, 2-3 hashtags
 - Pinterest : descriptif, SEO-friendly, 3-5 hashtags
 - YouTube : titre accrocheur + description, 3-5 hashtags
-- Mastodon : direct, sans hashtag spam, max 2 hashtags
 - TikTok : jeune, dynamique, 5-10 hashtags tendance`
 
   try {

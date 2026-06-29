@@ -19,7 +19,6 @@ const PLATFORM_CIRCLES: Partial<Record<Platform, { bg: string; letter: string }>
   facebook:  { bg: "bg-blue-700", letter: "F" },
   pinterest: { bg: "bg-red-600", letter: "P" },
   youtube:   { bg: "bg-red-600", letter: "Y" },
-  mastodon:  { bg: "bg-indigo-500", letter: "M" },
   tiktok:    { bg: "bg-zinc-800 dark:bg-zinc-200", letter: "T" },
 }
 

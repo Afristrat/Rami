@@ -4,7 +4,6 @@ export type Platform =
   | "facebook"
   | "instagram"
   | "pinterest"
-  | "mastodon"
   | "youtube"
   | "tiktok"
 
@@ -99,19 +98,6 @@ export const PLATFORM_CONFIG: Record<Platform, PlatformConfig> = {
     maxImages: 5,
     supportsCarousel: true,
     mediaRequired: true,
-  },
-  mastodon: {
-    label: "Mastodon",
-    color: "#6364FF",
-    bgClass: "bg-[#6364FF]/15",
-    textClass: "text-[#6364FF]",
-    icon: "M",
-    charLimit: 500,
-    status: "hidden",
-    aspectRatios: ["16:9", "1:1"],
-    maxImages: 4,
-    supportsCarousel: false,
-    mediaRequired: false,
   },
   youtube: {
     label: "YouTube",

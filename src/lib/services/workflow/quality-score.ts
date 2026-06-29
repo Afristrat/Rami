@@ -51,7 +51,6 @@ export const HASHTAG_RANGES: Record<Platform, readonly [number, number]> = {
   instagram: [5, 10],
   facebook: [2, 3],
   pinterest: [3, 5],
-  mastodon: [0, 2],
   youtube: [3, 5],
   tiktok: [5, 10],
 }

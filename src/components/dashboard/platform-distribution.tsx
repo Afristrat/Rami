@@ -24,7 +24,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   twitter: "bg-sky-400",
   facebook: "bg-blue-700",
   pinterest: "bg-red-600",
-  mastodon: "bg-indigo-500",
   youtube: "bg-red-500",
   tiktok: "bg-pink-500",
 }
@@ -35,7 +34,7 @@ export function PlatformDistribution({ distribution, total }: PlatformDistributi
 
   const knownPlatforms = new Set([
     "twitter", "linkedin", "facebook", "instagram",
-    "pinterest", "mastodon", "youtube", "tiktok", "whatsapp",
+    "pinterest", "youtube", "tiktok", "whatsapp",
   ])
 
   if (distribution.length === 0) {

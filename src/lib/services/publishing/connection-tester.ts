@@ -81,15 +81,6 @@ export async function testPublishingConnection(
         }
       }
 
-      case "mastodon": {
-        // Mastodon nécessite l'instance URL dans le token metadata
-        return {
-          platform,
-          status: "not_configured",
-          message: "Test Mastodon non encore supporté",
-        }
-      }
-
       default:
         return {
           platform,

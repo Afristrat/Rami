@@ -33,7 +33,7 @@ const editSchema = z.object({
   title: z.string().max(500).trim().optional(),
   content: z.string().min(1, V.contentRequired).max(3000).trim(),
   platforms: z
-    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
+    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "youtube", "tiktok"]))
     .min(1, V.platformRequired),
   scheduled_at: z.string().optional().nullable(),
 })

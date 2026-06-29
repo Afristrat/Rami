@@ -8,14 +8,14 @@ import { cn } from "@/lib/utils"
 import { ArrowLeft, XCircle, Send, Clock, Shield, Link2, Copy, Check, Loader2 } from "lucide-react"
 import {
   TwitterXIcon, LinkedInIcon, InstagramIcon, FacebookIcon,
-  PinterestIcon, YouTubeIcon, MastodonIcon, TikTokIcon,
+  PinterestIcon, YouTubeIcon, TikTokIcon,
 } from "@/components/connections/platform-icons"
 import { useTranslations } from "next-intl"
 
 const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: string }>> = {
   twitter: TwitterXIcon, linkedin: LinkedInIcon, instagram: InstagramIcon,
   facebook: FacebookIcon, pinterest: PinterestIcon, youtube: YouTubeIcon,
-  mastodon: MastodonIcon, tiktok: TikTokIcon,
+  tiktok: TikTokIcon,
 }
 
 interface Step6ApprovalProps {

@@ -16,7 +16,6 @@ const PLATFORM_COLORS: Record<string, { colorClass: string; borderClass: string 
   youtube:   { colorClass: "bg-red-500/10",                           borderClass: "border-red-500" },
   tiktok:    { colorClass: "bg-zinc-500/10 dark:bg-zinc-500/10",      borderClass: "border-zinc-400" },
   pinterest: { colorClass: "bg-rose-500/10",                          borderClass: "border-rose-500" },
-  mastodon:  { colorClass: "bg-violet-500/10 dark:bg-violet-500/10",  borderClass: "border-violet-500" },
   default:   { colorClass: "bg-emerald-500/10",                       borderClass: "border-emerald-500" },
 }
 

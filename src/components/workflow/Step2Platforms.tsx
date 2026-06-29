@@ -17,7 +17,6 @@ import {
   FacebookIcon,
   PinterestIcon,
   YouTubeIcon,
-  MastodonIcon,
   TikTokIcon,
 } from "@/components/connections/platform-icons"
 import { useTranslations } from "next-intl"
@@ -36,7 +35,6 @@ const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: stri
   facebook: FacebookIcon,
   pinterest: PinterestIcon,
   youtube: YouTubeIcon,
-  mastodon: MastodonIcon,
   tiktok: TikTokIcon,
 }
 

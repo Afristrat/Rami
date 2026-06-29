@@ -113,12 +113,6 @@ const PLATFORM_CONFIG: Record<string, PlatformConfig> = {
     text: "text-red-600",
     labelKey: "youtube",
   },
-  mastodon: {
-    icon: MessageCircle,
-    bg: "bg-indigo-500/20 dark:bg-indigo-500/20",
-    text: "text-indigo-500",
-    labelKey: "mastodon",
-  },
   default: {
     icon: Image,
     bg: "bg-muted",

@@ -23,7 +23,7 @@ export type ContentFormat = typeof CONTENT_FORMATS[number]
 
 export const step2Schema = z.object({
   platforms: z
-    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
+    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "youtube", "tiktok"]))
     .min(1, V.platformRequired),
   format: z.enum(CONTENT_FORMATS),
 })

@@ -34,7 +34,6 @@ export const PLATFORM_ENGAGEMENT_WINDOWS: Record<Platform, EngagementWindow[]> =
     { weekdays: [2, 3, 4], startHour: 18, endHour: 20 },
   ],
   pinterest: [{ weekdays: [5, 6], startHour: 20, endHour: 22 }],
-  mastodon: [{ weekdays: [1, 2, 3, 4, 5], startHour: 9, endHour: 11 }],
   youtube: [{ weekdays: [4, 5], startHour: 15, endHour: 17 }],
   tiktok: [{ weekdays: [2, 3, 4], startHour: 18, endHour: 21 }],
 }

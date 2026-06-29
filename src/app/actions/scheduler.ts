@@ -22,7 +22,7 @@ const NewPostSchema = z.object({
     .max(3000, V.contentTooLong)
     .trim(),
   platforms: z
-    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
+    .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "youtube", "tiktok"]))
     .min(1, V.platformRequired),
   scheduled_at: z.string().datetime({ offset: true }).optional().nullable(),
   status: z.enum(["draft", "review", "approved", "scheduled"]).default("draft"),
@@ -221,7 +221,7 @@ export async function updatePost(
     title: z.string().max(500).trim().optional(),
     content: z.string().min(1, V.contentRequired).max(3000).trim().optional(),
     platforms: z
-      .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"]))
+      .array(z.enum(["twitter", "linkedin", "facebook", "instagram", "pinterest", "youtube", "tiktok"]))
       .min(1, V.platformRequired)
       .optional(),
     scheduled_at: z.string().datetime({ offset: true }).optional().nullable(),

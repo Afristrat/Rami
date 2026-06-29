@@ -63,7 +63,6 @@ export type Platform =
   | 'facebook'
   | 'instagram'
   | 'pinterest'
-  | 'mastodon'
   | 'youtube'
   | 'tiktok'
 

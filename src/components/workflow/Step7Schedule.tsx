@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { ArrowLeft, CalendarCheck, Zap, Save, CheckCircle2, ExternalLink, Sparkles, Calendar } from "lucide-react"
 import {
   TwitterXIcon, LinkedInIcon, InstagramIcon, FacebookIcon,
-  PinterestIcon, YouTubeIcon, MastodonIcon, TikTokIcon,
+  PinterestIcon, YouTubeIcon, TikTokIcon,
 } from "@/components/connections/platform-icons"
 import { useTranslations } from "next-intl"
 import { useIntlLocale } from "@/lib/utils/format-locale"
@@ -17,7 +17,7 @@ import { useIntlLocale } from "@/lib/utils/format-locale"
 const PLATFORM_ICON_MAP: Record<Platform, React.ComponentType<{ className?: string }>> = {
   twitter: TwitterXIcon, linkedin: LinkedInIcon, instagram: InstagramIcon,
   facebook: FacebookIcon, pinterest: PinterestIcon, youtube: YouTubeIcon,
-  mastodon: MastodonIcon, tiktok: TikTokIcon,
+  tiktok: TikTokIcon,
 }
 import { useRouter } from "next/navigation"
 

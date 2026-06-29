@@ -68,14 +68,6 @@ describe("quality-score (Step 5 — score réel, fin du « A+ » inventé)", () 
     expect(tagMetric?.status).toBe("bad")
   })
 
-  it("zéro hashtag sur Mastodon (fourchette 0-2) → conforme", () => {
-    const result = computeQualityScore(
-      baseInput({ hashtags: [], platform: "mastodon", charLimit: 500, caption: "Une annonce courte mais engageante, qu'en pensez-vous ?" })
-    )
-    const tagMetric = result.metrics.find((m) => m.id === "hashtagVolume")
-    expect(tagMetric?.ratio).toBe(1)
-  })
-
   it("trop de hashtags → effet spam pénalisé", () => {
     const result = computeQualityScore(
       baseInput({ hashtags: Array.from({ length: 12 }, (_, i) => `tag${i}`) })
@@ -85,7 +77,7 @@ describe("quality-score (Step 5 — score réel, fin du « A+ » inventé)", () 
   })
 
   it("toutes les plateformes ont une fourchette de hashtags définie", () => {
-    const platforms = ["twitter", "linkedin", "facebook", "instagram", "pinterest", "mastodon", "youtube", "tiktok"] as const
+    const platforms = ["twitter", "linkedin", "facebook", "instagram", "pinterest", "youtube", "tiktok"] as const
     for (const platform of platforms) {
       const [min, max] = HASHTAG_RANGES[platform]
       expect(min).toBeLessThanOrEqual(max)

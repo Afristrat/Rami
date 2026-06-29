@@ -39,7 +39,7 @@ function layoutOf(platform: Platform): "feed" | "tweet" | "square" | "vertical" 
     case "youtube":
       return "video"
     default:
-      return "feed" // linkedin, facebook, mastodon
+      return "feed" // linkedin, facebook
   }
 }
 
@@ -232,7 +232,7 @@ export function PlatformPreview({
       </div>
     )
   } else {
-    // feed : linkedin, facebook, mastodon
+    // feed : linkedin, facebook
     body = (
       <div>
         {header}
