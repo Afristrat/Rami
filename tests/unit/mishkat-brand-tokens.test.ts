@@ -71,16 +71,16 @@ describe('buildPsychologySpec', () => {
 })
 
 describe('buildBrandTokens', () => {
-  it('injecte le spec psychologique + route les couleurs d\'émotion dans la palette (option A)', () => {
+  it('préserve l\'IDENTITÉ de marque dans la palette + porte l\'émotion dans le bloc psychology', () => {
     const t = buildBrandTokens('rami', makeIdentity(), { objective: 'awareness', tone: 'premium' }, { backgrounds: ['https://x/1.jpg'], logoUrl: '' })
     expect(t.brand_id).toBe('rami')
     expect(t.psychology?.target_emotion).toBe('confiance')
-    // (A) primary/secondary = arrêts du dégradé d'émotion (champs rendus par Mishkāt).
-    expect(t.palette.primary).toBe(t.psychology?.palette.gradient[1])
-    expect(t.palette.secondary).toBe(t.psychology?.palette.gradient[0])
-    expect(t.palette.bg).toBe(t.psychology?.palette.bg)
-    // L'accent de MARQUE réel est préservé (reconnaissance).
+    // Identité de marque INTOUCHABLE : couleurs de marque, jamais remplacées par l'émotion.
+    expect(t.palette.primary.toLowerCase()).toBe('#2563eb')
     expect(t.palette.accent.toLowerCase()).toBe('#2563eb')
+    // L'émotion vit dans `psychology` (couche de traitement pour Mishkāt option B).
+    expect(t.psychology?.palette.gradient).toHaveLength(2)
+    expect(t.palette.bg).toBe(t.psychology?.palette.bg)
     expect(t.media?.backgrounds).toEqual(['https://x/1.jpg'])
   })
 
