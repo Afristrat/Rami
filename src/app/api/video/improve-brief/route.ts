@@ -51,6 +51,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     "Tu es un expert en brief créatif pour vidéos social media bilingues (français/arabe).",
     "On te donne l'intention brute d'une vidéo. Réécris-la pour la rendre plus claire, spécifique et orientée résultat :",
     "qui est l'audience, quelle émotion viser, quel message clé, quelle action attendue.",
+    // Le studio conclut la vidéo sur un outro à appel à l'action : un brief sans CTA
+    // explicite risque d'être rejeté (convergence non garantie). On l'impose donc.
+    "IMPÉRATIF : le brief DOIT se terminer par un appel à l'action (CTA) explicite et concret",
+    "(ex. « inviter à essayer gratuitement », « proposer de réserver une démo », « inviter à postuler »),",
+    "car la vidéo se conclut sur cet appel — sans CTA, la production échoue.",
     "Reste concis (2 à 4 phrases), en français, sans jargon. N'invente pas de faits.",
     "Réponds UNIQUEMENT par le brief amélioré, sans préambule ni guillemets.",
     ctx ? `\nContexte de marque :\n${ctx}` : '',

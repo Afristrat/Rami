@@ -34,10 +34,13 @@ const DURATIONS = [18, 20, 30, 45, 60, 90] as const
 const POLL_INTERVAL_MS = 3000
 
 // Propositions d'intention cliquables (pré-remplissent le brief).
+// Chacune se termine par un appel à l'action (CTA) explicite : le studio conclut
+// la vidéo sur cet appel et fiabilise la convergence (un brief sans CTA risque
+// d'être rejeté). Voir aussi le prompt « Améliorer le brief ».
 const BRIEF_EXAMPLES = [
-  "Annoncer le lancement de notre nouveau produit aux jeunes entrepreneurs au Maroc et susciter l'envie d'essayer.",
-  "Présenter notre service aux institutions avec un ton premium et une démonstration sobre et crédible.",
-  "Recruter des talents tech à Casablanca : montrer la culture d'équipe et l'impact concret du travail.",
+  "Annoncer le lancement de notre nouveau produit aux jeunes entrepreneurs au Maroc, puis les inviter à l'essayer gratuitement dès aujourd'hui.",
+  "Présenter notre service aux institutions avec un ton premium et une démonstration sobre, puis proposer de réserver une démo.",
+  "Recruter des talents tech à Casablanca en montrant la culture d'équipe et l'impact concret, puis inviter à postuler maintenant.",
 ] as const
 const POLL_TIMEOUT_MS = 6 * 60 * 1000
 const MAX_BACKGROUNDS = 8
