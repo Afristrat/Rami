@@ -593,8 +593,9 @@
       "deps": [
         "US-051"
       ],
-      "passes": false,
-      "note": "Spec (repo Hermes) : docs/superpowers/specs/2026-06-28-boucle-qa-visuelle-design.md. FONDATION DEJA POSEE (commit [US-052] sur branche feat/us-052-visual-qa-api) : src/lib/schemas/visual-api.schema.ts (contrat public, distinct du visual.schema.ts interne) + src/lib/services/visuals/qa-gates.ts (evaluateVisualQA deterministe : format, no_browser_chrome, fonts_embedded, brand via resolveBrandIdentity) + 9 tests jest verts. RESTE : (1) refactorer generateVisualsAction pour accepter un contexte tenant EXPLICITE (l'API v1 fournit le tenant par cle, pas par session getUser()) sans dupliquer la logique ; (2) routes /api/v1/visuals/{generate,[id],[id]/qa,[id]/preview,[id]/regenerate} reutilisant la generation existante + branchant evaluateVisualQA ; (3) persister le resultat QA (colonne qa sur content_sessions) ; (4) e2e Playwright API ; (5) gates typecheck/lint/build. Le gardien cote Hermes (skill visual-qa-gate) consomme ces endpoints ; en mode degrade il protege deja."
+      "passes": true,
+      "completedAt": "2026-06-29",
+      "note": "LIVRÉ (branche feat/us-052-visual-qa-api → main). T1 schéma visual-api.schema.ts + T2 qa-gates.ts (evaluateVisualQA déterministe : format, no_browser_chrome, fonts_embedded, brand via resolveBrandIdentity). T3 table `visuals` (manifest/qa/slides jsonb, RLS get_current_tenant_id). T4 cœurs tenant-explicites PARTAGÉS sans duplication (generate-core pour les images + carousel-core = deck LLM extrait de carousel.actions) + service generate.ts routant type→pipeline (image→generateImage+stockage MinIO, carousel→renderCarouselPdf). T5/T6 routes /api/v1/visuals/{generate,[id],[id]/qa,[id]/preview,[id]/regenerate} (auth Bearer + nouveau scope visuals:write sur 8 locales, isolation tenant par filtre explicite). T7 garde compliance-by-design (generate.ts + carousel-core via resolveBrandIdentity) + e2e Playwright (auth 401 sans coût + happy path conditionné à RAMI_TEST_API_KEY). DÉCISION PÉRIMÈTRE (Amine) : carrousel rendu en PDF unique (pas de PNG par slide ; preview redirige vers l'artefact MinIO). Gates : tsc 0 / lint 0 / jest 462 / build OK."
     }
   ]
 }

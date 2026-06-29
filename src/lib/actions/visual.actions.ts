@@ -15,9 +15,9 @@ import { resolveUserTenant } from '@/lib/services/tenant/resolve'
 // Cœur de génération partagé (US-052) : la logique réelle vit hors de ce fichier
 // `'use server'` pour être réutilisable par l'API publique v1.
 import { generateVisuals, type VisualGenerationResult } from '@/lib/services/visuals/generate-core'
-
-// Ré-exporté pour préserver les imports existants (composants UI…).
-export type { VisualGenerationResult }
+// NB : un module 'use server' ne doit exporter que des Server Actions async.
+// Le type VisualGenerationResult se réimporte directement depuis generate-core
+// (sa source) — pas de ré-export ici (casserait le manifest RSC Turbopack).
 
 /**
  * Action principale : génère 4 directions × N images à partir d'un brief.
