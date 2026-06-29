@@ -157,6 +157,12 @@ jobs:
     environment:
       name: production
       url: ${{ vars.PRODUCTION_URL }}
+    env:
+      # Le contexte `secrets` n'est PAS autorisé dans les conditions `if:` (rejet du
+      # workflow au parsing → « workflow file issue », aucun job ne démarre). On mappe
+      # le secret en variable d'environnement de job pour pouvoir le tester via `env`.
+      COOLIFY_DEPLOY_WEBHOOK: ${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}
+      COOLIFY_API_TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
@@ -169,10 +175,10 @@ jobs:
         run: npm ci
 
       - name: Déclencher le déploiement Coolify (webhook)
-        if: ${{ secrets.COOLIFY_DEPLOY_WEBHOOK != '' }}
+        if: ${{ env.COOLIFY_DEPLOY_WEBHOOK != '' }}
         run: |
-          curl -fsS -X GET "${{ secrets.COOLIFY_DEPLOY_WEBHOOK }}" \
-            -H "Authorization: Bearer ${{ secrets.COOLIFY_API_TOKEN }}"
+          curl -fsS -X GET "$COOLIFY_DEPLOY_WEBHOOK" \
+            -H "Authorization: Bearer $COOLIFY_API_TOKEN"
           echo "Déploiement Coolify déclenché."
 
       - name: Attendre la disponibilité puis smoke tests
