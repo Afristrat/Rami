@@ -35,6 +35,9 @@ export const MishkatVideoInputSchema = z.object({
   // Images de la bibliothèque du tenant (flux v1 « pool »), max 8.
   assetIds: z.array(z.string().uuid()).max(8).default([]),
   title: z.string().max(120).optional(),
+  // Mode de production : v1_pool (un seul rendu depuis un pool d'images) ou
+  // v2_scene (storyboard → une image générée par scène → rendu). Défaut v1.
+  mode: z.enum(['v1_pool', 'v2_scene']).default('v1_pool'),
 })
 
 export type MishkatVideoInput = z.infer<typeof MishkatVideoInputSchema>

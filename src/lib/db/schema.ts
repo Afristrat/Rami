@@ -383,6 +383,8 @@ export const videoProductions = pgTable('video_productions', {
   brief: jsonb('brief').notNull(),
   brand_snapshot: jsonb('brand_snapshot'),
   storyboard: jsonb('storyboard'),
+  // v2 « par scène » : job de RENDU final (le storyboard reste mishkat_job_id, stable).
+  render_job_id: text('render_job_id'),
   variants: jsonb('variants').notNull().default([]),
   error_message: text('error_message'),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

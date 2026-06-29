@@ -28,17 +28,33 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   // Garde-fou : la production doit appartenir au tenant (défense en profondeur + RLS).
   const { data: prod } = await supabase
     .from('video_productions')
-    .select('id, status, variants, mode, storyboard')
+    .select('id, status, variants, mode, storyboard, render_job_id, error_message')
     .eq('mishkat_job_id', id)
     .eq('tenant_id', tenantId)
     .single()
   if (!prod) return NextResponse.json({ error: 'Production introuvable.' }, { status: 404 })
 
   const kind = (prod.mode as string) ?? 'v1_pool'
+  const renderJobId = (prod.render_job_id as string | null) ?? null
+
+  // v2 « par scène » en phase storyboard/génération d'images : le worker travaille
+  // (pas encore de job de rendu). On renvoie le statut de la ligne — surtout PAS le
+  // statut du job storyboard, dont le « done » signifierait à tort « vidéo prête ».
+  if (kind === 'v2_scene' && !renderJobId) {
+    return NextResponse.json({
+      status: (prod.status as string) ?? 'generating',
+      kind,
+      storyboard: prod.storyboard ?? null,
+      error: (prod.error_message as string | null) ?? undefined,
+    })
+  }
+
+  // Job à suivre : le rendu (render_job_id) en v2, sinon le job unique (v1).
+  const effectiveJobId = renderJobId ?? id
 
   let live
   try {
-    live = await getProduction(id)
+    live = await getProduction(effectiveJobId)
   } catch (err) {
     if (err instanceof MishkatConfigError) {
       return NextResponse.json({ error: 'Studio vidéo indisponible.' }, { status: 503 })
@@ -55,7 +71,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     // re-download). Copie de redondance souveraine seulement si explicitement activée.
     const variants =
       process.env.MISHKAT_ARCHIVE_REDUNDANT_COPY === 'true'
-        ? await archiveProductionIfNeeded(supabase, tenantId, user.id, id, liveVariants, existing)
+        ? await archiveProductionIfNeeded(supabase, tenantId, user.id, effectiveJobId, liveVariants, existing)
         : toPermanentVariants(liveVariants, existing)
 
     await supabase

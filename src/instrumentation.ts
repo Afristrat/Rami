@@ -27,6 +27,7 @@ export async function register() {
     const { startAttributionRefreshWorker } = await import("@/lib/queue/jobs/attribution-refresh")
     const { startCollectiveAggregateWorker } = await import("@/lib/queue/jobs/collective-aggregate")
     const { startColorTrendRefreshWorker } = await import("@/lib/queue/jobs/color-trend-refresh")
+    const { startSceneVideoWorker } = await import("@/lib/queue/scene-video-worker")
     const { log } = await import("@/lib/utils/logger")
 
     try {
@@ -59,6 +60,12 @@ export async function register() {
       await startColorTrendRefreshWorker()
     } catch (err) {
       log({ level: "error", module: "instrumentation", action: "color_trend_refresh_worker_start_failed", metadata: { error: err instanceof Error ? err.message : String(err) } })
+    }
+
+    try {
+      await startSceneVideoWorker()
+    } catch (err) {
+      log({ level: "error", module: "instrumentation", action: "scene_video_worker_start_failed", metadata: { error: err instanceof Error ? err.message : String(err) } })
     }
   }
 }

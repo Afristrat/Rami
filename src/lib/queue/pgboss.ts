@@ -23,7 +23,16 @@ export const JOBS = {
   ATTRIBUTION_REFRESH: "attribution-refresh",
   COLLECTIVE_AGGREGATE: "collective-aggregate",
   COLOR_TREND_REFRESH: "color-trend-refresh",
+  SCENE_VIDEO: "scene-video",
 } as const
+
+// ── Payload du job scene-video (flux vidéo v2 « par scène ») ───────────────────
+
+export interface SceneVideoPayload {
+  /** Id de la ligne video_productions à faire avancer (storyboard → rendu). */
+  productionRowId: string
+  tenantId: string
+}
 
 // ── Payload du job publish-post ───────────────────────────────────────────────
 
@@ -156,6 +165,22 @@ export async function enqueueScheduledPublish(
   })
 
   return jobId
+}
+
+/**
+ * Enqueue un job d'orchestration vidéo v2 (storyboard → images par scène → rendu).
+ * singletonKey = ligne de production → un seul job par production.
+ */
+export async function enqueueSceneVideo(payload: SceneVideoPayload): Promise<string | null> {
+  const boss = await getBoss()
+  return boss.send(JOBS.SCENE_VIDEO, payload, {
+    singletonKey: `scene-video:${payload.productionRowId}`,
+    retryLimit: 2,
+    retryDelay: 30,
+    retryBackoff: true,
+    expireInSeconds: 900, // jusqu'à 15 min (poll storyboard + N images + rendu)
+    priority: 0,
+  })
 }
 
 /**

@@ -13,7 +13,8 @@ import { resolveBrandIdentity } from '@/lib/services/brand-dna/resolver'
 import { MishkatVideoInputSchema, toMishkatBrief } from '@/lib/schemas/mishkat-video.schema'
 import { buildBrandTokens } from '@/lib/services/mishkat/brand-tokens'
 import { resolveBackgroundUrls, resolveAutoBackgroundUrls, resolveLogoUrl } from '@/lib/services/mishkat/backgrounds'
-import { createProduction, MishkatConfigError } from '@/lib/services/mishkat/client'
+import { createProduction, createStoryboard, MishkatConfigError } from '@/lib/services/mishkat/client'
+import { enqueueSceneVideo } from '@/lib/queue/pgboss'
 import { log } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
@@ -68,6 +69,35 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   )
 
   try {
+    // ── Flux v2 « par scène » : storyboard d'abord, puis le worker génère une
+    // image par scène et lance le rendu. Le client suit par l'id du storyboard. ──
+    if (parsed.data.mode === 'v2_scene') {
+      const { id: storyboardId } = await createStoryboard({ brief, brand })
+
+      const { data: inserted, error: insErr } = await supabase
+        .from('video_productions')
+        .insert({
+          tenant_id: tenantId,
+          mishkat_job_id: storyboardId,
+          mode: 'v2_scene',
+          status: 'generating',
+          brief,
+          brand_snapshot: brand,
+        })
+        .select('id')
+        .single<{ id: string }>()
+
+      if (insErr || !inserted) {
+        log({ level: 'error', module: 'mishkat', action: 'production_persist_failed', tenant_id: tenantId, metadata: { jobId: storyboardId, error: insErr?.message } })
+        return NextResponse.json({ error: 'Échec de l\'enregistrement de la production.' }, { status: 500 })
+      }
+
+      await enqueueSceneVideo({ productionRowId: inserted.id, tenantId })
+      log({ level: 'info', module: 'mishkat', action: 'scene_video_enqueued', tenant_id: tenantId, metadata: { jobId: storyboardId, rowId: inserted.id } })
+      return NextResponse.json({ id: storyboardId, status: 'generating' }, { status: 202 })
+    }
+
+    // ── Flux v1 « pool » : rendu direct depuis le pool d'images. ──
     const { id, status } = await createProduction({ brief, brand })
 
     const { error: insErr } = await supabase.from('video_productions').insert({
