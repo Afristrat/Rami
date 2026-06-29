@@ -388,3 +388,24 @@ export const videoProductions = pgTable('video_productions', {
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 })
+
+// ── Visuels générés via l'API publique v1 (US-052) ──────────────────────────
+// Une ligne = une génération (image OU carrousel) demandée par clé d'API, avec
+// son manifeste (dimensions, polices), le résultat des gates QA déterministes
+// et les slides stockées sur MinIO. Distinct de `visual_sessions` (parcours UI
+// 4 directions) : ici c'est l'artefact unique du contrat API + sa boucle QA.
+export const visuals = pgTable('visuals', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenant_id: uuid('tenant_id').notNull().references(() => tenants.id, { onDelete: 'cascade' }),
+  created_by: uuid('created_by').references(() => users.id, { onDelete: 'set null' }),
+  type: varchar('type', { length: 32 }).notNull(),
+  format: varchar('format', { length: 16 }).notNull(),
+  status: varchar('status', { length: 16 }).notNull().default('generating'), // generating|ready|failed
+  manifest: jsonb('manifest'),
+  qa: jsonb('qa'),
+  slides: jsonb('slides').notNull().default([]), // [{ n, minio_path, public_url }]
+  content: jsonb('content'),
+  brand_dna_snapshot: jsonb('brand_dna_snapshot'),
+  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
