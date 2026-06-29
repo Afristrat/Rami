@@ -99,7 +99,14 @@
 
 **E. Docs/commentaires alignés MinIO** : plan `2026-06-26-mishkat-video-integration.md` (bloc « MISE À JOUR 2026-06-28 » qui fait foi + l.586 supersédée), `video-productions.actions.ts`, `README.md`, `ImageStudioDialog.tsx`, `library.actions.ts`.
 
-**Gates** : tsc 0 / lint 0 / **jest 434** (34 suites). **HEAD `a68a7c8`** poussé origin/main (commit unique, staging `git add -u` pour exclure les non-suivis dont `.env.local.cloud-backup-*`). ⚠️ Constats vérifiés : `e198d54` (RLS #19) **déjà poussé** (passation #19 périmée) ; **auto-deploy n'a pas fired** → deploy déclenché manuellement (`deployment_uuid mt8y99uqsnxknug6xfewxdca`). **À FAIRE après deploy** : browser-verify (upload bibliothèque → MinIO, production vidéo si Mishkāt débloqué). **TOP #21 reste = fix studio Mishkāt** (cf. #19, base toujours valable).
+**Gates** : tsc 0 / lint 0 / **jest 434** (34 suites). **HEAD `a68a7c8`** poussé origin/main (commit unique, staging `git add -u` pour exclure les non-suivis dont `.env.local.cloud-backup-*`). ⚠️ Constats vérifiés : `e198d54` (RLS #19) **déjà poussé** (passation #19 périmée) ; **auto-deploy n'a pas fired** → deploy déclenché manuellement (`deployment_uuid mt8y99uqsnxknug6xfewxdca`).
+
+**F. BROWSER-VERIFY PROD (compte AI-Mpower, session Chrome existante — mdp jamais manipulé) :**
+- **Upload bibliothèque → MinIO PROUVÉ** (3 angles) : fichier test uploadé via le dialogue « Importer » réel → ligne `media_assets` (`storage_path=media/…`, `public_url=https://s3-rami.ai-mpower.com/rami/media/…`, `metadata.external_storage=minio`) + objet HTTP 200 `image/png` 77 o sur MinIO. Nettoyé ensuite (objet `mc rm` + ligne `DELETE 1` + URL→404 ; biblio revenue à 9). ⚠️ Le chemin `deleteMediaAssetAction→deleteFromStorage` via l'UI **non testé** (menu ⋮ ne s'ouvrait pas de façon fiable ; nettoyage fait via `mc`/SQL).
+- **⭐⭐ MISHKĀT DÉBLOQUÉ + 1ʳᵉ VIDÉO BOUT-EN-BOUT** : Amine a corrigé le studio (`ai-mpower` produit désormais). 2 productions réelles lancées via l'API authentifiée : job awareness sans CTA = `done` **4 variantes** (3/4 gates) ; job acquisition + CTA = `done` **4/4 gates**. **Contrat vidéo validé** : `variants[].url`=URL MinIO permanente (`s3-rami.ai-mpower.com/mishkat/productions/<id>/<lang>-<fmt>.mp4`, persistée en `public_url`, `media_id=null` → pas de re-download) ; 8 MP4 servis HTTP 200 `video/mp4` ~1,2–1,6 Mo. ⚠️ **2 productions test restent dans `video_productions`** (`7e642852`, `997f730b`) — à garder comme preuve ou nettoyer.
+- **FIABILISATION CTA (point Amine)** : le studio rejette un outro sans appel à l'action → briefs awareness purs non fiables (erreur désormais explicite, relayée par RAMI). Fix RAMI (`e5295e3`, deploy `fsvktvl2kwdjpmvcc2ojs8lt`) : `BRIEF_EXAMPLES` se terminent par un CTA + prompt `improve-brief` impose un CTA de clôture. Gates verts.
+
+**⚠️ TOP #21 N'EST PLUS « fix Mishkāt » (résolu).** Prochaines : (a) décider du sort des 2 productions test ; (b) tester le chemin delete UI MinIO ; (c) Phase 2 vidéo (flux v2 par scène) ; (d) e2e Playwright vidéo ; (e) chantiers produit (TikTok/OAuth publishing, pricing Lot 0, Ralph US-030).
 
 ---
 
