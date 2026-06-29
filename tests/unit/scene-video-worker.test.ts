@@ -7,7 +7,7 @@
 const mockGetProduction = jest.fn()
 const mockCreateProduction = jest.fn()
 const mockGenerateSceneImages = jest.fn()
-const mockUpdate = jest.fn(() => updateChain)
+const mockUpdate = jest.fn((..._a: unknown[]) => updateChain)
 let mockRow: { data: unknown } = { data: null }
 
 // Chaîne d'update : .update(...).eq(...).eq(...) → résout (thenable).

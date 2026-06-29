@@ -6,6 +6,9 @@
 .env.*.local
 .env.production
 .env.staging
+.env*.backup*
+.env*backup*
+*.cloud-backup-*
 *.pem
 *.key
 
