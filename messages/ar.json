@@ -1351,6 +1351,7 @@
     "scopeContentWrite": "توليد المحتوى",
     "scopePresentationsWrite": "إنشاء العروض التقديمية",
     "scopeAnalyticsRead": "قراءة التحليلات",
+    "scopeVisualsWrite": "إنشاء عناصر مرئية",
     "newKeyTitle": "انسخ مفتاح API الآن",
     "newKeyWarning": "هذه هي المرة الوحيدة التي يظهر فيها المفتاح كاملًا. احفظه في مكان آمن — لن يُعرض مرة أخرى أبدًا.",
     "copy": "نسخ",

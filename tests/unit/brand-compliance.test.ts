@@ -15,9 +15,11 @@ const read = (rel: string): string => readFileSync(join(root, rel), "utf8")
 // Fichiers câblés qui DOIVENT résoudre l'identité via le resolver.
 const WIRED_THROUGH_RESOLVER = [
   "src/lib/actions/post-visual.actions.ts",
-  "src/lib/actions/carousel.actions.ts",
+  "src/lib/services/visuals/carousel-core.ts",
   "src/lib/actions/presentation.actions.ts",
   "src/lib/services/documents/pdf/branding.ts",
+  // US-052 — API publique v1 : le service de génération résout l'identité.
+  "src/lib/services/visuals/generate.ts",
 ]
 
 describe("Brand DNA compliance-by-design", () => {
@@ -30,10 +32,15 @@ describe("Brand DNA compliance-by-design", () => {
   })
 
   test("carrousel : l'accent par défaut = couleur de marque (identity.accent), pas une constante", () => {
-    const src = read("src/lib/actions/carousel.actions.ts")
+    const src = read("src/lib/services/visuals/carousel-core.ts")
     expect(src).toMatch(/identity\.accent/)
     // L'ancien défaut orange hors-marque ne doit plus servir de valeur par défaut.
     expect(src).not.toMatch(/\?\?\s*["']#F59E0B["']/)
+  })
+
+  test("API v1 : le service generateVisual n'a aucun accent de marque hardcodé", () => {
+    const src = read("src/lib/services/visuals/generate.ts")
+    expect(src).not.toMatch(/#7C3BED|#F59E0B/i)
   })
 
   test("post-visuel : score de marque CALCULÉ (preflight), pas la constante magique 1", () => {

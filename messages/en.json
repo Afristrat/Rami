@@ -1351,6 +1351,7 @@
     "scopeContentWrite": "Generate content",
     "scopePresentationsWrite": "Create presentations",
     "scopeAnalyticsRead": "Read analytics",
+    "scopeVisualsWrite": "Generate visuals",
     "newKeyTitle": "Copy your API key now",
     "newKeyWarning": "This is the only time the full key will be shown. Store it securely — it will never be displayed again.",
     "copy": "Copy",

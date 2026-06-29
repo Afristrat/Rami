@@ -15,6 +15,7 @@ export const API_SCOPES = [
   "posts:write",
   "content:write",
   "presentations:write",
+  "visuals:write",
   "analytics:read",
 ] as const
 export type ApiScope = (typeof API_SCOPES)[number]

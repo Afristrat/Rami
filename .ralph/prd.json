@@ -584,6 +584,18 @@
       "deps": [],
       "passes": false,
       "note": "Spec : docs/plans/2026-06-19-api-publique-v1-pont-hermes.md. LOT0 fondation cle API (table api_keys + RLS + middleware Bearer + feature api_publique) ; LOT1 vertical slice publier prouve E2E via Telegram ; LOT2 contenu complet ; LOT3 presentations ; LOT4 analytics. Cote Hermes : skill rami (curl+polling) + cle au vault DPAPI."
+    },
+    {
+      "id": "US-052",
+      "epic": "M",
+      "priority": "P1",
+      "title": "API publique v1 generation de visuels + gates QA (boucle vertueuse anti-carrousel-casse)",
+      "deps": [
+        "US-051"
+      ],
+      "passes": true,
+      "completedAt": "2026-06-29",
+      "note": "LIVRÉ (branche feat/us-052-visual-qa-api → main). T1 schéma visual-api.schema.ts + T2 qa-gates.ts (evaluateVisualQA déterministe : format, no_browser_chrome, fonts_embedded, brand via resolveBrandIdentity). T3 table `visuals` (manifest/qa/slides jsonb, RLS get_current_tenant_id). T4 cœurs tenant-explicites PARTAGÉS sans duplication (generate-core pour les images + carousel-core = deck LLM extrait de carousel.actions) + service generate.ts routant type→pipeline (image→generateImage+stockage MinIO, carousel→renderCarouselPdf). T5/T6 routes /api/v1/visuals/{generate,[id],[id]/qa,[id]/preview,[id]/regenerate} (auth Bearer + nouveau scope visuals:write sur 8 locales, isolation tenant par filtre explicite). T7 garde compliance-by-design (generate.ts + carousel-core via resolveBrandIdentity) + e2e Playwright (auth 401 sans coût + happy path conditionné à RAMI_TEST_API_KEY). DÉCISION PÉRIMÈTRE (Amine) : carrousel rendu en PDF unique (pas de PNG par slide ; preview redirige vers l'artefact MinIO). Gates : tsc 0 / lint 0 / jest 462 / build OK."
     }
   ]
 }

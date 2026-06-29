@@ -1351,6 +1351,7 @@
     "scopeContentWrite": "Gerar conteúdo",
     "scopePresentationsWrite": "Criar apresentações",
     "scopeAnalyticsRead": "Ler análises",
+    "scopeVisualsWrite": "Gerar visuais",
     "newKeyTitle": "Copie sua chave de API agora",
     "newKeyWarning": "Esta é a única vez que a chave completa será exibida. Guarde-a com segurança — ela não será mostrada novamente.",
     "copy": "Copiar",

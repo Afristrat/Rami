@@ -1351,6 +1351,7 @@
     "scopeContentWrite": "İçerik üret",
     "scopePresentationsWrite": "Sunum oluştur",
     "scopeAnalyticsRead": "Analizleri oku",
+    "scopeVisualsWrite": "Görsel oluşturma",
     "newKeyTitle": "API anahtarınızı şimdi kopyalayın",
     "newKeyWarning": "Tam anahtar yalnızca bu sefer gösterilecek. Güvenli bir yerde saklayın — bir daha asla görüntülenmeyecek.",
     "copy": "Kopyala",

@@ -38,6 +38,7 @@ const SCOPE_LABEL_KEYS: Record<ApiScope, string> = {
   "posts:write": "scopePostsWrite",
   "content:write": "scopeContentWrite",
   "presentations:write": "scopePresentationsWrite",
+  "visuals:write": "scopeVisualsWrite",
   "analytics:read": "scopeAnalyticsRead",
 }
 
