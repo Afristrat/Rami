@@ -12,7 +12,7 @@ import { getBrandDnaAction } from '@/lib/actions/brand-dna.actions'
 import { resolveBrandIdentity } from '@/lib/services/brand-dna/resolver'
 import { MishkatVideoInputSchema, toMishkatBrief } from '@/lib/schemas/mishkat-video.schema'
 import { buildBrandTokens } from '@/lib/services/mishkat/brand-tokens'
-import { resolveBackgroundUrls, resolveLogoUrl } from '@/lib/services/mishkat/backgrounds'
+import { resolveBackgroundUrls, resolveAutoBackgroundUrls, resolveLogoUrl } from '@/lib/services/mishkat/backgrounds'
 import { createProduction, MishkatConfigError } from '@/lib/services/mishkat/client'
 import { log } from '@/lib/utils/logger'
 
@@ -51,7 +51,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // cognitif…) = base du spec psychologique calibré envoyé au studio.
   const identity = resolveBrandIdentity(tenantRow?.brand_dna ?? null, { tenantName: dna?.brandName ?? null })
 
-  const backgrounds = await resolveBackgroundUrls(supabase, tenantId, parsed.data.assetIds)
+  // Fonds : sélection explicite de l'utilisateur en priorité ; à défaut, repli
+  // « impact » sur les visuels Causse générés de la bibliothèque (pas de mesh vide).
+  let backgrounds = await resolveBackgroundUrls(supabase, tenantId, parsed.data.assetIds)
+  if (backgrounds.length === 0) {
+    backgrounds = await resolveAutoBackgroundUrls(supabase, tenantId, 3)
+  }
   const logoUrl = await resolveLogoUrl(supabase, tenantId, dna)
 
   const brief = toMishkatBrief(brandId, parsed.data)

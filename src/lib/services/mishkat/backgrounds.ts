@@ -53,6 +53,45 @@ export async function resolveBackgroundUrls(
 }
 
 /**
+ * Repli « impact » quand l'utilisateur n'a sélectionné AUCUN fond : on alimente
+ * automatiquement la vidéo avec les visuels image les plus récents de la
+ * bibliothèque du tenant (priorité aux visuels GÉNÉRÉS par RAMI, calibrés Causse
+ * via `metadata.source`). Évite le fond mesh vide → substance visuelle de marque
+ * immédiate, même avant que le renderer Mishkāt consomme `psychology`.
+ * Best-effort : renvoie [] si rien d'exploitable (Mishkāt retombe sur son mesh).
+ */
+export async function resolveAutoBackgroundUrls(
+  supabase: SupabaseClient,
+  tenantId: string,
+  limit = 3,
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('media_assets')
+    .select('storage_path, public_url, metadata, created_at')
+    .eq('tenant_id', tenantId)
+    .eq('file_type', 'image')
+    .order('created_at', { ascending: false })
+    .limit(40)
+
+  if (error || !data || data.length === 0) return []
+
+  // Priorité aux visuels générés (source connue) puis aux autres, ordre récent.
+  const isGenerated = (row: { metadata: unknown }): boolean => {
+    const meta = (row.metadata ?? {}) as Record<string, unknown>
+    return typeof meta.source === 'string' && meta.source.length > 0
+  }
+  const ordered = [...data.filter(isGenerated), ...data.filter((r) => !isGenerated(r))]
+
+  const urls: string[] = []
+  for (const row of ordered) {
+    if (urls.length >= limit) break
+    const signed = await signOrPublic(row.storage_path as string, row.public_url as string | null)
+    if (signed) urls.push(signed)
+  }
+  return urls
+}
+
+/**
  * URL du logo pour BrandTokens. Le Brand DNA stocke souvent le logo en base64
  * (`logoDataUrl`) — inexploitable comme URL par le moteur de rendu. On l'héberge
  * alors dans MinIO (bucket public `media`, chemin stable `<tenant>/brand/logo.<ext>`)
