@@ -6,6 +6,8 @@ export const VALID_PLATFORMS = [
   "instagram",
   "facebook",
   "pinterest",
+  "youtube",
+  "tiktok",
 ] as const
 
 export type OAuthPlatformSlug = (typeof VALID_PLATFORMS)[number]

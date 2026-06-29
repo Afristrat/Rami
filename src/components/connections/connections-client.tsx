@@ -33,8 +33,10 @@ interface Platform {
   Icon: React.FC<{ className?: string }>
   iconBg: string
   phase: "MVP" | "Phase 2"
-  // Plateforme déclarée mais sans flow OAuth réel (aucune config dans OAUTH_CONFIGS)
-  // → affichée « Bientôt », non connectable (zéro bouton cassé).
+  // Plateforme pas encore activée (credentials non provisionnés et/ou publishing
+  // pas branché) → affichée « Bientôt », non connectable (zéro bouton cassé).
+  // NB : le flow OAuth backend peut déjà exister (cf. OAUTH_CONFIGS) ; ce flag
+  // gouverne uniquement l'exposition UI tant que la plateforme n'est pas prête.
   comingSoon?: boolean
 }
 

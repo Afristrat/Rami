@@ -27,6 +27,10 @@ export async function fetchAccountInfo(
       return fetchFacebookAccount(accessToken)
     case "pinterest":
       return fetchPinterestAccount(accessToken)
+    case "youtube":
+      return fetchYouTubeAccount(accessToken)
+    case "tiktok":
+      return fetchTikTokAccount(accessToken)
   }
 }
 
@@ -138,5 +142,45 @@ async function fetchPinterestAccount(token: string): Promise<AccountInfo> {
     accountId: user.username as string,
     accountName: [user.first_name, user.last_name].filter(Boolean).join(" ") || user.username as string,
     accountAvatar: (user.profile_image as string | null) ?? null,
+  }
+}
+
+// ─── YouTube (Google / YouTube Data API v3) ───────────────────────────────────
+
+async function fetchYouTubeAccount(token: string): Promise<AccountInfo> {
+  const res = await fetch(
+    "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true",
+    { headers: { Authorization: `Bearer ${token}` } }
+  )
+  if (!res.ok) throw new Error("YouTube /channels échoué")
+  const json = await res.json()
+  const channel = json.items?.[0]
+  if (!channel) {
+    return { accountId: "unknown", accountName: "Chaîne YouTube", accountAvatar: null }
+  }
+  return {
+    accountId: channel.id as string,
+    accountName: (channel.snippet?.title as string | undefined) ?? "Chaîne YouTube",
+    accountAvatar: (channel.snippet?.thumbnails?.default?.url as string | undefined) ?? null,
+  }
+}
+
+// ─── TikTok (Content Posting API) ─────────────────────────────────────────────
+
+async function fetchTikTokAccount(token: string): Promise<AccountInfo> {
+  const res = await fetch(
+    "https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,avatar_url",
+    { headers: { Authorization: `Bearer ${token}` } }
+  )
+  if (!res.ok) throw new Error("TikTok /user/info échoué")
+  const json = await res.json()
+  const user = json.data?.user
+  if (!user) {
+    return { accountId: "unknown", accountName: "Compte TikTok", accountAvatar: null }
+  }
+  return {
+    accountId: user.open_id as string,
+    accountName: (user.display_name as string | undefined) ?? "Compte TikTok",
+    accountAvatar: (user.avatar_url as string | undefined) ?? null,
   }
 }

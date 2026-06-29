@@ -41,11 +41,19 @@ export async function GET(
   const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/oauth/${validPlatform}/callback`
 
   const url = new URL(config.authorizeUrl)
-  url.searchParams.set("client_id", clientId)
+  // TikTok porte l'identifiant client sous `client_key` (pas `client_id`).
+  url.searchParams.set(config.clientIdParam ?? "client_id", clientId)
   url.searchParams.set("redirect_uri", callbackUrl)
-  url.searchParams.set("scope", config.scopes.join(" "))
+  url.searchParams.set("scope", config.scopes.join(config.scopeSeparator ?? " "))
   url.searchParams.set("state", state)
   url.searchParams.set("response_type", "code")
+
+  // Paramètres spécifiques au provider (ex. Google : access_type=offline, prompt=consent).
+  if (config.authorizeExtraParams) {
+    for (const [key, value] of Object.entries(config.authorizeExtraParams)) {
+      url.searchParams.set(key, value)
+    }
+  }
 
   // Twitter PKCE spécifique
   if (validPlatform === "twitter") {

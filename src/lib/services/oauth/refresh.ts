@@ -78,7 +78,8 @@ export async function getValidToken(connectionId: string): Promise<TokenResult> 
     body: new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken,
-      client_id: clientId,
+      // TikTok porte l'identifiant client sous `client_key` (pas `client_id`).
+      [config.clientIdParam ?? "client_id"]: clientId,
       client_secret: clientSecret,
     }),
   })

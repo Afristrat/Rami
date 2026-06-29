@@ -17,6 +17,8 @@ const VALID_PLATFORMS: OAuthPlatform[] = [
   "instagram",
   "facebook",
   "pinterest",
+  "youtube",
+  "tiktok",
 ]
 
 const REDIRECT_SUCCESS = "/settings/connections?success=connected"
@@ -98,7 +100,8 @@ export async function GET(
     grant_type: "authorization_code",
     code,
     redirect_uri: callbackUrl,
-    client_id: clientId,
+    // TikTok porte l'identifiant client sous `client_key` (pas `client_id`).
+    [config.clientIdParam ?? "client_id"]: clientId,
   }
   if (isTwitter) {
     tokenParams.code_verifier = state.slice(0, 43)

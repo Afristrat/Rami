@@ -9,6 +9,8 @@ export type OAuthPlatform =
   | "instagram"
   | "facebook"
   | "pinterest"
+  | "youtube"
+  | "tiktok"
 
 export interface OAuthConfig {
   platform: OAuthPlatform
@@ -17,6 +19,15 @@ export interface OAuthConfig {
   scopes: string[]
   clientIdEnv: string
   clientSecretEnv: string
+  /**
+   * Nom du paramètre portant l'identifiant client dans les requêtes OAuth
+   * (authorize + token + refresh). Défaut `client_id` ; TikTok impose `client_key`.
+   */
+  clientIdParam?: string
+  /** Paramètres supplémentaires à ajouter à l'URL d'autorisation (ex. Google `access_type=offline`). */
+  authorizeExtraParams?: Record<string, string>
+  /** Séparateur des scopes dans l'URL d'autorisation. Défaut espace ; TikTok impose une virgule. */
+  scopeSeparator?: string
 }
 
 export const OAUTH_CONFIGS: Record<OAuthPlatform, OAuthConfig> = {
@@ -67,6 +78,33 @@ export const OAUTH_CONFIGS: Record<OAuthPlatform, OAuthConfig> = {
     scopes: ["boards:read", "pins:read", "pins:write"],
     clientIdEnv: "PINTEREST_APP_ID",
     clientSecretEnv: "PINTEREST_APP_SECRET",
+  },
+  youtube: {
+    platform: "youtube",
+    // Flow Google OAuth 2.0. `access_type=offline` + `prompt=consent` sont
+    // requis pour obtenir un refresh_token (sinon Google n'en renvoie qu'au
+    // tout premier consentement).
+    authorizeUrl: "https://accounts.google.com/o/oauth2/v2/auth",
+    tokenUrl: "https://oauth2.googleapis.com/token",
+    scopes: [
+      "https://www.googleapis.com/auth/youtube.upload",
+      "https://www.googleapis.com/auth/youtube.readonly",
+    ],
+    clientIdEnv: "YOUTUBE_CLIENT_ID",
+    clientSecretEnv: "YOUTUBE_CLIENT_SECRET",
+    authorizeExtraParams: { access_type: "offline", prompt: "consent" },
+  },
+  tiktok: {
+    platform: "tiktok",
+    // TikTok v2 : l'identifiant client s'appelle `client_key` (pas `client_id`)
+    // et les scopes sont séparés par des virgules dans l'URL d'autorisation.
+    authorizeUrl: "https://www.tiktok.com/v2/auth/authorize/",
+    tokenUrl: "https://open.tiktokapis.com/v2/oauth/token/",
+    scopes: ["user.info.basic", "video.upload", "video.publish"],
+    clientIdEnv: "TIKTOK_CLIENT_KEY",
+    clientSecretEnv: "TIKTOK_CLIENT_SECRET",
+    clientIdParam: "client_key",
+    scopeSeparator: ",",
   },
 }
 
