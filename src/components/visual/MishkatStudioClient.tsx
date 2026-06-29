@@ -59,6 +59,9 @@ export function MishkatStudioClient() {
   const [music, setMusic] = useState(true)
   const [voiceover, setVoiceover] = useState(false)
   const [captionsBurned, setCaptionsBurned] = useState(true)
+  // Mode de production : v1 = rendu rapide depuis un pool d'images ;
+  // v2 = storyboard → une image générée par scène (plus calibré, plus long).
+  const [mode, setMode] = useState<'v1_pool' | 'v2_scene'>('v1_pool')
 
   // ── Library picker ──────────────────────────────────────────────────────
   const [assets, setAssets] = useState<MediaAsset[]>([])
@@ -202,6 +205,7 @@ export function MishkatStudioClient() {
           voiceover,
           captionsBurned,
           assetIds: selectedIds,
+          mode,
         }),
       })
       const body = await res.json()
@@ -218,7 +222,7 @@ export function MishkatStudioClient() {
       setPhase('error')
       setError(t('errors.network'))
     }
-  }, [intent, audience, tone, objective, durationS, primaryLang, secondaryLang, music, voiceover, captionsBurned, selectedIds, t])
+  }, [intent, audience, tone, objective, durationS, primaryLang, secondaryLang, music, voiceover, captionsBurned, selectedIds, mode, t])
 
   const busy = phase === 'submitting' || phase === 'polling'
 
@@ -289,6 +293,12 @@ export function MishkatStudioClient() {
         <Field label={t('durationLabel')}>
           <Select value={String(durationS)} onChange={(e) => setDurationS(Number(e.target.value))} disabled={busy}>
             {DURATIONS.map((v) => <option key={v} value={v}>{v}s</option>)}
+          </Select>
+        </Field>
+        <Field label={t('modeLabel')}>
+          <Select value={mode} onChange={(e) => setMode(e.target.value as 'v1_pool' | 'v2_scene')} disabled={busy}>
+            <option value="v1_pool">{t('modePoolFast')}</option>
+            <option value="v2_scene">{t('modeSceneStoryboard')}</option>
           </Select>
         </Field>
         <Field label={t('primaryLangLabel')}>
