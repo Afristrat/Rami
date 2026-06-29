@@ -12,9 +12,6 @@ import type { BrandIdentity } from '@/lib/services/brand-dna/resolver'
 import { buildPsychologySpec } from './psychology'
 import type { BrandTokens } from './types'
 
-// Repli neutre si l'identité n'a pas de secondaire exploitable.
-const FALLBACK_SECONDARY = '#4E45D5'
-
 export interface BrandTokensExtras {
   backgrounds: string[]
   logoUrl: string
@@ -30,11 +27,18 @@ export function buildBrandTokens(
 
   const tokens: BrandTokens = {
     brand_id: brandId,
+    // Option (A) — rendre l'émotion VISIBLE via les champs que le renderer Mishkāt
+    // consomme DÉJÀ (vérifié dans son code) : `palette.primary` pilote la lueur de
+    // fond (`premiumBg`) et `primary→secondary` le dégradé. On y route donc les
+    // couleurs d'émotion ; l'accent de marque RÉEL est préservé (reconnaissance)
+    // pour les puces/CTA. Le bloc `psychology` reste envoyé pour le futur (option B :
+    // formes Gestalt + composition, que Mishkāt ne consomme pas encore).
+    // ⚠️ Limite connue : `premiumBg` code en dur une base sombre — tant que (B) n'est
+    // pas fait, c'est la TEINTE de la lueur/dégradé qui change, pas la clarté du fond.
     palette: {
-      primary: identity.palette[0] ?? identity.accent,
-      secondary: identity.secondary ?? FALLBACK_SECONDARY,
-      accent: identity.accent,
-      // Fond + texte calibrés à l'émotion cible (et non plus figés clair/foncé).
+      primary: psychology.palette.gradient[1], // teinte vive d'émotion (lueur dominante)
+      secondary: psychology.palette.gradient[0], // tone profond d'émotion (2ᵉ arrêt)
+      accent: psychology.palette.accent, // accent de marque réel si présent, sinon couleur d'émotion
       bg: psychology.palette.bg,
       text: psychology.palette.text,
     },

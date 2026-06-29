@@ -71,12 +71,16 @@ describe('buildPsychologySpec', () => {
 })
 
 describe('buildBrandTokens', () => {
-  it('injecte le spec psychologique + fond calibré (plus de bg figé)', () => {
+  it('injecte le spec psychologique + route les couleurs d\'émotion dans la palette (option A)', () => {
     const t = buildBrandTokens('rami', makeIdentity(), { objective: 'awareness', tone: 'premium' }, { backgrounds: ['https://x/1.jpg'], logoUrl: '' })
     expect(t.brand_id).toBe('rami')
-    expect(t.palette.accent.toLowerCase()).toBe('#2563eb')
-    expect(t.palette.bg).toBe(t.psychology?.palette.bg)
     expect(t.psychology?.target_emotion).toBe('confiance')
+    // (A) primary/secondary = arrêts du dégradé d'émotion (champs rendus par Mishkāt).
+    expect(t.palette.primary).toBe(t.psychology?.palette.gradient[1])
+    expect(t.palette.secondary).toBe(t.psychology?.palette.gradient[0])
+    expect(t.palette.bg).toBe(t.psychology?.palette.bg)
+    // L'accent de MARQUE réel est préservé (reconnaissance).
+    expect(t.palette.accent.toLowerCase()).toBe('#2563eb')
     expect(t.media?.backgrounds).toEqual(['https://x/1.jpg'])
   })
 
