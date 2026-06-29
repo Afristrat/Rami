@@ -155,7 +155,7 @@ async function generateImageArtifact(args: GenerateVisualArgs, dims: { width: nu
 }
 
 /** Génère un carrousel (deck LLM) rendu en PDF unique, stocké sur MinIO. */
-async function generateCarouselArtifact(args: GenerateVisualArgs, dims: { width: number; height: number }): Promise<{
+async function generateCarouselArtifact(args: GenerateVisualArgs): Promise<{
   slides: VisualSlide[]
   slideCount: number
   sourceText: string
@@ -222,7 +222,7 @@ export async function generateVisual(args: GenerateVisualArgs): Promise<Generate
   }
 
   if (args.type === "carousel") {
-    const out = await generateCarouselArtifact(args, dims)
+    const out = await generateCarouselArtifact(args)
     return {
       slides: out.slides,
       // @react-pdf embarque Noto Sans → polices garanties dans le PDF.

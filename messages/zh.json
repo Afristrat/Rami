@@ -1351,6 +1351,7 @@
     "scopeContentWrite": "生成内容",
     "scopePresentationsWrite": "创建演示文稿",
     "scopeAnalyticsRead": "读取分析数据",
+    "scopeVisualsWrite": "生成视觉素材",
     "newKeyTitle": "请立即复制您的 API 密钥",
     "newKeyWarning": "完整密钥仅此一次显示。请妥善保存——它将不会再次显示。",
     "copy": "复制",
