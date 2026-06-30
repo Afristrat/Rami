@@ -608,6 +608,18 @@
       "passes": true,
       "completedAt": "2026-06-30",
       "note": "LIVRÉ (branche fix/qa-gates-type-aware). Prérequis du Plan A mode plein. evaluateVisualQA appliquait no_browser_chrome/fonts_embedded inconditionnellement → gateFonts (critical, ok=!!fonts_embedded) bloquait toute image WebP (sans polices) à tort. Introduit PDF_RENDER_TYPES=[\"carousel\"] dans src/lib/services/visuals/qa-gates.ts : ces gates ne s'appliquent qu'aux rendus PDF ; format+brand restent universels. TDD : test image-sans-polices→passe (rouge confirmé), dispatch (vert), test ligature basculé sur carousel + 2 nouveaux tests (image passe / carousel sans polices échoue encore). Source : tasks/prd-rami-gates-type-aware.md + docs/superpowers/plans/2026-06-30-rami-gates-type-aware.md. Gates VERTS : typecheck 0 / lint --max-warnings=0 → 0 / jest 491 passed (44 suites)."
+    },
+    {
+      "id": "US-054",
+      "epic": "M",
+      "priority": "P1",
+      "title": "Fix template carrousel : titre/bullets tronques (overflow marge droite)",
+      "deps": [
+        "US-052"
+      ],
+      "passes": true,
+      "completedAt": "2026-06-30",
+      "note": "Decouvert par le run pilote du gardien Hermes mode plein (la vision a detecte les titres tronques slides 5/8). Cause : dans carousel-pdf.tsx les <Text> en flexDirection:row (heading l.129, bullets l.139, items comparison l.181) utilisaient flexShrink:1 SANS flexBasis:0 -> bug Yoga/react-pdf : le texte part de sa largeur intrinseque et deborde la marge droite au lieu de wrapper. Fix : flexShrink:1 -> flex:1 (pose flexBasis:0). Gates : tsc 0, eslint 0, jest 491, build OK. Wrapping valide visuellement au re-pilote."
     }
   ]
 }
