@@ -81,6 +81,20 @@ export async function testPublishingConnection(
         }
       }
 
+      case "tiktok": {
+        // GET /v2/user/info — vérifie que le token TikTok est valide
+        const ttRes = await fetch(
+          "https://open.tiktokapis.com/v2/user/info/?fields=open_id",
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        )
+        return {
+          platform,
+          status: ttRes.ok ? "ok" : "error",
+          message: ttRes.ok ? "Connected" : `HTTP ${ttRes.status}`,
+          latency_ms: Date.now() - start,
+        }
+      }
+
       default:
         return {
           platform,

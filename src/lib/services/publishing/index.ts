@@ -8,6 +8,8 @@ import { publishToLinkedIn } from "./linkedin"
 import { publishToFacebook } from "./facebook"
 import { publishToInstagram } from "./instagram"
 import { publishToPinterest } from "./pinterest"
+import { publishToYouTube } from "./youtube"
+import { publishToTikTok } from "./tiktok"
 import type { PublisherInput, PublishResult } from "./types"
 
 export type { PublisherInput, PublishResult } from "./types"
@@ -18,6 +20,8 @@ export type SupportedPlatform =
   | "facebook"
   | "instagram"
   | "pinterest"
+  | "youtube"
+  | "tiktok"
 
 const PUBLISHERS: Record<
   SupportedPlatform,
@@ -28,6 +32,8 @@ const PUBLISHERS: Record<
   facebook: publishToFacebook,
   instagram: publishToInstagram,
   pinterest: publishToPinterest,
+  youtube: publishToYouTube,
+  tiktok: publishToTikTok,
 }
 
 /**
