@@ -10,6 +10,15 @@ import { resolveBrandIdentity } from "@/lib/services/brand-dna/resolver"
 
 const RATIOS: Record<string, number> = { "1:1": 1, "4:5": 0.8, "9:16": 0.5625, "16:9": 1.7778 }
 
+/**
+ * Types dont le rendu passe par un PDF (génération @react-pdf). Seuls ces types
+ * subissent les gates propres au PDF (`no_browser_chrome`, `fonts_embedded`).
+ * Les types rasterisés (`image`) ou futurs (`video`) ne les déclenchent pas :
+ * une image n'a pas de « polices embarquées » → ne doit pas échouer à tort.
+ * Enum ouvert par conception.
+ */
+export const PDF_RENDER_TYPES: readonly string[] = ["carousel"]
+
 export type GateSeverity = "critical" | "warning"
 export interface Gate {
   id: string
@@ -97,7 +106,10 @@ function gateBrand(i: VisualQAInput): { gate: Gate; score: number } {
 /** Évalue la cascade de gates déterministes sur un visuel généré. */
 export function evaluateVisualQA(i: VisualQAInput): QAGateResult {
   const b = gateBrand(i)
-  const gates = [gateFormat(i), gateNoChrome(i), gateFonts(i), b.gate]
+  const gates: Gate[] = [gateFormat(i), b.gate]
+  if (PDF_RENDER_TYPES.includes(i.type)) {
+    gates.push(gateNoChrome(i), gateFonts(i))
+  }
   return {
     passed: gates.filter((g) => g.severity === "critical").every((g) => g.ok),
     gates,
