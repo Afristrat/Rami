@@ -126,7 +126,7 @@ function Slide({
               {slide.index ? (
                 <Text style={{ fontSize: u(9), color: accentHex, fontWeight: "bold", marginRight: u(3), lineHeight: 1 }}>{slide.index}</Text>
               ) : null}
-              <Text style={{ fontSize: u(7.2), lineHeight: 1.1, fontWeight: "bold", flexShrink: 1 }}>{slide.heading}</Text>
+              <Text style={{ fontSize: u(7.2), lineHeight: 1.1, fontWeight: "bold", flex: 1 }}>{slide.heading}</Text>
             </View>
             {slide.body ? (
               <Text style={{ fontSize: u(4.4), color: c.muted, marginTop: u(5), lineHeight: 1.45 }}>{slide.body}</Text>
@@ -136,7 +136,7 @@ function Slide({
                 {slide.bullets.map((b, i) => (
                   <View key={i} style={{ flexDirection: "row", marginBottom: u(3) }}>
                     <Text style={{ color: accentHex, fontWeight: "bold", marginRight: u(3) }}>›</Text>
-                    <Text style={{ fontSize: u(4.2), lineHeight: 1.35, flexShrink: 1 }}>{b}</Text>
+                    <Text style={{ fontSize: u(4.2), lineHeight: 1.35, flex: 1 }}>{b}</Text>
                   </View>
                 ))}
               </View>
@@ -178,7 +178,7 @@ function Slide({
                 {col.items.map((it, i) => (
                   <View key={i} style={{ flexDirection: "row", marginBottom: u(2) }}>
                     <Text style={{ color: col.accent ? accentHex : c.muted, marginRight: u(2.5) }}>•</Text>
-                    <Text style={{ fontSize: u(4), lineHeight: 1.3, flexShrink: 1 }}>{it}</Text>
+                    <Text style={{ fontSize: u(4), lineHeight: 1.3, flex: 1 }}>{it}</Text>
                   </View>
                 ))}
               </View>
