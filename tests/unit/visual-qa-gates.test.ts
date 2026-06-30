@@ -15,7 +15,7 @@ describe("evaluateVisualQA", () => {
 
   it("détecte file:// même avec la ligature typographique ﬁ", () => {
     const r = evaluateVisualQA({
-      type: "image",
+      type: "carousel",
       format: "1:1",
       manifest: { width: 1080, height: 1080, fonts_embedded: true },
       sourceText: "ﬁle:///opt/data/x.html",
@@ -56,5 +56,30 @@ describe("evaluateVisualQA", () => {
     const brand = r.gates.find((g) => g.id === "brand")!
     expect(brand.ok).toBe(true)
     expect(r.brandPreflightScore).toBeGreaterThan(0)
+  })
+
+  it("image sans polices embarquées → passe (gates PDF non appliqués)", () => {
+    const r = evaluateVisualQA({
+      type: "image",
+      format: "1:1",
+      manifest: { width: 1080, height: 1080, fonts_embedded: false },
+    })
+    expect(r.passed).toBe(true)
+    const ids = r.gates.map((g) => g.id)
+    // Les gates propres au PDF ne sont pas évalués pour une image
+    expect(ids).not.toContain("fonts_embedded")
+    expect(ids).not.toContain("no_browser_chrome")
+    // Les gates universels restent présents
+    expect(ids).toEqual(expect.arrayContaining(["format", "brand"]))
+  })
+
+  it("carrousel sans polices embarquées → échoue encore (gate PDF appliqué)", () => {
+    const r = evaluateVisualQA({
+      type: "carousel",
+      format: "4:5",
+      manifest: { width: 1080, height: 1350, fonts_embedded: false },
+    })
+    expect(r.passed).toBe(false)
+    expect(r.gates.filter((g) => !g.ok).map((g) => g.id)).toContain("fonts_embedded")
   })
 })
