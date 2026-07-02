@@ -40,7 +40,7 @@ const basePayload = { productionRowId: 'row-1', tenantId: 't1', mishkatJobId: 'r
 
 beforeEach(() => {
   jest.clearAllMocks()
-  mockRow = { data: { variants: [], status: 'rendering' } }
+  mockRow = { data: { variants: [], status: 'rendering', user_id: 'user-1' } }
 })
 
 // Fait avancer les timers pas à pas tant que la promesse n'est pas résolue
@@ -55,11 +55,20 @@ async function drain(promise: Promise<void>, steps = 20): Promise<void> {
 }
 
 describe('processRenderWatchJob', () => {
-  it('convergence immédiate vers done → un seul poll, pas de boucle', async () => {
+  it('convergence immédiate vers done → un seul poll, pas de boucle, userId de la ligne transmis', async () => {
     mockPollAndPersist.mockResolvedValue({ live: { status: 'done' } })
     await drain(processRenderWatchJob(basePayload))
     expect(mockPollAndPersist).toHaveBeenCalledTimes(1)
-    expect(mockPollAndPersist).toHaveBeenCalledWith(expect.anything(), 't1', 'row-1', 'render-1', [])
+    // Root cause 2026-07-02 (bis) : sans userId, le worker ne peut pas référencer
+    // la vidéo terminée dans la Bibliothèque (cf. finalize.ts).
+    expect(mockPollAndPersist).toHaveBeenCalledWith(expect.anything(), 't1', 'row-1', 'render-1', [], { userId: 'user-1' })
+  })
+
+  it('ligne sans user_id (créée avant la migration) : opts sans userId, pas de crash', async () => {
+    mockRow = { data: { variants: [], status: 'rendering', user_id: null } }
+    mockPollAndPersist.mockResolvedValue({ live: { status: 'done' } })
+    await drain(processRenderWatchJob(basePayload))
+    expect(mockPollAndPersist).toHaveBeenCalledWith(expect.anything(), 't1', 'row-1', 'render-1', [], {})
   })
 
   it('convergence vers error → un seul poll', async () => {

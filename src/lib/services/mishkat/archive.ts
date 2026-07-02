@@ -68,6 +68,74 @@ export function toPermanentVariants(
 }
 
 /**
+ * Référence les variantes terminées dans la Bibliothèque (media_assets) SANS
+ * les re-télécharger : `public_url` = URL MinIO permanente déjà renvoyée par
+ * Mishkāt (même pattern que `registerVisualsToLibraryAction` pour les visuels).
+ * Idempotent (media_id déjà présent dans `existing` → réutilisé).
+ *
+ * Root cause corrigée (2026-07-02) : sans cet enregistrement, une production
+ * vidéo terminée n'existait QUE dans `video_productions.variants` — jamais
+ * dans `media_assets` — donc invisible dans /dashboard/library, quel que soit
+ * l'appelant (route GET ou render-watch-worker).
+ */
+export async function referenceVariantsToLibrary(
+  supabase: SupabaseClient,
+  tenantId: string,
+  userId: string,
+  jobId: string,
+  liveVariants: MishkatVariant[],
+  existing: ArchivedVariant[] = [],
+): Promise<ArchivedVariant[]> {
+  const result: ArchivedVariant[] = []
+
+  for (const v of liveVariants) {
+    const prior = existing.find((e) => sameVariant(e, v))
+    if (prior?.media_id) {
+      result.push(prior) // déjà référencée → idempotent
+      continue
+    }
+
+    const key = variantKey(v)
+    let pathname = v.url
+    try {
+      pathname = new URL(v.url).pathname.replace(/^\//, '')
+    } catch {
+      // URL non standard → on garde la valeur brute
+    }
+
+    try {
+      const { data: inserted, error: insErr } = await supabase
+        .from('media_assets')
+        .insert({
+          tenant_id: tenantId,
+          user_id: userId,
+          filename: key,
+          original_filename: `mishkat-${jobId}-${key}`,
+          file_type: 'video',
+          mime_type: 'video/mp4',
+          file_size_bytes: 0, // référence externe (MinIO) — taille non re-mesurée
+          storage_path: pathname,
+          public_url: v.url,
+          metadata: { source: 'mishkat', external_storage: 'minio', job_id: jobId, lang: v.lang, format: v.format },
+        })
+        .select('id')
+        .single()
+      if (insErr) throw new Error(`insert: ${insErr.message}`)
+
+      result.push({ lang: v.lang, format: v.format, gatePassed: v.gatePassed, url: v.url, media_id: inserted.id as string, public_url: v.url })
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      log({ level: 'error', module: 'mishkat', action: 'reference_variant_failed', tenant_id: tenantId, metadata: { jobId, lang: v.lang, format: v.format, error: message } })
+      // Non bloquant : la vidéo reste jouable/téléchargeable via l'URL permanente
+      // même si son entrée Bibliothèque n'a pas pu être créée cette fois.
+      result.push({ lang: v.lang, format: v.format, gatePassed: v.gatePassed, url: v.url, media_id: null, public_url: v.url })
+    }
+  }
+
+  return result
+}
+
+/**
  * Archive les variantes manquantes et renvoie la liste enrichie (idempotent).
  * `existing` = variantes déjà persistées en DB (peuvent porter un media_id).
  */

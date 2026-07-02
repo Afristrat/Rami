@@ -1,4 +1,4 @@
-import { variantKey, aspectToToken, archiveProductionIfNeeded, toPermanentVariants, type ArchivedVariant } from '@/lib/services/mishkat/archive'
+import { variantKey, aspectToToken, archiveProductionIfNeeded, referenceVariantsToLibrary, toPermanentVariants, type ArchivedVariant } from '@/lib/services/mishkat/archive'
 import type { MishkatVariant } from '@/lib/services/mishkat/types'
 
 jest.mock('@/lib/services/mishkat/client', () => ({
@@ -56,6 +56,40 @@ describe('archiveProductionIfNeeded', () => {
     const res = await archiveProductionIfNeeded(fakeSupabase(), 'tenant-1', 'user-1', 'job-1', live, existing)
     expect(res[0].media_id).toBe('media-old')
     expect(fetchVariant).not.toHaveBeenCalled()
+  })
+})
+
+describe('referenceVariantsToLibrary (root cause 2026-07-02 : la Bibliothèque doit connaître les vidéos)', () => {
+  const live: MishkatVariant[] = [{ lang: 'fr', format: '16:9', gatePassed: true, url: 'https://s3-rami.ai-mpower.com/mishkat/productions/job-1/fr-16x9.mp4' }]
+
+  afterEach(() => jest.clearAllMocks())
+
+  it('référence une variante neuve dans media_assets SANS re-télécharger (fetchVariant jamais appelé)', async () => {
+    const res = await referenceVariantsToLibrary(fakeSupabase(), 'tenant-1', 'user-1', 'job-1', live, [])
+    expect(res[0].media_id).toBe('media-1')
+    expect(res[0].public_url).toBe(live[0].url)
+    expect(res[0].url).toBe(live[0].url)
+    expect(fetchVariant).not.toHaveBeenCalled()
+  })
+
+  it('est idempotent : ne réinsère pas une variante déjà référencée', async () => {
+    const existing: ArchivedVariant[] = [
+      { lang: 'fr', format: '16:9', gatePassed: true, url: 'https://m/fr-16x9', media_id: 'media-old', public_url: 'https://rami/old.mp4' },
+    ]
+    const res = await referenceVariantsToLibrary(fakeSupabase(), 'tenant-1', 'user-1', 'job-1', live, existing)
+    expect(res[0].media_id).toBe('media-old')
+  })
+
+  it("échec d'insertion Bibliothèque : non bloquant, l'URL permanente reste renvoyée (media_id null)", async () => {
+    const failing = {
+      from: () => ({
+        insert: () => ({ select: () => ({ single: async () => ({ data: null, error: { message: 'RLS denied' } }) }) }),
+      }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any
+    const res = await referenceVariantsToLibrary(failing, 'tenant-1', 'user-1', 'job-1', live, [])
+    expect(res[0].media_id).toBeNull()
+    expect(res[0].public_url).toBe(live[0].url)
   })
 })
 

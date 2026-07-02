@@ -17,7 +17,7 @@ import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getProduction } from './client'
-import { archiveProductionIfNeeded, toPermanentVariants, type ArchivedVariant } from './archive'
+import { archiveProductionIfNeeded, referenceVariantsToLibrary, toPermanentVariants, type ArchivedVariant } from './archive'
 import type { MishkatProduction } from './types'
 
 export interface FinalizeOutcome {
@@ -28,9 +28,17 @@ export interface FinalizeOutcome {
 /**
  * Interroge Mishkāt pour le job de rendu `effectiveJobId` et persiste le résultat
  * dans la ligne `video_productions` identifiée par `productionRowId`.
- * `userId` n'est nécessaire que pour la copie de redondance MinIO optionnelle
- * (`MISHKAT_ARCHIVE_REDUNDANT_COPY=true`) ; absent (ex. worker de fond sans
- * session), on persiste l'URL permanente Mishkāt telle quelle.
+ *
+ * `userId` (désormais lu depuis `video_productions.user_id`, connu dès la
+ * création — cf. migration 20260702000001) pilote la stratégie de persistance :
+ *   - présent + `MISHKAT_ARCHIVE_REDUNDANT_COPY=true` → copie de redondance
+ *     souveraine (re-download + re-upload, `archiveProductionIfNeeded`)
+ *   - présent (cas par défaut en prod)                → référence SANS copie
+ *     dans la Bibliothèque (`referenceVariantsToLibrary`) — root cause
+ *     corrigée le 2026-07-02 : avant, aucune production vidéo n'atterrissait
+ *     jamais dans media_assets, browser ou worker confondus.
+ *   - absent (ligne créée avant la migration, sans user_id)  → repli sur
+ *     l'URL permanente Mishkāt sans enregistrement Bibliothèque.
  */
 export async function pollAndPersistProduction(
   supabase: SupabaseClient,
@@ -44,10 +52,14 @@ export async function pollAndPersistProduction(
 
   if (live.status === 'done') {
     const liveVariants = live.variants ?? []
-    const variants =
-      opts.userId && process.env.MISHKAT_ARCHIVE_REDUNDANT_COPY === 'true'
-        ? await archiveProductionIfNeeded(supabase, tenantId, opts.userId, effectiveJobId, liveVariants, existingVariants)
-        : toPermanentVariants(liveVariants, existingVariants)
+    let variants: ArchivedVariant[]
+    if (opts.userId && process.env.MISHKAT_ARCHIVE_REDUNDANT_COPY === 'true') {
+      variants = await archiveProductionIfNeeded(supabase, tenantId, opts.userId, effectiveJobId, liveVariants, existingVariants)
+    } else if (opts.userId) {
+      variants = await referenceVariantsToLibrary(supabase, tenantId, opts.userId, effectiveJobId, liveVariants, existingVariants)
+    } else {
+      variants = toPermanentVariants(liveVariants, existingVariants)
+    }
 
     await supabase
       .from('video_productions')

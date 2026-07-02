@@ -1,11 +1,14 @@
 // ============================================================
 // pollAndPersistProduction — logique UNIQUE partagée par GET /api/video/[id]
 // (polling navigateur) et render-watch-worker (polling de fond, cf. root
-// cause 2026-07-02 : timeout navigateur atteint avant la fin réelle du rendu).
+// cause 2026-07-02 : timeout navigateur atteint avant la fin réelle du rendu,
+// ET root cause du 2026-07-02 (bis) : aucune production vidéo n'était jamais
+// référencée dans la Bibliothèque, browser ou worker confondus).
 // ============================================================
 
 const mockGetProduction = jest.fn()
 const mockArchiveProductionIfNeeded = jest.fn()
+const mockReferenceVariantsToLibrary = jest.fn()
 const mockToPermanentVariants = jest.fn()
 
 jest.mock('@/lib/services/mishkat/client', () => ({
@@ -13,6 +16,7 @@ jest.mock('@/lib/services/mishkat/client', () => ({
 }))
 jest.mock('@/lib/services/mishkat/archive', () => ({
   archiveProductionIfNeeded: (...a: unknown[]) => mockArchiveProductionIfNeeded(...a),
+  referenceVariantsToLibrary: (...a: unknown[]) => mockReferenceVariantsToLibrary(...a),
   toPermanentVariants: (...a: unknown[]) => mockToPermanentVariants(...a),
 }))
 
@@ -39,6 +43,7 @@ beforeEach(() => {
   jest.clearAllMocks()
   process.env = { ...originalEnv }
   mockToPermanentVariants.mockReturnValue([{ lang: 'fr', format: '16:9', gatePassed: true, url: 'https://minio/fr.mp4', media_id: null, public_url: 'https://minio/fr.mp4' }])
+  mockReferenceVariantsToLibrary.mockResolvedValue([{ lang: 'fr', format: '16:9', gatePassed: true, url: 'https://minio/fr.mp4', media_id: 'media-1', public_url: 'https://minio/fr.mp4' }])
 })
 afterEach(() => {
   process.env = originalEnv
@@ -56,9 +61,10 @@ describe('pollAndPersistProduction', () => {
     expect(variants).toBeUndefined()
     expect(updated).toMatchObject({ status: 'rendering', error_message: null })
     expect(mockToPermanentVariants).not.toHaveBeenCalled()
+    expect(mockReferenceVariantsToLibrary).not.toHaveBeenCalled()
   })
 
-  it('done sans copie de redondance (défaut prod) : persiste via toPermanentVariants, pas de re-download', async () => {
+  it('done + userId (cas par défaut prod) : référence dans la Bibliothèque, pas de re-download', async () => {
     mockGetProduction.mockResolvedValue({ status: 'done', variants: [{ lang: 'fr', format: '16:9', gatePassed: true, url: 'https://minio/fr.mp4' }] })
     let updated: unknown
     const supabase = fakeSupabase((p) => (updated = p))
@@ -66,13 +72,14 @@ describe('pollAndPersistProduction', () => {
     const { live, variants } = await pollAndPersistProduction(supabase, 't1', 'row-1', 'job-1', [], { userId: 'u1' })
 
     expect(live.status).toBe('done')
-    expect(mockToPermanentVariants).toHaveBeenCalled()
+    expect(mockReferenceVariantsToLibrary).toHaveBeenCalledWith(supabase, 't1', 'u1', 'job-1', [{ lang: 'fr', format: '16:9', gatePassed: true, url: 'https://minio/fr.mp4' }], [])
     expect(mockArchiveProductionIfNeeded).not.toHaveBeenCalled()
-    expect(variants).toEqual(mockToPermanentVariants.mock.results[0]?.value)
+    expect(mockToPermanentVariants).not.toHaveBeenCalled()
+    expect(variants?.[0]?.media_id).toBe('media-1')
     expect(updated).toMatchObject({ status: 'done' })
   })
 
-  it('done + MISHKAT_ARCHIVE_REDUNDANT_COPY=true + userId fourni : archive une copie de redondance', async () => {
+  it('done + MISHKAT_ARCHIVE_REDUNDANT_COPY=true + userId fourni : archive une copie de redondance (pas de référence simple)', async () => {
     process.env.MISHKAT_ARCHIVE_REDUNDANT_COPY = 'true'
     mockGetProduction.mockResolvedValue({ status: 'done', variants: [] })
     mockArchiveProductionIfNeeded.mockResolvedValue([])
@@ -81,17 +88,18 @@ describe('pollAndPersistProduction', () => {
     await pollAndPersistProduction(supabase, 't1', 'row-1', 'job-1', [], { userId: 'u1' })
 
     expect(mockArchiveProductionIfNeeded).toHaveBeenCalledWith(supabase, 't1', 'u1', 'job-1', [], [])
+    expect(mockReferenceVariantsToLibrary).not.toHaveBeenCalled()
     expect(mockToPermanentVariants).not.toHaveBeenCalled()
   })
 
-  it('done + MISHKAT_ARCHIVE_REDUNDANT_COPY=true SANS userId (worker de fond) : repli sur l\'URL permanente', async () => {
-    process.env.MISHKAT_ARCHIVE_REDUNDANT_COPY = 'true'
+  it('done SANS userId (ligne créée avant la migration user_id) : repli sur l\'URL permanente, pas d\'écriture Bibliothèque', async () => {
     mockGetProduction.mockResolvedValue({ status: 'done', variants: [] })
     const supabase = fakeSupabase(() => {})
 
     await pollAndPersistProduction(supabase, 't1', 'row-1', 'job-1', [])
 
     expect(mockArchiveProductionIfNeeded).not.toHaveBeenCalled()
+    expect(mockReferenceVariantsToLibrary).not.toHaveBeenCalled()
     expect(mockToPermanentVariants).toHaveBeenCalled()
   })
 

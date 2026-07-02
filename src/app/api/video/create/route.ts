@@ -78,6 +78,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         .from('video_productions')
         .insert({
           tenant_id: tenantId,
+          user_id: user.id,
           mishkat_job_id: storyboardId,
           mode: 'v2_scene',
           status: 'generating',
@@ -104,6 +105,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .from('video_productions')
       .insert({
         tenant_id: tenantId,
+        user_id: user.id,
         mishkat_job_id: id,
         mode: 'v1_pool',
         status,

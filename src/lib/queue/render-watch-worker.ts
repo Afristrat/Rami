@@ -52,10 +52,10 @@ export async function processRenderWatchJob(payload: RenderWatchPayload): Promis
 
   const { data: row } = await supabase
     .from("video_productions")
-    .select("variants, status")
+    .select("variants, status, user_id")
     .eq("id", productionRowId)
     .eq("tenant_id", tenantId)
-    .maybeSingle<{ variants: unknown; status: string }>()
+    .maybeSingle<{ variants: unknown; status: string; user_id: string | null }>()
 
   if (!row) {
     log({ level: "error", module: "render-watch-worker", action: "row_not_found", tenant_id: tenantId, metadata: { productionRowId } })
@@ -65,10 +65,14 @@ export async function processRenderWatchJob(payload: RenderWatchPayload): Promis
   if (row.status === "done" || row.status === "error") return
 
   const existingVariants = Array.isArray(row.variants) ? (row.variants as ArchivedVariant[]) : []
+  // user_id connu dès la création (migration 20260702000001) : permet au worker
+  // de fond de référencer la vidéo terminée dans la Bibliothèque, exactement
+  // comme le fait la route GET côté navigateur (cf. finalize.ts).
+  const opts = row.user_id ? { userId: row.user_id } : {}
 
   while (Date.now() - startedAt < MAX_WATCH_MS) {
     try {
-      const { live } = await pollAndPersistProduction(supabase, tenantId, productionRowId, mishkatJobId, existingVariants)
+      const { live } = await pollAndPersistProduction(supabase, tenantId, productionRowId, mishkatJobId, existingVariants, opts)
       if (live.status === "done" || live.status === "error") {
         log({ level: "info", module: "render-watch-worker", action: "finalized", tenant_id: tenantId, metadata: { productionRowId, status: live.status } })
         return
