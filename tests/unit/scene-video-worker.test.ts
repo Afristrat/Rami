@@ -36,7 +36,12 @@ jest.mock('@/lib/services/mishkat/scene-images', () => ({
 }))
 // pgboss importe le module ESM `pg-boss` (non transformé par Jest) ; le cœur
 // testé (processSceneVideoJob) ne s'en sert pas → on neutralise l'import.
-jest.mock('@/lib/queue/pgboss', () => ({ getBoss: jest.fn(), JOBS: { SCENE_VIDEO: 'scene-video' } }))
+const mockEnqueueRenderWatch = jest.fn()
+jest.mock('@/lib/queue/pgboss', () => ({
+  getBoss: jest.fn(),
+  JOBS: { SCENE_VIDEO: 'scene-video' },
+  enqueueRenderWatch: (...a: unknown[]) => mockEnqueueRenderWatch(...a),
+}))
 
 import { processSceneVideoJob } from '@/lib/queue/scene-video-worker'
 
@@ -64,6 +69,9 @@ describe('processSceneVideoJob', () => {
     expect(mockGenerateSceneImages).toHaveBeenCalledWith('t1', { scenes: [{ id: 's1', image_prompt: 'x' }] }, '16:9')
     expect(mockCreateProduction).toHaveBeenCalledWith(expect.objectContaining({ sceneImages: { s1: 'https://minio/s1.webp' } }))
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ render_job_id: 'render-1', status: 'rendering' }))
+    // Root cause 2026-07-02 : le rendu doit être suivi côté serveur, indépendamment
+    // du polling navigateur (cf. render-watch-worker.ts).
+    expect(mockEnqueueRenderWatch).toHaveBeenCalledWith({ productionRowId: 'row-1', tenantId: 't1', mishkatJobId: 'render-1' })
   })
 
   it('idempotent : render_job_id déjà présent → ne relance pas de rendu', async () => {
@@ -71,6 +79,7 @@ describe('processSceneVideoJob', () => {
     await processSceneVideoJob('row-1', 't1')
     expect(mockCreateProduction).not.toHaveBeenCalled()
     expect(mockGenerateSceneImages).not.toHaveBeenCalled()
+    expect(mockEnqueueRenderWatch).not.toHaveBeenCalled()
   })
 
   it('storyboard en erreur → marque la production en erreur et relance (throw)', async () => {
@@ -78,6 +87,7 @@ describe('processSceneVideoJob', () => {
     await expect(processSceneVideoJob('row-1', 't1')).rejects.toThrow('concept invalide')
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ status: 'error' }))
     expect(mockCreateProduction).not.toHaveBeenCalled()
+    expect(mockEnqueueRenderWatch).not.toHaveBeenCalled()
   })
 
   it('ligne introuvable → ne fait rien (pas de rendu)', async () => {

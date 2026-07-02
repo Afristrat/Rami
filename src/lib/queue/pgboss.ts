@@ -24,6 +24,7 @@ export const JOBS = {
   COLLECTIVE_AGGREGATE: "collective-aggregate",
   COLOR_TREND_REFRESH: "color-trend-refresh",
   SCENE_VIDEO: "scene-video",
+  RENDER_WATCH: "render-watch",
 } as const
 
 // ── Payload du job scene-video (flux vidéo v2 « par scène ») ───────────────────
@@ -32,6 +33,21 @@ export interface SceneVideoPayload {
   /** Id de la ligne video_productions à faire avancer (storyboard → rendu). */
   productionRowId: string
   tenantId: string
+}
+
+// ── Payload du job render-watch (suivi de rendu indépendant du navigateur) ─────
+// Root cause corrigée (2026-07-02) : sans ce worker, seul le polling navigateur
+// (GET /api/video/[id]) persistait le passage à `done`. Un onglet fermé ou un
+// timeout client (cf. POLL_TIMEOUT_MS) avant la fin réelle du rendu laissait la
+// ligne bloquée sur `rendering` — alors que la vidéo finissait par être prête
+// côté Mishkāt (~7-8 min observés). Ce job boucle côté serveur jusqu'à convergence.
+
+export interface RenderWatchPayload {
+  /** Id de la ligne video_productions à finaliser. */
+  productionRowId: string
+  tenantId: string
+  /** Job Mishkāt à suivre : render_job_id (v2_scene) ou mishkat_job_id (v1_pool). */
+  mishkatJobId: string
 }
 
 // ── Payload du job publish-post ───────────────────────────────────────────────
@@ -179,6 +195,22 @@ export async function enqueueSceneVideo(payload: SceneVideoPayload): Promise<str
     retryDelay: 30,
     retryBackoff: true,
     expireInSeconds: 900, // jusqu'à 15 min (poll storyboard + N images + rendu)
+    priority: 0,
+  })
+}
+
+/**
+ * Enqueue le suivi de fond d'un job de rendu Mishkāt jusqu'à `done`/`error`,
+ * indépendamment du polling navigateur. singletonKey = ligne de production →
+ * un seul watcher actif par production (idempotent si le storyboard-worker et
+ * la route /api/video/create appellent tous deux ce helper).
+ */
+export async function enqueueRenderWatch(payload: RenderWatchPayload): Promise<string | null> {
+  const boss = await getBoss()
+  return boss.send(JOBS.RENDER_WATCH, payload, {
+    singletonKey: `render-watch:${payload.productionRowId}`,
+    retryLimit: 0, // le job boucle en interne jusqu'à convergence ou son propre budget de temps
+    expireInSeconds: 1200, // 20 min de marge (rendu observé ≈ 7-8 min, file Mishkāt séquentielle)
     priority: 0,
   })
 }

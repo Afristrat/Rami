@@ -14,7 +14,7 @@ import { MishkatVideoInputSchema, toMishkatBrief } from '@/lib/schemas/mishkat-v
 import { buildBrandTokens } from '@/lib/services/mishkat/brand-tokens'
 import { resolveBackgroundUrls, resolveAutoBackgroundUrls, resolveLogoUrl } from '@/lib/services/mishkat/backgrounds'
 import { createProduction, createStoryboard, MishkatConfigError } from '@/lib/services/mishkat/client'
-import { enqueueSceneVideo } from '@/lib/queue/pgboss'
+import { enqueueSceneVideo, enqueueRenderWatch } from '@/lib/queue/pgboss'
 import { log } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
@@ -100,16 +100,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // ── Flux v1 « pool » : rendu direct depuis le pool d'images. ──
     const { id, status } = await createProduction({ brief, brand })
 
-    const { error: insErr } = await supabase.from('video_productions').insert({
-      tenant_id: tenantId,
-      mishkat_job_id: id,
-      mode: 'v1_pool',
-      status,
-      brief,
-      brand_snapshot: brand,
-    })
-    if (insErr) {
-      log({ level: 'error', module: 'mishkat', action: 'production_persist_failed', tenant_id: tenantId, metadata: { jobId: id, error: insErr.message } })
+    const { data: inserted, error: insErr } = await supabase
+      .from('video_productions')
+      .insert({
+        tenant_id: tenantId,
+        mishkat_job_id: id,
+        mode: 'v1_pool',
+        status,
+        brief,
+        brand_snapshot: brand,
+      })
+      .select('id')
+      .single<{ id: string }>()
+    if (insErr || !inserted) {
+      log({ level: 'error', module: 'mishkat', action: 'production_persist_failed', tenant_id: tenantId, metadata: { jobId: id, error: insErr?.message } })
+    } else {
+      // Suivi de fond indépendant du navigateur (cf. render-watch-worker) : garantit
+      // que la ligne converge vers done/error même si l'onglet est fermé ou que le
+      // polling client abandonne avant la fin réelle du rendu.
+      await enqueueRenderWatch({ productionRowId: inserted.id, tenantId, mishkatJobId: id })
     }
 
     log({ level: 'info', module: 'mishkat', action: 'production_created', tenant_id: tenantId, metadata: { jobId: id, backgrounds: backgrounds.length } })

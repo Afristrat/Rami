@@ -42,7 +42,11 @@ const BRIEF_EXAMPLES = [
   "Présenter notre service aux institutions avec un ton premium et une démonstration sobre, puis proposer de réserver une démo.",
   "Recruter des talents tech à Casablanca en montrant la culture d'équipe et l'impact concret, puis inviter à postuler maintenant.",
 ] as const
-const POLL_TIMEOUT_MS = 6 * 60 * 1000
+// 15 min : marge au-delà de la durée de rendu observée en prod (~7-8 min pour une
+// production 60s FR, file Mishkāt séquentielle). Le vrai filet de sécurité contre
+// un abandon prématuré est le worker de fond `render-watch` (persiste la
+// production même si ce timeout navigateur est atteint) — cf. render-watch-worker.ts.
+const POLL_TIMEOUT_MS = 15 * 60 * 1000
 const MAX_BACKGROUNDS = 8
 
 export function MishkatStudioClient() {

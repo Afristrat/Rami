@@ -7,7 +7,7 @@
 // ============================================================
 
 import type { Job } from "pg-boss"
-import { getBoss, JOBS, type SceneVideoPayload } from "./pgboss"
+import { getBoss, JOBS, enqueueRenderWatch, type SceneVideoPayload } from "./pgboss"
 import { createServiceClient } from "@/lib/supabase/service"
 import { getProduction, createProduction } from "@/lib/services/mishkat/client"
 import { generateSceneImages } from "@/lib/services/mishkat/scene-images"
@@ -87,6 +87,11 @@ export async function processSceneVideoJob(productionRowId: string, tenantId: st
       .update({ render_job_id: renderJobId, storyboard, status: "rendering", updated_at: new Date().toISOString() })
       .eq("id", productionRowId)
       .eq("tenant_id", tenantId)
+
+    // Suivi de fond indépendant du navigateur (cf. render-watch-worker) : garantit
+    // que la ligne converge vers done/error même si l'onglet est fermé ou que le
+    // polling client abandonne avant la fin réelle du rendu.
+    await enqueueRenderWatch({ productionRowId, tenantId, mishkatJobId: renderJobId })
 
     log({
       level: "info",

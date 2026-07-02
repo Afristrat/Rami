@@ -8,8 +8,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { resolveUserTenant } from '@/lib/services/tenant/resolve'
-import { getProduction, MishkatConfigError } from '@/lib/services/mishkat/client'
-import { archiveProductionIfNeeded, toPermanentVariants, type ArchivedVariant } from '@/lib/services/mishkat/archive'
+import { MishkatConfigError } from '@/lib/services/mishkat/client'
+import { pollAndPersistProduction } from '@/lib/services/mishkat/finalize'
+import type { ArchivedVariant } from '@/lib/services/mishkat/archive'
 import { log } from '@/lib/utils/logger'
 
 export const runtime = 'nodejs'
@@ -31,7 +32,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     .select('id, status, variants, mode, storyboard, render_job_id, error_message')
     .eq('mishkat_job_id', id)
     .eq('tenant_id', tenantId)
-    .single()
+    .single<{ id: string; status: string; variants: unknown; mode: string; storyboard: unknown; render_job_id: string | null; error_message: string | null }>()
   if (!prod) return NextResponse.json({ error: 'Production introuvable.' }, { status: 404 })
 
   const kind = (prod.mode as string) ?? 'v1_pool'
@@ -52,9 +53,11 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   // Job à suivre : le rendu (render_job_id) en v2, sinon le job unique (v1).
   const effectiveJobId = renderJobId ?? id
 
-  let live
+  const existing = Array.isArray(prod.variants) ? (prod.variants as ArchivedVariant[]) : []
+
+  let outcome
   try {
-    live = await getProduction(effectiveJobId)
+    outcome = await pollAndPersistProduction(supabase, tenantId, prod.id, effectiveJobId, existing, { userId: user.id })
   } catch (err) {
     if (err instanceof MishkatConfigError) {
       return NextResponse.json({ error: 'Studio vidéo indisponible.' }, { status: 503 })
@@ -64,30 +67,10 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     return NextResponse.json({ error: 'Erreur de suivi de la production.' }, { status: 502 })
   }
 
+  const { live, variants } = outcome
   if (live.status === 'done') {
-    const existing = Array.isArray(prod.variants) ? (prod.variants as ArchivedVariant[]) : []
-    const liveVariants = live.variants ?? []
-    // Par défaut : on persiste l'URL MinIO permanente fournie par Mishkāt (pas de
-    // re-download). Copie de redondance souveraine seulement si explicitement activée.
-    const variants =
-      process.env.MISHKAT_ARCHIVE_REDUNDANT_COPY === 'true'
-        ? await archiveProductionIfNeeded(supabase, tenantId, user.id, effectiveJobId, liveVariants, existing)
-        : toPermanentVariants(liveVariants, existing)
-
-    await supabase
-      .from('video_productions')
-      .update({ status: 'done', variants, updated_at: new Date().toISOString() })
-      .eq('mishkat_job_id', id)
-      .eq('tenant_id', tenantId)
-
     return NextResponse.json({ status: 'done', kind, storyboard: live.storyboard ?? prod.storyboard ?? null, variants })
   }
-
-  await supabase
-    .from('video_productions')
-    .update({ status: live.status, error_message: live.error ?? null, updated_at: new Date().toISOString() })
-    .eq('mishkat_job_id', id)
-    .eq('tenant_id', tenantId)
 
   return NextResponse.json({ status: live.status, kind, storyboard: live.storyboard ?? prod.storyboard ?? null, error: live.error })
 }
